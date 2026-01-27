@@ -1,16 +1,12 @@
-{{/*
-  Task template (for leaf/implementable tasks).
-  Notes:
-  - `ID` and `Parent` are derived from the filesystem path and set by the CLI; do not include them here.
-  - Blockers and Blocks are managed by the CLI and should not be populated in templates.
-*/}}
+---
+role: {{ .Role }}
+parent: {{ .Parent }}
+blockers: []
+date_created: {{ .DateCreated }}
+date_edited: {{ .DateEdited }}
+---
+
 # {{ .Title }}
-
-## Role
-{{ .Role }}
-
-## Track
-{{ .Track }}
 
 ## Context
 Provide links to relevant design documents, diagrams, and decision records.

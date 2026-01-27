@@ -94,10 +94,18 @@ func runNext(roleFilter string) error {
 		return nil
 	}
 
-	// Print task role
+	// Print role
 	role := selectedTask.GetEffectiveRole()
 	if role != "" {
 		fmt.Printf("Role: %s\n\n", role)
+		rolePath := fmt.Sprintf("roles/%s.md", role)
+		roleData, err := os.ReadFile(rolePath)
+		if err != nil {
+			fmt.Printf("Role file not found: %s\n\n", rolePath)
+		} else {
+			fmt.Print(string(roleData))
+			fmt.Print("\n\n")
+		}
 	} else {
 		fmt.Println("Role: (none)\n")
 	}

@@ -130,9 +130,9 @@ func GenerateMasterLists(tasks map[string]*Task, tasksRoot, rootsFile, freeFile 
 	roots := []string{}
 	free := []string{}
 
-	for id, task := range tasks {
-		// Construct relative path to task file
-		rel := filepath.ToSlash(filepath.Join(tasksRoot, id, filepath.Base(task.FilePath)))
+	for _, task := range tasks {
+		// Task file path is already repo-relative; keep it stable in lists.
+		rel := filepath.ToSlash(task.FilePath)
 
 		// Root tasks have no parent and are not completed
 		if task.Meta.Parent == "" && !task.Meta.Completed {

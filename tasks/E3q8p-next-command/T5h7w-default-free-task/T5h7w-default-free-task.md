@@ -3,7 +3,8 @@ role: developer
 parent: E3q8p-next-command
 blockers: []
 date_created: 2026-01-27
-date_edited: 2026-01-27
+date_edited: 2026-01-27T14:20:00Z
+completed: true
 ---
 
 # Update Next to Default to First Free Task

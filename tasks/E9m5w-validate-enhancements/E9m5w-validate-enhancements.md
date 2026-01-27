@@ -4,6 +4,7 @@ parent:
 blockers: []
 date_created: 2026-01-27
 date_edited: 2026-01-27
+completed: true
 ---
 
 # Enhance Validate Command

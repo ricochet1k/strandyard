@@ -1,10 +1,10 @@
 ---
 role: developer
 parent: E2k7x-metadata-format
-blockers:
-  - T8h4w-update-parser
-date_created: 2026-01-27
-date_edited: 2026-01-27
+blockers: []
+date_created: 2026-01-27T14:15:00Z
+date_edited: 2026-01-27T14:17:00Z
+completed: true
 ---
 
 # Update Templates to Use YAML Frontmatter

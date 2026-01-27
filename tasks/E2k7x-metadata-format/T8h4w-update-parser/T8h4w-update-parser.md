@@ -1,10 +1,10 @@
 ---
 role: developer
 parent: E2k7x-metadata-format
-blockers:
-  - T3m9p-add-frontmatter-dep
+blockers: []
 date_created: 2026-01-27
-date_edited: 2026-01-27
+date_edited: 2026-01-27T14:15:00Z
+completed: true
 ---
 
 # Update Parser to Read YAML Frontmatter

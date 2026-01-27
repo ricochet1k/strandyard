@@ -20,11 +20,11 @@ High-level behaviour and guarantees
 Task ID format
 - Each task is identified by a short ID composed of:
 	- a single-character type prefix (uppercase) denoting task type (e.g. `T`=task, `D`=design doc, `E`=epic),
-	- a short random alphanumeric token (6 chars recommended, base36),
+	- a short random alphanumeric token (4 chars, base36),
 	- a short mini-title (1-2 words hyphen-joined) used only for human-readability.
 
 - Format: `<prefix><token>-<mini>`
-- Example: `T4k3a1-init` or `D9x2b3-api`.
+- Example: `T3k7x-init` or `D9x2b-api`.
 
 Primary commands (details)
 
@@ -57,28 +57,28 @@ memmd validate --path tasks --format json
 memmd add --title "Implement validation" --role developer --parent scaffold-cli --template task_template
 ```
 
-- Effect: CLI generates an ID (e.g. `T4k3a1-impl`), creates `tasks/T4k3a1-impl/<task-id>.md` with template-filled fields. `validate` runs implicitly (or will be run later) to update master lists.
+- Effect: CLI generates an ID (e.g. `T3k7x-impl`), creates `tasks/T3k7x-impl/<task-id>.md` with template-filled fields. `validate` runs implicitly (or will be run later) to update master lists.
 
 4) `memmd assign`
 - Purpose: change the `Role`/assignee of a task.
 - Example:
 
 ```bash
-memmd assign T4k3a1-impl --role owner
+memmd assign T3k7x-impl --role owner
 ```
 
-- Effect: updates the `Role:` line in `<task-id>.md` atomically.
+- Effect: updates the `role` field in the YAML frontmatter of `<task-id>.md` atomically.
 
 5) `memmd block` (subcommands: `add`, `remove`, `list`)
 - Purpose: manage blocker relationships using canonical IDs.
 - Examples:
 
 ```bash
-memmd block add --task T4k3a1-impl --blocks T7z8x2-design
-memmd block list --task T4k3a1-impl
+memmd block add --task T3k7x-impl --blocks T9x2b-design
+memmd block list --task T3k7x-impl
 ```
 
-- Effect: updates the `## Blockers` and `## Blocks` sections of involved tasks deterministically and ensures sorted order.
+- Effect: updates the `blockers` and `blocks` fields in the YAML frontmatter of involved tasks deterministically and ensures sorted order.
 
 6) `memmd templates list`
 - Purpose: list available templates in `templates/`.
@@ -96,9 +96,9 @@ memmd next
 ```
 
 Implementation notes
-- Use `github.com/yuin/goldmark` to parse and render Markdown bodies when necessary; however `next` should output raw markdown to preserve structure for agent consumption.
+- Use `github.com/yuin/goldmark` with `goldmark-frontmatter` extension to parse YAML frontmatter and Markdown bodies.
 - The CLI must ensure deterministic ordering for master lists to avoid churn.
-- ID generation: provide a deterministic, cryptographically-strong short token generator (e.g., `crypto/rand` → base36 6 chars) and a slugify function for mini-title.
+- ID generation: provide a deterministic, cryptographically-strong short token generator (e.g., `crypto/rand` → base36 4 chars) and a slugify function for mini-title.
 
 Developer commands (examples)
 

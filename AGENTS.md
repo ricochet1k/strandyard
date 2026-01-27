@@ -9,6 +9,22 @@ Purpose: record repository-specific knowledge for AI coding agents working on me
 - Key libraries: `github.com/yuin/goldmark` (Markdown parsing/rendering), `github.com/spf13/cobra` (CLI framework).
 - Scaffolding: use `cobra-cli` to bootstrap the CLI and command skeletons.
 
+## CLI Usage
+
+For detailed CLI command documentation, see [CLI.md](CLI.md).
+
+**Quick commands**:
+```bash
+# Get next task to work on
+memmd next
+
+# Mark task as completed
+memmd complete <task-id>
+
+# Validate all tasks and update master lists
+memmd validate
+```
+
 ## Quick setup (what to ask the repo owner if missing)
 
 - Desired Go module path (e.g. `github.com/<you>/memmd`) — required for `go mod init`.
@@ -34,44 +50,56 @@ go test ./...
 
 ## Data model and filesystem conventions (authoritative)
 
-- Tasks are stored as directories. Each task directory contains a single `task.md` (or `README.md`) that describes the task and its metadata.
+- Tasks are stored as directories. Each task directory contains a single markdown file (named `<task-id>.md`, `task.md`, or `README.md`) with YAML frontmatter.
+- Task ID is derived from the directory name: must follow format `<PREFIX><4-char-token>-<slug>` (e.g., `T3k7x-example`, `E2k7x-metadata`)
 - The directory hierarchy mirrors parent/child lineage. Example:
 
   ```
-  tasks/project-alpha/          (root task)
-    task.md                     (metadata + description)
-    subtask-a/
-      task.md
+  tasks/
+    E2k7x-metadata-format/           (root epic)
+      E2k7x-metadata-format.md       (epic file)
+      T3m9p-add-dep/                 (child task)
+        T3m9p-add-dep.md
+      T8h4w-update-parser/           (child task)
+        T8h4w-update-parser.md
   ```
 
-- Task metadata (stored as structured markdown sections):
-  - Title: human-friendly title header
-  - ID: short unique id (slug)
-  - Role/Assignee: a named role (must match one of the files in `roles/`)
-  - Parent: path to parent task (or blank for root tasks)
-  - Blockers: list of paths to tasks that block this task
-  - Blocks: list of paths to tasks this task is blocking
-  - Children: optional list of child task paths (kept deterministic by CLI)
+- Task metadata is stored as YAML frontmatter using `goldmark-frontmatter`:
+  - **role**: Role responsible (must match a file in `roles/`)
+  - **parent**: Parent task ID (empty for root tasks)
+  - **blockers**: Array of task IDs that block this task
+  - **blocks**: Array of task IDs this task blocks (optional)
+  - **date_created**: ISO 8601 timestamp
+  - **date_edited**: ISO 8601 timestamp
+  - **completed**: Boolean flag (marks task as done)
+  - **owner_approval**: Boolean flag (optional)
 
-- Example `task.md` layout (follow exactly to maximize parseability):
+- Task file format (follow exactly):
 
 ```markdown
-# Title: Initialize project skeleton
+---
+role: developer
+parent: E2k7x-metadata-format
+blockers: []
+blocks: []
+date_created: 2026-01-27T00:00:00Z
+date_edited: 2026-01-27T13:43:58Z
+owner_approval: false
+completed: false
+---
 
-ID: init-project
+# Add goldmark-frontmatter Dependency
 
-Role: developer
+## Summary
+Add the goldmark-frontmatter library to the project...
 
-Parent:
+## Tasks
+- [ ] Run `go get github.com/abhinav/goldmark-frontmatter`
+- [ ] Verify dependencies resolve correctly
 
-Blockers:
-- []
-
-Blocks:
-- tasks/project-alpha/task.md
-
-Description:
-Add initial Go module, scaffold cobra CLI, and commit.
+## Acceptance Criteria
+- goldmark-frontmatter is listed in go.mod
+- Project builds successfully
 ```
 
 ## Roles
@@ -97,11 +125,16 @@ Add initial Go module, scaffold cobra CLI, and commit.
 
 ## Templates
 
-- Task templates: `templates/task-templates/` (use these for leaf/implementable tasks). `ID` and `Parent` are derived from the filesystem; do not include them in templates.
-- Document templates: `templates/doc-templates/` (design alternatives, epic documents, etc.).
+- Task templates: `templates/` (use these for leaf/implementable tasks). `ID` and `Parent` are derived from the filesystem; do not include them in templates.
+- Document examples: `doc-examples/` (example task outputs, sample documents).
 
 ## Parsing rules & expectations
-- Use `goldmark` to parse markdown bodies, but treat metadata sections (ID/Role/Parent/Blockers/Blocks/Description) as structured text blocks (simple line prefixes and lists). Keep parsing logic robust to minor ordering changes but prefer canonical layout above.
+
+- Use `goldmark` with `goldmark-frontmatter` extension to parse task files
+- Metadata is extracted from YAML frontmatter (between `---` delimiters)
+- Task ID is derived from directory name, not from frontmatter
+- Markdown content after frontmatter is preserved as task body
+- Parsing implementation: see `pkg/task/task.go` for the canonical parser
 
 ## Conventions and patterns
 
@@ -109,11 +142,13 @@ Add initial Go module, scaffold cobra CLI, and commit.
 - Use relative paths inside task metadata (repo-relative) to reference other tasks.
 - Role names are the lowercase filename (without `.md`) in `roles/`.
 
-## Files currently added for bootstrapping
+## Current repository structure
 
-- `roles/ai-assistant.md` and `roles/developer.md` — initial role documents.
-- `tasks/root-tasks.md`, `tasks/free-tasks.md` — initial master lists.
-- `tasks/project-alpha/task.md` and `tasks/project-alpha/setup-infra/task.md` — example task directories showing parent/child layout and blockers.
+- **Roles**: `roles/developer.md`, `roles/architect.md`, `roles/designer.md`, `roles/owner.md`, `roles/reviewer*.md` — role documents
+- **Master lists**: `tasks/root-tasks.md`, `tasks/free-tasks.md` — auto-generated by `validate` command
+- **Task library**: `pkg/task/` — goldmark-based task parser and validator
+- **CLI commands**: `cmd/validate.go`, `cmd/next.go`, `cmd/complete.go` — core CLI commands
+- **Documentation**: `CLI.md` — CLI usage guide, `AGENTS.md` — this file
 
 ## When you need to change behaviour
 
@@ -123,6 +158,7 @@ Add initial Go module, scaffold cobra CLI, and commit.
 
 - **Policy**: Agents must not unilaterally choose which alternative to implement. Present clear alternatives with pros/cons and defer the final decision to a human maintainer (mark as "Decision: deferred" in reviews).
 - **Guidance**: When preparing role-based reviews or selecting the next actionable task, run `go run . next` to obtain the canonical role document and next task. Include the full stdout/stderr output from that command in review artifacts and do not assume task selection without running it.
+- **Validate after manual edits**: If you manually edit any task markdown files under `tasks/`, run `go run . validate` immediately afterward to regenerate master lists and confirm consistency.
 
 ## Questions to ask the repo owner (useful prompts)
 - What Go module path should be used for `go mod init`?

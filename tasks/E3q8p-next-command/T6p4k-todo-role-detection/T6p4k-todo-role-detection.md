@@ -1,10 +1,10 @@
 ---
 role: developer
 parent: E3q8p-next-command
-blockers:
-  - T8n2m-print-task-role
+blockers: []
 date_created: 2026-01-27
-date_edited: 2026-01-27
+date_edited: 2026-01-27T14:20:00Z
+completed: true
 ---
 
 # Add TODO-Based Role Detection

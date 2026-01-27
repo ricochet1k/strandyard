@@ -2,8 +2,11 @@
 role: developer
 parent: E2k7x-metadata-format
 blockers: []
-date_created: 2026-01-27
-date_edited: 2026-01-27
+blocks: []
+date_created: 2026-01-27T00:00:00Z
+date_edited: 2026-01-27T13:43:58.919961-07:00
+owner_approval: false
+completed: true
 ---
 
 # Add goldmark-frontmatter Dependency

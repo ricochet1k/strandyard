@@ -1,10 +1,10 @@
 ---
 role: developer
 parent: E2k7x-metadata-format
-blockers:
-  - T8h4w-update-parser
+blockers: []
 date_created: 2026-01-27
-date_edited: 2026-01-27
+date_edited: 2026-01-27T14:16:00Z
+completed: true
 ---
 
 # Migrate Existing Tasks to New Format

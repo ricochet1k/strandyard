@@ -3,7 +3,8 @@ role: developer
 parent: E4n7k-update-docs
 blockers: []
 date_created: 2026-01-27
-date_edited: 2026-01-27
+date_edited: 2026-01-27T14:25:00Z
+completed: true
 ---
 
 # Update AGENTS.md to Reflect YAML Frontmatter
