@@ -17,7 +17,9 @@ import (
 
 // Metadata represents the YAML frontmatter of a task
 type Metadata struct {
+	Kind          string    `yaml:"kind"`
 	Role          string    `yaml:"role"`
+	Priority      string    `yaml:"priority"`
 	Parent        string    `yaml:"parent"`
 	Blockers      []string  `yaml:"blockers"`
 	Blocks        []string  `yaml:"blocks"`
@@ -35,6 +37,18 @@ type Task struct {
 	Meta     Metadata
 	Content  string
 	Document ast.Node
+}
+
+// Title returns the first level-1 heading text, or empty string if not found.
+func (t *Task) Title() string {
+	lines := strings.Split(t.Content, "\n")
+	for _, line := range lines {
+		line = strings.TrimSpace(line)
+		if strings.HasPrefix(line, "# ") {
+			return strings.TrimSpace(strings.TrimPrefix(line, "# "))
+		}
+	}
+	return ""
 }
 
 // Parser handles parsing task files using goldmark

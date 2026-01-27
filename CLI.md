@@ -14,6 +14,24 @@ go run . <command>
 
 ## Core Commands
 
+### `issue add` - Create an issue task
+
+Creates an issue-style task using the issue template and required metadata.
+
+```bash
+memmd issue add [title] [flags]
+
+Flags:
+  -t, --title string     issue title (can also be passed as positional argument)
+      --priority string  priority: high, medium, or low (default "medium")
+      --no-validate      skip validation and master list updates
+```
+
+**Example**:
+```bash
+memmd issue add "Add issue command" --parent E7p4m-issues-recurrence --priority high
+```
+
 ### `validate` - Validate task structure
 
 Validates all tasks and regenerates master lists (`root-tasks.md` and `free-tasks.md`).
@@ -33,6 +51,7 @@ Flags:
 - Role files exist in `roles/` directory
 - Parent tasks exist
 - Blocker tasks exist
+- Priority is one of: `high`, `medium`, `low` (empty defaults to `medium`)
 - YAML frontmatter is valid
 
 **When to run**: After creating, modifying, or completing tasks.
@@ -72,6 +91,7 @@ Architect (human or senior AI) — breaks accepted designs...
 ---
 ---
 role: architect
+priority: medium
 parent:
 blockers: []
 date_created: 2026-01-27
@@ -141,7 +161,7 @@ Master lists updated: tasks/root-tasks.md, tasks/free-tasks.md
 ### Checking task status
 
 ```bash
-# See all free tasks (no blockers)
+# See all free tasks (no blockers), grouped by priority
 cat tasks/free-tasks.md
 
 # See all root tasks (no parent)
@@ -171,6 +191,7 @@ Tasks use YAML frontmatter for metadata:
 ```markdown
 ---
 role: developer
+priority: medium
 parent: E2k7x-metadata-format
 blockers: []
 blocks: []
@@ -201,11 +222,15 @@ Brief description of the task...
 - **date_created**: ISO 8601 timestamp
 - **date_edited**: ISO 8601 timestamp
 
+Note: issue tasks (`kind: issue`) are created with role `triage` and no parent or blockers.
+
 ### Optional Frontmatter Fields
 
 - **blocks**: Array of task IDs this task blocks
 - **owner_approval**: Boolean flag for owner approval
 - **completed**: Boolean flag marking task as complete
+- **priority**: Task priority (`high`, `medium`, or `low`; defaults to `medium`)
+- **kind**: Task subtype string (e.g., `issue`)
 
 ## Task ID Format
 
@@ -215,6 +240,7 @@ Task IDs must follow this format: `<PREFIX><4-char-token>-<slug>`
   - `T` = Task
   - `E` = Epic
   - `D` = Design document
+  - `I` = Issue
 - **Token**: 4 lowercase alphanumeric characters (base36: 0-9, a-z)
 - **Slug**: Human-readable identifier (lowercase, hyphens allowed)
 
@@ -271,6 +297,9 @@ Referenced parent task doesn't exist. Fix the `parent:` field in frontmatter.
 
 ### "blocker task X does not exist"
 Referenced blocker task doesn't exist. Fix the `blockers:` array in frontmatter.
+
+### "invalid priority \"X\": must be high, medium, or low"
+Set `priority: high|medium|low` or remove the field to default to `medium`.
 
 ### "task not found: X"
 Task ID doesn't exist in the task tree. Check spelling or use `validate` to see all tasks.

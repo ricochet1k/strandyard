@@ -30,6 +30,11 @@ type Validator struct {
 	idPattern *regexp.Regexp
 }
 
+type listEntry struct {
+	Path  string
+	Label string
+}
+
 // NewValidator creates a new validator
 func NewValidator(tasks map[string]*Task) *Validator {
 	// ID pattern: <PREFIX><4-lowercase-alphanumeric>-<slug>
@@ -52,6 +57,7 @@ func (v *Validator) Validate() []ValidationError {
 	for id, task := range v.tasks {
 		v.validateID(id, task)
 		v.validateRole(id, task)
+		v.validatePriority(id, task)
 		v.validateParent(id, task)
 		v.validateBlockers(id, task)
 	}
@@ -93,6 +99,19 @@ func (v *Validator) validateRole(id string, task *Task) {
 	}
 }
 
+// validatePriority checks if the priority is a known value (or empty).
+func (v *Validator) validatePriority(id string, task *Task) {
+	if IsValidPriority(task.Meta.Priority) {
+		return
+	}
+
+	v.errors = append(v.errors, ValidationError{
+		TaskID:  id,
+		File:    task.FilePath,
+		Message: fmt.Sprintf("invalid priority %q: must be high, medium, or low", task.Meta.Priority),
+	})
+}
+
 // validateParent checks if parent task exists
 func (v *Validator) validateParent(id string, task *Task) {
 	if task.Meta.Parent == "" {
@@ -127,40 +146,63 @@ func (v *Validator) validateBlockers(id string, task *Task) {
 
 // GenerateMasterLists creates root-tasks.md and free-tasks.md
 func GenerateMasterLists(tasks map[string]*Task, tasksRoot, rootsFile, freeFile string) error {
-	roots := []string{}
-	free := []string{}
+	roots := []listEntry{}
+	freeByPriority := map[string][]listEntry{
+		PriorityHigh:   {},
+		PriorityMedium: {},
+		PriorityLow:    {},
+	}
+	freeOther := []listEntry{}
 
 	for _, task := range tasks {
-		// Task file path is already repo-relative; keep it stable in lists.
+		// Task file path is repo-relative; convert to list-relative when writing.
 		rel := filepath.ToSlash(task.FilePath)
+		title := task.Title()
+		if title == "" {
+			title = task.ID
+		}
 
 		// Root tasks have no parent and are not completed
 		if task.Meta.Parent == "" && !task.Meta.Completed {
-			roots = append(roots, rel)
+			roots = append(roots, listEntry{Path: rel, Label: title})
 		}
 
 		// Free tasks have no blockers and are not completed
 		if len(task.Meta.Blockers) == 0 && !task.Meta.Completed {
-			free = append(free, rel)
+			switch NormalizePriority(task.Meta.Priority) {
+			case PriorityHigh:
+				freeByPriority[PriorityHigh] = append(freeByPriority[PriorityHigh], listEntry{Path: rel, Label: title})
+			case PriorityMedium:
+				freeByPriority[PriorityMedium] = append(freeByPriority[PriorityMedium], listEntry{Path: rel, Label: title})
+			case PriorityLow:
+				freeByPriority[PriorityLow] = append(freeByPriority[PriorityLow], listEntry{Path: rel, Label: title})
+			default:
+				freeOther = append(freeOther, listEntry{Path: rel, Label: title})
+			}
 		}
 	}
 
 	// Sort for deterministic output
-	sort.Strings(roots)
-	sort.Strings(free)
+	sort.Slice(roots, func(i, j int) bool { return roots[i].Path < roots[j].Path })
+	for key := range freeByPriority {
+		items := freeByPriority[key]
+		sort.Slice(items, func(i, j int) bool { return items[i].Path < items[j].Path })
+		freeByPriority[key] = items
+	}
+	sort.Slice(freeOther, func(i, j int) bool { return freeOther[i].Path < freeOther[j].Path })
 
 	// Write files
 	if err := writeListFile(rootsFile, "Root tasks", roots); err != nil {
 		return err
 	}
-	if err := writeListFile(freeFile, "Free tasks", free); err != nil {
+	if err := writePriorityListFile(freeFile, "Free tasks", freeByPriority, freeOther); err != nil {
 		return err
 	}
 
 	return nil
 }
 
-func writeListFile(path, title string, entries []string) error {
+func writeListFile(path, title string, entries []listEntry) error {
 	dir := filepath.Dir(path)
 	if dir != "" && dir != "." {
 		if err := os.MkdirAll(dir, 0o755); err != nil {
@@ -174,9 +216,61 @@ func writeListFile(path, title string, entries []string) error {
 	sb.WriteString("\n\n")
 	for _, e := range entries {
 		sb.WriteString("- ")
-		sb.WriteString(e)
+		sb.WriteString("[")
+		sb.WriteString(e.Label)
+		sb.WriteString("](")
+		sb.WriteString(relativeListPath(path, e.Path))
+		sb.WriteString(")")
 		sb.WriteString("\n")
 	}
 
 	return os.WriteFile(path, []byte(sb.String()), 0o644)
+}
+
+func writePriorityListFile(path, title string, entries map[string][]listEntry, other []listEntry) error {
+	dir := filepath.Dir(path)
+	if dir != "" && dir != "." {
+		if err := os.MkdirAll(dir, 0o755); err != nil {
+			return err
+		}
+	}
+
+	var sb strings.Builder
+	sb.WriteString("# ")
+	sb.WriteString(title)
+	sb.WriteString("\n\n")
+
+	writeSection := func(name string, items []listEntry) {
+		sb.WriteString("## ")
+		sb.WriteString(name)
+		sb.WriteString("\n\n")
+		for _, e := range items {
+			sb.WriteString("- ")
+			sb.WriteString("[")
+			sb.WriteString(e.Label)
+			sb.WriteString("](")
+			sb.WriteString(relativeListPath(path, e.Path))
+			sb.WriteString(")")
+			sb.WriteString("\n")
+		}
+		sb.WriteString("\n")
+	}
+
+	writeSection("High", entries[PriorityHigh])
+	writeSection("Medium", entries[PriorityMedium])
+	writeSection("Low", entries[PriorityLow])
+	if len(other) > 0 {
+		writeSection("Other", other)
+	}
+
+	return os.WriteFile(path, []byte(sb.String()), 0o644)
+}
+
+func relativeListPath(listFile, target string) string {
+	base := filepath.Dir(listFile)
+	rel, err := filepath.Rel(base, target)
+	if err != nil {
+		return filepath.ToSlash(target)
+	}
+	return filepath.ToSlash(rel)
 }

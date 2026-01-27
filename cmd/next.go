@@ -6,6 +6,8 @@ package cmd
 import (
 	"fmt"
 	"os"
+	"path/filepath"
+	"sort"
 	"strings"
 
 	"github.com/ricochet1k/memmd/pkg/task"
@@ -49,10 +51,16 @@ func runNext(roleFilter string) error {
 	// Parse task paths from free-tasks.md
 	lines := strings.Split(string(data), "\n")
 	candidates := []string{}
+	baseDir := filepath.Dir(freePath)
 	for _, l := range lines {
 		l = strings.TrimSpace(l)
 		if strings.HasPrefix(l, "- ") {
-			candidates = append(candidates, strings.TrimSpace(strings.TrimPrefix(l, "- ")))
+			if path := parseListPath(strings.TrimSpace(strings.TrimPrefix(l, "- "))); path != "" {
+				if !filepath.IsAbs(path) {
+					path = filepath.Join(baseDir, path)
+				}
+				candidates = append(candidates, path)
+			}
 		}
 	}
 
@@ -63,7 +71,11 @@ func runNext(roleFilter string) error {
 
 	// Parse tasks using the task library
 	parser := task.NewParser()
-	var selectedTask *task.Task
+	type candidate struct {
+		task *task.Task
+		path string
+	}
+	candidatesParsed := []candidate{}
 
 	for _, candidatePath := range candidates {
 		t, err := parser.ParseFile(candidatePath)
@@ -80,12 +92,13 @@ func runNext(roleFilter string) error {
 			}
 		}
 
-		// Select first matching task
-		selectedTask = t
-		break
+		candidatesParsed = append(candidatesParsed, candidate{
+			task: t,
+			path: filepath.ToSlash(t.FilePath),
+		})
 	}
 
-	if selectedTask == nil {
+	if len(candidatesParsed) == 0 {
 		if roleFilter != "" {
 			fmt.Printf("No free tasks found for role: %s\n", roleFilter)
 		} else {
@@ -93,6 +106,17 @@ func runNext(roleFilter string) error {
 		}
 		return nil
 	}
+
+	sort.Slice(candidatesParsed, func(i, j int) bool {
+		pi := task.PriorityRank(candidatesParsed[i].task.Meta.Priority)
+		pj := task.PriorityRank(candidatesParsed[j].task.Meta.Priority)
+		if pi != pj {
+			return pi < pj
+		}
+		return candidatesParsed[i].path < candidatesParsed[j].path
+	})
+
+	selectedTask := candidatesParsed[0].task
 
 	// Print role
 	role := selectedTask.GetEffectiveRole()
@@ -107,11 +131,24 @@ func runNext(roleFilter string) error {
 			fmt.Print("\n\n")
 		}
 	} else {
-		fmt.Println("Role: (none)\n")
+		fmt.Println("Role: (none)")
+		fmt.Println()
 	}
 
 	// Print task content
 	fmt.Print(selectedTask.Content)
 
 	return nil
+}
+
+func parseListPath(entry string) string {
+	if !strings.HasPrefix(entry, "[") {
+		return entry
+	}
+	open := strings.Index(entry, "](")
+	close := strings.LastIndex(entry, ")")
+	if open == -1 || close == -1 || close <= open+2 {
+		return ""
+	}
+	return strings.TrimSpace(entry[open+2 : close])
 }

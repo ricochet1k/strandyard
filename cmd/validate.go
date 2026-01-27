@@ -47,6 +47,11 @@ func runValidate(tasksRoot, rootsFile, freeFile, outFormat string) error {
 	validator := task.NewValidator(tasks)
 	errors := validator.Validate()
 
+	// Update parent blockers from incomplete subtasks
+	if _, err := task.UpdateBlockersFromChildren(tasks); err != nil {
+		return fmt.Errorf("failed to update blockers from subtasks: %w", err)
+	}
+
 	// Generate master lists
 	if err := task.GenerateMasterLists(tasks, tasksRoot, rootsFile, freeFile); err != nil {
 		return fmt.Errorf("failed to generate master lists: %w", err)

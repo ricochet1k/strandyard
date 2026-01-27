@@ -1,13 +1,20 @@
 ---
 role: architect
-parent:
+priority: low
+parent: ""
 blockers:
-  - E2k7x-metadata-format
-  - E6w3m-id-generation
-  - E3q8p-next-command
-  - E9m5w-validate-enhancements
-date_created: 2026-01-27
-date_edited: 2026-01-27
+    - E2k7x-metadata-format
+    - E3q8p-next-command
+    - E6w3m-id-generation
+    - E9m5w-validate-enhancements
+    - T2n9w-sample-environments
+    - T4p7k-test-framework-design
+    - T7h5m-initial-e2e-tests
+blocks: []
+date_created: 2026-01-27T00:00:00Z
+date_edited: 2026-01-27T16:08:47.289963-07:00
+owner_approval: false
+completed: false
 ---
 
 # Setup E2E Test Framework

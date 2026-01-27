@@ -1,5 +1,6 @@
 ---
 role: {{ .Role }}
+priority: medium
 parent: {{ .Parent }}
 blockers: []
 date_created: {{ .DateCreated }}

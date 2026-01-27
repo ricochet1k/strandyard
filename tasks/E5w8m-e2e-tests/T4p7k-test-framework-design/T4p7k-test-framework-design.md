@@ -4,6 +4,7 @@ parent: E5w8m-e2e-tests
 blockers: []
 date_created: 2026-01-27
 date_edited: 2026-01-27
+priority: low
 ---
 
 # Design E2E Test Framework

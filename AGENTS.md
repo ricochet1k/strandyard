@@ -66,6 +66,7 @@ go test ./...
 
 - Task metadata is stored as YAML frontmatter using `goldmark-frontmatter`:
   - **role**: Role responsible (must match a file in `roles/`)
+  - **priority**: Task priority (`high`, `medium`, or `low`; defaults to `medium`)
   - **parent**: Parent task ID (empty for root tasks)
   - **blockers**: Array of task IDs that block this task
   - **blocks**: Array of task IDs this task blocks (optional)
@@ -79,6 +80,7 @@ go test ./...
 ```markdown
 ---
 role: developer
+priority: medium
 parent: E2k7x-metadata-format
 blockers: []
 blocks: []
@@ -109,7 +111,7 @@ Add the goldmark-frontmatter library to the project...
 ## Master lists
 - Two deterministic master list files are kept at `tasks/root-tasks.md` and `tasks/free-tasks.md`.
   - `root-tasks.md`: lists all root tasks (no Parent)
-  - `free-tasks.md`: lists tasks with no blockers (ready to start)
+  - `free-tasks.md`: lists tasks with no blockers (ready to start), grouped by priority
 - These files are updated deterministically by the CLI commands; they should not be edited manually except for bootstrapping.
 
 ## CLI responsibilities (high level)
@@ -159,6 +161,7 @@ Add the goldmark-frontmatter library to the project...
 - **Policy**: Agents must not unilaterally choose which alternative to implement. Present clear alternatives with pros/cons and defer the final decision to a human maintainer (mark as "Decision: deferred" in reviews).
 - **Guidance**: When preparing role-based reviews or selecting the next actionable task, run `go run . next` to obtain the canonical role document and next task. Include the full stdout/stderr output from that command in review artifacts and do not assume task selection without running it.
 - **Validate after manual edits**: If you manually edit any task markdown files under `tasks/`, run `go run . validate` immediately afterward to regenerate master lists and confirm consistency.
+- **Complete tasks via CLI**: When a task is done (including planning-only tasks), run `memmd complete <task-id>` rather than editing frontmatter by hand.
 
 ## Questions to ask the repo owner (useful prompts)
 - What Go module path should be used for `go mod init`?
