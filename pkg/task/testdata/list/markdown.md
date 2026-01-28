@@ -1,0 +1,6 @@
+- E1a1a-epic — Epic (priority: high, role: architect, completed: false)
+- T4a1a-completed — Completed Task (priority: high, role: developer, completed: true)
+- T1a1a-child — Child Task (priority: medium, role: developer, completed: false)
+- T3a1a-blocked — Blocked Task (priority: medium, role: developer, completed: false)
+- T5a1a-blocks — Blocks Task (priority: medium, role: reviewer, completed: false)
+- T2a1a-free — Free Task (priority: low, role: designer, completed: false)

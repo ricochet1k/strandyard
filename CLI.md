@@ -14,6 +14,59 @@ go run . <command>
 
 ## Core Commands
 
+### `list` - List tasks with filters and output formats
+
+Lists tasks from the tasks tree with optional filtering, sorting, and grouping.
+
+```bash
+memmd list [flags]
+
+Flags:
+  --scope string         scope of tasks to list: all|root|free (default "all")
+  --parent string        list direct children of the given parent task ID
+  --path string          list tasks under a subtree path (repo-relative under tasks/)
+  --role string          filter by role name
+  --priority string      filter by priority: high|medium|low
+  --completed            filter by completed status (only when flag is present)
+  --blocked              filter by blocked status (has blockers)
+  --blocks               filter by blocks status (has blocks)
+  --owner-approval       filter by owner approval
+  --label string         reserved for future labels support (errors if used)
+  --sort string          sort by: id|priority|created|edited|role
+  --order string         sort order: asc|desc (default "asc")
+  --format string        output format: table|md|json (default "table")
+  --columns string       comma-separated list of columns to include
+  --group string         group by: none|priority|parent|role (default "none")
+  --md-table             use markdown table output (with --format md)
+  --use-master-lists     use master lists for root/free scopes when no filters
+```
+
+**Examples**:
+```bash
+# List all tasks (default scope)
+memmd list
+
+# List root tasks
+memmd list --scope root
+
+# List free tasks grouped by priority in Markdown
+memmd list --scope free --format md --group priority
+
+# List children of a parent task
+memmd list --parent E2k7x-metadata-format
+
+# List tasks under a subtree path
+memmd list --path tasks/E2k7x-metadata-format
+
+# List tasks with filtering and sorting
+memmd list --role developer --priority high --sort created --order desc
+```
+
+**Notes**:
+- `--scope free` cannot be combined with `--parent`, `--path`, or `--group parent`.
+- `--parent` and `--path` are mutually exclusive and only valid with `--scope all`.
+- `--label` is reserved and will error until labels are implemented.
+
 ### `issue add` - Create an issue task
 
 Creates an issue-style task using the issue template and required metadata.

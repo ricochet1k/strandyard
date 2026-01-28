@@ -1,0 +1,84 @@
+[
+  {
+    "id": "E1a1a-epic",
+    "title": "Epic",
+    "role": "architect",
+    "priority": "high",
+    "parent": "",
+    "completed": false,
+    "blockers": [],
+    "blocks": [],
+    "path": "<ROOT>/E1a1a-epic/E1a1a-epic.md",
+    "date_created": "2026-01-01T00:00:00Z",
+    "date_edited": "2026-01-02T00:00:00Z"
+  },
+  {
+    "id": "T4a1a-completed",
+    "title": "Completed Task",
+    "role": "developer",
+    "priority": "high",
+    "parent": "",
+    "completed": true,
+    "blockers": [],
+    "blocks": [],
+    "path": "<ROOT>/T4a1a-completed/T4a1a-completed.md",
+    "date_created": "2026-01-09T00:00:00Z",
+    "date_edited": "2026-01-10T00:00:00Z"
+  },
+  {
+    "id": "T1a1a-child",
+    "title": "Child Task",
+    "role": "developer",
+    "priority": "medium",
+    "parent": "E1a1a-epic",
+    "completed": false,
+    "blockers": [],
+    "blocks": [],
+    "path": "<ROOT>/E1a1a-epic/T1a1a-child/T1a1a-child.md",
+    "date_created": "2026-01-03T00:00:00Z",
+    "date_edited": "2026-01-04T00:00:00Z"
+  },
+  {
+    "id": "T3a1a-blocked",
+    "title": "Blocked Task",
+    "role": "developer",
+    "priority": "medium",
+    "parent": "",
+    "completed": false,
+    "blockers": [
+      "T9x9x-blocker"
+    ],
+    "blocks": [],
+    "path": "<ROOT>/T3a1a-blocked/T3a1a-blocked.md",
+    "date_created": "2026-01-07T00:00:00Z",
+    "date_edited": "2026-01-08T00:00:00Z"
+  },
+  {
+    "id": "T5a1a-blocks",
+    "title": "Blocks Task",
+    "role": "reviewer",
+    "priority": "medium",
+    "parent": "",
+    "completed": false,
+    "blockers": [],
+    "blocks": [
+      "T2a1a-free"
+    ],
+    "path": "<ROOT>/T5a1a-blocks/T5a1a-blocks.md",
+    "date_created": "2026-01-11T00:00:00Z",
+    "date_edited": "2026-01-12T00:00:00Z"
+  },
+  {
+    "id": "T2a1a-free",
+    "title": "Free Task",
+    "role": "designer",
+    "priority": "low",
+    "parent": "",
+    "completed": false,
+    "blockers": [],
+    "blocks": [],
+    "path": "<ROOT>/T2a1a-free/T2a1a-free.md",
+    "date_created": "2026-01-05T00:00:00Z",
+    "date_edited": "2026-01-06T00:00:00Z"
+  }
+]

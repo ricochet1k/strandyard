@@ -1,13 +1,14 @@
 ---
+kind: ""
 role: developer
 priority: high
 parent: T6r2p-list-command-design
 blockers: []
 blocks: []
 date_created: 2026-01-27T18:40:00Z
-date_edited: 2026-01-27T18:40:00Z
+date_edited: 2026-01-27T16:57:30.833373-07:00
 owner_approval: false
-completed: false
+completed: true
 ---
 
 # Implement list command skeleton

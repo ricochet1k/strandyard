@@ -1,13 +1,14 @@
 ---
+kind: ""
 role: developer
 priority: medium
 parent: T6r2p-list-command-design
 blockers: []
 blocks: []
 date_created: 2026-01-27T18:41:00Z
-date_edited: 2026-01-27T18:41:00Z
+date_edited: 2026-01-27T17:04:24.917586-07:00
 owner_approval: false
-completed: false
+completed: true
 ---
 
 # Implement list filtering, sorting, and formatting

@@ -1,0 +1,7 @@
+ID               TITLE           PRIORITY  ROLE       COMPLETED  BLOCKERS
+E1a1a-epic       Epic            high      architect  false      0
+T4a1a-completed  Completed Task  high      developer  true       0
+T1a1a-child      Child Task      medium    developer  false      0
+T3a1a-blocked    Blocked Task    medium    developer  false      1
+T5a1a-blocks     Blocks Task     medium    reviewer   false      0
+T2a1a-free       Free Task       low       designer   false      0

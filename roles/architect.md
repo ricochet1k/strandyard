@@ -9,6 +9,7 @@ Architect (human or senior AI) — breaks accepted designs into implementable ep
 - Organize work into tracks that can proceed in parallel while documenting cross-track dependencies.
 - Write detailed implementation plans with architecture decisions, file locations, and approach rationale in `design-docs/`.
 - **Defer actual code implementation to developer role.**
+- Ensure designs are approved by the Owner before implementation tasks proceed.
 
 ## What Architects DO
 - Create epics and break them into leaf tasks
@@ -46,4 +47,5 @@ Architect (human or senior AI) — breaks accepted designs into implementable ep
    - Testing approach
    - Alternatives considered and why rejected
 6. **Create child tasks before completing the architect task.** Do not mark the architect task complete until the child tasks exist.
-7. **Mark the task as completed** by setting `completed: true` in the frontmatter when all planning is done and child tasks are created.
+7. Ensure there is a review task for each implementation task, and block implementation tasks on that review task.
+8. **Mark the task as completed** by setting `completed: true` in the frontmatter when all planning is done and child tasks are created.
