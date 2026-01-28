@@ -5,3 +5,10 @@ Usability Reviewer — review designs and plans for human-facing usability and c
 
 ## Responsibilities
 - Evaluate UX flows, documentation clarity, and user-facing error handling.
+- Do not wait for interactive responses; capture concerns as tasks.
+- Use `templates/review-usability.md` for usability reviews.
+- Avoid editing review tasks to record outcomes; file new tasks for concerns or decisions.
+
+## Escalation
+- For obvious concerns, create a new subtask under the current task and assign it to Architect for technical/design documents or Designer for UX/documentation artifacts.
+- For decisions needing maintainer input, create a new subtask assigned to the Owner role.

@@ -43,7 +43,7 @@ SUCCESS (builds without errors)
 
 **Observation**: There are THREE different metadata formats in use across the codebase:
 - **[AGENTS.md](AGENTS.md:51-70)** specifies simple field format: `Role: developer`, `Blockers:`, `Blocks:`, `Parent:`
-- **[templates/leaf.md](templates/leaf.md:9-13)** uses markdown heading format: `## Role`, `## Track`
+- **[templates/task.md](templates/task.md:9-13)** uses markdown heading format: `## Role`, `## Track`
 - **[tasks/T000001-project-alpha/task.md](tasks/T000001-project-alpha/task.md:4-14)** uses simple field format (matches AGENTS.md)
 - **[tasks/D000001-review-design/task.md](tasks/D000001-review-design/task.md:3-4)** uses heading format (matches template)
 - **Parser in [cmd/validate.go:214-225](cmd/validate.go:214-225)** expects `Role:` with colon (simple field format only)
@@ -211,21 +211,21 @@ Alternatives
 **Observation**:
 - **Design doc** mentions `templates/task-templates/` and `templates/doc-templates/`
 - **AGENTS.md** mentions `templates/task-templates/` and `templates/doc-templates/`
-- **Actual structure**: `templates/leaf.md` (single file), `doc-examples/` directory exists with different purpose
-- **[templates/leaf.md](templates/leaf.md:1-6)** has Go template syntax `{{ .Title }}` but no template execution code exists
+- **Actual structure**: `templates/task.md` (single file), `doc-examples/` directory exists with different purpose
+- **[templates/task.md](templates/task.md:1-6)** has Go template syntax `{{ .Title }}` but no template execution code exists
 
 **Alternatives**:
 
 **A) Reorganize to Match Design Doc**
 - Create `templates/task-templates/` and `templates/doc-templates/` directories
-- Move `leaf.md` to `templates/task-templates/leaf.md`
+- Move `task.md` to `templates/task-templates/task.md`
 - Add additional templates (epic, design-doc, etc.)
 - **Pros**: Matches design doc; organized by template type; room for growth
 - **Cons**: Need to update any hardcoded paths; migration needed
 - **Impact**: Create directories, move files, update references
 
 **B) Keep Flat Structure, Update Docs**
-- Keep `templates/` flat with `leaf.md`, `epic.md`, etc.
+- Keep `templates/` flat with `task.md`, `epic.md`, etc.
 - Update design doc and AGENTS.md to match
 - **Pros**: Simpler; less migration; fine for small number of templates
 - **Cons**: Doesn't scale well; mixes different template types
@@ -258,10 +258,10 @@ One possible priority ordering based on impact and effort analysis:
 **Estimated effort**: 4-8 hours
 
 - **Task E1-T1**: Standardize task metadata format to simple field format
-  - Update [templates/leaf.md](templates/leaf.md) to use `Role:` instead of `## Role`
+- Update [templates/task.md](templates/task.md) to use `Role:` instead of `## Role`
   - Update [tasks/D000001-review-design/task.md](tasks/D000001-review-design/task.md) to use simple field format
   - Verify `repair` passes for all tasks
-  - **Files**: templates/leaf.md, tasks/D000001-review-design/task.md
+- **Files**: templates/task.md, tasks/D000001-review-design/task.md
   - **Acceptance**: `go run . repair` succeeds with no errors
 
 - **Task E1-T2**: Add comprehensive test suite
@@ -277,7 +277,7 @@ One possible priority ordering based on impact and effort analysis:
 
 - **Task E2-T1**: Reorganize templates directory
   - Create `templates/task-templates/` and `templates/doc-templates/`
-  - Move `leaf.md` to `templates/task-templates/`
+- Move `task.md` to `templates/task-templates/`
   - Add `templates/task-templates/epic.md` template
   - Add `templates/doc-templates/design-alternatives.md` template
   - **Files**: templates/* (restructure)

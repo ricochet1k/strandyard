@@ -3,13 +3,19 @@ type: leaf
 role: reviewer-usability
 priority: medium
 parent: T8v3k-recurring-tasks
-blockers: []
+blockers:
+    - T3ebv-define-tasks-completed-scope-and-anchor-semantics
+    - Tftao-clarify-recurrence-anchor-flags-and-help-text
+    - Tpedm-decide-tasks-completed-storage-strategy
+    - Tu1vk-define-lines-changed-scope-flag-and-default
+    - Tw6ga-define-recurrence-cli-shape-for-discoverability
+    - Twvju-decide-recurrence-schema-option-a-vs-b
 blocks:
     - T8v3k-recurring-tasks
 date_created: 2026-01-28T17:32:22.794929Z
-date_edited: 2026-01-28T11:25:10.42807-07:00
+date_edited: 2026-01-28T20:09:45.224495Z
 owner_approval: false
-completed: false
+completed: true
 ---
 
 # Review recurrence metrics CLI experience

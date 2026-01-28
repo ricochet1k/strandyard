@@ -32,7 +32,7 @@ Flags:
 
 **Example**:
 ```bash
-memmd add leaf "Quick task" --role developer --priority high
+memmd add task "Quick task" --role developer --priority high
 ```
 
 ### `list` - List tasks with filters and output formats
@@ -448,7 +448,7 @@ memmd/
 │   ├── designer.md
 │   └── owner.md
 ├── templates/
-│   └── leaf.md
+│   └── task.md
 └── design-docs/
     └── commands-design.md
 ```

@@ -5,7 +5,12 @@
 
 ## Medium
 
-- [Review recurrence metrics CLI experience](E7p4m-issues-recurrence/T8v3k-recurring-tasks/Tgr06-review-recurrence-metrics-cli-experience/Tgr06-review-recurrence-metrics-cli-experience.md)
+- [Define tasks-completed scope and anchor semantics](E7p4m-issues-recurrence/T8v3k-recurring-tasks/Tgr06-review-recurrence-metrics-cli-experience/T3ebv-define-tasks-completed-scope-and-anchor-semantics/T3ebv-define-tasks-completed-scope-and-anchor-semantics.md)
+- [Clarify recurrence anchor flags and help text](E7p4m-issues-recurrence/T8v3k-recurring-tasks/Tgr06-review-recurrence-metrics-cli-experience/Tftao-clarify-recurrence-anchor-flags-and-help-text/Tftao-clarify-recurrence-anchor-flags-and-help-text.md)
+- [Decide tasks-completed storage strategy](E7p4m-issues-recurrence/T8v3k-recurring-tasks/Tgr06-review-recurrence-metrics-cli-experience/Tpedm-decide-tasks-completed-storage-strategy/Tpedm-decide-tasks-completed-storage-strategy.md)
+- [Define lines-changed scope flag and default](E7p4m-issues-recurrence/T8v3k-recurring-tasks/Tgr06-review-recurrence-metrics-cli-experience/Tu1vk-define-lines-changed-scope-flag-and-default/Tu1vk-define-lines-changed-scope-flag-and-default.md)
+- [Define recurrence CLI shape for discoverability](E7p4m-issues-recurrence/T8v3k-recurring-tasks/Tgr06-review-recurrence-metrics-cli-experience/Tw6ga-define-recurrence-cli-shape-for-discoverability/Tw6ga-define-recurrence-cli-shape-for-discoverability.md)
+- [Decide recurrence schema option (A vs B)](E7p4m-issues-recurrence/T8v3k-recurring-tasks/Tgr06-review-recurrence-metrics-cli-experience/Twvju-decide-recurrence-schema-option-a-vs-b/Twvju-decide-recurrence-schema-option-a-vs-b.md)
 - [Review recurrence metrics schema](E7p4m-issues-recurrence/T8v3k-recurring-tasks/Thnhh-review-recurrence-metrics-schema/Thnhh-review-recurrence-metrics-schema.md)
 - [Approve recurrence metrics design](E7p4m-issues-recurrence/T8v3k-recurring-tasks/Tl4cn-approve-recurrence-metrics-design/Tl4cn-approve-recurrence-metrics-design.md)
 - [Create delete task command](Ibv0j-create-delete-task-command/Ibv0j-create-delete-task-command.md)

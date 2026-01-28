@@ -1,9 +1,18 @@
 ---
-role: developer
+type: task
+role: designer
 priority: medium
+parent: Tgr06-review-recurrence-metrics-cli-experience
+blockers: []
+blocks:
+    - Tgr06-review-recurrence-metrics-cli-experience
+date_created: 2026-01-28T19:01:01.882527Z
+date_edited: 2026-01-28T12:01:01.890627-07:00
+owner_approval: false
+completed: false
 ---
 
-# {{ .Title }}
+# Define lines-changed scope flag and default
 
 ## Context
 Provide links to relevant design documents, diagrams, and decision records.
@@ -17,7 +26,10 @@ Provide links to relevant design documents, diagrams, and decision records.
 
 ## Subtasks
 Use subtasks for work that should be tracked as separate task directories. List them here when useful:
-- tasks/{{ .SuggestedSubtaskDir }}/task.md — short description of subtask
+- tasks/Tu1vk-define-lines-changed-scope-flag-and-default-subtask/task.md — short description of subtask
+
+## Escalation
+If new concerns or decisions arise, create follow-up tasks instead of editing this task.
 
 ## Acceptance Criteria
 - Clear, runnable steps to reproduce locally.

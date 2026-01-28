@@ -127,8 +127,11 @@ Add the goldmark-frontmatter library to the project...
 
 ## Templates
 
-- Task templates: `templates/` (use these for leaf/implementable tasks). `ID` and `Parent` are derived from the filesystem; do not include them in templates.
+- Task templates: `templates/` (use these for implementable tasks). `ID` and `Parent` are derived from the filesystem; do not include them in templates.
 - Document examples: `doc-examples/` (example task outputs, sample documents).
+- Task templates must be fully specifiable before work starts; avoid placeholders for results or findings.
+- Do not edit task bodies to record outcomes; create follow-up tasks for concerns or deferred decisions.
+- The default task template is `templates/task.md`. The `leaf` template/type is deprecated with no backward compatibility.
 
 ## Parsing rules & expectations
 

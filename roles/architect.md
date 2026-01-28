@@ -12,7 +12,7 @@ Architect (human or senior AI) — breaks accepted designs into implementable ep
 - Ensure designs are approved by the Owner before implementation tasks proceed.
 
 ## What Architects DO
-- Create epics and break them into leaf tasks
+- Create epics and break them into implementation tasks
 - Write design and implementation plans in `design-docs/` and link them from tasks
 - Make architectural decisions (which patterns, where code goes, what approach to use)
 - Document trade-offs and alternatives considered
@@ -31,7 +31,7 @@ Architect (human or senior AI) — breaks accepted designs into implementable ep
 ## Deliverables
 - Epics and milestone definitions.
 - Mapping of epics to tracks and owners.
-- Child tasks (leaf tasks) with sufficient implementation context for developers.
+- Child tasks with sufficient implementation context for developers.
 - Implementation plans in `design-docs/` that answer: what files to change, what approach to take, why this approach.
 
 ## Workflow

@@ -6,3 +6,10 @@ Reliability Reviewer — review designs and plans for operational reliability, S
 ## Responsibilities
 - Evaluate operational impact and failure modes.
 - Suggest SLOs, monitoring, and runbook items.
+- Do not wait for interactive responses; capture concerns as tasks.
+- Use `templates/review.md` unless a more specific template applies.
+- Avoid editing review tasks to record outcomes; file new tasks for concerns or decisions.
+
+## Escalation
+- For obvious concerns, create a new subtask under the current task and assign it to Architect for technical/design documents or Designer for UX/documentation artifacts.
+- For decisions needing maintainer input, create a new subtask assigned to the Owner role.
