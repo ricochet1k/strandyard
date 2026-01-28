@@ -5,10 +5,10 @@ priority: low
 parent: E5w8m-e2e-tests
 blockers: []
 blocks:
-    - T2n9w-sample-environments
     - E5w8m-e2e-tests
+    - T2n9w-sample-environments
 date_created: 2026-01-27T00:00:00Z
-date_edited: 2026-01-28T06:06:12.209494Z
+date_edited: 2026-01-28T11:25:10.42807-07:00
 owner_approval: false
 completed: true
 ---

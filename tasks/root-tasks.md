@@ -2,7 +2,7 @@
 
 - [Setup E2E Test Framework](E5w8m-e2e-tests/E5w8m-e2e-tests.md)
 - [Add Issue and Recurring Task Support](E7p4m-issues-recurrence/E7p4m-issues-recurrence.md)
-- [Add recurrence metrics for commits, lines changed, and tasks completed](Ipgk4-add-recurrence-metrics-for-commits-lines-changed-a/Ipgk4-add-recurrence-metrics-for-commits-lines-changed-a.md)
+- [Create delete task command](Ibv0j-create-delete-task-command/Ibv0j-create-delete-task-command.md)
 - [Create recurring review task plan](Iquw5-create-recurring-review-task-plan/Iquw5-create-recurring-review-task-plan.md)
 - [Merge recurring add into add](Ish6g-merge-recurring-add-into-add/Ish6g-merge-recurring-add-into-add.md)
 - [Design external task storage defaults](T0p3w-external-storage-default-projects/T0p3w-external-storage-default-projects.md)

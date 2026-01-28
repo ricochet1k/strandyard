@@ -48,8 +48,9 @@ func runRepair(tasksRoot, rootsFile, freeFile, outFormat string) error {
 		return fmt.Errorf("failed to update blockers from subtasks: %w", err)
 	}
 
-	// Validate tasks (also repairs bidirectional relationships)
+	// Fix missing references, then validate tasks
 	validator := task.NewValidator(tasks)
+	fixed := validator.FixMissingReferences()
 	errors := validator.Validate()
 
 	// Persist repaired tasks at the end of the run
@@ -62,6 +63,13 @@ func runRepair(tasksRoot, rootsFile, freeFile, outFormat string) error {
 		return fmt.Errorf("failed to generate master lists: %w", err)
 	}
 
+	// Report repairs to missing references
+	if len(fixed) > 0 && outFormat != "json" {
+		for _, e := range fixed {
+			fmt.Println("ERROR:", e.Error())
+		}
+	}
+
 	// Report errors
 	if len(errors) > 0 {
 		if outFormat == "json" {
@@ -69,7 +77,15 @@ func runRepair(tasksRoot, rootsFile, freeFile, outFormat string) error {
 			for i, e := range errors {
 				errMsgs[i] = e.Error()
 			}
-			b, _ := json.MarshalIndent(map[string]interface{}{"errors": errMsgs}, "", "  ")
+			payload := map[string]interface{}{"errors": errMsgs}
+			if len(fixed) > 0 {
+				fixedMsgs := make([]string, len(fixed))
+				for i, e := range fixed {
+					fixedMsgs[i] = e.Error()
+				}
+				payload["fixed"] = fixedMsgs
+			}
+			b, _ := json.MarshalIndent(payload, "", "  ")
 			fmt.Println(string(b))
 		} else {
 			for _, e := range errors {
@@ -92,7 +108,15 @@ func runRepair(tasksRoot, rootsFile, freeFile, outFormat string) error {
 				free = append(free, id)
 			}
 		}
-		b, _ := json.MarshalIndent(map[string]interface{}{"roots": roots, "free": free}, "", "  ")
+		payload := map[string]interface{}{"roots": roots, "free": free}
+		if len(fixed) > 0 {
+			fixedMsgs := make([]string, len(fixed))
+			for i, e := range fixed {
+				fixedMsgs[i] = e.Error()
+			}
+			payload["fixed"] = fixedMsgs
+		}
+		b, _ := json.MarshalIndent(payload, "", "  ")
 		fmt.Println(string(b))
 	} else {
 		fmt.Println("repair: ok")

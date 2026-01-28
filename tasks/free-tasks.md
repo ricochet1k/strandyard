@@ -5,12 +5,14 @@
 
 ## Medium
 
-- [Add recurrence metrics for commits, lines changed, and tasks completed](Ipgk4-add-recurrence-metrics-for-commits-lines-changed-a/Ipgk4-add-recurrence-metrics-for-commits-lines-changed-a.md)
+- [Review recurrence metrics CLI experience](E7p4m-issues-recurrence/T8v3k-recurring-tasks/Tgr06-review-recurrence-metrics-cli-experience/Tgr06-review-recurrence-metrics-cli-experience.md)
+- [Review recurrence metrics schema](E7p4m-issues-recurrence/T8v3k-recurring-tasks/Thnhh-review-recurrence-metrics-schema/Thnhh-review-recurrence-metrics-schema.md)
+- [Approve recurrence metrics design](E7p4m-issues-recurrence/T8v3k-recurring-tasks/Tl4cn-approve-recurrence-metrics-design/Tl4cn-approve-recurrence-metrics-design.md)
+- [Create delete task command](Ibv0j-create-delete-task-command/Ibv0j-create-delete-task-command.md)
 - [Merge recurring add into add](Ish6g-merge-recurring-add-into-add/Ish6g-merge-recurring-add-into-add.md)
 
 ## Low
 
-- [Add Recurring Task Support](E7p4m-issues-recurrence/T8v3k-recurring-tasks/T8v3k-recurring-tasks.md)
 - [Design external task storage defaults](T0p3w-external-storage-default-projects/T0p3w-external-storage-default-projects.md)
 - [Design project selection flags and environment variables](T1h8q-project-selection-flags-env/T1h8q-project-selection-flags-env.md)
 - [Design improved task templates](T1j6m-improved-task-templates-design/T1j6m-improved-task-templates-design.md)

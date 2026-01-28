@@ -1,14 +1,18 @@
 ---
+type: ""
 role: developer
+priority: ""
 parent: E5w8m-e2e-tests
 blockers:
-  - T4p7k-test-framework-design
+    - T4p7k-test-framework-design
 blocks:
-  - T7h5m-initial-e2e-tests
-  - E5w8m-e2e-tests
-  - Tml0y-t9m4n-improved-task-templates
-date_created: 2026-01-27
-date_edited: 2026-01-27
+    - E5w8m-e2e-tests
+    - T7h5m-initial-e2e-tests
+    - Tml0y-t9m4n-improved-task-templates
+date_created: 2026-01-27T00:00:00Z
+date_edited: 2026-01-28T11:25:10.42807-07:00
+owner_approval: false
+completed: false
 ---
 
 # Implement Sample Environment Setup

@@ -78,6 +78,62 @@ func (v *Validator) Validate() []ValidationError {
 	return v.errors
 }
 
+// FixMissingReferences removes references to tasks that no longer exist.
+// Returns notices describing each fix that was applied.
+func (v *Validator) FixMissingReferences() []ValidationError {
+	notices := []ValidationError{}
+	now := time.Now()
+
+	for id, task := range v.tasks {
+		changed := false
+
+		if task.Meta.Parent != "" {
+			if _, exists := v.tasks[task.Meta.Parent]; !exists {
+				notices = append(notices, ValidationError{
+					TaskID:  id,
+					File:    task.FilePath,
+					Message: fmt.Sprintf("parent task %s does not exist", task.Meta.Parent),
+				})
+				task.Meta.Parent = ""
+				changed = true
+			}
+		}
+
+		blockers, missingBlockers := filterExistingTaskIDs(task.Meta.Blockers, v.tasks)
+		for _, blocker := range missingBlockers {
+			notices = append(notices, ValidationError{
+				TaskID:  id,
+				File:    task.FilePath,
+				Message: fmt.Sprintf("blocker task %s does not exist", blocker),
+			})
+		}
+		if !equalStringSlices(task.Meta.Blockers, blockers) {
+			task.Meta.Blockers = blockers
+			changed = true
+		}
+
+		blocks, missingBlocks := filterExistingTaskIDs(task.Meta.Blocks, v.tasks)
+		for _, blocked := range missingBlocks {
+			notices = append(notices, ValidationError{
+				TaskID:  id,
+				File:    task.FilePath,
+				Message: fmt.Sprintf("blocks non-existent task %s", blocked),
+			})
+		}
+		if !equalStringSlices(task.Meta.Blocks, blocks) {
+			task.Meta.Blocks = blocks
+			changed = true
+		}
+
+		if changed {
+			task.Meta.DateEdited = now
+			task.MarkDirty()
+		}
+	}
+
+	return notices
+}
+
 // fixBlockerRelationships automatically fixes missing bidirectional blocker relationships
 func (v *Validator) fixBlockerRelationships() {
 	now := time.Now()
@@ -294,6 +350,35 @@ func addUniqueSorted(slice []string, val string) ([]string, bool) {
 	slice = append(slice, val)
 	sort.Strings(slice)
 	return slice, true
+}
+
+func filterExistingTaskIDs(ids []string, tasks map[string]*Task) ([]string, []string) {
+	kept := []string{}
+	missing := []string{}
+	seen := map[string]struct{}{}
+	missingSeen := map[string]struct{}{}
+
+	for _, id := range ids {
+		if id == "" {
+			continue
+		}
+		if _, exists := tasks[id]; !exists {
+			if _, ok := missingSeen[id]; !ok {
+				missing = append(missing, id)
+				missingSeen[id] = struct{}{}
+			}
+			continue
+		}
+		if _, ok := seen[id]; ok {
+			continue
+		}
+		seen[id] = struct{}{}
+		kept = append(kept, id)
+	}
+
+	sort.Strings(kept)
+	sort.Strings(missing)
+	return kept, missing
 }
 
 // extractTaskIDFromPath extracts a task ID from a file or directory path
