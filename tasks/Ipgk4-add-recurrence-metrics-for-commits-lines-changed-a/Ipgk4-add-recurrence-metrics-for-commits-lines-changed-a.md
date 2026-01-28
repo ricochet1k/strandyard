@@ -14,19 +14,20 @@ completed: false
 # Add recurrence metrics for commits, lines changed, and tasks completed
 
 ## Summary
-Describe the issue and expected behavior.
+Recurring tasks currently only support time-based recurrence. We need to add recurrence metrics based on commits, lines changed, and tasks completed so recurring tasks can trigger using those metrics instead of (or alongside) time passing.
 
 ## Steps to Reproduce
-1. Step one
-2. Step two
-3. Step three
+1. Configure a recurring task using the existing recurrence options.
+2. Attempt to use commits, lines changed, or tasks completed as a recurrence trigger.
+3. Observe that only time-based recurrence options are available.
 
 ## Expected Result
-What should happen.
+Recurrence configuration allows selecting commits, lines changed, or tasks completed as recurrence metrics, either alone or combined with time-based recurrence.
 
 ## Actual Result
-What currently happens.
+Recurrence configuration only supports time passing; commit, line-change, and task-completed metrics are unavailable.
 
 ## Acceptance Criteria
-- Clear steps to reproduce are documented.
-- Expected vs actual behavior is explained.
+- Recurrence configuration supports commit-count, lines-changed, and tasks-completed metrics.
+- Metrics can be used instead of or in addition to time-based recurrence.
+- User can verify the metric selection via the CLI/UI where recurrence is configured.

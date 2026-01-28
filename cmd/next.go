@@ -21,8 +21,9 @@ var nextCmd = &cobra.Command{
 	Use:   "next",
 	Short: "Print the next free task",
 	Long: `Print the next free task from the free-tasks list.
-Shows the task's role (from metadata or first TODO) and the task content.
-Use --role to filter tasks by specific role.`,
+Also prints the full role (from metadata or first TODO) so that the output
+contains all the information an agent needs to execute the task without
+looking anything else up.`,
 	RunE: func(cmd *cobra.Command, args []string) error {
 		return runNext(nextRole)
 	},
@@ -119,12 +120,22 @@ func runNext(roleFilter string) error {
 
 	selectedTask := candidatesParsed[0].task
 
-	// Print role info (compact)
 	role := selectedTask.GetEffectiveRole()
 	if role != "" {
-		fmt.Printf("Role: %s\n\n", role)
+		rolePath := filepath.Join("roles", role+".md")
+		roleData, err := os.ReadFile(rolePath)
+		if err == nil {
+			roleDoc := string(roleData)
+			fmt.Print(roleDoc)
+			if !strings.HasSuffix(roleDoc, "\n") {
+				fmt.Print("\n")
+			}
+			fmt.Print("\n---\n")
+		} else {
+			fmt.Printf("Role: %s\n\n---\n", role)
+		}
 	} else {
-		fmt.Println("Role: (none)")
+		fmt.Print("Role: (none)\n\n---\n")
 	}
 
 	// Print task content

@@ -160,6 +160,7 @@ Add the goldmark-frontmatter library to the project...
 
 - **Policy**: Agents must not unilaterally choose which alternative to implement. Present clear alternatives with pros/cons and defer the final decision to a human maintainer (mark as "Decision: deferred" in reviews).
 - **Guidance**: When preparing role-based reviews or selecting the next actionable task, run `go run . next` to obtain the canonical role document and next task. Include the full stdout/stderr output from that command in review artifacts and do not assume task selection without running it.
+- **Invariant**: The `next` command must print the full role document from `roles/<role>.md` followed by a `---` separator; keep the e2e test in place to prevent regressions.
 - **When asked "what's next?"**: Run `memmd next` and report its full stdout/stderr output. Do not answer from memory.
 - **Repair after manual edits**: If you manually edit any task markdown files under `tasks/`, run `go run . repair` immediately afterward to regenerate master lists and confirm consistency.
 - **Complete tasks via CLI**: When a task is done (including planning-only tasks), run `memmd complete <task-id>` rather than editing frontmatter by hand.

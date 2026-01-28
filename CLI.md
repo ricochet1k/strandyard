@@ -232,6 +232,8 @@ Flags:
 2. Separator line (`---`)
 3. Task file content with YAML frontmatter
 
+Invariant: `next` must print the full role document (not just the role name); tests should guard this.
+
 **Example**:
 ```bash
 $ memmd next

@@ -105,11 +105,17 @@ func TestNext_FreeTask(t *testing.T) {
 	}
 
 	// Check output contains task information
+	if !contains(output, "# Developer") {
+		t.Errorf("Expected output to contain role document, got: %s", output)
+	}
+	if !contains(output, "TODO: Add role description.") {
+		t.Errorf("Expected output to contain role details, got: %s", output)
+	}
+	if !contains(output, "\n---\n---") {
+		t.Errorf("Expected output to contain role/task separator, got: %s", output)
+	}
 	if !contains(output, "T3k7x-example") {
 		t.Errorf("Expected output to contain task ID, got: %s", output)
-	}
-	if !contains(output, "Role: developer") {
-		t.Errorf("Expected output to contain role, got: %s", output)
 	}
 }
 
