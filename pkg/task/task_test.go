@@ -6,7 +6,7 @@ import (
 	"testing"
 )
 
-func TestParseFileWithKind(t *testing.T) {
+func TestParseFileWithType(t *testing.T) {
 	tmp := t.TempDir()
 	taskID := "I1abc-example-issue"
 	taskDir := filepath.Join(tmp, taskID)
@@ -16,7 +16,7 @@ func TestParseFileWithKind(t *testing.T) {
 
 	taskFile := filepath.Join(taskDir, taskID+".md")
 	content := `---
-kind: issue
+type: issue
 role: developer
 priority: medium
 parent:
@@ -40,7 +40,7 @@ completed: false
 		t.Fatalf("parse file: %v", err)
 	}
 
-	if parsed.Meta.Kind != "issue" {
-		t.Fatalf("expected kind=issue, got %q", parsed.Meta.Kind)
+	if parsed.Meta.Type != "issue" {
+		t.Fatalf("expected type=issue, got %q", parsed.Meta.Type)
 	}
 }

@@ -17,7 +17,7 @@ import (
 
 // Metadata represents the YAML frontmatter of a task
 type Metadata struct {
-	Kind          string    `yaml:"kind"`
+	Type          string    `yaml:"type"`
 	Role          string    `yaml:"role"`
 	Priority      string    `yaml:"priority"`
 	Parent        string    `yaml:"parent"`

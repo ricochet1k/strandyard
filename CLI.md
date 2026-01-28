@@ -14,6 +14,27 @@ go run . <command>
 
 ## Core Commands
 
+### `add` - Create tasks from templates
+
+Creates tasks using the appropriate template by type.
+
+```bash
+memmd add <type> [title] [flags]
+
+Flags:
+  -t, --title string      task title (can also be passed as positional argument)
+  -r, --role string       role responsible for the task (defaults from template)
+  -p, --parent string     parent task ID (creates task under that directory)
+      --priority string   priority: high, medium, or low (defaults from template)
+      --blocker strings   blocker task ID(s); can be repeated or comma-separated
+      --no-validate       skip validation and master list updates
+```
+
+**Example**:
+```bash
+memmd add leaf "Quick task" --role developer --priority high
+```
+
 ### `list` - List tasks with filters and output formats
 
 Lists tasks from the tasks tree with optional filtering, sorting, and grouping.
@@ -67,12 +88,12 @@ memmd list --role developer --priority high --sort created --order desc
 - `--parent` and `--path` are mutually exclusive and only valid with `--scope all`.
 - `--label` is reserved and will error until labels are implemented.
 
-### `issue add` - Create an issue task
+### `add issue` - Create an issue task
 
 Creates an issue-style task using the issue template and required metadata.
 
 ```bash
-memmd issue add [title] [flags]
+memmd add issue [title] [flags]
 
 Flags:
   -t, --title string     issue title (can also be passed as positional argument)
@@ -82,7 +103,7 @@ Flags:
 
 **Example**:
 ```bash
-memmd issue add "Add issue command" --parent E7p4m-issues-recurrence --priority high
+memmd add issue "Add issue command" --priority high
 ```
 
 ### `validate` - Validate task structure
@@ -275,7 +296,7 @@ Brief description of the task...
 - **date_created**: ISO 8601 timestamp
 - **date_edited**: ISO 8601 timestamp
 
-Note: issue tasks (`kind: issue`) are created with role `triage` and no parent or blockers.
+Note: issue tasks (`type: issue`) are created with role `triage` and no parent or blockers.
 
 ### Optional Frontmatter Fields
 

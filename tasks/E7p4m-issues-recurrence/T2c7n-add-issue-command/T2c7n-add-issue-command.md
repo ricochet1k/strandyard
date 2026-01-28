@@ -1,5 +1,5 @@
 ---
-kind: ""
+type: ""
 role: developer
 priority: high
 parent: E7p4m-issues-recurrence
@@ -29,7 +29,7 @@ Add a CLI subcommand to create issue-style tasks (non-recurring) with required m
 
 ### Architecture overview
 
-Introduce an issue-flavored task creation flow that reuses the existing task creation pipeline and templates. Issues are regular tasks with a specific template and a small metadata extension (e.g., `kind: issue` or `issue: true`) so validation and listing logic stays consistent. The command should write a task directory + markdown file that passes the existing parser/validator.
+Introduce an issue-flavored task creation flow that reuses the existing task creation pipeline and templates. Issues are regular tasks with a specific template and a small metadata extension (e.g., `type: issue` or `issue: true`) so validation and listing logic stays consistent. The command should write a task directory + markdown file that passes the existing parser/validator.
 
 ### Files to modify
 
@@ -40,11 +40,11 @@ Introduce an issue-flavored task creation flow that reuses the existing task cre
 
 ### Approach
 
-1. **Metadata schema**: add a small, deterministic extension to frontmatter. Suggested minimal field: `kind: issue` (string) or `issue: true` (bool). Prefer a single field to avoid drift; ensure sorted field output on write.
+1. **Metadata schema**: add a small, deterministic extension to frontmatter. Suggested minimal field: `type: issue` (string) or `issue: true` (bool). Prefer a single field to avoid drift; ensure sorted field output on write.
 2. **Command shape**: add `memmd issue add` (preferred for clarity) or `memmd add --kind issue`. Use the existing task creation helper (if any) to avoid duplicated frontmatter logic.
 3. **Template**: add `templates/issue.md` with issue-specific headings (Summary/Steps/Acceptance Criteria). Ensure template excludes ID/parent (derived from filesystem) per conventions.
 4. **ID and directory layout**: reuse task ID generator and directory creation rules. If issues need a different prefix, define it explicitly and update validation to accept it.
-5. **Validation**: ensure the validator treats issue tasks as standard tasks with additional optional metadata; enforce schema if `kind: issue` is present.
+5. **Validation**: ensure the validator treats issue tasks as standard tasks with additional optional metadata; enforce schema if `type: issue` is present.
 
 ### Integration points
 
@@ -54,7 +54,7 @@ Introduce an issue-flavored task creation flow that reuses the existing task cre
 
 ### Testing approach
 
-- Add/extend unit tests in `pkg/task` to parse frontmatter with `kind: issue` and ensure it round-trips.
+- Add/extend unit tests in `pkg/task` to parse frontmatter with `type: issue` and ensure it round-trips.
 - CLI tests (if present) to assert directory + file creation with deterministic output.
 - Golden file/template test for `templates/issue.md` if template rendering is tested.
 

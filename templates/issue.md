@@ -1,14 +1,6 @@
 ---
-kind: {{ .Kind }}
-role: {{ .Role }}
-priority: {{ .Priority }}
-parent:
-blockers: []
-blocks: []
-date_created: {{ .DateCreated }}
-date_edited: {{ .DateEdited }}
-owner_approval: false
-completed: false
+role: triage
+priority: medium
 ---
 
 # {{ .Title }}

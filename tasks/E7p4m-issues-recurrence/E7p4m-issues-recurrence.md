@@ -1,5 +1,5 @@
 ---
-kind: ""
+type: ""
 role: architect
 priority: high
 parent: ""

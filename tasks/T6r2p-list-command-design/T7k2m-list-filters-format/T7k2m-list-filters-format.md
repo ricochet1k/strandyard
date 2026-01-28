@@ -1,5 +1,5 @@
 ---
-kind: ""
+type: ""
 role: developer
 priority: medium
 parent: T6r2p-list-command-design

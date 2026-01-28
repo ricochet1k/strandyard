@@ -1,9 +1,17 @@
 ---
-role: developer
+type: leaf
+role: architect
 priority: medium
+parent: ""
+blockers: []
+blocks: []
+date_created: 2026-01-28T02:25:16.204196Z
+date_edited: 2026-01-28T02:25:16.204196Z
+owner_approval: false
+completed: false
 ---
 
-# {{ .Title }}
+# Design templates command
 
 ## Context
 Provide links to relevant design documents, diagrams, and decision records.
@@ -17,7 +25,7 @@ Provide links to relevant design documents, diagrams, and decision records.
 
 ## Subtasks
 Use subtasks for work that should be tracked as separate task directories. List them here when useful:
-- tasks/{{ .SuggestedSubtaskDir }}/task.md — short description of subtask
+- tasks/Tv0ce-design-templates-command-subtask/task.md — short description of subtask
 
 ## Acceptance Criteria
 - Clear, runnable steps to reproduce locally.

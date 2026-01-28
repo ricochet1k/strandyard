@@ -1,6 +1,6 @@
 ---
 role: developer
-priority: medium
+priority: low
 parent: E7p4m-issues-recurrence
 blockers: []
 date_created: 2026-01-27
@@ -27,7 +27,7 @@ Implement recurring task definitions (e.g., clean up AGENTS.md every N days or c
 
 ### Architecture overview
 
-Model recurrence as a first-class task definition that can generate concrete tasks on demand. Recurrence definitions should live in the filesystem-backed task tree and be parsed by the same `pkg/task` parser, but marked with a `kind: recurring` (or `recurring: true`) and scheduling metadata. A separate command materializes due instances into normal tasks, placing them in deterministic directories and updating the definition’s “last run” or “next due” metadata.
+Model recurrence as a first-class task definition that can generate concrete tasks on demand. Recurrence definitions should live in the filesystem-backed task tree and be parsed by the same `pkg/task` parser, but marked with a `type: recurring` (or `recurring: true`) and scheduling metadata. A separate command materializes due instances into normal tasks, placing them in deterministic directories and updating the definition’s “last run” or “next due” metadata.
 
 ### Files to modify
 
@@ -45,7 +45,7 @@ Model recurrence as a first-class task definition that can generate concrete tas
 ### Approach
 
 1. **Definition location**: store recurrence definitions as tasks under a deterministic folder (e.g., `tasks/recurring/<ID>/` or under the parent epic), so they are discoverable by `scan`.
-2. **Parser + validator**: extend `pkg/task` to recognize `kind: recurring`, validate required fields, and compute `next_due` deterministically.
+2. **Parser + validator**: extend `pkg/task` to recognize `type: recurring`, validate required fields, and compute `next_due` deterministically.
 3. **Materialization**: implement `memmd recurring materialize` that:
    - scans recurrence definitions
    - filters those due as of “now”

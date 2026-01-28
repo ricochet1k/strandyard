@@ -1,9 +1,17 @@
 ---
-role: developer
+type: leaf
+role: architect
 priority: medium
+parent: ""
+blockers: []
+blocks: []
+date_created: 2026-01-28T04:31:06.967983Z
+date_edited: 2026-01-28T04:31:06.967983Z
+owner_approval: false
+completed: false
 ---
 
-# {{ .Title }}
+# Make complete update master lists incrementally
 
 ## Context
 Provide links to relevant design documents, diagrams, and decision records.
@@ -17,7 +25,7 @@ Provide links to relevant design documents, diagrams, and decision records.
 
 ## Subtasks
 Use subtasks for work that should be tracked as separate task directories. List them here when useful:
-- tasks/{{ .SuggestedSubtaskDir }}/task.md — short description of subtask
+- tasks/Taucp-make-complete-update-master-lists-incrementally-subtask/task.md — short description of subtask
 
 ## Acceptance Criteria
 - Clear, runnable steps to reproduce locally.

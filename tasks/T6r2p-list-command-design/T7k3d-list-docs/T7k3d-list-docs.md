@@ -1,5 +1,5 @@
 ---
-kind: ""
+type: ""
 role: documentation
 priority: low
 parent: T6r2p-list-command-design

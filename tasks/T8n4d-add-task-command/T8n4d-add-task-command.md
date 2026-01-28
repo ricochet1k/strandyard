@@ -1,13 +1,14 @@
 ---
+type: ""
 role: developer
 priority: high
-parent:
+parent: ""
 blockers: []
 blocks: []
 date_created: 2026-01-27T00:00:00Z
-date_edited: 2026-01-27T00:00:00Z
+date_edited: 2026-01-27T21:28:47.007423-07:00
 owner_approval: false
-completed: false
+completed: true
 ---
 
 # Add Task Subcommand

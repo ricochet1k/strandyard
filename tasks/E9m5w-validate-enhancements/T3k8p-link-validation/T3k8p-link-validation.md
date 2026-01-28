@@ -1,9 +1,14 @@
 ---
+type: ""
 role: developer
+priority: ""
 parent: E9m5w-validate-enhancements
 blockers: []
-date_created: 2026-01-27
-date_edited: 2026-01-27
+blocks: []
+date_created: 2026-01-27T00:00:00Z
+date_edited: 2026-01-28T04:45:47.520113Z
+owner_approval: false
+completed: true
 ---
 
 # Add Task Link Validation

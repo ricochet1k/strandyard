@@ -1,5 +1,5 @@
 ---
-kind: issue
+type: issue
 role: triage
 priority: high
 parent: ""
