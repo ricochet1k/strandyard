@@ -15,7 +15,7 @@ This document compares two approaches for storing the task database that the CLI
 - Assumptions: Central index simplifies lookups and global queries.
 - Pros:
   - Fast global queries and simple serialization.
-  - Easier to validate referential integrity in one pass.
+  - Easier to repair referential integrity in one pass.
 - Cons:
   - Large merge conflicts for active repositories.
   - Less friendly to ad-hoc human edits and simple agent-driven changes.

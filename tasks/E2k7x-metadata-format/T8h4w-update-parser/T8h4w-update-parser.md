@@ -27,7 +27,7 @@ Replace the current text-based parsing functions (`parseRole`, `parseBlockers`) 
 - `ParseTaskMetadata` successfully reads YAML frontmatter from task files
 - Handles missing or malformed frontmatter with clear error messages
 - All metadata fields properly parsed into struct
-- validate command works with new parser
+- repair command works with new parser
 - Tests pass
 
 ## Files

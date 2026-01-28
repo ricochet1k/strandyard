@@ -112,5 +112,5 @@ Errors:
    - Decision: prefer `--scope` for a stable single interface.
 2. Default to master lists for root/free scopes always.
    - Pros: faster.
-   - Cons: can be stale if user edits tasks without validate.
+   - Cons: can be stale if user edits tasks without repair.
    - Decision: default to scan; allow `--use-master-lists` opt-in.

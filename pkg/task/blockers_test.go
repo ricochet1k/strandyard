@@ -33,6 +33,9 @@ func TestUpdateBlockersFromChildren(t *testing.T) {
 	if _, err := UpdateBlockersFromChildren(tasks); err != nil {
 		t.Fatalf("update blockers: %v", err)
 	}
+	if _, err := WriteDirtyTasks(tasks); err != nil {
+		t.Fatalf("write tasks: %v", err)
+	}
 
 	updated, err := parser.ParseFile(parentFile)
 	if err != nil {
@@ -54,6 +57,9 @@ func TestUpdateBlockersFromChildren(t *testing.T) {
 	}
 	if _, err := UpdateBlockersFromChildren(tasks); err != nil {
 		t.Fatalf("update blockers after completion: %v", err)
+	}
+	if _, err := WriteDirtyTasks(tasks); err != nil {
+		t.Fatalf("write tasks after completion: %v", err)
 	}
 	updated, err = parser.ParseFile(parentFile)
 	if err != nil {

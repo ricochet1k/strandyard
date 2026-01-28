@@ -4,7 +4,7 @@ This document describes the planned CLI surface for `memmd`. The implementation 
 
 Command summary (revised)
 - `memmd init` — bootstrap repository structure and optional examples.
-- `memmd validate` — parse tasks, validate metadata/links, and automatically update deterministic master lists (`tasks/root-tasks.md`, `tasks/free-tasks.md`).
+- `memmd repair` — parse tasks, repair metadata/links, and automatically update deterministic master lists (`tasks/root-tasks.md`, `tasks/free-tasks.md`).
 - `memmd add` / `memmd new` — create a new task directory from a task template.
 - `memmd assign` — change a task's `Role`/assignee.
 - `memmd block` — add/remove blocker relationships between tasks.
@@ -13,7 +13,7 @@ Command summary (revised)
 
 High-level behaviour and guarantees
 - Filesystem-first: each task is a file `<task-id>/<task-id>.md` (plus attachments). Directory hierarchy represents parent/child lineage.
-- Deterministic outputs: `validate` writes `tasks/root-tasks.md` and `tasks/free-tasks.md` with sorted entries to keep diffs stable; this happens automatically.
+- Deterministic outputs: `repair` writes `tasks/root-tasks.md` and `tasks/free-tasks.md` with sorted entries to keep diffs stable; this happens automatically.
 - CLI manages relationships (Blocks/Blockers) — prefer CLI commands over manual edits.
 - IDs and Parents: `ID` is derived from the task directory name and the CLI enforces a canonical ID format (see below). Templates must not declare `ID`/`Parent`.
 
@@ -36,16 +36,16 @@ Primary commands (details)
 memmd init --force
 ```
 
-2) `memmd validate`
-- Purpose: parse the `tasks/` tree, validate referential integrity (roles exist, parent links valid), enforce formatting rules, and automatically regenerate deterministic master lists.
+2) `memmd repair`
+- Purpose: parse the `tasks/` tree, repair referential integrity (roles exist, parent links valid), enforce formatting rules, and automatically regenerate deterministic master lists.
 - Behaviour:
-	- Parse all `<task-id>.md` files, extract metadata sections, and validate references.
+	- Parse all `<task-id>.md` files, extract metadata sections, and repair references.
 	- Regenerate `tasks/root-tasks.md` and `tasks/free-tasks.md` deterministically (sorted).
 	- Exit non-zero if validation errors exist (missing roles, broken links, malformed IDs).
 - Example:
 
 ```bash
-memmd validate --path tasks --format json
+memmd repair --path tasks --format json
 ```
 
 3) `memmd add` / `memmd new`
@@ -57,7 +57,7 @@ memmd validate --path tasks --format json
 memmd add --title "Implement validation" --role developer --parent scaffold-cli --template task_template
 ```
 
-- Effect: CLI generates an ID (e.g. `T3k7x-impl`), creates `tasks/T3k7x-impl/<task-id>.md` with template-filled fields. `validate` runs implicitly (or will be run later) to update master lists.
+- Effect: CLI generates an ID (e.g. `T3k7x-impl`), creates `tasks/T3k7x-impl/<task-id>.md` with template-filled fields. `repair` runs implicitly (or will be run later) to update master lists.
 
 4) `memmd assign`
 - Purpose: change the `Role`/assignee of a task.
@@ -109,10 +109,10 @@ go test ./...
 # Build CLI
 go build -o bin/memmd ./
 
-# Quick local test (init + add + validate + next)
+# Quick local test (init + add + repair + next)
 memmd init --force
 memmd add --title "Quick task" --role developer
-memmd validate
+memmd repair
 MEMMD_ROLE=developer memmd next
 ```
 
@@ -125,4 +125,4 @@ Open implementation questions
 - Slug generation: allow explicit `--id` override? Recommend slugify by default and allow `--id` for rare overrides. No --id.
 - Claiming semantics: should `--claim` create a claim file or directly modify `Role:`? No --claim.
 
-If this matches your expectations, I'll implement `validate` (parse + auto-sync) next, then `next`.
+If this matches your expectations, I'll implement `repair` (parse + auto-sync) next, then `next`.

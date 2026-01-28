@@ -3,20 +3,22 @@ role: developer
 parent: E5w8m-e2e-tests
 blockers:
   - T2n9w-sample-environments
+blocks:
+  - E5w8m-e2e-tests
 date_created: 2026-01-27
 date_edited: 2026-01-27
 priority: low
 ---
 
-# Create Initial E2E Tests for Validate and Next
+# Create Initial E2E Tests for Repair and Next
 
 ## Summary
 
-Create the first set of end-to-end tests covering the validate and next commands with various scenarios.
+Create the first set of end-to-end tests covering the repair and next commands with various scenarios.
 
 ## Tasks
 
-- [ ] Create test suite for `validate` command:
+- [ ] Create test suite for `repair` command:
   - Valid task structure
   - Invalid ID format
   - Missing role file
@@ -35,23 +37,23 @@ Create the first set of end-to-end tests covering the validate and next commands
 
 ## Acceptance Criteria
 
-- All validate scenarios have tests
+- All repair scenarios have tests
 - All next scenarios have tests
 - Tests pass with current implementation
 - Tests fail appropriately when bugs introduced
 - Tests run quickly (< 1 second total)
-- Clear test names describing what they validate
+- Clear test names describing what they repair
 
 ## Files
 
-- test/e2e/validate_test.go (new)
+- test/e2e/repair_test.go (new)
 - test/e2e/next_test.go (new)
 - test/e2e/testdata/ (fixtures)
 
 ## Example Test
 
 ```go
-func TestValidate_ValidTasks(t *testing.T) {
+func TestRepair_ValidTasks(t *testing.T) {
     env := NewTestEnv(t)
     defer env.Cleanup()
 
@@ -62,22 +64,22 @@ func TestValidate_ValidTasks(t *testing.T) {
     })
     env.CreateRole("developer")
 
-    output, err := env.RunCommand("validate")
+    output, err := env.RunCommand("repair")
 
     assert.NoError(t, err)
-    assert.Contains(t, output, "validate: ok")
+    assert.Contains(t, output, "repair: ok")
     env.AssertFileExists("tasks/root-tasks.md")
     env.AssertFileExists("tasks/free-tasks.md")
 }
 
-func TestValidate_InvalidID(t *testing.T) {
+func TestRepair_InvalidID(t *testing.T) {
     env := NewTestEnv(t)
     defer env.Cleanup()
 
     // Create task with invalid ID (only 3 chars)
     env.CreateTaskRaw("T3kx-bad", "...")
 
-    _, err := env.RunCommand("validate")
+    _, err := env.RunCommand("repair")
 
     assert.Error(t, err)
     assert.Contains(t, err.Error(), "malformed ID")

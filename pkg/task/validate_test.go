@@ -178,3 +178,195 @@ func TestGenerateMasterLists_FreeTasksPrioritySections(t *testing.T) {
 		t.Fatalf("unexpected free list:\n--- got ---\n%s\n--- want ---\n%s", string(got), want)
 	}
 }
+
+func TestCalculateIncrementalFreeListUpdate(t *testing.T) {
+	tasks := map[string]*Task{
+		"T1completed": {
+			ID: "T1completed",
+			Meta: Metadata{
+				Role:      "developer",
+				Priority:  "high",
+				Blockers:  []string{},
+				Completed: false,
+			},
+			FilePath: "tasks/T1completed.md",
+		},
+		"T2blocked": {
+			ID: "T2blocked",
+			Meta: Metadata{
+				Role:      "developer",
+				Priority:  "medium",
+				Blockers:  []string{"T1completed"},
+				Completed: false,
+			},
+			FilePath: "tasks/T2blocked.md",
+		},
+		"T3blocked": {
+			ID: "T3blocked",
+			Meta: Metadata{
+				Role:      "developer",
+				Priority:  "low",
+				Blockers:  []string{"T1completed", "T4other"},
+				Completed: false,
+			},
+			FilePath: "tasks/T3blocked.md",
+		},
+		"T4other": {
+			ID: "T4other",
+			Meta: Metadata{
+				Role:      "developer",
+				Priority:  "medium",
+				Blockers:  []string{},
+				Completed: true,
+			},
+			FilePath: "tasks/T4other.md",
+		},
+	}
+
+	update, err := CalculateIncrementalFreeListUpdate(tasks, "T1completed")
+	if err != nil {
+		t.Fatalf("CalculateIncrementalFreeListUpdate failed: %v", err)
+	}
+
+	// Check that T1completed is removed
+	if !containsString(update.RemoveTaskIDs, "T1completed") {
+		t.Errorf("Expected T1completed to be in RemoveTaskIDs")
+	}
+
+	// Check that T2blocked is added (now unblocked)
+	if len(update.AddTasks) != 2 {
+		t.Fatalf("Expected 2 tasks to be added, got %d", len(update.AddTasks))
+	}
+
+	addedIDs := make(map[string]bool)
+	for _, task := range update.AddTasks {
+		addedIDs[task.ID] = true
+	}
+
+	if !addedIDs["T2blocked"] {
+		t.Errorf("Expected T2blocked to be added")
+	}
+	if !addedIDs["T3blocked"] {
+		t.Errorf("Expected T3blocked to be added (T4other is already completed)")
+	}
+}
+
+func TestUpdateFreeListIncrementally(t *testing.T) {
+	tempDir := t.TempDir()
+
+	// Create an initial free-tasks.md file
+	freeFile := filepath.Join(tempDir, "free.md")
+	initialContent := `# Free tasks
+
+## High
+
+- [T1 Title](tasks/T1.md)
+
+## Medium
+
+- [T2 Title](tasks/T2.md)
+
+## Low
+
+- [T3 Title](tasks/T3.md)
+`
+
+	if err := os.WriteFile(freeFile, []byte(initialContent), 0o644); err != nil {
+		t.Fatalf("Failed to write initial free tasks file: %v", err)
+	}
+
+	// Create test tasks
+	tasks := map[string]*Task{
+		"T1": {
+			ID: "T1",
+			Meta: Metadata{
+				Role:      "developer",
+				Priority:  "high",
+				Blockers:  []string{},
+				Completed: false,
+			},
+			FilePath: "tasks/T1.md",
+			Content:  "---\nrole: developer\npriority: high\n---\n\n# T1 Title",
+		},
+		"T2": {
+			ID: "T2",
+			Meta: Metadata{
+				Role:      "developer",
+				Priority:  "medium",
+				Blockers:  []string{},
+				Completed: false,
+			},
+			FilePath: "tasks/T2.md",
+			Content:  "---\nrole: developer\npriority: medium\n---\n\n# T2 Title",
+		},
+		"T4": {
+			ID: "T4",
+			Meta: Metadata{
+				Role:      "developer",
+				Priority:  "low",
+				Blockers:  []string{},
+				Completed: false,
+			},
+			FilePath: "tasks/T4.md",
+			Content:  "---\nrole: developer\npriority: low\n---\n\n# T4 Title",
+		},
+	}
+
+	// Create update: remove T1, add T4
+	update := IncrementalFreeListUpdate{
+		RemoveTaskIDs: []string{"T1"},
+		AddTasks:      []*Task{tasks["T4"]},
+	}
+
+	if err := UpdateFreeListIncrementally(tasks, freeFile, update); err != nil {
+		t.Fatalf("UpdateFreeListIncrementally failed: %v", err)
+	}
+
+	// Read updated content
+	updatedContent, err := os.ReadFile(freeFile)
+	if err != nil {
+		t.Fatalf("Failed to read updated free tasks file: %v", err)
+	}
+
+	content := string(updatedContent)
+
+	// Check that T1 is removed
+	if strings.Contains(content, "T1 Title") {
+		t.Errorf("T1 Title should have been removed")
+	}
+
+	// Check that T4 is added in Low section
+	lowSection := extractSection(content, "Low")
+	if !strings.Contains(lowSection, "T4 Title") {
+		t.Errorf("T4 Title not found in Low section")
+	}
+
+	// Check that T2 is still there
+	mediumSection := extractSection(content, "Medium")
+	if !strings.Contains(mediumSection, "T2 Title") {
+		t.Errorf("T2 Title not found in Medium section")
+	}
+}
+
+func containsString(slice []string, item string) bool {
+	for _, s := range slice {
+		if s == item {
+			return true
+		}
+	}
+	return false
+}
+
+func extractSection(content, sectionName string) string {
+	start := strings.Index(content, "## "+sectionName)
+	if start == -1 {
+		return ""
+	}
+	start += len("## " + sectionName)
+
+	end := strings.Index(content[start:], "## ")
+	if end == -1 {
+		return content[start:]
+	}
+	return content[start : start+end]
+}

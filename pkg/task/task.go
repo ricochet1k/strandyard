@@ -5,6 +5,7 @@ import (
 	"io/fs"
 	"os"
 	"path/filepath"
+	"sort"
 	"strings"
 	"time"
 
@@ -13,6 +14,7 @@ import (
 	"github.com/yuin/goldmark/parser"
 	"github.com/yuin/goldmark/text"
 	"go.abhg.dev/goldmark/frontmatter"
+	"gopkg.in/yaml.v3"
 )
 
 // Metadata represents the YAML frontmatter of a task
@@ -37,6 +39,7 @@ type Task struct {
 	Meta     Metadata
 	Content  string
 	Document ast.Node
+	Dirty    bool
 }
 
 // Title returns the first level-1 heading text, or empty string if not found.
@@ -49,6 +52,43 @@ func (t *Task) Title() string {
 		}
 	}
 	return ""
+}
+
+// MarkDirty marks the task as modified.
+func (t *Task) MarkDirty() {
+	t.Dirty = true
+}
+
+// Write persists updated metadata to the task file.
+func (t *Task) Write() error {
+	if !t.Dirty {
+		return nil
+	}
+
+	parts := strings.SplitN(t.Content, "---", 3)
+	if len(parts) < 3 {
+		return errInvalidFrontmatter(t.FilePath)
+	}
+
+	frontmatterBytes, err := yaml.Marshal(&t.Meta)
+	if err != nil {
+		return fmt.Errorf("failed to serialize frontmatter: %w", err)
+	}
+
+	var sb strings.Builder
+	sb.WriteString("---\n")
+	sb.Write(frontmatterBytes)
+	sb.WriteString("---")
+	sb.WriteString(parts[2])
+
+	newContent := sb.String()
+	if err := os.WriteFile(t.FilePath, []byte(newContent), 0o644); err != nil {
+		return err
+	}
+
+	t.Content = newContent
+	t.Dirty = false
+	return nil
 }
 
 // Parser handles parsing task files using goldmark
@@ -159,6 +199,29 @@ func (p *Parser) LoadTasks(tasksRoot string) (map[string]*Task, error) {
 	return tasks, err
 }
 
+// WriteDirtyTasks writes any tasks marked as dirty.
+func WriteDirtyTasks(tasks map[string]*Task) (int, error) {
+	ids := make([]string, 0, len(tasks))
+	for id := range tasks {
+		ids = append(ids, id)
+	}
+	sort.Strings(ids)
+
+	updated := 0
+	for _, id := range ids {
+		task := tasks[id]
+		if !task.Dirty {
+			continue
+		}
+		if err := task.Write(); err != nil {
+			return updated, err
+		}
+		updated++
+	}
+
+	return updated, nil
+}
+
 // ExtractFirstTodoRole extracts the role from the first TODO item in task content
 // Format: - [ ] (role: developer) Do something
 func ExtractFirstTodoRole(content string) string {
@@ -192,4 +255,17 @@ func (t *Task) GetEffectiveRole() string {
 		return t.Meta.Role
 	}
 	return ExtractFirstTodoRole(t.Content)
+}
+
+func errInvalidFrontmatter(path string) error {
+	return &InvalidFrontmatterError{Path: path}
+}
+
+// InvalidFrontmatterError indicates a task file is missing frontmatter delimiters.
+type InvalidFrontmatterError struct {
+	Path string
+}
+
+func (e *InvalidFrontmatterError) Error() string {
+	return "invalid task file format: missing frontmatter delimiters in " + e.Path
 }

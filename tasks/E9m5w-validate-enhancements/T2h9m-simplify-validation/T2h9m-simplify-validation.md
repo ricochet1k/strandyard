@@ -89,7 +89,7 @@ This happens BEFORE checking if validation passed. This means invalid task trees
 **Fix**: Move master list generation AFTER validation check:
 
 ```go
-func runValidate(tasksRoot, rootsFile, freeFile, outFormat string) error {
+func runRepair(tasksRoot, rootsFile, freeFile, outFormat string) error {
     // Parse all tasks
     parser := task.NewParser()
     tasks, err := parser.LoadTasks(tasksRoot)
@@ -97,9 +97,9 @@ func runValidate(tasksRoot, rootsFile, freeFile, outFormat string) error {
         return fmt.Errorf("failed to load tasks: %w", err)
     }
 
-    // Validate tasks
+    // Repair tasks
     validator := task.NewValidator(tasks)
-    errors := validator.Validate()
+    errors := validator.Repair()
 
     // Report errors and fail fast
     if len(errors) > 0 {
@@ -159,7 +159,7 @@ The task mentions updating AGENTS.md with canonical format documentation.
 
 ### Implementation Steps
 
-#### 1. Refactor validate command to fail fast
+#### 1. Refactor repair command to fail fast
 
 **File**: [cmd/validate.go](../../cmd/validate.go)
 
@@ -200,8 +200,8 @@ func reportSuccess(tasks map[string]*Task, rootsFile, freeFile, outFormat string
         b, _ := json.MarshalIndent(map[string]interface{}{"roots": roots, "free": free}, "", "  ")
         fmt.Println(string(b))
     } else {
-        fmt.Println("validate: ok")
-        fmt.Printf("Validated %d tasks\n", len(tasks))
+        fmt.Println("repair: ok")
+        fmt.Printf("Repaird %d tasks\n", len(tasks))
         fmt.Printf("Master lists updated: %s, %s\n", rootsFile, freeFile)
     }
 }
@@ -215,7 +215,7 @@ Update error messages to be more specific and actionable:
 
 **ID validation** ([pkg/task/validate.go:64-70](../../pkg/task/validate.go#L64-L70)):
 ```go
-func (v *Validator) validateID(id string, task *Task) {
+func (v *Validator) repairID(id string, task *Task) {
     if !v.idPattern.MatchString(id) {
         v.errors = append(v.errors, ValidationError{
             TaskID:  id,
@@ -231,7 +231,7 @@ func (v *Validator) validateID(id string, task *Task) {
 
 **Role validation** ([pkg/task/validate.go:73-94](../../pkg/task/validate.go#L73-L94)):
 ```go
-func (v *Validator) validateRole(id string, task *Task) {
+func (v *Validator) repairRole(id string, task *Task) {
     role := task.GetEffectiveRole()
     if role == "" {
         v.errors = append(v.errors, ValidationError{
@@ -259,9 +259,9 @@ func (v *Validator) validateRole(id string, task *Task) {
 
 **Parent validation** ([pkg/task/validate.go:96-109](../../pkg/task/validate.go#L96-L109)):
 ```go
-func (v *Validator) validateParent(id string, task *Task) {
+func (v *Validator) repairParent(id string, task *Task) {
     if task.Meta.Parent == "" {
-        return // Root task, no parent to validate
+        return // Root task, no parent to repair
     }
 
     if _, exists := v.tasks[task.Meta.Parent]; !exists {
@@ -279,7 +279,7 @@ func (v *Validator) validateParent(id string, task *Task) {
 
 **Blocker validation** ([pkg/task/validate.go:111-126](../../pkg/task/validate.go#L111-L126)):
 ```go
-func (v *Validator) validateBlockers(id string, task *Task) {
+func (v *Validator) repairBlockers(id string, task *Task) {
     for _, blocker := range task.Meta.Blockers {
         if blocker == "" {
             continue
@@ -365,11 +365,11 @@ Tasks can have their markdown file named in order of preference:
 
 Test the fail-fast behavior:
 1. Create tasks with validation errors
-2. Run validate command
+2. Run repair command
 3. Verify it returns error exit code
 4. Verify master lists are NOT updated
 5. Fix errors
-6. Run validate again
+6. Run repair again
 7. Verify it succeeds
 8. Verify master lists ARE updated
 
@@ -425,7 +425,7 @@ This task is blocked on T3k8p and T7w4n because:
 
 **Implementation order**:
 1. Wait for T3k8p and T7w4n to be implemented
-2. Refactor validate command to fail fast
+2. Refactor repair command to fail fast
 3. Improve all error messages
 4. Document canonical format in AGENTS.md
 5. Test fail-fast behavior

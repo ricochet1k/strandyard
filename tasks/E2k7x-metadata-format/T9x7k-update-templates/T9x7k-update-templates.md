@@ -25,7 +25,7 @@ Update task templates to use YAML frontmatter format instead of simple field for
 
 - Template uses YAML frontmatter format
 - Template variables properly expand when creating new tasks
-- Created tasks validate successfully
+- Created tasks repair successfully
 - No markdown heading metadata in body
 
 ## Files

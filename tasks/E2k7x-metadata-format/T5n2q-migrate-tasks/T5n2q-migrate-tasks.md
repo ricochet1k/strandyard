@@ -20,12 +20,12 @@ Convert all existing task files from simple field format to YAML frontmatter for
 - [ ] Convert T000001-project-alpha/task.md to new format
 - [ ] Convert any other existing task files
 - [ ] Add date_created and date_edited fields (use file mtime for initial dates)
-- [ ] Verify all migrated tasks validate successfully
+- [ ] Verify all migrated tasks repair successfully
 
 ## Acceptance Criteria
 
 - All task files use YAML frontmatter
-- `go run . validate` passes with no errors
+- `go run . repair` passes with no errors
 - No task data lost during migration
 - Dates populated for all tasks
 

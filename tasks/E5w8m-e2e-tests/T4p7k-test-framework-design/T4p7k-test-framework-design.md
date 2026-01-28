@@ -1,10 +1,16 @@
 ---
+type: ""
 role: developer
+priority: low
 parent: E5w8m-e2e-tests
 blockers: []
-date_created: 2026-01-27
-date_edited: 2026-01-27
-priority: low
+blocks:
+    - T2n9w-sample-environments
+    - E5w8m-e2e-tests
+date_created: 2026-01-27T00:00:00Z
+date_edited: 2026-01-28T06:06:12.209494Z
+owner_approval: false
+completed: true
 ---
 
 # Design E2E Test Framework
@@ -25,7 +31,7 @@ Design the architecture and patterns for the e2e test framework, focusing on how
 
 ## Acceptance Criteria
 
-- Clear design for test environment lifecycle (setup, execute, validate, cleanup)
+- Clear design for test environment lifecycle (setup, execute, repair, cleanup)
 - Pattern for running CLI commands in isolated environments
 - Pattern for asserting on outputs and side effects
 - Documentation showing how to add new tests
@@ -40,17 +46,17 @@ Design the architecture and patterns for the e2e test framework, focusing on how
 ## Example Test Pattern
 
 ```go
-func TestValidateCommand(t *testing.T) {
+func TestRepairCommand(t *testing.T) {
     env := NewTestEnv(t)
     defer env.Cleanup()
 
     env.CreateTask("T3k7x-example", TaskOpts{...})
     env.CreateRole("developer")
 
-    output, err := env.RunCommand("validate")
+    output, err := env.RunCommand("repair")
 
     assert.NoError(t, err)
-    assert.Contains(t, output, "validate: ok")
+    assert.Contains(t, output, "repair: ok")
     assert.FileExists(t, env.Path("tasks/free-tasks.md"))
 }
 ```

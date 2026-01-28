@@ -2,13 +2,14 @@
 type: issue
 role: triage
 priority: medium
-parent:
-blockers: []
+parent: ""
+blockers:
+    - T6jry-design-cli-commands-for-full-task-issue-metadata-e
 blocks: []
 date_created: 2026-01-27T23:25:07Z
-date_edited: 2026-01-27T23:25:07Z
+date_edited: 2026-01-28T05:11:29.974784Z
 owner_approval: false
-completed: false
+completed: true
 ---
 
 # Revamp task and issue commands for full metadata editing
@@ -31,4 +32,4 @@ CLI can create tasks/issues, but editing metadata or body content requires manua
 - CLI provides commands to create tasks/issues with all metadata fields supplied via flags or prompts.
 - CLI provides commands to edit metadata and body content for existing tasks/issues.
 - No manual editing of task Markdown files is required for standard workflows.
-- `memmd validate` passes after creating or editing tasks/issues.
+- `memmd repair` passes after creating or editing tasks/issues.

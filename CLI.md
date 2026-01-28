@@ -27,7 +27,7 @@ Flags:
   -p, --parent string     parent task ID (creates task under that directory)
       --priority string   priority: high, medium, or low (defaults from template)
       --blocker strings   blocker task ID(s); can be repeated or comma-separated
-      --no-validate       skip validation and master list updates
+      --no-repair       skip repair and master list updates
 ```
 
 **Example**:
@@ -96,9 +96,12 @@ Creates an issue-style task using the issue template and required metadata.
 memmd add issue [title] [flags]
 
 Flags:
-  -t, --title string     issue title (can also be passed as positional argument)
-      --priority string  priority: high, medium, or low (default "medium")
-      --no-validate      skip validation and master list updates
+  -t, --title string      issue title (can also be passed as positional argument)
+  -r, --role string       role responsible for the task (defaults from template)
+  -p, --parent string     parent task ID (creates task under that directory)
+      --priority string   priority: high, medium, or low (defaults from template)
+      --blocker strings   blocker task ID(s); can be repeated or comma-separated
+      --no-repair       skip repair and master list updates
 ```
 
 **Example**:
@@ -106,12 +109,87 @@ Flags:
 memmd add issue "Add issue command" --priority high
 ```
 
-### `validate` - Validate task structure
+### `recurring add` - Create recurring task definitions
 
-Validates all tasks and regenerates master lists (`root-tasks.md` and `free-tasks.md`).
+Creates a recurring task definition that can be materialized into normal tasks.
 
 ```bash
-memmd validate [flags]
+memmd recurring add [title] [flags]
+
+Flags:
+  -t, --title string           definition title (can also be passed as positional argument)
+  -r, --role string            role responsible for generated tasks (defaults from template)
+  -p, --parent string          parent task ID (creates definition under that directory)
+      --priority string        priority: high, medium, or low (defaults from template)
+      --blocker strings        blocker task ID(s); can be repeated or comma-separated
+      --interval int           recurrence interval (required)
+      --unit string            recurrence unit: days, weeks, months, commits (required)
+      --anchor string          anchor date (ISO 8601) or commit hash (required)
+      --timezone string        IANA time zone for scheduling (optional)
+      --max-instances int      max instances to materialize (optional)
+      --no-repair            skip repair and master list updates
+```
+
+**Example**:
+```bash
+memmd recurring add "Quarterly docs review" --interval 3 --unit months --anchor 2026-01-01T00:00:00Z --role reviewer
+```
+
+**Resulting definition (example)**:
+```markdown
+---
+type: recurring
+role: reviewer
+priority: medium
+parent:
+blockers: []
+blocks: []
+date_created: 2026-01-01T00:00:00Z
+date_edited: 2026-01-01T00:00:00Z
+owner_approval: false
+completed: false
+recurrence_interval: 3
+recurrence_unit: months
+recurrence_anchor: 2026-01-01T00:00:00Z
+recurrence_next_due: 2026-04-01T00:00:00Z
+---
+
+# Quarterly docs review
+```
+
+**Definition layout (example)**:
+```
+tasks/
+  <parent-dir>/
+    <RECURRING_ID>/
+      <RECURRING_ID>.md
+```
+
+### `recurring materialize` - Materialize due recurring tasks
+
+Generates concrete task instances for any recurring definitions that are due.
+
+```bash
+memmd recurring materialize [flags]
+
+Flags:
+  --as-of string         override the current time (ISO 8601)
+  --path string          path to tasks directory (default "tasks")
+  --dry-run              preview materialization without writing files
+  --limit int            limit number of instances generated
+```
+
+**Example**:
+```bash
+memmd recurring materialize --as-of 2026-04-01T00:00:00Z
+```
+
+### `repair` - Repair task structure
+
+Repairs all tasks and regenerates master lists (`root-tasks.md` and `free-tasks.md`).
+
+```bash
+memmd repair [flags]
 
 Flags:
   --path string      path to tasks directory (default "tasks")
@@ -120,7 +198,7 @@ Flags:
   --format string    output format: text|json (default "text")
 ```
 
-**What it validates**:
+**What it repairs**:
 - Task IDs match format: `<PREFIX><4-lowercase-alphanumeric>-<slug>` (e.g., `T3k7x-example`)
 - Role files exist in `roles/` directory
 - Parent tasks exist
@@ -132,9 +210,9 @@ Flags:
 
 **Example**:
 ```bash
-$ memmd validate
-validate: ok
-Validated 25 tasks
+$ memmd repair
+repair: ok
+Repaired 25 tasks
 Master lists updated: tasks/root-tasks.md, tasks/free-tasks.md
 ```
 
@@ -196,18 +274,18 @@ memmd complete <task-id>
 - Updates `date_edited` to current timestamp
 - Preserves all other metadata
 
-**After completing**: Run `memmd validate` to update master lists and remove completed task from `free-tasks.md`.
+**After completing**: Run `memmd repair` to update master lists and remove completed task from `free-tasks.md`.
 
 **Example**:
 ```bash
 $ memmd complete T3m9p-add-frontmatter-dep
 ✓ Task T3m9p-add-frontmatter-dep marked as completed
 
-Run 'memmd validate' to update master lists
+Run 'memmd repair' to update master lists
 
-$ memmd validate
-validate: ok
-Validated 25 tasks
+$ memmd repair
+repair: ok
+Repaired 25 tasks
 Master lists updated: tasks/root-tasks.md, tasks/free-tasks.md
 ```
 
@@ -229,7 +307,7 @@ Master lists updated: tasks/root-tasks.md, tasks/free-tasks.md
 
 4. **Update master lists**:
    ```bash
-   memmd validate
+   memmd repair
    ```
 
 ### Checking task status
@@ -241,8 +319,8 @@ cat tasks/free-tasks.md
 # See all root tasks (no parent)
 cat tasks/root-tasks.md
 
-# Validate entire task tree
-memmd validate
+# Repair entire task tree
+memmd repair
 ```
 
 ### Working with roles
@@ -296,7 +374,7 @@ Brief description of the task...
 - **date_created**: ISO 8601 timestamp
 - **date_edited**: ISO 8601 timestamp
 
-Note: issue tasks (`type: issue`) are created with role `triage` and no parent or blockers.
+Note: issue tasks (`type: issue`) default to role `triage` and `priority: medium` from the template, but can be overridden with flags.
 
 ### Optional Frontmatter Fields
 
@@ -304,7 +382,26 @@ Note: issue tasks (`type: issue`) are created with role `triage` and no parent o
 - **owner_approval**: Boolean flag for owner approval
 - **completed**: Boolean flag marking task as complete
 - **priority**: Task priority (`high`, `medium`, or `low`; defaults to `medium`)
-- **kind**: Task subtype string (e.g., `issue`)
+- **type**: Task subtype string (e.g., `issue`, `recurring`)
+
+### Recurrence Metadata (for `type: recurring`)
+
+Recurring definitions require additional scheduling fields and are validated by `repair`.
+
+**Required fields**:
+- `recurrence_interval` (integer > 0)
+- `recurrence_unit` (`days`, `weeks`, `months`, or `commits`)
+- `recurrence_anchor` (ISO 8601 date or commit hash)
+
+**Optional fields**:
+- `recurrence_next_due` (ISO 8601 date; computed if omitted)
+- `recurrence_last_run` (ISO 8601 date)
+- `recurrence_timezone` (IANA time zone, e.g., `America/Los_Angeles`)
+- `recurrence_max_instances` (positive integer)
+
+**Validation notes**:
+- Recurring definitions are excluded from `free-tasks.md` and `root-tasks.md` until materialized.
+- Materialized tasks behave like normal tasks and appear in master lists if unblocked.
 
 ## Task ID Format
 
@@ -376,12 +473,12 @@ Referenced blocker task doesn't exist. Fix the `blockers:` array in frontmatter.
 Set `priority: high|medium|low` or remove the field to default to `medium`.
 
 ### "task not found: X"
-Task ID doesn't exist in the task tree. Check spelling or use `validate` to see all tasks.
+Task ID doesn't exist in the task tree. Check spelling or use `repair` to see all tasks.
 
 ## Tips
 
-1. **Always run validate after changes**: Keeps master lists up-to-date
+1. **Always run repair after changes**: Keeps master lists up-to-date
 2. **Use `next` to find work**: Don't manually browse `free-tasks.md`
 3. **Complete tasks promptly**: Mark tasks complete as soon as work is done
-4. **Check validation errors carefully**: They indicate data integrity issues
+4. **Check repair errors carefully**: They indicate data integrity issues
 5. **Keep role files updated**: Role documents guide AI agents and humans

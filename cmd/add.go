@@ -23,7 +23,7 @@ import (
 var addCmd = &cobra.Command{
 	Use:   "add <type> [title]",
 	Short: "Create tasks from templates",
-	Long:  "Create a task using a template in templates/. Types correspond to template filenames (without .md).",
+	Long:  "Create a task using a template in templates/. Types correspond to template filenames (without .md). Templates define default roles and priorities.",
 	Args:  cobra.MinimumNArgs(1),
 	RunE: func(cmd *cobra.Command, args []string) error {
 		return runAdd(cmd, args)
@@ -37,16 +37,16 @@ func init() {
 	addCmd.Flags().StringVarP(&addParent, "parent", "p", "", "parent task ID (creates task under that directory)")
 	addCmd.Flags().StringVar(&addPriority, "priority", "medium", "priority: high, medium, or low")
 	addCmd.Flags().StringSliceVar(&addBlockers, "blocker", nil, "blocker task ID(s); can be repeated or comma-separated")
-	addCmd.Flags().BoolVar(&addNoValidate, "no-validate", false, "skip validation and master list updates")
+	addCmd.Flags().BoolVar(&addNoRepair, "no-repair", false, "skip repair and master list updates")
 }
 
 var (
-	addTitle      string
-	addRole       string
-	addPriority   string
-	addParent     string
-	addBlockers   []string
-	addNoValidate bool
+	addTitle    string
+	addRole     string
+	addPriority string
+	addParent   string
+	addBlockers []string
+	addNoRepair bool
 )
 
 func runAdd(cmd *cobra.Command, args []string) error {
@@ -166,8 +166,8 @@ func runAdd(cmd *cobra.Command, args []string) error {
 
 	fmt.Printf("✓ Task created: %s\n", filepath.ToSlash(taskFile))
 
-	if !addNoValidate {
-		if err := runValidate("tasks", "tasks/root-tasks.md", "tasks/free-tasks.md", "text"); err != nil {
+	if !addNoRepair {
+		if err := runRepair("tasks", "tasks/root-tasks.md", "tasks/free-tasks.md", "text"); err != nil {
 			return err
 		}
 	}

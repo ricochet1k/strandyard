@@ -1,11 +1,15 @@
 ---
+type: ""
 role: documentation
 priority: low
 parent: E7p4m-issues-recurrence
 blockers: []
-date_created: 2026-01-27
-date_edited: 2026-01-27
-completed: false
+blocks:
+    - E7p4m-issues-recurrence
+date_created: 2026-01-27T00:00:00Z
+date_edited: 2026-01-28T13:08:35.215751Z
+owner_approval: false
+completed: true
 ---
 
 # Document Recurring Task Commands
@@ -37,7 +41,7 @@ Document the new command surface area in `CLI.md` so it matches the actual CLI f
    - `memmd recurring add` with required scheduling fields
    - `memmd recurring materialize` for generating due tasks
 2. Include copy-pasteable examples showing frontmatter results and file layout.
-3. Document validation rules (required fields, accepted units, determinism) and note how `validate` treats recurring definitions vs. materialized tasks.
+3. Document validation rules (required fields, accepted units, determinism) and note how `repair` treats recurring definitions vs. materialized tasks.
 
 ### Integration points
 
@@ -46,7 +50,7 @@ Document the new command surface area in `CLI.md` so it matches the actual CLI f
 
 ### Testing approach
 
-- Run `memmd validate` after doc updates if docs include embedded examples or references that affect templates.
+- Run `memmd repair` after doc updates if docs include embedded examples or references that affect templates.
 - Spot-check examples against actual CLI output once commands exist.
 
 ### Alternatives considered

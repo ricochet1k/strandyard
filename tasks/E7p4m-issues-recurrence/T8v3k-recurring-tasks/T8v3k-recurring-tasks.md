@@ -1,10 +1,15 @@
 ---
+type: ""
 role: developer
 priority: low
 parent: E7p4m-issues-recurrence
 blockers: []
-date_created: 2026-01-27
-date_edited: 2026-01-27
+blocks:
+    - E7p4m-issues-recurrence
+    - Iquw5-create-recurring-review-task-plan
+date_created: 2026-01-27T00:00:00Z
+date_edited: 2026-01-28T04:32:38.595455-07:00
+owner_approval: false
 completed: false
 ---
 
@@ -45,14 +50,14 @@ Model recurrence as a first-class task definition that can generate concrete tas
 ### Approach
 
 1. **Definition location**: store recurrence definitions as tasks under a deterministic folder (e.g., `tasks/recurring/<ID>/` or under the parent epic), so they are discoverable by `scan`.
-2. **Parser + validator**: extend `pkg/task` to recognize `type: recurring`, validate required fields, and compute `next_due` deterministically.
+2. **Parser + validator**: extend `pkg/task` to recognize `type: recurring`, repair required fields, and compute `next_due` deterministically.
 3. **Materialization**: implement `memmd recurring materialize` that:
    - scans recurrence definitions
    - filters those due as of “now”
    - generates concrete task directories with a reference to the source (e.g., `parent` or `source_recurring_id`)
    - updates `recurrence_last_run` / `recurrence_next_due` in the definition file
 4. **Determinism**: generated task IDs should be based on the definition ID + date stamp to avoid collisions and ensure stable ordering.
-5. **Validation integration**: ensure `validate` checks recurrence metadata and that generated tasks conform to normal task rules.
+5. **Validation integration**: ensure `repair` checks recurrence metadata and that generated tasks conform to normal task rules.
 
 ### Integration points
 

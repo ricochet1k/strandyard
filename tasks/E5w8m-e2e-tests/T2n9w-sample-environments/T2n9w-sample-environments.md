@@ -3,6 +3,10 @@ role: developer
 parent: E5w8m-e2e-tests
 blockers:
   - T4p7k-test-framework-design
+blocks:
+  - T7h5m-initial-e2e-tests
+  - E5w8m-e2e-tests
+  - Tml0y-t9m4n-improved-task-templates
 date_created: 2026-01-27
 date_edited: 2026-01-27
 ---
@@ -51,6 +55,6 @@ env.CreateTask("T3k7x-example", TaskOpts{
 
 env.CreateRole("developer")
 
-output, err := env.RunCommand("validate", "--path", "tasks")
+output, err := env.RunCommand("repair", "--path", "tasks")
 env.AssertFileExists("tasks/free-tasks.md")
 ```

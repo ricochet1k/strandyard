@@ -2,6 +2,8 @@
 role: architect
 parent:
 blockers: []
+blocks:
+  - E5w8m-e2e-tests
 date_created: 2026-01-27
 date_edited: 2026-01-27T14:17:00Z
 completed: true
@@ -32,7 +34,7 @@ Replace the current simple field format (`Role: developer`) with YAML frontmatte
 
 - All task files use YAML frontmatter
 - Parser reads metadata from frontmatter, not text parsing
-- `validate` command works with new format
+- `repair` command works with new format
 - All existing tasks migrated successfully
 - Templates updated to new format
 

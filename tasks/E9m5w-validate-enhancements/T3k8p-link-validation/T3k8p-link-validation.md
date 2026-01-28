@@ -4,7 +4,8 @@ role: developer
 priority: ""
 parent: E9m5w-validate-enhancements
 blockers: []
-blocks: []
+blocks:
+  - T2h9m-simplify-validation
 date_created: 2026-01-27T00:00:00Z
 date_edited: 2026-01-28T04:45:47.520113Z
 owner_approval: false
@@ -30,7 +31,7 @@ Add validation to ensure all task references/links in task content point to exis
 
 - Detects broken task links
 - Reports file path and line number of broken link
-- Validates links to task directories and task files
+- Repairs links to task directories and task files
 - Example error: `ERROR: Broken link in T3k7x-example/T3k7x-example.md:15: T9999-missing does not exist`
 
 ## Files
@@ -38,7 +39,7 @@ Add validation to ensure all task references/links in task content point to exis
 - cmd/validate.go
 - pkg/metadata/linkchecker.go (new, optional)
 
-## Link Formats to Validate
+## Link Formats to Repair
 
 - Markdown links: `[Task Name](tasks/T3k7x-example/T3k7x-example.md)`
 - Direct references: `T3k7x-example`
@@ -49,7 +50,7 @@ Add validation to ensure all task references/links in task content point to exis
 
 ### Architecture Overview
 
-Add a new validation method `validateTaskLinks()` to the existing `Validator` struct in [pkg/task/validate.go](../../pkg/task/validate.go). This maintains the existing validation pattern and keeps all validation logic centralized.
+Add a new validation method `repairTaskLinks()` to the existing `Validator` struct in [pkg/task/validate.go](../../pkg/task/validate.go). This maintains the existing validation pattern and keeps all validation logic centralized.
 
 ### Implementation Steps
 
@@ -60,24 +61,24 @@ Add a new validation method `validateTaskLinks()` to the existing `Validator` st
 Add new method to Validator struct:
 
 ```go
-// validateTaskLinks scans task content for references to other tasks and verifies they exist
-func (v *Validator) validateTaskLinks(id string, task *Task) {
+// repairTaskLinks scans task content for references to other tasks and verifies they exist
+func (v *Validator) repairTaskLinks(id string, task *Task) {
     // Implementation details below
 }
 ```
 
-Call this from `Validate()` method after existing validations:
+Call this from `Repair()` method after existing validations:
 
 ```go
-func (v *Validator) Validate() []ValidationError {
+func (v *Validator) Repair() []ValidationError {
     v.errors = []ValidationError{}
 
     for id, task := range v.tasks {
-        v.validateID(id, task)
-        v.validateRole(id, task)
-        v.validateParent(id, task)
-        v.validateBlockers(id, task)
-        v.validateTaskLinks(id, task)  // Add this line
+        v.repairID(id, task)
+        v.repairRole(id, task)
+        v.repairParent(id, task)
+        v.repairBlockers(id, task)
+        v.repairTaskLinks(id, task)  // Add this line
     }
 
     return v.errors
@@ -86,7 +87,7 @@ func (v *Validator) Validate() []ValidationError {
 
 #### 2. Link Extraction Logic
 
-The `validateTaskLinks` method should:
+The `repairTaskLinks` method should:
 
 1. **Split content into lines** for line number tracking
 2. **Scan each line** for task references using regex patterns
@@ -152,7 +153,7 @@ ERROR: Task T3k7x-example: broken link at line 15: task T9999-missing does not e
 - Markdown links are explicit and intentional
 - Low false positive rate
 - High value - catches broken documentation links
-- Parent/blocker fields already validated
+- Parent/blocker fields already repaired
 
 #### 6. Testing Strategy
 
@@ -192,7 +193,7 @@ Add test cases to cover:
    - Con: Adds indirection, splits validation logic
    - Decision: REJECTED - keep validation centralized
 
-3. **Validate all bare task ID references**
+3. **Repair all bare task ID references**
    - Pro: Catches more broken references
    - Con: High false positive rate (IDs in code examples, commit messages, etc.)
    - Decision: DEFER - start with markdown links only, can expand later

@@ -16,7 +16,7 @@ This review compares the implemented CLI (`cmd/*.go`) against the intended behav
 ?   	github.com/ricochet1k/memmd	[no test files]
 ?   	github.com/ricochet1k/memmd/cmd	[no test files]
 
-# go run . validate --path tasks --format text
+# go run . repair --path tasks --format text
 ERROR: missing role file roles/developer.md for task T000002-setup-infra
 ERROR: missing Role in tasks/D000001-review-design/task.md
 ERROR: missing role file roles/developer.md for task T000001-project-alpha
@@ -29,7 +29,7 @@ SUCCESS (builds without errors)
 
 | Command | Specified in Design | Implementation Status |
 |---------|--------------------|-----------------------|
-| `validate` | ✓ | **COMPLETE** - Fully functional |
+| `repair` | ✓ | **COMPLETE** - Fully functional |
 | `next` | ✓ | **COMPLETE** - Fully functional |
 | `init` | ✓ | **STUB** - Only prints "init called" |
 | `add` / `new` | ✓ | **STUB** - Only prints "add called" |
@@ -118,12 +118,12 @@ Alternatives
 
 **Owner Decision Required**: Choose between minimal change (keep current behavior, document it) or larger change (optional role with defaults).
 
-### 4) `validate` behaviour and failure semantics
-**Observation**: `validate` regenerates master lists and exits non-zero on errors - this matches design doc. However, validation currently fails due to the metadata format issue (see Discrepancy #1) and references to missing role files.
+### 4) `repair` behaviour and failure semantics
+**Observation**: `repair` regenerates master lists and exits non-zero on errors - this matches design doc. However, validation currently fails due to the metadata format issue (see Discrepancy #1) and references to missing role files.
 
 **Current behavior**:
 - Parses tasks correctly when using `Role:` field format
-- Validates role files exist
+- Repairs role files exist
 - Regenerates master lists deterministically (sorted)
 - Exits with error code if any validation fails
 
@@ -147,7 +147,7 @@ Alternatives
 
 ### 5) Master lists path and determinism
 
-**Observation**: `validate` writes `tasks/root-tasks.md` and `tasks/free-tasks.md` deterministically with sorted entries - behavior matches design doc exactly. ✓ **No change recommended.**
+**Observation**: `repair` writes `tasks/root-tasks.md` and `tasks/free-tasks.md` deterministically with sorted entries - behavior matches design doc exactly. ✓ **No change recommended.**
 
 ### 6) Unimplemented Commands
 
@@ -190,11 +190,11 @@ Alternatives
 
 **A) Add Comprehensive Test Suite**
 - Unit tests for parsers (`parseRole`, `parseBlockers`)
-- Integration tests for `validate` and `next` commands
+- Integration tests for `repair` and `next` commands
 - Test fixtures with sample tasks (valid and malformed)
 - **Pros**: Catches regressions; documents expected behavior; enables confident refactoring
 - **Cons**: Initial effort to write tests; ongoing maintenance
-- **Impact**: Add `cmd/validate_test.go`, `cmd/next_test.go`, `testdata/` fixtures
+- **Impact**: Add `cmd/repair_test.go`, `cmd/next_test.go`, `testdata/` fixtures
 
 **B) Minimal Test Coverage** (critical paths only)
 - Tests for ID regex validation
@@ -246,7 +246,7 @@ One possible priority ordering based on impact and effort analysis:
 | Lower | #2 - ID format mismatch | Low | Low | Documentation issue only |
 | Lower | #3 - `next` role filtering | Medium | Low | UX improvement |
 | Lower | #6 - Unimplemented commands (Phase 2: block) | Medium | Medium | Enables dependency management |
-| Lower | #4 - Validate strictness | Low | Low | Current behavior is acceptable |
+| Lower | #4 - Repair strictness | Low | Low | Current behavior is acceptable |
 | Lower | #6 - Unimplemented commands (Phase 3: init, templates) | Low | Medium | Nice-to-have features |
 
 **Owner**: Please review and establish actual priority ordering based on project goals.
@@ -260,16 +260,16 @@ One possible priority ordering based on impact and effort analysis:
 - **Task E1-T1**: Standardize task metadata format to simple field format
   - Update [templates/leaf.md](templates/leaf.md) to use `Role:` instead of `## Role`
   - Update [tasks/D000001-review-design/task.md](tasks/D000001-review-design/task.md) to use simple field format
-  - Verify `validate` passes for all tasks
+  - Verify `repair` passes for all tasks
   - **Files**: templates/leaf.md, tasks/D000001-review-design/task.md
-  - **Acceptance**: `go run . validate` succeeds with no errors
+  - **Acceptance**: `go run . repair` succeeds with no errors
 
 - **Task E1-T2**: Add comprehensive test suite
-  - Create `cmd/validate_test.go` with tests for `parseRole`, `parseBlockers`, ID validation
+  - Create `cmd/repair_test.go` with tests for `parseRole`, `parseBlockers`, ID validation
   - Create `cmd/next_test.go` with tests for role selection logic
   - Create `testdata/` with valid and malformed task fixtures
-  - **Files**: cmd/validate_test.go, cmd/next_test.go, testdata/*
-  - **Acceptance**: `go test ./...` passes with >80% coverage of validate and next commands
+  - **Files**: cmd/repair_test.go, cmd/next_test.go, testdata/*
+  - **Acceptance**: `go test ./...` passes with >80% coverage of repair and next commands
 
 ### Epic E2: Template Organization (P1)
 **Owner**: developer
@@ -313,7 +313,7 @@ One possible priority ordering based on impact and effort analysis:
   - Generate ID using idgen package
   - Create task directory: `tasks/<parent-path>/<task-id>/`
   - Expand template and write `<task-id>.md`
-  - Run `validate` to update master lists
+  - Run `repair` to update master lists
   - **Files**: cmd/add.go
   - **Acceptance**: `memmd add --title "Test task" --role developer` creates valid task
 
@@ -321,7 +321,7 @@ One possible priority ordering based on impact and effort analysis:
   - Parse flags: `<task-id>` (positional), `--role <role>`
   - Read task file, find `Role:` line, replace value
   - Write atomically (temp file + rename)
-  - Validate role file exists before updating
+  - Repair role file exists before updating
   - **Files**: cmd/assign.go
   - **Acceptance**: `memmd assign T000001-test --role owner` updates role correctly
 
@@ -333,7 +333,7 @@ One possible priority ordering based on impact and effort analysis:
   - Parse flags: `--task <task-id>` `--blocks <blocker-id>`
   - Update both tasks: add to `Blockers:` list of task, add to `Blocks:` list of blocker
   - Maintain sorted order
-  - Run `validate` to update free-tasks list
+  - Run `repair` to update free-tasks list
   - **Files**: cmd/block.go
   - **Acceptance**: `memmd block add --task T000002 --blocks T000001` updates both tasks
 

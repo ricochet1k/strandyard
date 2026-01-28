@@ -21,7 +21,8 @@ var nextCmd = &cobra.Command{
 	Use:   "next",
 	Short: "Print the next free task",
 	Long: `Print the next free task from the free-tasks list.
-Shows the task's role (from metadata or first TODO) and the task content.`,
+Shows the task's role (from metadata or first TODO) and the task content.
+Use --role to filter tasks by specific role.`,
 	RunE: func(cmd *cobra.Command, args []string) error {
 		return runNext(nextRole)
 	},
@@ -33,11 +34,11 @@ func init() {
 }
 
 func runNext(roleFilter string) error {
-	// Ensure free-tasks exists; if not, run validate to generate it
+	// Ensure free-tasks exists; if not, run repair to generate it
 	freePath := "tasks/free-tasks.md"
 	if _, err := os.Stat(freePath); os.IsNotExist(err) {
-		// Run validate to generate lists
-		if err := runValidate("tasks", "tasks/root-tasks.md", freePath, "text"); err != nil {
+		// Run repair to generate lists
+		if err := runRepair("tasks", "tasks/root-tasks.md", freePath, "text"); err != nil {
 			return fmt.Errorf("unable to generate master lists: %w", err)
 		}
 	}
@@ -118,21 +119,12 @@ func runNext(roleFilter string) error {
 
 	selectedTask := candidatesParsed[0].task
 
-	// Print role
+	// Print role info (compact)
 	role := selectedTask.GetEffectiveRole()
 	if role != "" {
 		fmt.Printf("Role: %s\n\n", role)
-		rolePath := fmt.Sprintf("roles/%s.md", role)
-		roleData, err := os.ReadFile(rolePath)
-		if err != nil {
-			fmt.Printf("Role file not found: %s\n\n", rolePath)
-		} else {
-			fmt.Print(string(roleData))
-			fmt.Print("\n\n")
-		}
 	} else {
 		fmt.Println("Role: (none)")
-		fmt.Println()
 	}
 
 	// Print task content

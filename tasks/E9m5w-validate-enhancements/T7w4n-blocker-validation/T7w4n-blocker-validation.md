@@ -1,24 +1,30 @@
 ---
+type: ""
 role: developer
+priority: ""
 parent: E9m5w-validate-enhancements
 blockers: []
-date_created: 2026-01-27
-date_edited: 2026-01-27
+blocks:
+  - T2h9m-simplify-validation
+date_created: 2026-01-27T00:00:00Z
+date_edited: 2026-01-28T04:59:23.327776Z
+owner_approval: false
+completed: true
 ---
 
 # Add Blocker Status Validation
 
 ## Summary
 
-Validate that blocker relationships are bidirectional and consistent, and that free-tasks.md accurately reflects tasks with no blockers.
+Repair that blocker relationships are bidirectional and consistent, and that free-tasks.md accurately reflects tasks with no blockers.
 
 ## Tasks
 
-- [ ] Validate bidirectional blocker relationships:
+- [ ] Repair bidirectional blocker relationships:
   - If task A blocks task B, then task B should list A in blockers
   - If task A has blocker B, then task B should list A in blocks
-- [ ] Validate free-tasks.md only contains tasks with empty blockers array
-- [ ] Validate tasks in free-tasks.md actually exist
+- [ ] Repair free-tasks.md only contains tasks with empty blockers array
+- [ ] Repair tasks in free-tasks.md actually exist
 - [ ] Report inconsistent blocker relationships with clear errors
 - [ ] Suggest fixes for broken relationships
 
@@ -65,8 +71,8 @@ Add bidirectional blocker validation to the existing `Validator` struct and upda
 Add new validation method:
 
 ```go
-// validateBidirectionalBlockers ensures blocker relationships are bidirectional
-func (v *Validator) validateBidirectionalBlockers(id string, task *Task) {
+// repairBidirectionalBlockers ensures blocker relationships are bidirectional
+func (v *Validator) repairBidirectionalBlockers(id string, task *Task) {
     // For each blocker B that task A lists:
     //   - Verify B.blocks contains A
     // For each task C in A.blocks:
@@ -74,19 +80,19 @@ func (v *Validator) validateBidirectionalBlockers(id string, task *Task) {
 }
 ```
 
-Call from `Validate()` method:
+Call from `Repair()` method:
 
 ```go
-func (v *Validator) Validate() []ValidationError {
+func (v *Validator) Repair() []ValidationError {
     v.errors = []ValidationError{}
 
     for id, task := range v.tasks {
-        v.validateID(id, task)
-        v.validateRole(id, task)
-        v.validateParent(id, task)
-        v.validateBlockers(id, task)
-        v.validateTaskLinks(id, task)
-        v.validateBidirectionalBlockers(id, task)  // Add this
+        v.repairID(id, task)
+        v.repairRole(id, task)
+        v.repairParent(id, task)
+        v.repairBlockers(id, task)
+        v.repairTaskLinks(id, task)
+        v.repairBidirectionalBlockers(id, task)  // Add this
     }
 
     return v.errors
@@ -102,7 +108,7 @@ The validation should check:
 for _, blockerID := range task.Meta.Blockers {
     blocker, exists := v.tasks[blockerID]
     if !exists {
-        // Already caught by validateBlockers
+        // Already caught by repairBlockers
         continue
     }
 
@@ -162,31 +168,31 @@ func contains(slice []string, val string) bool {
 
 #### 3. Free Tasks List Validation
 
-Currently, `GenerateMasterLists` generates free-tasks.md but doesn't validate it. We need to add validation that runs during the validate command.
+Currently, `GenerateMasterLists` generates free-tasks.md but doesn't repair it. We need to add validation that runs during the repair command.
 
 **Two approaches considered:**
 
-**Option A: Validate the generated file matches reality**
+**Option A: Repair the generated file matches reality**
 - After generating free-tasks.md, read it back
 - Parse the task list
 - Compare with actual free tasks
 - Report discrepancies
 
-**Option B: Don't validate the file, just ensure it's regenerated**
-- The validate command already regenerates free-tasks.md
-- If it's out of sync, running validate fixes it automatically
-- This is the "one right way" - validate regenerates truth
+**Option B: Don't repair the file, just ensure it's regenerated**
+- The repair command already regenerates free-tasks.md
+- If it's out of sync, running repair fixes it automatically
+- This is the "one right way" - repair regenerates truth
 
 **Decision: Option B (simpler)**
-- The validate command already regenerates both master lists
-- If free-tasks.md is out of date, validate fixes it
+- The repair command already regenerates both master lists
+- If free-tasks.md is out of date, repair fixes it
 - No need for additional validation of the file itself
 - Focus validation on task metadata correctness
 
-**What we DO validate:**
+**What we DO repair:**
 - Blocker relationships are bidirectional (covered above)
 - Tasks with no blockers can be correctly identified (already works)
-- Master lists are regenerated on every validate run (already works)
+- Master lists are regenerated on every repair run (already works)
 
 #### 4. Error Message Format
 
@@ -210,7 +216,7 @@ These are actionable - they tell the user exactly what's wrong and what fields n
 
 #### 5. Handling Completed Tasks
 
-**Question**: Should completed tasks be validated for blocker relationships?
+**Question**: Should completed tasks be repaired for blocker relationships?
 
 **Answer**: YES
 - Completed tasks may still have blocker/blocks fields
@@ -271,16 +277,16 @@ type Metadata struct {
    - Con: Violates "one right way" principle
    - Decision: REJECTED - must be an error to fix
 
-3. **Validate free-tasks.md file content**
+3. **Repair free-tasks.md file content**
    - Pro: Catches stale files
-   - Con: File is auto-generated by validate, adds redundant checking
+   - Con: File is auto-generated by repair, adds redundant checking
    - Decision: REJECTED - regeneration is sufficient
 
 ### Implementation Order
 
-1. Add `validateBidirectionalBlockers` method with blocker→blocks validation
+1. Add `repairBidirectionalBlockers` method with blocker→blocks validation
 2. Add blocks→blocker validation in same method
 3. Add non-existent blocked task validation
 4. Add helper `contains` function
-5. Wire into `Validate()` method
+5. Wire into `Repair()` method
 6. Add tests

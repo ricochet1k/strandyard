@@ -5,13 +5,10 @@ package cmd
 
 import (
 	"fmt"
-	"os"
-	"strings"
 	"time"
 
 	"github.com/ricochet1k/memmd/pkg/task"
 	"github.com/spf13/cobra"
-	"gopkg.in/yaml.v3"
 )
 
 // completeCmd represents the complete command
@@ -45,52 +42,50 @@ func runComplete(taskID string) error {
 		return fmt.Errorf("task not found: %s", taskID)
 	}
 
-	taskFile := t.FilePath
-
 	// Check if already completed
 	if t.Meta.Completed {
 		fmt.Printf("Task %s is already marked as completed\n", taskID)
 		return nil
 	}
 
-	// Read the file content
-	content, readErr := os.ReadFile(taskFile)
-	if readErr != nil {
-		return fmt.Errorf("failed to read task file: %w", readErr)
+	// Calculate incremental update before marking the task complete
+	update, err := task.CalculateIncrementalFreeListUpdate(tasks, taskID)
+	if err != nil {
+		return fmt.Errorf("failed to calculate incremental update: %w", err)
 	}
 
 	// Update metadata
 	t.Meta.Completed = true
 	t.Meta.DateEdited = time.Now().UTC()
+	t.MarkDirty()
 
-	// Split frontmatter and body
-	contentStr := string(content)
-	parts := strings.SplitN(contentStr, "---", 3)
-	if len(parts) < 3 {
-		return fmt.Errorf("invalid task file format: missing frontmatter delimiters")
-	}
-
-	// Serialize updated frontmatter
-	frontmatterBytes, marshalErr := yaml.Marshal(&t.Meta)
-	if marshalErr != nil {
-		return fmt.Errorf("failed to serialize frontmatter: %w", marshalErr)
-	}
-
-	// Reconstruct file
-	var newContent strings.Builder
-	newContent.WriteString("---\n")
-	newContent.Write(frontmatterBytes)
-	newContent.WriteString("---")
-	newContent.WriteString(parts[2])
-
-	// Write back to file
-	if writeErr := os.WriteFile(taskFile, []byte(newContent.String()), 0o644); writeErr != nil {
-		return fmt.Errorf("failed to write task file: %w", writeErr)
+	if err := t.Write(); err != nil {
+		return fmt.Errorf("failed to write task file: %w", err)
 	}
 
 	fmt.Printf("✓ Task %s marked as completed\n", taskID)
-	if err := runValidate("tasks", "tasks/root-tasks.md", "tasks/free-tasks.md", "text"); err != nil {
-		return err
+
+	// Try incremental update first, fall back to full validation
+	if err := task.UpdateFreeListIncrementally(tasks, "tasks/free-tasks.md", update); err != nil {
+		fmt.Printf("⚠️  Incremental update failed, falling back to full repair: %v\n", err)
+		if err := runRepair("tasks", "tasks/root-tasks.md", "tasks/free-tasks.md", "text"); err != nil {
+			return err
+		}
+	} else {
+		fmt.Printf("✓ Incrementally updated free-tasks.md\n")
+		// Still need to run repair for error checking, but skip master list generation
+		validator := task.NewValidator(tasks)
+		errors := validator.Validate()
+		if _, err := task.WriteDirtyTasks(tasks); err != nil {
+			return fmt.Errorf("failed to write repaired tasks: %w", err)
+		}
+		if len(errors) > 0 {
+			fmt.Printf("⚠️  Repair errors found:\n")
+			for _, e := range errors {
+				fmt.Printf("ERROR: %s\n", e.Error())
+			}
+			return fmt.Errorf("repair failed: %d error(s)", len(errors))
+		}
 	}
 
 	fmt.Printf("💡 Consider committing your changes: git add -A && git commit -m \"complete: %s\"\n", taskID)

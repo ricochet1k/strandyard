@@ -7,6 +7,7 @@ import (
 	"regexp"
 	"sort"
 	"strings"
+	"time"
 
 	"github.com/yuin/goldmark/ast"
 )
@@ -25,7 +26,7 @@ func (e ValidationError) Error() string {
 	return e.Message
 }
 
-// Validator validates tasks and their relationships
+// Validator verifys tasks and their relationships
 type Validator struct {
 	tasks     map[string]*Task
 	errors    []ValidationError
@@ -52,24 +53,73 @@ func NewValidator(tasks map[string]*Task) *Validator {
 	}
 }
 
-// Validate runs all validations and returns errors
+// Validate runs all validations, auto-fixes relationships, and returns errors
 func (v *Validator) Validate() []ValidationError {
 	v.errors = []ValidationError{}
 
+	// First pass: verify basic task properties
 	for id, task := range v.tasks {
-		v.validateID(id, task)
-		v.validateRole(id, task)
-		v.validatePriority(id, task)
-		v.validateParent(id, task)
-		v.validateBlockers(id, task)
-		v.validateTaskLinks(id, task)
+		v.verifyID(id, task)
+		v.verifyRole(id, task)
+		v.verifyPriority(id, task)
+		v.verifyParent(id, task)
+		v.verifyBlockers(id, task)
+		v.verifyTaskLinks(id, task)
+	}
+
+	// Auto-fix bidirectional blocker relationships
+	v.fixBlockerRelationships()
+
+	// Second pass: verify bidirectional relationships are now correct
+	for id, task := range v.tasks {
+		v.verifyBidirectionalBlockers(id, task)
 	}
 
 	return v.errors
 }
 
-// validateID checks if the task ID follows the correct format
-func (v *Validator) validateID(id string, task *Task) {
+// fixBlockerRelationships automatically fixes missing bidirectional blocker relationships
+func (v *Validator) fixBlockerRelationships() {
+	now := time.Now()
+	for taskID, task := range v.tasks {
+		for _, blockerID := range task.Meta.Blockers {
+			if blockerID == "" {
+				continue
+			}
+			blocker, exists := v.tasks[blockerID]
+			if !exists {
+				continue // Will be caught by validation
+			}
+
+			updated, changed := addUniqueSorted(blocker.Meta.Blocks, taskID)
+			if changed {
+				blocker.Meta.Blocks = updated
+				blocker.Meta.DateEdited = now
+				blocker.MarkDirty()
+			}
+		}
+
+		for _, blockedID := range task.Meta.Blocks {
+			if blockedID == "" {
+				continue
+			}
+			blocked, exists := v.tasks[blockedID]
+			if !exists {
+				continue // Will be caught by validation
+			}
+
+			updated, changed := addUniqueSorted(blocked.Meta.Blockers, taskID)
+			if changed {
+				blocked.Meta.Blockers = updated
+				blocked.Meta.DateEdited = now
+				blocked.MarkDirty()
+			}
+		}
+	}
+}
+
+// verifyID checks if the task ID follows the correct format
+func (v *Validator) verifyID(id string, task *Task) {
 	if !v.idPattern.MatchString(id) {
 		v.errors = append(v.errors, ValidationError{
 			TaskID:  id,
@@ -79,8 +129,8 @@ func (v *Validator) validateID(id string, task *Task) {
 	}
 }
 
-// validateRole checks if the role exists
-func (v *Validator) validateRole(id string, task *Task) {
+// verifyRole checks if the role exists
+func (v *Validator) verifyRole(id string, task *Task) {
 	role := task.GetEffectiveRole()
 	if role == "" {
 		v.errors = append(v.errors, ValidationError{
@@ -102,8 +152,8 @@ func (v *Validator) validateRole(id string, task *Task) {
 	}
 }
 
-// validatePriority checks if the priority is a known value (or empty).
-func (v *Validator) validatePriority(id string, task *Task) {
+// verifyPriority checks if the priority is a known value (or empty).
+func (v *Validator) verifyPriority(id string, task *Task) {
 	if IsValidPriority(task.Meta.Priority) {
 		return
 	}
@@ -115,10 +165,10 @@ func (v *Validator) validatePriority(id string, task *Task) {
 	})
 }
 
-// validateParent checks if parent task exists
-func (v *Validator) validateParent(id string, task *Task) {
+// verifyParent checks if parent task exists
+func (v *Validator) verifyParent(id string, task *Task) {
 	if task.Meta.Parent == "" {
-		return // Root task, no parent to validate
+		return // Root task, no parent to verify
 	}
 
 	if _, exists := v.tasks[task.Meta.Parent]; !exists {
@@ -130,8 +180,8 @@ func (v *Validator) validateParent(id string, task *Task) {
 	}
 }
 
-// validateBlockers checks if blocker tasks exist
-func (v *Validator) validateBlockers(id string, task *Task) {
+// verifyBlockers checks if blocker tasks exist
+func (v *Validator) verifyBlockers(id string, task *Task) {
 	for _, blocker := range task.Meta.Blockers {
 		if blocker == "" {
 			continue
@@ -147,8 +197,8 @@ func (v *Validator) validateBlockers(id string, task *Task) {
 	}
 }
 
-// validateTaskLinks scans task content for references to other tasks and verifies they exist
-func (v *Validator) validateTaskLinks(id string, task *Task) {
+// verifyTaskLinks scans task content for references to other tasks and verifies they exist
+func (v *Validator) verifyTaskLinks(id string, task *Task) {
 	ast.Walk(task.Document, func(n ast.Node, entering bool) (ast.WalkStatus, error) {
 		if !entering {
 			return ast.WalkContinue, nil
@@ -158,7 +208,7 @@ func (v *Validator) validateTaskLinks(id string, task *Task) {
 		if link, ok := n.(*ast.Link); ok {
 			destination := string(link.Destination)
 			taskID := extractTaskIDFromPath(destination)
-			if taskID != "" && taskID != id { // Don't validate self-references
+			if taskID != "" && taskID != id { // Don't verify self-references
 				if _, exists := v.tasks[taskID]; !exists {
 					v.errors = append(v.errors, ValidationError{
 						TaskID:  id,
@@ -171,6 +221,79 @@ func (v *Validator) validateTaskLinks(id string, task *Task) {
 
 		return ast.WalkContinue, nil
 	})
+}
+
+// verifyBidirectionalBlockers ensures blocker relationships are bidirectional
+func (v *Validator) verifyBidirectionalBlockers(id string, task *Task) {
+	// For each blocker that this task lists, verify it lists this task in its blocks field
+	for _, blockerID := range task.Meta.Blockers {
+		if blockerID == "" {
+			continue
+		}
+
+		blocker, exists := v.tasks[blockerID]
+		if !exists {
+			// Already caught by verifyBlockers
+			continue
+		}
+
+		// Check if blocker lists this task in its blocks field
+		if !contains(blocker.Meta.Blocks, id) {
+			v.errors = append(v.errors, ValidationError{
+				TaskID:  id,
+				File:    task.FilePath,
+				Message: fmt.Sprintf("task has blocker %s, but %s doesn't list this task in blocks field", blockerID, blockerID),
+			})
+		}
+	}
+
+	// For each task that this one blocks, verify it lists this task in its blockers field
+	for _, blockedID := range task.Meta.Blocks {
+		if blockedID == "" {
+			continue
+		}
+
+		blocked, exists := v.tasks[blockedID]
+		if !exists {
+			v.errors = append(v.errors, ValidationError{
+				TaskID:  id,
+				File:    task.FilePath,
+				Message: fmt.Sprintf("blocks non-existent task %s", blockedID),
+			})
+			continue
+		}
+
+		// Check if blocked task lists this in its blockers field
+		if !contains(blocked.Meta.Blockers, id) {
+			v.errors = append(v.errors, ValidationError{
+				TaskID:  id,
+				File:    task.FilePath,
+				Message: fmt.Sprintf("task blocks %s, but %s doesn't list this task in blockers field", blockedID, blockedID),
+			})
+		}
+	}
+}
+
+// contains checks if a string slice contains a value
+func contains(slice []string, val string) bool {
+	for _, item := range slice {
+		if item == val {
+			return true
+		}
+	}
+	return false
+}
+
+func addUniqueSorted(slice []string, val string) ([]string, bool) {
+	if val == "" {
+		return slice, false
+	}
+	if contains(slice, val) {
+		return slice, false
+	}
+	slice = append(slice, val)
+	sort.Strings(slice)
+	return slice, true
 }
 
 // extractTaskIDFromPath extracts a task ID from a file or directory path
@@ -325,4 +448,214 @@ func relativeListPath(listFile, target string) string {
 		return filepath.ToSlash(target)
 	}
 	return filepath.ToSlash(rel)
+}
+
+// IncrementalFreeListUpdate represents changes to make to free-tasks.md
+type IncrementalFreeListUpdate struct {
+	RemoveTaskIDs []string // Tasks to remove (completed tasks)
+	AddTasks      []*Task  // Tasks to add (newly unblocked tasks)
+}
+
+// UpdateFreeListIncrementally updates free-tasks.md incrementally
+func UpdateFreeListIncrementally(tasks map[string]*Task, freeFile string, update IncrementalFreeListUpdate) error {
+	// Read current free-tasks.md content
+	content, err := os.ReadFile(freeFile)
+	if err != nil {
+		return fmt.Errorf("failed to read free tasks file: %w", err)
+	}
+
+	lines := strings.Split(string(content), "\n")
+
+	// Parse existing entries
+	entriesByPriority := map[string][]listEntry{
+		PriorityHigh:   {},
+		PriorityMedium: {},
+		PriorityLow:    {},
+	}
+	other := []listEntry{}
+
+	var currentSection string
+	var title string
+
+	// Parse the file structure
+	for _, line := range lines {
+		line = strings.TrimSpace(line)
+		if strings.HasPrefix(line, "# ") {
+			title = strings.TrimPrefix(line, "# ")
+			continue
+		}
+		if strings.HasPrefix(line, "## ") {
+			currentSection = strings.TrimPrefix(line, "## ")
+			continue
+		}
+		if strings.HasPrefix(line, "- [") && strings.Contains(line, "](") {
+			// Extract task info from markdown link
+			endLabel := strings.Index(line, "](")
+			if endLabel > 2 {
+				label := line[2:endLabel]
+				startPath := endLabel + 2
+				endPath := strings.LastIndex(line, ")")
+				if endPath > startPath {
+					path := line[startPath:endPath]
+
+					entry := listEntry{Label: label, Path: path}
+
+					// Determine which priority section this belongs to
+					switch currentSection {
+					case "High":
+						entriesByPriority[PriorityHigh] = append(entriesByPriority[PriorityHigh], entry)
+					case "Medium":
+						entriesByPriority[PriorityMedium] = append(entriesByPriority[PriorityMedium], entry)
+					case "Low":
+						entriesByPriority[PriorityLow] = append(entriesByPriority[PriorityLow], entry)
+					case "Other":
+						other = append(other, entry)
+					default:
+						// If no section yet, it's in the old format or we need to detect
+						// Try to find the task to determine its priority
+						for _, task := range tasks {
+							taskRelPath := filepath.ToSlash(task.FilePath)
+							if strings.Contains(path, taskRelPath) || strings.Contains(taskRelPath, path) {
+								priority := NormalizePriority(task.Meta.Priority)
+								switch priority {
+								case PriorityHigh:
+									entriesByPriority[PriorityHigh] = append(entriesByPriority[PriorityHigh], entry)
+								case PriorityMedium:
+									entriesByPriority[PriorityMedium] = append(entriesByPriority[PriorityMedium], entry)
+								case PriorityLow:
+									entriesByPriority[PriorityLow] = append(entriesByPriority[PriorityLow], entry)
+								default:
+									other = append(other, entry)
+								}
+								break
+							}
+						}
+					}
+				}
+			}
+		}
+	}
+
+	// Remove completed tasks
+	removeSet := make(map[string]bool)
+	for _, taskID := range update.RemoveTaskIDs {
+		removeSet[taskID] = true
+	}
+
+	// Filter out removed tasks
+	filterEntries := func(entries []listEntry) []listEntry {
+		filtered := make([]listEntry, 0, len(entries))
+		for _, entry := range entries {
+			// Check if this entry corresponds to a removed task
+			shouldRemove := false
+			for taskID, task := range tasks {
+				taskRelPath := filepath.ToSlash(task.FilePath)
+				if removeSet[taskID] && (strings.Contains(entry.Path, taskRelPath) || strings.Contains(taskRelPath, entry.Path)) {
+					shouldRemove = true
+					break
+				}
+			}
+			if !shouldRemove {
+				filtered = append(filtered, entry)
+			}
+		}
+		return filtered
+	}
+
+	entriesByPriority[PriorityHigh] = filterEntries(entriesByPriority[PriorityHigh])
+	entriesByPriority[PriorityMedium] = filterEntries(entriesByPriority[PriorityMedium])
+	entriesByPriority[PriorityLow] = filterEntries(entriesByPriority[PriorityLow])
+	other = filterEntries(other)
+
+	// Add newly unblocked tasks
+	for _, task := range update.AddTasks {
+		title := task.Title()
+		if title == "" {
+			title = task.ID
+		}
+
+		rel := filepath.ToSlash(task.FilePath)
+		entry := listEntry{Path: rel, Label: title}
+
+		switch NormalizePriority(task.Meta.Priority) {
+		case PriorityHigh:
+			entriesByPriority[PriorityHigh] = append(entriesByPriority[PriorityHigh], entry)
+		case PriorityMedium:
+			entriesByPriority[PriorityMedium] = append(entriesByPriority[PriorityMedium], entry)
+		case PriorityLow:
+			entriesByPriority[PriorityLow] = append(entriesByPriority[PriorityLow], entry)
+		default:
+			other = append(other, entry)
+		}
+	}
+
+	// Sort for deterministic output
+	sort.Slice(entriesByPriority[PriorityHigh], func(i, j int) bool {
+		return entriesByPriority[PriorityHigh][i].Path < entriesByPriority[PriorityHigh][j].Path
+	})
+	sort.Slice(entriesByPriority[PriorityMedium], func(i, j int) bool {
+		return entriesByPriority[PriorityMedium][i].Path < entriesByPriority[PriorityMedium][j].Path
+	})
+	sort.Slice(entriesByPriority[PriorityLow], func(i, j int) bool {
+		return entriesByPriority[PriorityLow][i].Path < entriesByPriority[PriorityLow][j].Path
+	})
+	sort.Slice(other, func(i, j int) bool { return other[i].Path < other[j].Path })
+
+	// Write the updated file
+	if err := writePriorityListFile(freeFile, title, entriesByPriority, other); err != nil {
+		return fmt.Errorf("failed to write updated free tasks file: %w", err)
+	}
+
+	return nil
+}
+
+// CalculateIncrementalFreeListUpdate determines what changes need to be made to free-tasks.md
+// when a task is completed
+func CalculateIncrementalFreeListUpdate(tasks map[string]*Task, completedTaskID string) (IncrementalFreeListUpdate, error) {
+	_, exists := tasks[completedTaskID]
+	if !exists {
+		return IncrementalFreeListUpdate{}, fmt.Errorf("completed task not found: %s", completedTaskID)
+	}
+
+	update := IncrementalFreeListUpdate{
+		RemoveTaskIDs: []string{completedTaskID},
+		AddTasks:      []*Task{},
+	}
+
+	// Find tasks that were blocked by the completed task
+	for _, task := range tasks {
+		if task.Meta.Completed {
+			continue // Skip completed tasks
+		}
+
+		// Check if this task was blocked by the completed task
+		wasBlocked := false
+		for _, blocker := range task.Meta.Blockers {
+			if blocker == completedTaskID {
+				wasBlocked = true
+				break
+			}
+		}
+
+		if wasBlocked {
+			// Check if this task is now free (no remaining blockers)
+			allBlockersCompleted := true
+			for _, blocker := range task.Meta.Blockers {
+				if blocker == completedTaskID {
+					continue // This is the task we're completing
+				}
+				blockerTask, blockerExists := tasks[blocker]
+				if !blockerExists || !blockerTask.Meta.Completed {
+					allBlockersCompleted = false
+					break
+				}
+			}
+
+			if allBlockersCompleted {
+				update.AddTasks = append(update.AddTasks, task)
+			}
+		}
+	}
+
+	return update, nil
 }

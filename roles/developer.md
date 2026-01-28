@@ -21,7 +21,7 @@ Developer (human or AI) — implements tasks, writes code, and produces working 
 1. Read the assigned task and understand acceptance criteria
 2. Implement the functionality described in the task
 3. Write tests to verify the implementation
-4. Run validation: `go build ./...`, `go test ./...`, `memmd validate`
+4. Run repair: `go build ./...`, `go test ./...`, `memmd repair`
 5. Update task status and mark as completed when done
 
 ## Constraints

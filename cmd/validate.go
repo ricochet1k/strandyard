@@ -12,30 +12,30 @@ import (
 )
 
 var (
-	validatePath  string
-	validateRoots string
-	validateFree  string
-	validateFmt   string
+	repairPath  string
+	repairRoots string
+	repairFree  string
+	repairFmt   string
 )
 
-// validateCmd represents the validate command
-var validateCmd = &cobra.Command{
-	Use:   "validate",
-	Short: "Validate task tree and regenerate master lists",
+// repairCmd represents the repair command
+var repairCmd = &cobra.Command{
+	Use:   "repair",
+	Short: "Repair task tree and regenerate master lists",
 	RunE: func(cmd *cobra.Command, args []string) error {
-		return runValidate(validatePath, validateRoots, validateFree, validateFmt)
+		return runRepair(repairPath, repairRoots, repairFree, repairFmt)
 	},
 }
 
 func init() {
-	rootCmd.AddCommand(validateCmd)
-	validateCmd.Flags().StringVar(&validatePath, "path", "tasks", "path to tasks directory")
-	validateCmd.Flags().StringVar(&validateRoots, "roots", "tasks/root-tasks.md", "path to write root tasks list")
-	validateCmd.Flags().StringVar(&validateFree, "free", "tasks/free-tasks.md", "path to write free tasks list")
-	validateCmd.Flags().StringVar(&validateFmt, "format", "text", "output format for validation errors: text|json")
+	rootCmd.AddCommand(repairCmd)
+	repairCmd.Flags().StringVar(&repairPath, "path", "tasks", "path to tasks directory")
+	repairCmd.Flags().StringVar(&repairRoots, "roots", "tasks/root-tasks.md", "path to write root tasks list")
+	repairCmd.Flags().StringVar(&repairFree, "free", "tasks/free-tasks.md", "path to write free tasks list")
+	repairCmd.Flags().StringVar(&repairFmt, "format", "text", "output format for repair errors: text|json")
 }
 
-func runValidate(tasksRoot, rootsFile, freeFile, outFormat string) error {
+func runRepair(tasksRoot, rootsFile, freeFile, outFormat string) error {
 	// Parse all tasks
 	parser := task.NewParser()
 	tasks, err := parser.LoadTasks(tasksRoot)
@@ -43,13 +43,18 @@ func runValidate(tasksRoot, rootsFile, freeFile, outFormat string) error {
 		return fmt.Errorf("failed to load tasks: %w", err)
 	}
 
-	// Validate tasks
-	validator := task.NewValidator(tasks)
-	errors := validator.Validate()
-
 	// Update parent blockers from incomplete subtasks
 	if _, err := task.UpdateBlockersFromChildren(tasks); err != nil {
 		return fmt.Errorf("failed to update blockers from subtasks: %w", err)
+	}
+
+	// Validate tasks (also repairs bidirectional relationships)
+	validator := task.NewValidator(tasks)
+	errors := validator.Validate()
+
+	// Persist repaired tasks at the end of the run
+	if _, err := task.WriteDirtyTasks(tasks); err != nil {
+		return fmt.Errorf("failed to write repaired tasks: %w", err)
 	}
 
 	// Generate master lists
@@ -71,7 +76,7 @@ func runValidate(tasksRoot, rootsFile, freeFile, outFormat string) error {
 				fmt.Println("ERROR:", e.Error())
 			}
 		}
-		return fmt.Errorf("validation failed: %d error(s)", len(errors))
+		return fmt.Errorf("repair failed: %d error(s)", len(errors))
 	}
 
 	// Success output
@@ -90,8 +95,8 @@ func runValidate(tasksRoot, rootsFile, freeFile, outFormat string) error {
 		b, _ := json.MarshalIndent(map[string]interface{}{"roots": roots, "free": free}, "", "  ")
 		fmt.Println(string(b))
 	} else {
-		fmt.Println("validate: ok")
-		fmt.Printf("Validated %d tasks\n", len(tasks))
+		fmt.Println("repair: ok")
+		fmt.Printf("Repaired %d tasks\n", len(tasks))
 		fmt.Printf("Master lists updated: %s, %s\n", rootsFile, freeFile)
 	}
 

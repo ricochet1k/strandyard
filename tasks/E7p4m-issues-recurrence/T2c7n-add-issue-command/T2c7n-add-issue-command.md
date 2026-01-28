@@ -67,5 +67,5 @@ Introduce an issue-flavored task creation flow that reuses the existing task cre
 
 - CLI command creates a task directory and markdown file for an issue
 - Generated task conforms to frontmatter conventions and directory naming rules
-- `memmd validate` passes after adding an issue
+- `memmd repair` passes after adding an issue
 - Example usage documented in task body
