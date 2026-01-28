@@ -7,6 +7,8 @@ import (
 	"regexp"
 	"sort"
 	"strings"
+
+	"github.com/yuin/goldmark/ast"
 )
 
 // ValidationError represents a validation error
@@ -60,6 +62,7 @@ func (v *Validator) Validate() []ValidationError {
 		v.validatePriority(id, task)
 		v.validateParent(id, task)
 		v.validateBlockers(id, task)
+		v.validateTaskLinks(id, task)
 	}
 
 	return v.errors
@@ -142,6 +145,55 @@ func (v *Validator) validateBlockers(id string, task *Task) {
 			})
 		}
 	}
+}
+
+// validateTaskLinks scans task content for references to other tasks and verifies they exist
+func (v *Validator) validateTaskLinks(id string, task *Task) {
+	ast.Walk(task.Document, func(n ast.Node, entering bool) (ast.WalkStatus, error) {
+		if !entering {
+			return ast.WalkContinue, nil
+		}
+
+		// Look for link nodes
+		if link, ok := n.(*ast.Link); ok {
+			destination := string(link.Destination)
+			taskID := extractTaskIDFromPath(destination)
+			if taskID != "" && taskID != id { // Don't validate self-references
+				if _, exists := v.tasks[taskID]; !exists {
+					v.errors = append(v.errors, ValidationError{
+						TaskID:  id,
+						File:    task.FilePath,
+						Message: fmt.Sprintf("broken link: task %s does not exist", taskID),
+					})
+				}
+			}
+		}
+
+		return ast.WalkContinue, nil
+	})
+}
+
+// extractTaskIDFromPath extracts a task ID from a file or directory path
+// Examples:
+//   - "tasks/T3k7x-example/T3k7x-example.md" -> "T3k7x-example"
+//   - "../T5h7w-task/task.md" -> "T5h7w-task"
+//   - "T2k9p-other" -> "T2k9p-other"
+func extractTaskIDFromPath(path string) string {
+	// Clean path and split by directory separator
+	path = filepath.Clean(path)
+	parts := strings.Split(filepath.ToSlash(path), "/")
+
+	// Task ID pattern: <PREFIX><4-lowercase-alphanumeric>-<slug>
+	idPattern := regexp.MustCompile(`^[A-Z][0-9a-z]{4}-[a-zA-Z0-9-]+$`)
+
+	// Scan path components for ID pattern
+	for _, part := range parts {
+		if idPattern.MatchString(part) {
+			return part
+		}
+	}
+
+	return ""
 }
 
 // GenerateMasterLists creates root-tasks.md and free-tasks.md

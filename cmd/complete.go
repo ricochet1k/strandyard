@@ -61,7 +61,7 @@ func runComplete(taskID string) error {
 
 	// Update metadata
 	t.Meta.Completed = true
-	t.Meta.DateEdited = time.Now()
+	t.Meta.DateEdited = time.Now().UTC()
 
 	// Split frontmatter and body
 	contentStr := string(content)
@@ -84,12 +84,16 @@ func runComplete(taskID string) error {
 	newContent.WriteString(parts[2])
 
 	// Write back to file
-	if writeErr := os.WriteFile(taskFile, []byte(newContent.String()), 0644); writeErr != nil {
+	if writeErr := os.WriteFile(taskFile, []byte(newContent.String()), 0o644); writeErr != nil {
 		return fmt.Errorf("failed to write task file: %w", writeErr)
 	}
 
 	fmt.Printf("✓ Task %s marked as completed\n", taskID)
-	fmt.Println("\nRun 'memmd validate' to update master lists")
+	if err := runValidate("tasks", "tasks/root-tasks.md", "tasks/free-tasks.md", "text"); err != nil {
+		return err
+	}
+
+	fmt.Printf("💡 Consider committing your changes: git add -A && git commit -m \"complete: %s\"\n", taskID)
 
 	return nil
 }
