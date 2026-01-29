@@ -7,9 +7,9 @@ blockers: []
 blocks:
     - Tnetq-clarify-default-anchor-wording-for-commit-metrics
 date_created: 2026-01-29T20:01:12.782966Z
-date_edited: 2026-01-29T13:01:12.794384-07:00
+date_edited: 2026-01-29T20:04:13.264215Z
 owner_approval: false
-completed: false
+completed: true
 ---
 
 # Flag non-ASCII quotes in task bodies

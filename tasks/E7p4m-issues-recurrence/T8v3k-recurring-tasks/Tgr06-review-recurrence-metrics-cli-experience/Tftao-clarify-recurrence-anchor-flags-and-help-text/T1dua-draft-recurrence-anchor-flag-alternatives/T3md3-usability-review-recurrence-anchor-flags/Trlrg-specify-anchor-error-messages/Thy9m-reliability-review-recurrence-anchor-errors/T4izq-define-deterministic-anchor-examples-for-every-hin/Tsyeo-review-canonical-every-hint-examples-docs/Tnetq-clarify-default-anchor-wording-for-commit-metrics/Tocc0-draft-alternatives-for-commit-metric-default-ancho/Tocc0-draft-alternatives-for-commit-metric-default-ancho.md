@@ -5,12 +5,13 @@ priority: medium
 parent: Tnetq-clarify-default-anchor-wording-for-commit-metrics
 blockers:
     - T6gmx-reliability-review-commit-metric-default-anchor-wo
+    - Tfxi6-usability-review-commit-metric-default-anchor-word
     - Tio6w-review-alternatives-commit-metric-default-anchor-w
     - Tvu5e-usability-review-commit-metric-default-anchor-word
 blocks:
     - Tnetq-clarify-default-anchor-wording-for-commit-metrics
 date_created: 2026-01-29T19:59:33.996756Z
-date_edited: 2026-01-29T13:00:34.464754-07:00
+date_edited: 2026-01-29T13:03:46.324054-07:00
 owner_approval: false
 completed: false
 ---
