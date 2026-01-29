@@ -15,7 +15,7 @@ Clarify what is in and out of scope for this review.
 List the specific areas to evaluate (e.g., usability, API ergonomics, error handling).
 
 ## Escalation
-Create new tasks for concerns or deferred decisions instead of editing this task.
+Create new tasks for concerns or open questions instead of editing this task. Record decisions and final rationale in design docs.
 
 ## Checklist
 - [ ] Artifacts and scope listed.

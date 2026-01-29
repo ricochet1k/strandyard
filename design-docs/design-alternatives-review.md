@@ -6,7 +6,7 @@
 
 ## Summary
 
-This review compares the implemented CLI (`cmd/*.go`) against the intended behaviour in [design-docs/commands-design.md](design-docs/commands-design.md) and proposes concrete alternatives for each divergence.
+This review compares the implemented CLI (`cmd/*.go`) against the intended behaviour in [design-docs/commands-design.md](design-docs/commands-design.md) and proposes concrete alternatives for each divergence. Once decisions are made, update the design docs to reflect the final decisions and remove or condense alternatives.
 
 ## Test Results
 

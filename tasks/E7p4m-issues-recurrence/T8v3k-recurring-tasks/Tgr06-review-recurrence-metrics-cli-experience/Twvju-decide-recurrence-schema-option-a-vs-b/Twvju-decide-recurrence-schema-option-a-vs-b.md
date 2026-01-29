@@ -29,7 +29,7 @@ Use subtasks for work that should be tracked as separate task directories. List 
 - tasks/Twvju-decide-recurrence-schema-option-a-vs-b-subtask/task.md — short description of subtask
 
 ## Escalation
-If new concerns or decisions arise, create follow-up tasks instead of editing this task.
+Tasks are disposable. Use follow-up tasks for open questions/concerns. Record decisions and final rationale in design docs; do not edit this task to capture outcomes.
 
 ## Acceptance Criteria
 - Clear, runnable steps to reproduce locally.

@@ -131,7 +131,7 @@ Add the goldmark-frontmatter library to the project...
 - Task templates: `templates/` (use these for implementable tasks). `ID` and `Parent` are derived from the filesystem; do not include them in templates.
 - Document examples: `doc-examples/` (example task outputs, sample documents). Use these as templates for documents in `design-docs/` (for example, `doc-examples/design-alternatives.md`). Task bodies should come from `templates/` at task creation time.
 - Task templates must be fully specifiable before work starts; avoid placeholders for results or findings.
-- Do not edit task bodies to record outcomes; create follow-up tasks for concerns or deferred decisions.
+- Do not edit task bodies to record outcomes; tasks are disposable and may be deleted. Use follow-up tasks for open questions/concerns, and record decisions and final rationale in design docs.
 - The default task template is `templates/task.md`. The `leaf` template/type is deprecated with no backward compatibility.
 
 ## Parsing rules & expectations
@@ -162,7 +162,8 @@ Add the goldmark-frontmatter library to the project...
 
 ## Agent policy
 
-- **Policy**: Agents must not unilaterally choose which alternative to implement. Present clear alternatives with pros/cons and defer the final decision to a human maintainer (mark as "Decision: deferred" in reviews).
+- **Policy**: Agents must not unilaterally choose which alternative to implement. Present clear alternatives with pros/cons and defer the final decision to a human maintainer (mark as "Decision: deferred" in reviews). Once a decision is made, update design docs to reflect the final decision and remove or condense alternatives.
+- **Corrections**: When the user provides a general correction or preference, record it in this file as a durable rule or guideline.
 - **Execution**: Do the next logical steps yourself (tests, commits, review requests, follow-ups) unless blocked by a missing decision, credentials, or explicit instruction to wait. Do not suggest next steps in responses; execute them or state the specific blocker that prevents execution.
 - **Session title**: After `memmd next` returns the task, set the session title to `<role>: <task title>` exactly (lowercase role, task title as shown). This is required; if you realize it was missed, set it immediately.
 - **Task references in responses**: Use the task ID or `Title (short id)`; avoid full task paths unless explicitly requested.
@@ -170,6 +171,7 @@ Add the goldmark-frontmatter library to the project...
 - **Guidance**: When preparing role-based reviews or selecting the next actionable task, run `go run . next` to obtain the canonical role document and next task. Include the full stdout/stderr output from that command in review artifacts and do not assume task selection without running it.
 - **Invariant**: The `next` command must print the full role document from `roles/<role>.md` followed by a `---` separator; keep the e2e test in place to prevent regressions.
 - **After commit**: Whenever you complete and commit a task, use the `session` tool with `mode: "new"` and `async: true` to start a new session with the exact text `do the next task and you can commit if complete or blocked`, then stop work in the current session.
+- **Questions before handoff**: If you need user input, ask it before committing and before starting a new session. After you commit and start a new session, do not ask more questions in the current session.
 - **When blocked waiting on other work**: If the current task is blocked on reviews, owner decisions, or other tasks (including when you add wait-only subtasks) or the user says "done for now," use the `session` tool with `mode: "new"` and `async: true` to start a new session with the exact text `do the next task and you can commit if complete or blocked`, then stop work in the current session.
 - **When asked "work on the next thing"**: Run `memmd next` and report a summary of the task. Then perform the role's duties on that task.
 - **Repair after manual edits**: If you manually edit any task markdown files under `tasks/`, run `go run . repair` immediately afterward to regenerate master lists and confirm consistency. Make sure there's an issue filed to make sure the manual edit can be performed with a command eventually.

@@ -21,7 +21,7 @@ Describe sensitive data flows and access controls.
 List the specific security areas to evaluate.
 
 ## Escalation
-Create new tasks for concerns or deferred decisions instead of editing this task.
+Create new tasks for concerns or open questions instead of editing this task. Record decisions and final rationale in design docs.
 
 ## Checklist
 - [ ] Artifacts and scope listed.

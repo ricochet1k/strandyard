@@ -36,9 +36,12 @@ This document compares two approaches for storing the task database that the CLI
 - Risks:
   - Need deterministic ordering and master-list maintenance to avoid drift; must be enforced by CLI commands.
 
-## Recommendation
-- Preferred alternative: Filesystem-per-task.
+## Decision
+- Decision: Filesystem-per-task.
 - Rationale: This project is explicitly designed for AI agent interaction and human editing; per-task directories minimize merge conflicts, encourage small updates, and support ancillary documents. The CLI will provide deterministic master lists (`tasks/root-tasks.md`, `tasks/free-tasks.md`) and scanning commands to make global queries reliable.
+
+## Post-decision cleanup
+- Remove or condense alternatives once the Owner has decided. The final document should emphasize the decision and rationale, not the full alternatives list.
 
 ## Review Requests
 - Request review from: `master-reviewer`, `reviewer-reliability`, `reviewer-security` as appropriate for implementation details (format, on-disk path choices, validation rules).

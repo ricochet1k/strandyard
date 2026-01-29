@@ -4,12 +4,13 @@ role: owner
 priority: medium
 parent: T14az-define-error-message-format-contract-for-every-anc
 blockers:
+    - I3g1d-add-cli-support-for-updating-task-decision-questio
     - Tm91y-decide-every-anchor-defaults-and-hint-examples
     - Tmxs6-evaluate-date-parsing-library-for-every-anchors
 blocks:
     - T14az-define-error-message-format-contract-for-every-anc
 date_created: 2026-01-29T16:55:20.213085Z
-date_edited: 2026-01-29T10:14:39.185681-07:00
+date_edited: 2026-01-29T10:26:24.429726-07:00
 owner_approval: false
 completed: false
 ---
@@ -28,7 +29,7 @@ Select canonical example anchors and full `--every` examples for each unit/metri
 - Examples avoid non-deterministic content.
 
 ## Escalation
-If new concerns or decisions arise, create follow-up tasks instead of editing this task.
+Tasks are disposable. Use follow-up tasks for open questions/concerns. Record decisions and final rationale in design docs; do not edit this task to capture outcomes.
 
 ## Acceptance Criteria
 - Clear, runnable steps to reproduce locally.

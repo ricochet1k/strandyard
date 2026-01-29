@@ -10,7 +10,7 @@ blockers:
 blocks:
     - T3md3-usability-review-recurrence-anchor-flags
 date_created: 2026-01-29T05:46:59.618092Z
-date_edited: 2026-01-29T10:14:39.186089-07:00
+date_edited: 2026-01-29T10:52:59.334518-07:00
 owner_approval: false
 completed: false
 ---
@@ -26,7 +26,7 @@ Provide links to relevant design documents, diagrams, and decision records.
 - Provide example recovery hints for each error case.
 
 ## Escalation
-If new concerns or decisions arise, create follow-up tasks instead of editing this task.
+Tasks are disposable. Use follow-up tasks for open questions/concerns. Record decisions and final rationale in design docs; do not edit this task to capture outcomes.
 
 ## Acceptance Criteria
 - Clear, runnable steps to reproduce locally.

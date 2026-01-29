@@ -29,7 +29,7 @@ Potential requirement: allow relative date expressions in `--every` anchors.
 - Recommend one library and document constraints for CLI usage.
 
 ## Escalation
-If new concerns or decisions arise, create follow-up tasks instead of editing this task.
+Tasks are disposable. Use follow-up tasks for open questions/concerns. Record decisions and final rationale in design docs; do not edit this task to capture outcomes.
 
 ## Acceptance Criteria
 - Clear, runnable steps to reproduce locally.

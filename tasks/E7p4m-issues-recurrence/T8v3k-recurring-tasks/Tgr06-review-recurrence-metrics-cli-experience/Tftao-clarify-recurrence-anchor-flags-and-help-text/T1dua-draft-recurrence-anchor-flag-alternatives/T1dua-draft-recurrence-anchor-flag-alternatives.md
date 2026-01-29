@@ -10,7 +10,7 @@ blockers:
 blocks:
     - Tftao-clarify-recurrence-anchor-flags-and-help-text
 date_created: 2026-01-29T05:16:13.851401Z
-date_edited: 2026-01-29T10:14:39.186089-07:00
+date_edited: 2026-01-29T10:52:59.334518-07:00
 owner_approval: false
 completed: false
 ---
@@ -34,7 +34,7 @@ Draft design alternatives for recurrence anchor flags and help text.
 - [ ] Request review from master reviewer and usability/reliability reviewers
 
 ## Escalation
-If new concerns or decisions arise, create follow-up tasks instead of editing this task.
+Tasks are disposable. Use follow-up tasks for open questions/concerns. Record decisions and final rationale in design docs; do not edit this task to capture outcomes.
 
 ## Acceptance Criteria
 - Clear, runnable steps to reproduce locally.

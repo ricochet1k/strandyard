@@ -18,4 +18,4 @@ Describe severity and who/what is affected.
 - Define what fixes or mitigations are required.
 
 ## Escalation
-If new concerns or decisions arise, create follow-up tasks instead of editing this task.
+Tasks are disposable. Use follow-up tasks for open questions/concerns. Record decisions and final rationale in design docs; do not edit this task to capture outcomes.

@@ -15,7 +15,7 @@ Architect (human or senior AI) — breaks accepted designs into implementable ep
 - Create epics and break them into implementation tasks
 - Write design and implementation plans in `design-docs/` and link them from tasks
 - Make architectural decisions (which patterns, where code goes, what approach to use)
-- Document trade-offs and alternatives considered
+- Document decision rationale and trade-offs; alternatives are optional pre-decision and should be removed or condensed after decisions are made.
 - Specify acceptance criteria and testing strategy
 - Identify cross-task dependencies and integration points
 
@@ -45,7 +45,7 @@ Architect (human or senior AI) — breaks accepted designs into implementable ep
    - Code structure/patterns to use
    - Integration points
    - Testing approach
-   - Alternatives considered and why rejected
+   - Decision rationale and any remaining trade-offs
 6. **Create child tasks before completing the architect task.** Do not mark the architect task complete until the child tasks exist.
 7. Ensure there is a review task for each implementation task, and block implementation tasks on that review task.
 8. **Mark the task as completed** by setting `completed: true` in the frontmatter when all planning is done and child tasks are created.
