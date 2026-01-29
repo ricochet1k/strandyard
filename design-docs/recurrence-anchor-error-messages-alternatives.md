@@ -54,7 +54,7 @@ Compare approaches for user-facing error messages when parsing recurrence anchor
   - Overly generic messages could increase support churn.
 - Rough effort estimate: Low to Medium.
 - Example messages:
-  - "invalid --every value: missing anchor after 'commits'"
+  - "memmd: error: invalid --every value: missing anchor after 'commits'"
   - "hint: --every \"10 commits from a1b2c3d4\""
 
 ### Alternative C — Default anchors with warning-only errors
@@ -71,7 +71,16 @@ Compare approaches for user-facing error messages when parsing recurrence anchor
 - Rough effort estimate: Medium.
 
 ## Decision
-- Decision: Deferred to Owner.
+- Decision: Alternative B with a fixed error output contract.
+
+## Output Contract
+- Error prefix: `memmd: error: ` (stable, single-line prefix for the primary error line).
+- Hint line: optional second line prefixed with `hint: `.
+- Output channel: errors and hints emit to stderr only; no stdout output on failure.
+- Exit codes:
+  - `2` for parse/validation failures related to `--every`.
+  - `1` for other runtime errors.
+  - `0` on success.
 
 ## Review Requests
 - Request review from: `reviewer` (master), `reviewer-usability`, `reviewer-reliability`.

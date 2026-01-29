@@ -7,9 +7,9 @@ blockers: []
 blocks:
     - T14az-define-error-message-format-contract-for-every-anc
 date_created: 2026-01-29T16:55:16.051856Z
-date_edited: 2026-01-29T09:55:16.059585-07:00
+date_edited: 2026-01-29T17:05:51.143718Z
 owner_approval: false
-completed: false
+completed: true
 ---
 
 # Decide --every error output contract (prefix, stderr, exit code)
