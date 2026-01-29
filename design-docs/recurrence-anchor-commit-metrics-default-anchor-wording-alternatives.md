@@ -8,6 +8,39 @@ Clarify how documentation and hint examples describe the default anchor for comm
 - Prefer wording that reduces ambiguity and improves recovery from errors.
 - Align docs with actual behavior without adding repo-dependent content.
 
+## HEAD availability (observed behavior)
+- Commit-metric defaults rely on resolving `HEAD` (per `git rev-list --count <anchor>..HEAD` and `git diff --numstat <anchor>..HEAD`).
+- In repos with an unborn `HEAD` (no commits), both commands fail with "ambiguous argument 'HEAD..HEAD'".
+- In detached `HEAD` with a valid commit, both commands succeed; counts are `0` when anchor and `HEAD` are the same.
+- Implication: any wording that implies a default `HEAD` anchor must note that a valid `HEAD` is required; otherwise the CLI should error and instruct the user to provide an explicit anchor or create an initial commit.
+
+## Local verification steps
+These steps mirror the git commands used by commit metrics in `design-docs/recurrence-metrics.md`.
+
+Unborn `HEAD` (no commits):
+```bash
+mkdir -p /tmp/memmd-head-test-unborn
+cd /tmp/memmd-head-test-unborn
+git init
+git rev-list --count HEAD..HEAD
+git diff --numstat HEAD..HEAD
+```
+Expected: both commands error with "ambiguous argument 'HEAD..HEAD'".
+
+Detached `HEAD` (valid commit):
+```bash
+mkdir -p /tmp/memmd-head-test-detached
+cd /tmp/memmd-head-test-detached
+git init
+printf "test\n" > README.md
+git add README.md
+git -c user.name="memmd" -c user.email="memmd@example.com" commit -m "init"
+git checkout --detach HEAD
+git rev-list --count HEAD..HEAD
+git diff --numstat HEAD..HEAD
+```
+Expected: commands succeed; rev-list returns `0` and diff output is empty.
+
 ## Alternatives
 
 ### Alternative A — Use "from now" wording for all metrics

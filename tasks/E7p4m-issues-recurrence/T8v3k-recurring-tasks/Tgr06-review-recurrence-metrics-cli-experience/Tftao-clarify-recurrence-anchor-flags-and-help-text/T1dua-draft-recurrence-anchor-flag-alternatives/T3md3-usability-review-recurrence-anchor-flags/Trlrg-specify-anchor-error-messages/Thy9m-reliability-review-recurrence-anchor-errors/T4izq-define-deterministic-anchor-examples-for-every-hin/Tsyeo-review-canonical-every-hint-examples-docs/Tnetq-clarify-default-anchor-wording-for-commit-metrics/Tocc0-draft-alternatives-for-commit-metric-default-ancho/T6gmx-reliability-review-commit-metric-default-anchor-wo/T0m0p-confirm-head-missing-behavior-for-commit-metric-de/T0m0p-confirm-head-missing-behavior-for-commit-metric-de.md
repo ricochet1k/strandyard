@@ -3,13 +3,14 @@ type: task
 role: architect
 priority: medium
 parent: T6gmx-reliability-review-commit-metric-default-anchor-wo
-blockers: []
+blockers:
+    - Ttxp9-document-head-missing-behavior-in-commit-metric-de
 blocks:
     - T6gmx-reliability-review-commit-metric-default-anchor-wo
 date_created: 2026-01-29T20:08:33.52995Z
-date_edited: 2026-01-29T13:08:33.538214-07:00
+date_edited: 2026-01-29T22:15:49.539459Z
 owner_approval: false
-completed: false
+completed: true
 ---
 
 # Confirm HEAD-missing behavior for commit-metric defaults

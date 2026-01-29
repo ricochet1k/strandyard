@@ -1,37 +1,33 @@
 ---
 type: task
-role: designer
+role: documentation
 priority: medium
-parent: Tftao-clarify-recurrence-anchor-flags-and-help-text
-blockers:
-    - T3md3-usability-review-recurrence-anchor-flags
-    - Tnsrg-reliability-review-recurrence-anchor-flags
-    - Tu1pm-review-recurrence-anchor-flags-alternatives
+parent: T0m0p-confirm-head-missing-behavior-for-commit-metric-de
+blockers: []
 blocks:
-    - Tftao-clarify-recurrence-anchor-flags-and-help-text
-date_created: 2026-01-29T05:16:13.851401Z
+    - T0m0p-confirm-head-missing-behavior-for-commit-metric-de
+date_created: 2026-01-29T22:15:40.319082Z
 date_edited: 2026-01-29T15:15:40.330632-07:00
 owner_approval: false
 completed: false
 ---
 
-# Draft recurrence anchor flag alternatives
+# Document HEAD-missing behavior in commit-metric defaults
 
 ## Context
 Provide links to relevant design documents, diagrams, and decision records.
 
 ## Description
 ## Summary
-Draft design alternatives for recurrence anchor flags and help text.
-
-## Context
-- design-docs/recurrence-metrics.md
-- design-docs/recurrence-anchor-flags-alternatives.md
-- CLI.md (recurring add section)
+Capture the HEAD-missing/unborn behavior for commit-based recurrence metrics in user-facing docs once wording is finalized.
 
 ## Tasks
-- [ ] Capture alternatives with pros/cons and effort estimates
-- [ ] Request review from master reviewer and usability/reliability reviewers
+- [ ] Add a short note to CLI/docs explaining that commit-metric defaults rely on a valid HEAD.
+- [ ] Provide a recovery hint for unborn repos (make initial commit or specify explicit anchor).
+
+## Acceptance Criteria
+- CLI/docs mention the HEAD requirement for commit-based default anchors.
+- Wording aligns with the chosen default-anchor alternative.
 
 ## Escalation
 Tasks are disposable. Use follow-up tasks for open questions/concerns. Record decisions and final rationale in design docs; do not edit this task to capture outcomes.
