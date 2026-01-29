@@ -53,8 +53,8 @@ Compare approaches for user-facing error messages when parsing recurrence anchor
   - Overly generic messages could increase support churn.
 - Rough effort estimate: Low to Medium.
 - Example messages:
-  - "memmd: error: invalid --every value: missing anchor after 'commits'"
-  - "hint: --every \"10 commits\" (defaults to now)"
+  - "memmd: error: invalid --every value: expected date anchor after 'from', got '2026-13-01'"
+  - "hint: --every \"10 days from Jan 28 2026 09:00\""
 
 ### Alternative C — Default anchors with warning-only errors
 - Description: If the anchor is missing, default to `now` for time-based metrics and `HEAD` for commit-based metrics, and only error on malformed anchors; emit a warning when defaults are applied.
@@ -71,6 +71,8 @@ Compare approaches for user-facing error messages when parsing recurrence anchor
 
 ## Decision
 - Decision: Alternative B with a fixed error output contract.
+- Missing anchors are explicitly allowed and preferred for common usage.
+- Use "from now" for immediate run + recur; use "after now" to schedule the first run at the next interval after now.
 
 ## Output Contract
 - Error prefix: `memmd: error: ` (stable, single-line prefix for the primary error line).
@@ -82,8 +84,9 @@ Compare approaches for user-facing error messages when parsing recurrence anchor
   - `0` on success.
 
 ## Defaults and Hint Examples
-- `from <anchor>` is optional; if omitted, the anchor defaults to `now`.
-- Default anchor is `now` for all metrics, interpreted relative to what the metric measures.
+- `from <anchor>` is optional; if omitted, the anchor defaults to `now` and is treated as "from now".
+- Default anchor is `now` for all metrics, interpreted relative to what the metric measures (for example, `HEAD` for commit-based metrics).
+- `after now` means the first run occurs at the next interval after the current time; `from now` triggers an immediate run and then recurs.
 - Hint examples should prefer human-friendly dates (for example, "Jan 28 2026 09:00") and may include ISO 8601 as a secondary reference if needed.
 
 ## Review Requests

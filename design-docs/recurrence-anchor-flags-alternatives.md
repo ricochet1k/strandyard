@@ -89,7 +89,8 @@ Clarify how `memmd recurring add` captures the recurrence anchor across time-bas
 - Recommendation: Alternative D to keep the CLI surface to a single flag while supporting mixed metrics via repeated `--every` rules.
 
 ## Defaults and Examples
-- `from <anchor>` is optional; if omitted, the anchor defaults to `now` for all metrics.
+- `from <anchor>` is optional; if omitted, the anchor defaults to `now` for all metrics and is treated as "from now".
+- `from now` means run immediately and then recur; `after now` means the first run occurs at the next interval after the current time.
 - Examples and hint text should prefer human-friendly dates; ISO 8601 may be added only when needed for clarity.
 
 ## Review Requests
