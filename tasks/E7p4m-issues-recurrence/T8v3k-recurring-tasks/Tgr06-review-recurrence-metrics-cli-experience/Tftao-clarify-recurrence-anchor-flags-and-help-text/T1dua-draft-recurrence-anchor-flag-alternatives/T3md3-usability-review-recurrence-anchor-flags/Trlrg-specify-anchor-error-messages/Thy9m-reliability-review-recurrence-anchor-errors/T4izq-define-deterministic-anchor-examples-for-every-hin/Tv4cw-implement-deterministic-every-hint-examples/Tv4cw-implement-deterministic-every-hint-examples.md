@@ -1,35 +1,36 @@
 ---
 type: task
-role: architect
+role: developer
 priority: medium
-parent: Thy9m-reliability-review-recurrence-anchor-errors
+parent: T4izq-define-deterministic-anchor-examples-for-every-hin
 blockers:
     - Tm2sq-review-canonical-every-hint-examples-implementatio
-    - Tm6qi-document-canonical-every-hint-examples
     - Tqb9o-approve-canonical-every-hint-examples
-    - Tsyeo-review-canonical-every-hint-examples-docs
-    - Tv4cw-implement-deterministic-every-hint-examples
 blocks:
-    - Thy9m-reliability-review-recurrence-anchor-errors
-date_created: 2026-01-29T19:20:50.103845Z
-date_edited: 2026-01-29T19:24:56.192912Z
+    - T4izq-define-deterministic-anchor-examples-for-every-hin
+date_created: 2026-01-29T19:24:46.390895Z
+date_edited: 2026-01-29T12:24:46.400087-07:00
 owner_approval: false
-completed: true
+completed: false
 ---
 
-# Define deterministic anchor examples for --every hints
+# Implement deterministic --every hint examples
 
 ## Context
 Provide links to relevant design documents, diagrams, and decision records.
 
 ## Description
 ## Summary
-Define canonical, deterministic anchor examples for each anchor type in `--every` hint lines.
+Implement deterministic --every hint examples using the canonical anchors defined in design-docs/recurrence-anchor-hint-examples.md.
 
-## Details
-- Specify fixed examples for date/time anchors (human-friendly + optional ISO 8601).
-- Specify fixed examples for commit anchors (e.g., `HEAD` or a placeholder hash) that do not vary per run.
-- Ensure examples are stable for tests and automation (no current-time rendering).
+## Tasks
+- [ ] Wire canonical hint examples into --every parsing errors
+- [ ] Ensure hint strings are deterministic and stable across runs
+- [ ] Add unit/integration tests that assert canonical hint examples
+
+## Acceptance Criteria
+- Hint lines match canonical examples exactly
+- Tests cover date/time and commit anchor hints
 
 ## Escalation
 Tasks are disposable. Use follow-up tasks for open questions/concerns. Record decisions and final rationale in design docs; do not edit this task to capture outcomes.
