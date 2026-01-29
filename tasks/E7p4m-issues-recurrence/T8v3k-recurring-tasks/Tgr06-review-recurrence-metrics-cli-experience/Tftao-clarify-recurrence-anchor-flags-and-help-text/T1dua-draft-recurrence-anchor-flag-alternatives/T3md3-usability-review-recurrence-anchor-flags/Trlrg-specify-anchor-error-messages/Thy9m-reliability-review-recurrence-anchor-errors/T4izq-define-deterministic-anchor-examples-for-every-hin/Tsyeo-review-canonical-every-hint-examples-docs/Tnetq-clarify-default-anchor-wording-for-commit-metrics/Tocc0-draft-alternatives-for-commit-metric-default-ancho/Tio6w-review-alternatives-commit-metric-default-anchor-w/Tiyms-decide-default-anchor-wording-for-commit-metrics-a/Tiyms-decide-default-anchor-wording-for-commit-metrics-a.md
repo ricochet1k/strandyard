@@ -3,13 +3,15 @@ type: task
 role: owner
 priority: medium
 parent: Tio6w-review-alternatives-commit-metric-default-anchor-w
-blockers: []
+blockers:
+    - Tuu18-update-docs-and-hints-to-say-from-head
+    - Tv5ra-implement-ignore-invalid-head-for-commit-metrics
 blocks:
     - Tio6w-review-alternatives-commit-metric-default-anchor-w
 date_created: 2026-01-29T22:24:02.846165Z
-date_edited: 2026-01-29T15:24:02.85496-07:00
+date_edited: 2026-01-29T22:32:41.185237Z
 owner_approval: false
-completed: false
+completed: true
 ---
 
 # Decide default anchor wording for commit metrics (A/B/C)

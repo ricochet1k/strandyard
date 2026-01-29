@@ -86,11 +86,15 @@ Expected: commands succeed; rev-list returns `0` and diff output is empty.
 - Rough effort estimate: 1–2 hours (add mapping sentence, ensure consistency).
 
 ## Decision
-- Decision: deferred.
+- Decision: Alternative B (use "from HEAD" for commit-based metrics).
+- Default wording should not explicitly call out valid `HEAD` requirements.
+- Behavior alignment: if `HEAD` is invalid or unborn, commit-based recurrence metrics are ignored and do not trigger recurring tasks.
+- Rationale: explicit `HEAD` wording is the clearest and most deterministic for git metrics while keeping hints concise; treating invalid `HEAD` as a no-op avoids confusing errors and prevents accidental recurrences when the repo is not initialized.
 
 ## Post-decision cleanup
 - Update hint examples and docs to use the chosen wording.
 - Ensure any tests or snapshots with hint text are updated deterministically.
+- Implement and test the "invalid HEAD is ignored" behavior for commit-based recurrence.
 
 ## Review Requests
 - Request review from: `master-reviewer`, `reviewer-usability`, `reviewer-reliability`.
