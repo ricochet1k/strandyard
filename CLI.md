@@ -499,20 +499,18 @@ Task ID doesn't exist in the task tree. Check spelling or use `repair` to see al
 ### `recurring add --every` hint examples
 Hint lines for `memmd recurring add --every` use deterministic examples so automation and tests remain stable. Canonical examples and anchor guidance live in `design-docs/recurrence-anchor-hint-examples.md`.
 
-Default anchor examples (no explicit anchor):
+Default anchor examples:
 - `--every "10 days"`
-- `--every "50 commits"`
-- `--every "500 lines_changed"`
+- `--every "50 commits from HEAD"`
+- `--every "500 lines_changed from HEAD"`
 - `--every "20 tasks_completed"`
 
 Explicit anchor examples (use sparingly):
 - `--every "10 days from Jan 28 2026 09:00 UTC"`
-- `--every "50 commits from HEAD"`
 
 Anchor guidance:
 - Use the human-friendly date anchor above for explicit date/time examples.
-- Use `HEAD` for explicit commit anchors.
-- Commit-based defaults require a valid `HEAD`; if the repo has no commits, make an initial commit or use an explicit commit anchor.
+- Use `HEAD` for commit-based defaults and explicit commit anchors.
 - Use ISO 8601 anchors only in docs/tests that validate ISO parsing (for example, `2026-01-28T09:00:00Z`).
 
 ## Tips

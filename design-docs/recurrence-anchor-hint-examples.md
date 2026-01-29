@@ -10,7 +10,7 @@ Define deterministic, reusable hint examples for `memmd recurring add --every` a
 - design-docs/recurrence-metrics.md
 
 ## Decision
-Approved: prefer anchor-less examples that use the default "from now" behavior for hint lines. Include a small number of explicit anchor examples to demonstrate supported syntax. These examples are used in error hint lines and tests.
+Approved: prefer anchor-less examples for time-based metrics that use the default "from now" behavior for hint lines. For commit-based metrics, use the default "from HEAD" wording. Include a small number of explicit anchor examples to demonstrate supported syntax. These examples are used in error hint lines and tests.
 
 ## Canonical Anchor Examples
 
@@ -27,16 +27,15 @@ Use `HEAD` in explicit anchor examples. If a test requires a fixed hash token, u
 
 ## Canonical --every Examples by Metric
 
-These are the stable examples to embed in hint lines. Most examples omit the anchor to rely on the default "from now" behavior.
+These are the stable examples to embed in hint lines. Time-based examples omit the anchor to rely on the default "from now" behavior. Commit-based examples use the default "from HEAD" wording.
 
 - `days`/`weeks`/`months` (default anchor): `--every "10 days"`
-- `commits` (default anchor): `--every "50 commits"`
-- `lines_changed` (default anchor): `--every "500 lines_changed"`
+- `commits` (default anchor): `--every "50 commits from HEAD"`
+- `lines_changed` (default anchor): `--every "500 lines_changed from HEAD"`
 - `tasks_completed` (default anchor): `--every "20 tasks_completed"`
 
 Explicit anchor examples (use sparingly in hints/tests):
 - `days` (date anchor): `--every "10 days from Jan 28 2026 09:00 UTC"`
-- `commits` (commit anchor): `--every "50 commits from HEAD"`
 
 Notes:
 - Keep amounts and metrics stable across tests to reduce churn.
