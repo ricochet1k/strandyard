@@ -7,9 +7,9 @@ blockers: []
 blocks:
     - T0m0p-confirm-head-missing-behavior-for-commit-metric-de
 date_created: 2026-01-29T22:15:40.319082Z
-date_edited: 2026-01-29T15:15:40.330632-07:00
+date_edited: 2026-01-29T22:18:52.660816Z
 owner_approval: false
-completed: false
+completed: true
 ---
 
 # Document HEAD-missing behavior in commit-metric defaults

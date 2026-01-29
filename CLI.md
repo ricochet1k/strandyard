@@ -512,6 +512,7 @@ Explicit anchor examples (use sparingly):
 Anchor guidance:
 - Use the human-friendly date anchor above for explicit date/time examples.
 - Use `HEAD` for explicit commit anchors.
+- Commit-based defaults require a valid `HEAD`; if the repo has no commits, make an initial commit or use an explicit commit anchor.
 - Use ISO 8601 anchors only in docs/tests that validate ISO parsing (for example, `2026-01-28T09:00:00Z`).
 
 ## Tips
