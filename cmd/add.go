@@ -23,7 +23,7 @@ import (
 var addCmd = &cobra.Command{
 	Use:   "add <type> [title]",
 	Short: "Create tasks from templates",
-	Long:  "Create a task using a template in templates/. Types correspond to template filenames (without .md). Templates define default roles and priorities.",
+	Long:  "Create a task using a template in templates/. Types correspond to template filenames (without .md). Templates define default roles and priorities. Provide a detailed body on stdin (pipe or heredoc); it will be inserted where the template uses {{ .Body }} or appended to the end.",
 	Args:  cobra.MinimumNArgs(1),
 	RunE: func(cmd *cobra.Command, args []string) error {
 		return runAdd(cmd, args)

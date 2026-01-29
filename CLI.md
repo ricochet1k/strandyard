@@ -35,6 +35,25 @@ Flags:
 memmd add task "Quick task" --role developer --priority high
 ```
 
+**Detailed body via stdin**:
+```bash
+# Pipe from a file
+memmd add task "Incident followup" --role developer < ./notes.md
+
+# Heredoc
+memmd add task "Incident followup" --role developer <<'EOF'
+## Summary
+Capture findings from the incident review.
+
+## Tasks
+- [ ] Draft timeline
+- [ ] Identify owners
+EOF
+```
+
+Notes:
+- Stdin content is inserted where the template uses `{{ .Body }}` or appended to the end.
+
 ### `list` - List tasks with filters and output formats
 
 Lists tasks from the tasks tree with optional filtering, sorting, and grouping.
