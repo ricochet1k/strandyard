@@ -126,17 +126,20 @@ func runNext(roleFilter string) error {
 		roleData, err := os.ReadFile(rolePath)
 		if err == nil {
 			roleDoc := string(roleData)
+			fmt.Printf("Your role is %s. Here's the description of that role:\n\n", role)
 			fmt.Print(roleDoc)
 			if !strings.HasSuffix(roleDoc, "\n") {
 				fmt.Print("\n")
 			}
 			fmt.Print("\n---\n")
 		} else {
-			fmt.Printf("Role: %s\n\n---\n", role)
+			fmt.Printf("Your role is %s. This role appears to be missing, ask the user what to do.\n\n", role)
 		}
 	} else {
-		fmt.Print("Role: (none)\n\n---\n")
+		fmt.Print("This task has no role, ask the user what to do.\n\n")
 	}
+
+	fmt.Printf("\nYour task is %s. Here's the description of that task:\n\n", selectedTask.ID)
 
 	// Print task content
 	fmt.Print(selectedTask.Content)

@@ -1,3 +1,6 @@
+---
+owner_approval: true
+---
 # Recurrence Metrics: Commits, Lines Changed, Tasks Completed
 
 ## Summary
@@ -38,11 +41,11 @@ Add a `recurrence_triggers` list with metric definitions that can be combined.
   - `type`: `time | commits | lines_changed | tasks_completed`
   - `interval`: integer
   - `anchor`: ISO date or commit hash
-- `recurrence_next_due`: computed when `type: time` is present
+  - `next_due`: the next time/count target
 - **Pros**: Supports combinations and clearer validation per trigger.
 - **Cons**: More schema surface area and migration work.
 
-**Decision: deferred** — maintainer to choose between Options A and B before implementation.
+**Decision:** — maintainer chose Option B with modifications
 
 ## Tasks-Completed Metric Options
 ### Option A: Add `date_completed` to task metadata
@@ -56,7 +59,7 @@ Add a `recurrence_triggers` list with metric definitions that can be combined.
 - **Pros**: Avoids global schema changes.
 - **Cons**: Re-implements completion tracking in recurrence logic.
 
-**Decision: deferred** — pick a storage strategy after owner review.
+**Decision:** — Add date_completed, but at some point old tasks will be cleaned up, so there should also be a project-level log of changes (task add/edit/complete/progress) with line number, timestamp, short id and either task title and/or a short description of the change.
 
 ## Validation Rules
 - Require positive `recurrence_interval` for all triggers.
@@ -65,7 +68,7 @@ Add a `recurrence_triggers` list with metric definitions that can be combined.
 - For tasks-completed metrics, require `date_completed` or equivalent anchor fields based on the chosen storage strategy.
 
 ## CLI/Template Impacts
-- Add flags for metric selection once `recurring add` exists.
+- Add flags for metric selection to `add` with recurrence.
 - Update templates to include the selected metric fields.
 - Update `CLI.md` and examples to show metric-based recurrence.
 

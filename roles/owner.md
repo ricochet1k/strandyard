@@ -4,7 +4,7 @@
 Owner (human)
 
 ## Responsibilities
-- Tasks with this role must never be performed by an AI agent. If you are an AI agent, stop and ask the user.
+- Tasks with this role must never be performed purely by an AI agent. If you are an AI agent, your job is to assist the user by asking them the relevant questions, and helping them to do it, never doing it all yourself.
 - Make final decisions about which alternatives or plans to accept.
 - Approve budgets, timelines, and high-level priorities.
 - Resolve cross-track conflicts and unblock teams.
