@@ -10,7 +10,7 @@ Define deterministic, reusable hint examples for `memmd recurring add --every` a
 - design-docs/recurrence-metrics.md
 
 ## Decision
-Adopt a fixed set of anchor examples that never depend on the current time, system locale, or repository state. These examples are used in error hint lines and tests.
+Approved: prefer anchor-less examples that use the default "from now" behavior for hint lines. Include a small number of explicit anchor examples to demonstrate supported syntax. These examples are used in error hint lines and tests.
 
 ## Canonical Anchor Examples
 
@@ -18,30 +18,33 @@ Adopt a fixed set of anchor examples that never depend on the current time, syst
 - Human-friendly: `Jan 28 2026 09:00 UTC`
 - ISO 8601 (optional secondary reference): `2026-01-28T09:00:00Z`
 
-Use the human-friendly anchor in hint lines; include the ISO 8601 variant only in documentation or tests that specifically validate ISO parsing.
+Use the human-friendly anchor in explicit anchor examples; include the ISO 8601 variant only in documentation or tests that specifically validate ISO parsing.
 
 ### Commit anchors (commit + lines-changed metrics)
 - Canonical anchor: `HEAD`
 
-Use `HEAD` in hint lines to avoid run-to-run variability. If a test requires a fixed hash token, use a placeholder like `0123456789abcdef` (do not use `git rev-parse` output in hint examples).
+Use `HEAD` in explicit anchor examples. If a test requires a fixed hash token, use a placeholder like `0123456789abcdef` (do not use `git rev-parse` output in hint examples).
 
 ## Canonical --every Examples by Metric
 
-These are the stable examples to embed in hint lines:
+These are the stable examples to embed in hint lines. Most examples omit the anchor to rely on the default "from now" behavior.
 
-- `days`/`weeks`/`months` (date anchor): `--every "10 days from Jan 28 2026 09:00 UTC"`
+- `days`/`weeks`/`months` (default anchor): `--every "10 days"`
+- `commits` (default anchor): `--every "50 commits"`
+- `lines_changed` (default anchor): `--every "500 lines_changed"`
+- `tasks_completed` (default anchor): `--every "20 tasks_completed"`
+
+Explicit anchor examples (use sparingly in hints/tests):
+- `days` (date anchor): `--every "10 days from Jan 28 2026 09:00 UTC"`
 - `commits` (commit anchor): `--every "50 commits from HEAD"`
-- `lines_changed` (commit anchor): `--every "500 lines_changed from HEAD"`
-- `tasks_completed` (date anchor): `--every "20 tasks_completed from Jan 28 2026 09:00 UTC"`
 
 Notes:
-- Do not use `now` in hint examples.
 - Keep amounts and metrics stable across tests to reduce churn.
-- Prefer human-friendly anchors in hints; ISO 8601 is acceptable for validation examples.
+- Prefer human-friendly anchors when you do specify one; ISO 8601 is acceptable for validation examples.
 
 ## Implementation Notes
-- Hint lines should be deterministic strings (no timestamps, no locale-dependent formatting).
-- Examples must not be generated from runtime values.
+- Hint lines should prefer the default anchor (no explicit anchor) to reflect typical usage.
+- When an explicit anchor is included, use deterministic strings (no timestamps, no locale-dependent formatting).
 
 ## Local Verification Steps
 1. Use the canonical examples above when adding tests for invalid anchors.

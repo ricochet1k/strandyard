@@ -162,7 +162,7 @@ Add the goldmark-frontmatter library to the project...
 
 ## Agent policy
 
-- **Policy**: Agents must not unilaterally choose which alternative to implement. Present clear alternatives with pros/cons and defer the final decision to a human maintainer (mark as "Decision: deferred" in reviews). Once a decision is made, update design docs to reflect the final decision and remove or condense alternatives.
+- **Policy**: Agents must not unilaterally choose which alternative to implement. Present clear alternatives with pros/cons and defer the final decision to a human maintainer (mark as "Decision: deferred" in reviews). Once a decision is made, update the entire design doc to reflect the final decision and any user preferences, and remove or condense alternatives.
 - **Corrections**: When the user provides a general correction or preference, record it in this file as a durable rule or guideline.
 - **Execution**: Do the next logical steps yourself (tests, commits, review requests, follow-ups) unless blocked by a missing decision, credentials, or explicit instruction to wait. Do not suggest next steps in responses; execute them or state the specific blocker that prevents execution.
 - **Session title**: Always set the session title immediately after receiving any task assignment (including `memmd next`). Use `<role>: <task title>` exactly (lowercase role, task title as shown). Do not proceed with task work until the title is set; if you realize it was missed, set it immediately.

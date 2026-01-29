@@ -9,9 +9,9 @@ blocks:
     - Tm6qi-document-canonical-every-hint-examples
     - Tv4cw-implement-deterministic-every-hint-examples
 date_created: 2026-01-29T19:24:36.999341Z
-date_edited: 2026-01-29T12:24:50.68882-07:00
+date_edited: 2026-01-29T19:52:27.620294Z
 owner_approval: false
-completed: false
+completed: true
 ---
 
 # Approve canonical --every hint examples

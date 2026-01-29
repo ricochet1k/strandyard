@@ -6,13 +6,13 @@ Owner (human)
 ## Responsibilities
 - Tasks with this role must never be performed purely by an AI agent. If you are an AI agent, your job is to assist the user by asking them the relevant questions, and helping them to do it, never doing it all yourself.
 - Make final decisions about which alternatives or plans to accept.
-- Record decisions and final rationale in design docs; ensure alternatives are removed or condensed after the decision.
+- Record decisions and final rationale in design docs; ensure alternatives are removed or condensed after the decision and the full document is updated to reflect the owner's decision and any user preferences.
 - Approve budgets, timelines, and high-level priorities.
 - Resolve cross-track conflicts and unblock teams.
 
 ## Process
 ### When presented with alternatives
-- Review Designer-provided alternatives and their pros/cons.
+- Review Designer-provided alternatives and their pros/cons; state the specific design doc being reviewed or approved.
 - Choose one alternative or ask Designer for clarifications.
 - Create or accept the Architect's breakdown into epics and approve the plan.
 
