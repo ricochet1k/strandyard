@@ -50,39 +50,26 @@ func runNext(roleFilter string) error {
 		return fmt.Errorf("unable to read %s: %w", freePath, err)
 	}
 
-	// Parse task paths from free-tasks.md
-	lines := strings.Split(string(data), "\n")
-	candidates := []string{}
-	baseDir := filepath.Dir(freePath)
-	for _, l := range lines {
-		l = strings.TrimSpace(l)
-		if strings.HasPrefix(l, "- ") {
-			if path := parseListPath(strings.TrimSpace(strings.TrimPrefix(l, "- "))); path != "" {
-				if !filepath.IsAbs(path) {
-					path = filepath.Join(baseDir, path)
-				}
-				candidates = append(candidates, path)
-			}
-		}
+	parser := task.NewParser()
+	tasks, err := parser.LoadTasks("tasks")
+	if err != nil {
+		return fmt.Errorf("failed to load tasks: %w", err)
 	}
 
-	if len(candidates) == 0 {
+	parsed := task.ParseFreeList(string(data), tasks)
+	if len(parsed.TaskIDs) == 0 {
 		fmt.Println("No free tasks found")
 		return nil
 	}
 
-	// Parse tasks using the task library
-	parser := task.NewParser()
 	type candidate struct {
 		task *task.Task
 		path string
 	}
 	candidatesParsed := []candidate{}
-
-	for _, candidatePath := range candidates {
-		t, err := parser.ParseFile(candidatePath)
-		if err != nil {
-			// Skip tasks that fail to parse
+	for _, taskID := range parsed.TaskIDs {
+		t, exists := tasks[taskID]
+		if !exists {
 			continue
 		}
 
@@ -145,16 +132,4 @@ func runNext(roleFilter string) error {
 	fmt.Print(selectedTask.Content)
 
 	return nil
-}
-
-func parseListPath(entry string) string {
-	if !strings.HasPrefix(entry, "[") {
-		return entry
-	}
-	open := strings.Index(entry, "](")
-	close := strings.LastIndex(entry, ")")
-	if open == -1 || close == -1 || close <= open+2 {
-		return ""
-	}
-	return strings.TrimSpace(entry[open+2 : close])
 }

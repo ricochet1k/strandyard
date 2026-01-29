@@ -549,9 +549,8 @@ func UpdateFreeListIncrementally(tasks map[string]*Task, freeFile string, update
 		return fmt.Errorf("failed to read free tasks file: %w", err)
 	}
 
-	lines := strings.Split(string(content), "\n")
+	parsed := ParseFreeList(string(content), tasks)
 
-	// Parse existing entries
 	entriesByPriority := map[string][]listEntry{
 		PriorityHigh:   {},
 		PriorityMedium: {},
@@ -559,67 +558,7 @@ func UpdateFreeListIncrementally(tasks map[string]*Task, freeFile string, update
 	}
 	other := []listEntry{}
 
-	var currentSection string
-	var title string
-
-	// Parse the file structure
-	for _, line := range lines {
-		line = strings.TrimSpace(line)
-		if strings.HasPrefix(line, "# ") {
-			title = strings.TrimPrefix(line, "# ")
-			continue
-		}
-		if strings.HasPrefix(line, "## ") {
-			currentSection = strings.TrimPrefix(line, "## ")
-			continue
-		}
-		if strings.HasPrefix(line, "- [") && strings.Contains(line, "](") {
-			// Extract task info from markdown link
-			endLabel := strings.Index(line, "](")
-			if endLabel > 2 {
-				label := line[2:endLabel]
-				startPath := endLabel + 2
-				endPath := strings.LastIndex(line, ")")
-				if endPath > startPath {
-					path := line[startPath:endPath]
-
-					entry := listEntry{Label: label, Path: path}
-
-					// Determine which priority section this belongs to
-					switch currentSection {
-					case "High":
-						entriesByPriority[PriorityHigh] = append(entriesByPriority[PriorityHigh], entry)
-					case "Medium":
-						entriesByPriority[PriorityMedium] = append(entriesByPriority[PriorityMedium], entry)
-					case "Low":
-						entriesByPriority[PriorityLow] = append(entriesByPriority[PriorityLow], entry)
-					case "Other":
-						other = append(other, entry)
-					default:
-						// If no section yet, it's in the old format or we need to detect
-						// Try to find the task to determine its priority
-						for _, task := range tasks {
-							taskRelPath := filepath.ToSlash(task.FilePath)
-							if strings.Contains(path, taskRelPath) || strings.Contains(taskRelPath, path) {
-								priority := NormalizePriority(task.Meta.Priority)
-								switch priority {
-								case PriorityHigh:
-									entriesByPriority[PriorityHigh] = append(entriesByPriority[PriorityHigh], entry)
-								case PriorityMedium:
-									entriesByPriority[PriorityMedium] = append(entriesByPriority[PriorityMedium], entry)
-								case PriorityLow:
-									entriesByPriority[PriorityLow] = append(entriesByPriority[PriorityLow], entry)
-								default:
-									other = append(other, entry)
-								}
-								break
-							}
-						}
-					}
-				}
-			}
-		}
-	}
+	title := parsed.Title
 
 	// Remove completed tasks
 	removeSet := make(map[string]bool)
@@ -627,40 +566,37 @@ func UpdateFreeListIncrementally(tasks map[string]*Task, freeFile string, update
 		removeSet[taskID] = true
 	}
 
-	// Filter out removed tasks
-	filterEntries := func(entries []listEntry) []listEntry {
-		filtered := make([]listEntry, 0, len(entries))
-		for _, entry := range entries {
-			// Check if this entry corresponds to a removed task
-			shouldRemove := false
-			for taskID, task := range tasks {
-				taskRelPath := filepath.ToSlash(task.FilePath)
-				if removeSet[taskID] && (strings.Contains(entry.Path, taskRelPath) || strings.Contains(taskRelPath, entry.Path)) {
-					shouldRemove = true
-					break
-				}
-			}
-			if !shouldRemove {
-				filtered = append(filtered, entry)
-			}
+	kept := make(map[string]bool)
+	for _, taskID := range parsed.TaskIDs {
+		if removeSet[taskID] {
+			continue
 		}
-		return filtered
+		task, exists := tasks[taskID]
+		if !exists || task.Meta.Completed {
+			continue
+		}
+		kept[taskID] = true
 	}
-
-	entriesByPriority[PriorityHigh] = filterEntries(entriesByPriority[PriorityHigh])
-	entriesByPriority[PriorityMedium] = filterEntries(entriesByPriority[PriorityMedium])
-	entriesByPriority[PriorityLow] = filterEntries(entriesByPriority[PriorityLow])
-	other = filterEntries(other)
 
 	// Add newly unblocked tasks
 	for _, task := range update.AddTasks {
-		title := task.Title()
-		if title == "" {
-			title = task.ID
+		if task.Meta.Completed {
+			continue
 		}
+		kept[task.ID] = true
+	}
 
-		rel := filepath.ToSlash(task.FilePath)
-		entry := listEntry{Path: rel, Label: title}
+	// Build entries from tasks map for deterministic labels and paths
+	for taskID := range kept {
+		task, exists := tasks[taskID]
+		if !exists {
+			continue
+		}
+		label := task.Title()
+		if label == "" {
+			label = task.ID
+		}
+		entry := listEntry{Path: filepath.ToSlash(task.FilePath), Label: label}
 
 		switch NormalizePriority(task.Meta.Priority) {
 		case PriorityHigh:
