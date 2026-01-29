@@ -3,13 +3,14 @@ type: review
 role: reviewer
 priority: medium
 parent: Tocc0-draft-alternatives-for-commit-metric-default-ancho
-blockers: []
+blockers:
+    - Tiyms-decide-default-anchor-wording-for-commit-metrics-a
 blocks:
     - Tocc0-draft-alternatives-for-commit-metric-default-ancho
 date_created: 2026-01-29T20:00:34.411722Z
-date_edited: 2026-01-29T13:00:34.42178-07:00
+date_edited: 2026-01-29T22:24:10.783571Z
 owner_approval: false
-completed: false
+completed: true
 ---
 
 # Review alternatives: commit-metric default anchor wording
