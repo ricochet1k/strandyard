@@ -3,13 +3,15 @@ type: review
 role: reviewer
 priority: medium
 parent: Trlrg-specify-anchor-error-messages
-blockers: []
+blockers:
+    - T14az-define-error-message-format-contract-for-every-anc
+    - T4kdz-decide-recurrence-anchor-error-message-strategy-a
 blocks:
     - Trlrg-specify-anchor-error-messages
 date_created: 2026-01-29T15:19:01.741649Z
-date_edited: 2026-01-29T08:19:01.7486-07:00
+date_edited: 2026-01-29T15:28:28.148058Z
 owner_approval: false
-completed: false
+completed: true
 ---
 
 # Review alternatives: recurrence anchor error messages

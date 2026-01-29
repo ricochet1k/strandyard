@@ -1,37 +1,24 @@
 ---
 type: task
-role: designer
+role: reviewer-reliability
 priority: medium
-parent: Tftao-clarify-recurrence-anchor-flags-and-help-text
-blockers:
-    - T3md3-usability-review-recurrence-anchor-flags
-    - Tnsrg-reliability-review-recurrence-anchor-flags
-    - Tu1pm-review-recurrence-anchor-flags-alternatives
+parent: Tcsz3-review-alternatives-recurrence-anchor-error-messag
+blockers: []
 blocks:
-    - Tftao-clarify-recurrence-anchor-flags-and-help-text
-date_created: 2026-01-29T05:16:13.851401Z
+    - Tcsz3-review-alternatives-recurrence-anchor-error-messag
+date_created: 2026-01-29T15:28:01.821675Z
 date_edited: 2026-01-29T08:28:01.829012-07:00
 owner_approval: false
 completed: false
 ---
 
-# Draft recurrence anchor flag alternatives
+# Define error message format contract for --every anchor parsing
 
 ## Context
 Provide links to relevant design documents, diagrams, and decision records.
 
 ## Description
-## Summary
-Draft design alternatives for recurrence anchor flags and help text.
 
-## Context
-- design-docs/recurrence-metrics.md
-- design-docs/recurrence-anchor-flags-alternatives.md
-- CLI.md (recurring add section)
-
-## Tasks
-- [ ] Capture alternatives with pros/cons and effort estimates
-- [ ] Request review from master reviewer and usability/reliability reviewers
 
 ## Escalation
 If new concerns or decisions arise, create follow-up tasks instead of editing this task.
