@@ -2,30 +2,33 @@
 type: task
 role: owner
 priority: medium
-parent: T14az-define-error-message-format-contract-for-every-anc
-blockers:
-    - Tm91y-decide-every-anchor-defaults-and-hint-examples
-    - Tmxs6-evaluate-date-parsing-library-for-every-anchors
+parent: Th8av-define-canonical-hint-examples-for-every-errors
+blockers: []
 blocks:
-    - T14az-define-error-message-format-contract-for-every-anc
-date_created: 2026-01-29T16:55:20.213085Z
-date_edited: 2026-01-29T10:14:39.185681-07:00
+    - Th8av-define-canonical-hint-examples-for-every-errors
+date_created: 2026-01-29T17:14:34.825269Z
+date_edited: 2026-01-29T10:14:34.834071-07:00
 owner_approval: false
 completed: false
 ---
 
-# Define canonical hint examples for --every errors
+# Decide --every anchor defaults and hint examples
 
 ## Context
 Provide links to relevant design documents, diagrams, and decision records.
 
 ## Description
 ## Summary
-Select canonical example anchors and full `--every` examples for each unit/metric to use in hint lines.
+Decide whether hint examples should omit `from <anchor>` and whether hints may include relative or human-friendly dates.
 
-## Acceptance Criteria
-- One canonical example per unit/metric is specified.
-- Examples avoid non-deterministic content.
+## Context
+- design-docs/recurrence-anchor-error-messages-alternatives.md
+- design-docs/recurrence-anchor-flags-alternatives.md
+
+## Decisions Needed
+- Should `from <anchor>` be optional in hints (defaulting to "now" or another implicit anchor)?
+- Are relative/human-friendly date formats allowed in hint examples, or must hints be strictly deterministic ISO 8601?
+- If defaults are allowed, what are the exact default anchors per metric?
 
 ## Escalation
 If new concerns or decisions arise, create follow-up tasks instead of editing this task.

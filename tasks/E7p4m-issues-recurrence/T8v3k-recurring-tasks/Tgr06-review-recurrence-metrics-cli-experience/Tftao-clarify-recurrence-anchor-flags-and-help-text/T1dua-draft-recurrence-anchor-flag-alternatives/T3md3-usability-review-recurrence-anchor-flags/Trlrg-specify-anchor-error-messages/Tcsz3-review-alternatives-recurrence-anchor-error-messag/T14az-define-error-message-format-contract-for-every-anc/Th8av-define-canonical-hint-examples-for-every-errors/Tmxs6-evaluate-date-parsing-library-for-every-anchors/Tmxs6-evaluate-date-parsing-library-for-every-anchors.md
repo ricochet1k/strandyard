@@ -1,31 +1,32 @@
 ---
 type: task
-role: owner
+role: developer
 priority: medium
-parent: T14az-define-error-message-format-contract-for-every-anc
-blockers:
-    - Tm91y-decide-every-anchor-defaults-and-hint-examples
-    - Tmxs6-evaluate-date-parsing-library-for-every-anchors
+parent: Th8av-define-canonical-hint-examples-for-every-errors
+blockers: []
 blocks:
-    - T14az-define-error-message-format-contract-for-every-anc
-date_created: 2026-01-29T16:55:20.213085Z
-date_edited: 2026-01-29T10:14:39.185681-07:00
+    - Th8av-define-canonical-hint-examples-for-every-errors
+date_created: 2026-01-29T17:14:39.176361Z
+date_edited: 2026-01-29T10:14:39.186089-07:00
 owner_approval: false
 completed: false
 ---
 
-# Define canonical hint examples for --every errors
+# Evaluate date parsing library for --every anchors
 
 ## Context
 Provide links to relevant design documents, diagrams, and decision records.
 
 ## Description
 ## Summary
-Select canonical example anchors and full `--every` examples for each unit/metric to use in hint lines.
+Research and recommend a date parsing library that supports flexible, human-friendly inputs and is suitable for deterministic CLI parsing.
+
+## Context
+Potential requirement: allow relative date expressions in `--every` anchors.
 
 ## Acceptance Criteria
-- One canonical example per unit/metric is specified.
-- Examples avoid non-deterministic content.
+- Compare at least 2 candidate libraries with pros/cons (Go compatibility, license, determinism, locale behavior).
+- Recommend one library and document constraints for CLI usage.
 
 ## Escalation
 If new concerns or decisions arise, create follow-up tasks instead of editing this task.
