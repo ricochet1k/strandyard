@@ -8,9 +8,9 @@ blocks:
     - T4izq-define-deterministic-anchor-examples-for-every-hin
     - Tv4cw-implement-deterministic-every-hint-examples
 date_created: 2026-01-29T19:24:33.271976Z
-date_edited: 2026-01-29T12:24:46.400087-07:00
+date_edited: 2026-01-29T19:26:23.988247Z
 owner_approval: false
-completed: false
+completed: true
 ---
 
 # Review canonical --every hint examples (implementation)
