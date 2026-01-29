@@ -7,9 +7,9 @@ blockers: []
 blocks:
     - Tgr06-review-recurrence-metrics-cli-experience
 date_created: 2026-01-28T19:01:02.053092Z
-date_edited: 2026-01-28T12:01:02.059019-07:00
+date_edited: 2026-01-29T04:01:29.431451Z
 owner_approval: false
-completed: false
+completed: true
 ---
 
 # Define tasks-completed scope and anchor semantics

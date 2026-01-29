@@ -24,7 +24,7 @@ Designer (human or senior AI) — explores alternatives and produces design arti
 - Detailed design, diagrams, APIs, data model changes, operational concerns, and migration plans.
 
 ## Workflow
-1. Create an Alternatives task using the `design-alternatives` template.
+1. Create an Alternatives task using a task template from `templates/`, and write the Alternatives document in `design-docs/` using `doc-examples/design-alternatives.md`.
 2. Request review from the Master Reviewer and relevant specialized reviewers.
 3. After Owner picks an alternative, expand into a Design Document task and notify the Architect.
 4. Do not mark design work complete until the Owner has explicitly approved the design.

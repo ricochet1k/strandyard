@@ -110,9 +110,10 @@ Add the goldmark-frontmatter library to the project...
 
 ## Master lists
 - Two deterministic master list files are kept at `tasks/root-tasks.md` and `tasks/free-tasks.md`.
+ - Two deterministic master list files are kept at `tasks/root-tasks.md` and `tasks/free-tasks.md`.
   - `root-tasks.md`: lists all root tasks (no Parent)
   - `free-tasks.md`: lists tasks with no blockers (ready to start), grouped by priority
-- These files are updated deterministically by the CLI commands; they should not be edited manually except for bootstrapping.
+- These files are updated deterministically by the CLI commands (including `complete` and `repair`); they should not be edited manually except for bootstrapping.
 
 ## CLI responsibilities (high level)
 
@@ -128,7 +129,7 @@ Add the goldmark-frontmatter library to the project...
 ## Templates
 
 - Task templates: `templates/` (use these for implementable tasks). `ID` and `Parent` are derived from the filesystem; do not include them in templates.
-- Document examples: `doc-examples/` (example task outputs, sample documents).
+- Document examples: `doc-examples/` (example task outputs, sample documents). Use these as templates for documents in `design-docs/` (for example, `doc-examples/design-alternatives.md`). Task bodies should come from `templates/` at task creation time.
 - Task templates must be fully specifiable before work starts; avoid placeholders for results or findings.
 - Do not edit task bodies to record outcomes; create follow-up tasks for concerns or deferred decisions.
 - The default task template is `templates/task.md`. The `leaf` template/type is deprecated with no backward compatibility.
@@ -166,7 +167,7 @@ Add the goldmark-frontmatter library to the project...
 - **Invariant**: The `next` command must print the full role document from `roles/<role>.md` followed by a `---` separator; keep the e2e test in place to prevent regressions.
 - **When asked "work on the next thing"**: Run `memmd next` and report a summary of the task. Then perform the role's duties on that task.
 - **Repair after manual edits**: If you manually edit any task markdown files under `tasks/`, run `go run . repair` immediately afterward to regenerate master lists and confirm consistency. Make sure there's an issue filed to make sure the manual edit can be performed with a command eventually.
-- **Complete tasks via CLI**: When a task is done (including planning-only tasks), run `memmd complete <task-id>` rather than editing frontmatter by hand.
+- **Complete tasks via CLI**: When a task is done (including planning-only tasks), run `memmd complete <task-id>` rather than editing frontmatter by hand. `memmd complete` should update master lists; if `memmd repair` changes anything afterward, treat it as a bug and file an issue.
 - **File issues for manual edits**: If work requires manual edits or repairs outside the CLI, file an issue with repro steps, logs, and affected task IDs.
 - **Use add for new tasks/issues**: When asked to add tasks/issues, use `memmd add` instead of creating task files manually.
 

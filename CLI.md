@@ -276,19 +276,19 @@ memmd complete <task-id>
 - Updates `date_edited` to current timestamp
 - Preserves all other metadata
 
-**After completing**: Run `memmd repair` to update master lists and remove completed task from `free-tasks.md`.
+**After completing**: `memmd complete` should update master lists and remove the completed task from `free-tasks.md`. If `memmd repair` changes anything afterward, treat it as a bug.
 
 **Example**:
 ```bash
 $ memmd complete T3m9p-add-frontmatter-dep
 ✓ Task T3m9p-add-frontmatter-dep marked as completed
 
-Run 'memmd repair' to update master lists
+Optional: run 'memmd repair' to verify no changes
 
 $ memmd repair
 repair: ok
-Repaired 25 tasks
-Master lists updated: tasks/root-tasks.md, tasks/free-tasks.md
+Repaired 0 tasks
+Master lists unchanged: tasks/root-tasks.md, tasks/free-tasks.md
 ```
 
 ## Typical Workflows
@@ -307,7 +307,7 @@ Master lists updated: tasks/root-tasks.md, tasks/free-tasks.md
    memmd complete <task-id>
    ```
 
-4. **Update master lists**:
+4. **Optional verification** (should be a no-op):
    ```bash
    memmd repair
    ```
@@ -479,7 +479,7 @@ Task ID doesn't exist in the task tree. Check spelling or use `repair` to see al
 
 ## Tips
 
-1. **Always run repair after changes**: Keeps master lists up-to-date
+1. **Run repair after manual edits**: It should be a no-op after `complete` and `add`
 2. **Use `next` to find work**: Don't manually browse `free-tasks.md`
 3. **Complete tasks promptly**: Mark tasks complete as soon as work is done
 4. **Check repair errors carefully**: They indicate data integrity issues
