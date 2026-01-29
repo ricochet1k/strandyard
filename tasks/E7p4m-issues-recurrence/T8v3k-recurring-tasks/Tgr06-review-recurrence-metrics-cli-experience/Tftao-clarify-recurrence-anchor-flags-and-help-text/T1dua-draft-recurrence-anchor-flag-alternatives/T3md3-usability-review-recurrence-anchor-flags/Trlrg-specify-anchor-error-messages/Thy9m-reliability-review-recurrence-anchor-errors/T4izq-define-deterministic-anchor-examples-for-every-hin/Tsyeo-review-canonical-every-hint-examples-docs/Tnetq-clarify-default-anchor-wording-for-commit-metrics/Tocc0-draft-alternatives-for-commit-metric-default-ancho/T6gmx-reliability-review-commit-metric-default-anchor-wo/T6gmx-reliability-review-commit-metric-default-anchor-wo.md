@@ -3,13 +3,14 @@ type: review
 role: reviewer-reliability
 priority: medium
 parent: Tocc0-draft-alternatives-for-commit-metric-default-ancho
-blockers: []
+blockers:
+    - T0m0p-confirm-head-missing-behavior-for-commit-metric-de
 blocks:
     - Tocc0-draft-alternatives-for-commit-metric-default-ancho
 date_created: 2026-01-29T20:00:34.457399Z
-date_edited: 2026-01-29T13:00:34.465104-07:00
+date_edited: 2026-01-29T20:08:41.545356Z
 owner_approval: false
-completed: false
+completed: true
 ---
 
 # Reliability review: commit-metric default anchor wording

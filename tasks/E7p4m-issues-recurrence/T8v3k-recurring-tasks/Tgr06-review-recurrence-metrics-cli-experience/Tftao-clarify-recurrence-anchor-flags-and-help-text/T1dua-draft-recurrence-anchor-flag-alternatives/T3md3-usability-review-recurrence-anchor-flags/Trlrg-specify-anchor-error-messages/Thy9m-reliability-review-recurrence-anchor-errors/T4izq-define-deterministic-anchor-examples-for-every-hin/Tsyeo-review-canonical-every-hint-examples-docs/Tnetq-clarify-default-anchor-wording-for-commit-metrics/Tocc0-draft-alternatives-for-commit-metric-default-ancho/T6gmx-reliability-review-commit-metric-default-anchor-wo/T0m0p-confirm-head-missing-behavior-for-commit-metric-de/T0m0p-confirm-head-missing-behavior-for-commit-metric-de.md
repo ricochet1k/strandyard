@@ -1,37 +1,33 @@
 ---
 type: task
-role: designer
+role: architect
 priority: medium
-parent: Tftao-clarify-recurrence-anchor-flags-and-help-text
-blockers:
-    - T3md3-usability-review-recurrence-anchor-flags
-    - Tnsrg-reliability-review-recurrence-anchor-flags
-    - Tu1pm-review-recurrence-anchor-flags-alternatives
+parent: T6gmx-reliability-review-commit-metric-default-anchor-wo
+blockers: []
 blocks:
-    - Tftao-clarify-recurrence-anchor-flags-and-help-text
-date_created: 2026-01-29T05:16:13.851401Z
+    - T6gmx-reliability-review-commit-metric-default-anchor-wo
+date_created: 2026-01-29T20:08:33.52995Z
 date_edited: 2026-01-29T13:08:33.538214-07:00
 owner_approval: false
 completed: false
 ---
 
-# Draft recurrence anchor flag alternatives
+# Confirm HEAD-missing behavior for commit-metric defaults
 
 ## Context
 Provide links to relevant design documents, diagrams, and decision records.
 
 ## Description
 ## Summary
-Draft design alternatives for recurrence anchor flags and help text.
-
-## Context
-- design-docs/recurrence-metrics.md
-- design-docs/recurrence-anchor-flags-alternatives.md
-- CLI.md (recurring add section)
+Clarify and document how commit-metric defaults behave when `HEAD` is missing, detached, or unborn so anchor wording does not overpromise.
 
 ## Tasks
-- [ ] Capture alternatives with pros/cons and effort estimates
-- [ ] Request review from master reviewer and usability/reliability reviewers
+- [ ] Verify CLI behavior in repos without a valid `HEAD` (detached or unborn).
+- [ ] Propose wording adjustments or doc notes if behavior differs from implied defaults.
+
+## Acceptance Criteria
+- Documented behavior for missing/detached `HEAD` is captured in a design doc or CLI docs.
+- Recommended wording changes (if any) are recorded for the decision owner.
 
 ## Escalation
 Tasks are disposable. Use follow-up tasks for open questions/concerns. Record decisions and final rationale in design docs; do not edit this task to capture outcomes.
