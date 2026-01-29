@@ -57,8 +57,8 @@ Clarify how `memmd recurring add` captures the recurrence anchor across time-bas
 - Effort: Medium (new flag + validation + docs).
 
 ### Alternative D — Single `--every` with structured string parsing
-- Description: Replace `--unit`/`--anchor` with a single repeatable `--every` flag that accepts a small structured string: `<amount> <metric> [from <anchor>]` (e.g., `--every "5 days from 2026-01-28T00:00:00Z"`). Allow multiple `--every` flags for mixed metrics.
-- Assumptions: The parser enforces a strict grammar (not free-form NLP). The anchor is optional and defaults to "now" or the last completion depending on metric.
+- Description: Replace `--unit`/`--anchor` with a single repeatable `--every` flag that accepts a small structured string: `<amount> <metric> [from <anchor>]` (e.g., `--every "5 days from Jan 28 2026 09:00"`). Allow multiple `--every` flags for mixed metrics.
+- Assumptions: The parser enforces a strict grammar (not free-form NLP). The anchor is optional and defaults to "now" for all metrics.
 - Pros:
   - Single flag with clear, compact syntax; supports mixed metrics by repeating the flag.
   - Avoids multiple anchor flags while still allowing per-metric anchors.
@@ -80,13 +80,17 @@ Clarify how `memmd recurring add` captures the recurrence anchor across time-bas
   - `--anchor`: Anchor value; format depends on `--anchor-type`.
   - `--anchor-type`: Anchor type: date|commit (required for git-based units).
 - Alternative D example:
-  - `--every`: Repeatable recurrence rule. Format: `<amount> <metric> [from <anchor>]` (e.g., `"5 days from 2026-01-28T00:00:00Z"`, `"50 commits from a1b2c3d4"`).
+  - `--every`: Repeatable recurrence rule. Format: `<amount> <metric> [from <anchor>]` (e.g., `"5 days from Jan 28 2026 09:00"`, `"50 commits"`).
 
 ## Decision
 - Decision: Alternative D. Use repeatable `--every` with a strict structured grammar and per-metric anchors via `from <anchor>`.
 
 ## Recommendation
 - Recommendation: Alternative D to keep the CLI surface to a single flag while supporting mixed metrics via repeated `--every` rules.
+
+## Defaults and Examples
+- `from <anchor>` is optional; if omitted, the anchor defaults to `now` for all metrics.
+- Examples and hint text should prefer human-friendly dates; ISO 8601 may be added only when needed for clarity.
 
 ## Review Requests
 - Request review from: `master-reviewer`, `reviewer-usability`, `reviewer-reliability`.

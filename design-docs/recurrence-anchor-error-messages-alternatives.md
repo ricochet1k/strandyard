@@ -30,16 +30,15 @@ Compare approaches for user-facing error messages when parsing recurrence anchor
   - Small grammar changes can cascade into many expected-string updates.
 - Rough effort estimate: Medium.
 - Example messages:
-  - Missing anchor: "missing anchor: expected 'from <anchor>' after metric 'commits'"
-  - Recovery hint: "Example: --every \"10 commits from a1b2c3d4\""
+  - Recovery hint: "Example: --every \"10 commits\" (defaults to now)"
   - Malformed date anchor: "invalid anchor '2026-13-01': expected ISO 8601 timestamp after 'from'"
-  - Recovery hint: "Use 2026-01-01T00:00:00Z"
+  - Recovery hint: "Use \"Jan 28 2026 09:00\""
   - Malformed commit anchor: "invalid anchor '2026-01-01': expected commit hash after 'from'"
   - Recovery hint: "Use 'git rev-parse HEAD'"
   - Unit/anchor mismatch: "metric 'days' expects a date anchor, got commit hash"
-  - Recovery hint: "Use ISO 8601 timestamp for days/weeks/months metrics"
+  - Recovery hint: "Use a date like \"Jan 28 2026 09:00\" for days/weeks/months metrics"
   - Ambiguous anchor type: "metric 'tasks_completed' requires date anchor"
-  - Recovery hint: "Use completion timestamp: 2026-01-28T00:00:00Z"
+  - Recovery hint: "Use completion time like \"Jan 28 2026 09:00\""
 
 ### Alternative B — Unified error format with structured reason + hint line
 - Description: Use a consistent error prefix and structured reason, followed by a separate hint line (e.g., `hint:`) with a minimal example.
@@ -55,7 +54,7 @@ Compare approaches for user-facing error messages when parsing recurrence anchor
 - Rough effort estimate: Low to Medium.
 - Example messages:
   - "memmd: error: invalid --every value: missing anchor after 'commits'"
-  - "hint: --every \"10 commits from a1b2c3d4\""
+  - "hint: --every \"10 commits\" (defaults to now)"
 
 ### Alternative C — Default anchors with warning-only errors
 - Description: If the anchor is missing, default to `now` for time-based metrics and `HEAD` for commit-based metrics, and only error on malformed anchors; emit a warning when defaults are applied.
@@ -81,6 +80,11 @@ Compare approaches for user-facing error messages when parsing recurrence anchor
   - `2` for parse/validation failures related to `--every`.
   - `1` for other runtime errors.
   - `0` on success.
+
+## Defaults and Hint Examples
+- `from <anchor>` is optional; if omitted, the anchor defaults to `now`.
+- Default anchor is `now` for all metrics, interpreted relative to what the metric measures.
+- Hint examples should prefer human-friendly dates (for example, "Jan 28 2026 09:00") and may include ISO 8601 as a secondary reference if needed.
 
 ## Review Requests
 - Request review from: `reviewer` (master), `reviewer-usability`, `reviewer-reliability`.

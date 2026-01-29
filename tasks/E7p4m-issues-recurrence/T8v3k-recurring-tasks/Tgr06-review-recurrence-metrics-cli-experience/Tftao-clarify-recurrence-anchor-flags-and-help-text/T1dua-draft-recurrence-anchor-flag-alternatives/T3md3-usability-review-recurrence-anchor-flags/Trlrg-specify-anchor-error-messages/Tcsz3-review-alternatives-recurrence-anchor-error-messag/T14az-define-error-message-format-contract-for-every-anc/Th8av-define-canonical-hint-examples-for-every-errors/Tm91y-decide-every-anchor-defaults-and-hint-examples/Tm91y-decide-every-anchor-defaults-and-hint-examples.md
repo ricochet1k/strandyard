@@ -7,9 +7,9 @@ blockers: []
 blocks:
     - Th8av-define-canonical-hint-examples-for-every-errors
 date_created: 2026-01-29T17:14:34.825269Z
-date_edited: 2026-01-29T10:14:34.834071-07:00
+date_edited: 2026-01-29T17:59:49.21692Z
 owner_approval: false
-completed: false
+completed: true
 ---
 
 # Questions: --every anchor defaults and hint examples
