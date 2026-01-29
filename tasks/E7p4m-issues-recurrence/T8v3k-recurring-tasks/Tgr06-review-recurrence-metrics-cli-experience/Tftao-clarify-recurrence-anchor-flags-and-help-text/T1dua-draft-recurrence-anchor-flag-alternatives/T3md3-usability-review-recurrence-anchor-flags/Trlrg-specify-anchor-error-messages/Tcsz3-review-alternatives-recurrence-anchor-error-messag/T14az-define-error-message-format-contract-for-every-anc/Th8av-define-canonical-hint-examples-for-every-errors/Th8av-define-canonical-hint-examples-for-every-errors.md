@@ -1,29 +1,29 @@
 ---
 type: task
-role: designer
+role: owner
 priority: medium
-parent: T3md3-usability-review-recurrence-anchor-flags
-blockers:
-    - Tcsz3-review-alternatives-recurrence-anchor-error-messag
-    - Thy9m-reliability-review-recurrence-anchor-errors
-    - Ti8ig-usability-review-recurrence-anchor-errors
+parent: T14az-define-error-message-format-contract-for-every-anc
+blockers: []
 blocks:
-    - T3md3-usability-review-recurrence-anchor-flags
-date_created: 2026-01-29T05:46:59.618092Z
+    - T14az-define-error-message-format-contract-for-every-anc
+date_created: 2026-01-29T16:55:20.213085Z
 date_edited: 2026-01-29T09:55:20.224215-07:00
 owner_approval: false
 completed: false
 ---
 
-# Specify anchor error messages
+# Define canonical hint examples for --every errors
 
 ## Context
 Provide links to relevant design documents, diagrams, and decision records.
 
 ## Description
-- Define user-facing error messages for missing or malformed anchors.
-- Cover unit/anchor mismatches and ambiguity (when unit implies commit vs date).
-- Provide example recovery hints for each error case.
+## Summary
+Select canonical example anchors and full `--every` examples for each unit/metric to use in hint lines.
+
+## Acceptance Criteria
+- One canonical example per unit/metric is specified.
+- Examples avoid non-deterministic content.
 
 ## Escalation
 If new concerns or decisions arise, create follow-up tasks instead of editing this task.

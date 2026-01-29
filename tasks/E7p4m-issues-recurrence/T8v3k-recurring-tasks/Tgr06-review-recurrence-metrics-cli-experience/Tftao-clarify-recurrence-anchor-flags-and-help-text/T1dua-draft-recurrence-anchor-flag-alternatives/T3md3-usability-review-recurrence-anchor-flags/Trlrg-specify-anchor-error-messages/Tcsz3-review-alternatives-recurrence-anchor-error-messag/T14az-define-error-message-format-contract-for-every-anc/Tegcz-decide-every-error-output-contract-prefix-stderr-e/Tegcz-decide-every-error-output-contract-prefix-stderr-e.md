@@ -1,29 +1,30 @@
 ---
 type: task
-role: designer
+role: owner
 priority: medium
-parent: T3md3-usability-review-recurrence-anchor-flags
-blockers:
-    - Tcsz3-review-alternatives-recurrence-anchor-error-messag
-    - Thy9m-reliability-review-recurrence-anchor-errors
-    - Ti8ig-usability-review-recurrence-anchor-errors
+parent: T14az-define-error-message-format-contract-for-every-anc
+blockers: []
 blocks:
-    - T3md3-usability-review-recurrence-anchor-flags
-date_created: 2026-01-29T05:46:59.618092Z
-date_edited: 2026-01-29T09:55:20.224215-07:00
+    - T14az-define-error-message-format-contract-for-every-anc
+date_created: 2026-01-29T16:55:16.051856Z
+date_edited: 2026-01-29T09:55:16.059585-07:00
 owner_approval: false
 completed: false
 ---
 
-# Specify anchor error messages
+# Decide --every error output contract (prefix, stderr, exit code)
 
 ## Context
 Provide links to relevant design documents, diagrams, and decision records.
 
 ## Description
-- Define user-facing error messages for missing or malformed anchors.
-- Cover unit/anchor mismatches and ambiguity (when unit implies commit vs date).
-- Provide example recovery hints for each error case.
+## Summary
+Define the user-visible error output contract for `--every` anchor parsing, including the exact prefix wording, stderr vs stdout behavior, and exit code mapping for parse/validation failures.
+
+## Acceptance Criteria
+- Error prefix string is specified and stable.
+- stderr/stdout behavior is documented.
+- Exit code mapping is documented.
 
 ## Escalation
 If new concerns or decisions arise, create follow-up tasks instead of editing this task.
