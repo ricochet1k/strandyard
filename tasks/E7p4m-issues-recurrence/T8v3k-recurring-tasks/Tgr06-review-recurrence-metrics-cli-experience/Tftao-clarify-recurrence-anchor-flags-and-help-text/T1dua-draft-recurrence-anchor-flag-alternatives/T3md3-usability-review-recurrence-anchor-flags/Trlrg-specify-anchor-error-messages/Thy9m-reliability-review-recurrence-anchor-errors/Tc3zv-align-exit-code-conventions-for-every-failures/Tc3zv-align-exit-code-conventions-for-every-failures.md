@@ -2,31 +2,29 @@
 type: task
 role: owner
 priority: medium
-parent: T14az-define-error-message-format-contract-for-every-anc
-blockers:
-    - I3g1d-add-cli-support-for-updating-task-decision-questio
-    - Tm91y-decide-every-anchor-defaults-and-hint-examples
-    - Tmxs6-evaluate-date-parsing-library-for-every-anchors
+parent: Thy9m-reliability-review-recurrence-anchor-errors
+blockers: []
 blocks:
-    - T14az-define-error-message-format-contract-for-every-anc
-date_created: 2026-01-29T16:55:20.213085Z
+    - Thy9m-reliability-review-recurrence-anchor-errors
+date_created: 2026-01-29T19:20:55.261026Z
 date_edited: 2026-01-29T12:20:55.271287-07:00
 owner_approval: false
 completed: false
 ---
 
-# Define canonical hint examples for --every errors
+# Align exit code conventions for --every failures
 
 ## Context
 Provide links to relevant design documents, diagrams, and decision records.
 
 ## Description
 ## Summary
-Select canonical example anchors and full `--every` examples for each unit/metric to use in hint lines.
+Confirm and document CLI-wide exit code conventions for `--every` parse/validation failures.
 
-## Acceptance Criteria
-- One canonical example per unit/metric is specified.
-- Examples avoid non-deterministic content.
+## Details
+- Decide whether exit code `2` is reserved for parse/validation errors across CLI commands.
+- Document the contract for `--every` alongside other error cases (parse vs runtime).
+- Ensure automation guidance remains stable for scripts and CI.
 
 ## Escalation
 Tasks are disposable. Use follow-up tasks for open questions/concerns. Record decisions and final rationale in design docs; do not edit this task to capture outcomes.

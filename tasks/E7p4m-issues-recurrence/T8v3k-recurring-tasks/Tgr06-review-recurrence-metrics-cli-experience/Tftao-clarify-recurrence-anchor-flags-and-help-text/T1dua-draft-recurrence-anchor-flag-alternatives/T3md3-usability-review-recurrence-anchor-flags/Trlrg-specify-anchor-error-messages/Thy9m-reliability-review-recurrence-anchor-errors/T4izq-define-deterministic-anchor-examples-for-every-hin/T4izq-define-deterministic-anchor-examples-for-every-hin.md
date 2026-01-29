@@ -1,32 +1,30 @@
 ---
 type: task
-role: owner
+role: architect
 priority: medium
-parent: T14az-define-error-message-format-contract-for-every-anc
-blockers:
-    - I3g1d-add-cli-support-for-updating-task-decision-questio
-    - Tm91y-decide-every-anchor-defaults-and-hint-examples
-    - Tmxs6-evaluate-date-parsing-library-for-every-anchors
+parent: Thy9m-reliability-review-recurrence-anchor-errors
+blockers: []
 blocks:
-    - T14az-define-error-message-format-contract-for-every-anc
-date_created: 2026-01-29T16:55:20.213085Z
-date_edited: 2026-01-29T12:20:55.271287-07:00
+    - Thy9m-reliability-review-recurrence-anchor-errors
+date_created: 2026-01-29T19:20:50.103845Z
+date_edited: 2026-01-29T12:20:50.114069-07:00
 owner_approval: false
 completed: false
 ---
 
-# Define canonical hint examples for --every errors
+# Define deterministic anchor examples for --every hints
 
 ## Context
 Provide links to relevant design documents, diagrams, and decision records.
 
 ## Description
 ## Summary
-Select canonical example anchors and full `--every` examples for each unit/metric to use in hint lines.
+Define canonical, deterministic anchor examples for each anchor type in `--every` hint lines.
 
-## Acceptance Criteria
-- One canonical example per unit/metric is specified.
-- Examples avoid non-deterministic content.
+## Details
+- Specify fixed examples for date/time anchors (human-friendly + optional ISO 8601).
+- Specify fixed examples for commit anchors (e.g., `HEAD` or a placeholder hash) that do not vary per run.
+- Ensure examples are stable for tests and automation (no current-time rendering).
 
 ## Escalation
 Tasks are disposable. Use follow-up tasks for open questions/concerns. Record decisions and final rationale in design docs; do not edit this task to capture outcomes.
