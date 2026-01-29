@@ -496,6 +496,24 @@ Set `priority: high|medium|low` or remove the field to default to `medium`.
 ### "task not found: X"
 Task ID doesn't exist in the task tree. Check spelling or use `repair` to see all tasks.
 
+### `recurring add --every` hint examples
+Hint lines for `memmd recurring add --every` use deterministic examples so automation and tests remain stable. Canonical examples and anchor guidance live in `design-docs/recurrence-anchor-hint-examples.md`.
+
+Default anchor examples (no explicit anchor):
+- `--every "10 days"`
+- `--every "50 commits"`
+- `--every "500 lines_changed"`
+- `--every "20 tasks_completed"`
+
+Explicit anchor examples (use sparingly):
+- `--every "10 days from Jan 28 2026 09:00 UTC"`
+- `--every "50 commits from HEAD"`
+
+Anchor guidance:
+- Use the human-friendly date anchor above for explicit date/time examples.
+- Use `HEAD` for explicit commit anchors.
+- Use ISO 8601 anchors only in docs/tests that validate ISO parsing (for example, `2026-01-28T09:00:00Z`).
+
 ## Tips
 
 1. **Run repair after manual edits**: It should be a no-op after `complete` and `add`

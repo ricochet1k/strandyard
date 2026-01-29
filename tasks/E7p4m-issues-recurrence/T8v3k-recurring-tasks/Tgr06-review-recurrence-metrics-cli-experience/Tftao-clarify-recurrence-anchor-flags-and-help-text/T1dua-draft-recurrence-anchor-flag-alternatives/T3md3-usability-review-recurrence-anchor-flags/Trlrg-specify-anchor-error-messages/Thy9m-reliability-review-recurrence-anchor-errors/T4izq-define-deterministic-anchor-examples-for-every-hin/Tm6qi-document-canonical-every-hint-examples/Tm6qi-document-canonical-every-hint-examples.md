@@ -9,9 +9,9 @@ blockers:
 blocks:
     - T4izq-define-deterministic-anchor-examples-for-every-hin
 date_created: 2026-01-29T19:24:50.680451Z
-date_edited: 2026-01-29T12:24:50.68882-07:00
+date_edited: 2026-01-29T19:57:33.032262Z
 owner_approval: false
-completed: false
+completed: true
 ---
 
 # Document canonical --every hint examples
