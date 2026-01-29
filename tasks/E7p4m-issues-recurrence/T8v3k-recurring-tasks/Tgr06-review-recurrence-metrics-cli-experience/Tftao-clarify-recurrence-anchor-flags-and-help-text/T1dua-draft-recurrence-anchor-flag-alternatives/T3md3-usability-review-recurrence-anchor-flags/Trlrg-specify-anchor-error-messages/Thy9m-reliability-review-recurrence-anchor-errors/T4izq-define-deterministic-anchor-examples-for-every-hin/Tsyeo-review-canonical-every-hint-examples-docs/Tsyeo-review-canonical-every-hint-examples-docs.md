@@ -3,14 +3,15 @@ type: review
 role: reviewer-usability
 priority: medium
 parent: T4izq-define-deterministic-anchor-examples-for-every-hin
-blockers: []
+blockers:
+    - Tnetq-clarify-default-anchor-wording-for-commit-metrics
 blocks:
     - T4izq-define-deterministic-anchor-examples-for-every-hin
     - Tm6qi-document-canonical-every-hint-examples
 date_created: 2026-01-29T19:24:40.775932Z
-date_edited: 2026-01-29T12:24:50.68882-07:00
+date_edited: 2026-01-29T19:54:49.456791Z
 owner_approval: false
-completed: false
+completed: true
 ---
 
 # Review canonical --every hint examples (docs)

@@ -2,28 +2,23 @@
 type: task
 role: designer
 priority: medium
-parent: T3md3-usability-review-recurrence-anchor-flags
-blockers:
-    - Tcsz3-review-alternatives-recurrence-anchor-error-messag
-    - Thy9m-reliability-review-recurrence-anchor-errors
-    - Ti8ig-usability-review-recurrence-anchor-errors
+parent: Tsyeo-review-canonical-every-hint-examples-docs
+blockers: []
 blocks:
-    - T3md3-usability-review-recurrence-anchor-flags
-date_created: 2026-01-29T05:46:59.618092Z
+    - Tsyeo-review-canonical-every-hint-examples-docs
+date_created: 2026-01-29T19:54:15.970672Z
 date_edited: 2026-01-29T12:54:15.978197-07:00
 owner_approval: false
 completed: false
 ---
 
-# Specify anchor error messages
+# Clarify default anchor wording for commit metrics
 
 ## Context
 Provide links to relevant design documents, diagrams, and decision records.
 
 ## Description
-- Define user-facing error messages for missing or malformed anchors.
-- Cover unit/anchor mismatches and ambiguity (when unit implies commit vs date).
-- Provide example recovery hints for each error case.
+
 
 ## Escalation
 Tasks are disposable. Use follow-up tasks for open questions/concerns. Record decisions and final rationale in design docs; do not edit this task to capture outcomes.
