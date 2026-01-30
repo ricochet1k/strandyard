@@ -5,6 +5,7 @@ package cmd
 
 import (
 	"fmt"
+	"strings"
 	"time"
 
 	"github.com/ricochet1k/memmd/pkg/task"
@@ -29,9 +30,14 @@ func init() {
 }
 
 func runComplete(taskID string) error {
+	paths, err := resolveProjectPaths(projectName)
+	if err != nil {
+		return err
+	}
+
 	// Load all tasks to find the one we want
 	parser := task.NewParser()
-	tasks, err := parser.LoadTasks("tasks")
+	tasks, err := parser.LoadTasks(paths.TasksDir)
 	if err != nil {
 		return fmt.Errorf("failed to load tasks: %w", err)
 	}
@@ -65,16 +71,25 @@ func runComplete(taskID string) error {
 
 	fmt.Printf("✓ Task %s marked as completed\n", taskID)
 
+	if strings.TrimSpace(t.Meta.Parent) != "" {
+		if _, err := task.UpdateParentTodoEntries(tasks, t.Meta.Parent); err != nil {
+			return fmt.Errorf("failed to update parent task TODO entries: %w", err)
+		}
+		if _, err := task.WriteDirtyTasks(tasks); err != nil {
+			return fmt.Errorf("failed to write parent task updates: %w", err)
+		}
+	}
+
 	// Try incremental update first, fall back to full validation
-	if err := task.UpdateFreeListIncrementally(tasks, "tasks/free-tasks.md", update); err != nil {
+	if err := task.UpdateFreeListIncrementally(tasks, paths.FreeTasksFile, update); err != nil {
 		fmt.Printf("⚠️  Incremental update failed, falling back to full repair: %v\n", err)
-		if err := runRepair("tasks", "tasks/root-tasks.md", "tasks/free-tasks.md", "text"); err != nil {
+		if err := runRepair(paths.TasksDir, paths.RootTasksFile, paths.FreeTasksFile, "text"); err != nil {
 			return err
 		}
 	} else {
 		fmt.Printf("✓ Incrementally updated free-tasks.md\n")
 		// Still need to run repair for error checking, but skip master list generation
-		validator := task.NewValidator(tasks)
+		validator := task.NewValidatorWithRoles(tasks, paths.RolesDir)
 		errors := validator.Validate()
 		if _, err := task.WriteDirtyTasks(tasks); err != nil {
 			return fmt.Errorf("failed to write repaired tasks: %w", err)

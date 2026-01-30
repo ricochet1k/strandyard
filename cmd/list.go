@@ -36,11 +36,15 @@ var listCmd = &cobra.Command{
 	Use:   "list",
 	Short: "List tasks with filtering and formatting options",
 	RunE: func(cmd *cobra.Command, args []string) error {
+		paths, err := resolveProjectPaths(projectName)
+		if err != nil {
+			return err
+		}
 		opts, err := listOptionsFromFlags(cmd)
 		if err != nil {
 			return err
 		}
-		return runList(opts)
+		return runList(paths.TasksDir, opts)
 	},
 }
 
@@ -109,7 +113,7 @@ func listOptionsFromFlags(cmd *cobra.Command) (task.ListOptions, error) {
 	return opts, nil
 }
 
-func runList(opts task.ListOptions) error {
+func runList(tasksRoot string, opts task.ListOptions) error {
 	if opts.Label != "" {
 		return fmt.Errorf("label filter is not supported yet")
 	}
@@ -162,7 +166,7 @@ func runList(opts task.ListOptions) error {
 		return fmt.Errorf("invalid flag combination: --path cannot be used with --scope %s", opts.Scope)
 	}
 
-	tasks, err := task.ListTasks("tasks", opts)
+	tasks, err := task.ListTasks(tasksRoot, opts)
 	if err != nil {
 		return err
 	}

@@ -50,17 +50,22 @@ var (
 )
 
 func runAdd(cmd *cobra.Command, args []string) error {
+	paths, err := resolveProjectPaths(projectName)
+	if err != nil {
+		return err
+	}
+
 	tmplName := strings.TrimSpace(args[0])
 	if tmplName == "" {
 		return fmt.Errorf("type is required")
 	}
 
-	templates, err := listTemplateNames("templates")
+	templates, err := listTemplateNames(paths.TemplatesDir)
 	if err != nil {
 		return err
 	}
 	if len(templates) == 0 {
-		return fmt.Errorf("no templates found in templates/")
+		return fmt.Errorf("no templates found in %s", paths.TemplatesDir)
 	}
 
 	if !containsTemplate(templates, tmplName) {
@@ -75,7 +80,7 @@ func runAdd(cmd *cobra.Command, args []string) error {
 		return fmt.Errorf("title is required (use --title or provide it as an argument)")
 	}
 
-	templatePath := filepath.Join("templates", tmplName+".md")
+	templatePath := filepath.Join(paths.TemplatesDir, tmplName+".md")
 	templateMeta, templateBody, err := loadTemplate(templatePath)
 	if err != nil {
 		return err
@@ -88,7 +93,7 @@ func runAdd(cmd *cobra.Command, args []string) error {
 	if role == "" {
 		return fmt.Errorf("role is required (use --role or set role in template frontmatter)")
 	}
-	if err := validateRole(role); err != nil {
+	if err := validateRole(paths.RolesDir, role); err != nil {
 		return err
 	}
 
@@ -101,18 +106,21 @@ func runAdd(cmd *cobra.Command, args []string) error {
 	}
 
 	parent := strings.TrimSpace(addParent)
-	parentDir := "tasks"
+	parentDir := paths.TasksDir
+	var tasks map[string]*task.Task
+	var parser *task.Parser
 	if parent != "" {
-		parser := task.NewParser()
-		tasks, err := parser.LoadTasks("tasks")
+		parser = task.NewParser()
+		loaded, err := parser.LoadTasks(paths.TasksDir)
 		if err != nil {
 			return err
 		}
-		parentTask, ok := tasks[parent]
+		parentTask, ok := loaded[parent]
 		if !ok {
 			return fmt.Errorf("parent task %s does not exist", parent)
 		}
 		parentDir = parentTask.Dir
+		tasks = loaded
 	}
 
 	id, err := idgen.GenerateID(taskPrefixForTemplate(tmplName), title)
@@ -166,8 +174,22 @@ func runAdd(cmd *cobra.Command, args []string) error {
 
 	fmt.Printf("✓ Task created: %s\n", filepath.ToSlash(taskFile))
 
+	if parent != "" {
+		newTask, err := parser.ParseFile(taskFile)
+		if err != nil {
+			return fmt.Errorf("failed to parse new task: %w", err)
+		}
+		tasks[newTask.ID] = newTask
+		if _, err := task.UpdateParentTodoEntries(tasks, parent); err != nil {
+			return fmt.Errorf("failed to update parent task TODO entries: %w", err)
+		}
+		if _, err := task.WriteDirtyTasks(tasks); err != nil {
+			return fmt.Errorf("failed to write parent task updates: %w", err)
+		}
+	}
+
 	if !addNoRepair {
-		if err := runRepair("tasks", "tasks/root-tasks.md", "tasks/free-tasks.md", "text"); err != nil {
+		if err := runRepair(paths.TasksDir, paths.RootTasksFile, paths.FreeTasksFile, "text"); err != nil {
 			return err
 		}
 	}
@@ -304,8 +326,8 @@ func readStdin() (string, error) {
 	return strings.TrimRight(string(data), "\r\n"), nil
 }
 
-func validateRole(role string) error {
-	rolePath := filepath.Join("roles", role+".md")
+func validateRole(rolesDir, role string) error {
+	rolePath := filepath.Join(rolesDir, role+".md")
 	if _, err := os.Stat(rolePath); err != nil {
 		return fmt.Errorf("role file %s does not exist", rolePath)
 	}

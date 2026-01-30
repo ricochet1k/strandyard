@@ -31,6 +31,7 @@ type Validator struct {
 	tasks     map[string]*Task
 	errors    []ValidationError
 	idPattern *regexp.Regexp
+	rolesDir  string
 }
 
 type listEntry struct {
@@ -40,6 +41,11 @@ type listEntry struct {
 
 // NewValidator creates a new validator
 func NewValidator(tasks map[string]*Task) *Validator {
+	return NewValidatorWithRoles(tasks, "roles")
+}
+
+// NewValidatorWithRoles creates a validator with a custom roles directory.
+func NewValidatorWithRoles(tasks map[string]*Task, rolesDir string) *Validator {
 	// ID pattern: <PREFIX><4-lowercase-alphanumeric>-<slug>
 	// PREFIX is single uppercase letter
 	// Token is 4 lowercase base36 characters (0-9, a-z)
@@ -50,6 +56,7 @@ func NewValidator(tasks map[string]*Task) *Validator {
 		tasks:     tasks,
 		errors:    []ValidationError{},
 		idPattern: idPattern,
+		rolesDir:  rolesDir,
 	}
 }
 
@@ -198,7 +205,11 @@ func (v *Validator) verifyRole(id string, task *Task) {
 	}
 
 	// Check if role file exists
-	rolePath := filepath.Join("roles", role+".md")
+	roleDir := v.rolesDir
+	if strings.TrimSpace(roleDir) == "" {
+		roleDir = "roles"
+	}
+	rolePath := filepath.Join(roleDir, role+".md")
 	if _, err := os.Stat(rolePath); os.IsNotExist(err) {
 		v.errors = append(v.errors, ValidationError{
 			TaskID:  id,

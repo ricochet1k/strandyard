@@ -85,7 +85,7 @@ func TestRunListValidation(t *testing.T) {
 		tc := tc
 		t.Run(tc.name, func(t *testing.T) {
 			t.Parallel()
-			err := runList(tc.opts)
+			err := runList("tasks", tc.opts)
 			if tc.wantErr && err == nil {
 				t.Fatalf("expected error, got nil")
 			}

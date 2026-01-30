@@ -12,6 +12,27 @@ go build -o memmd .
 go run . <command>
 ```
 
+## Project storage and selection
+
+memmd stores `tasks/`, `roles/`, and `templates/` either in a local `.memmd/` directory at the git root or in a global project directory under `~/.config/memmd/projects/<project_name>` (default).
+
+Initialize storage for the current repository with:
+
+```bash
+memmd init [project_name] [--storage global|local] [--preset <dir-or-git-url>]
+```
+
+Flags:
+- `--storage`: choose `global` (default) or `local` (`.memmd/` at git root)
+- `--preset`: path to a directory or a git repo containing `tasks/`, `roles/`, and `templates/` to copy into the project
+
+Use `--project <name>` on any command to operate on a specific global project by name:
+
+```bash
+memmd list --project my-project
+memmd add task "Follow up" --project my-project
+```
+
 ## Core Commands
 
 ### `add` - Create tasks from templates

@@ -35,11 +35,16 @@ func init() {
 }
 
 func runNext(roleFilter string) error {
+	paths, err := resolveProjectPaths(projectName)
+	if err != nil {
+		return err
+	}
+
 	// Ensure free-tasks exists; if not, run repair to generate it
-	freePath := "tasks/free-tasks.md"
+	freePath := paths.FreeTasksFile
 	if _, err := os.Stat(freePath); os.IsNotExist(err) {
 		// Run repair to generate lists
-		if err := runRepair("tasks", "tasks/root-tasks.md", freePath, "text"); err != nil {
+		if err := runRepair(paths.TasksDir, paths.RootTasksFile, freePath, "text"); err != nil {
 			return fmt.Errorf("unable to generate master lists: %w", err)
 		}
 	}
@@ -51,7 +56,7 @@ func runNext(roleFilter string) error {
 	}
 
 	parser := task.NewParser()
-	tasks, err := parser.LoadTasks("tasks")
+	tasks, err := parser.LoadTasks(paths.TasksDir)
 	if err != nil {
 		return fmt.Errorf("failed to load tasks: %w", err)
 	}
@@ -109,7 +114,7 @@ func runNext(roleFilter string) error {
 
 	role := selectedTask.GetEffectiveRole()
 	if role != "" {
-		rolePath := filepath.Join("roles", role+".md")
+		rolePath := filepath.Join(paths.RolesDir, role+".md")
 		roleData, err := os.ReadFile(rolePath)
 		if err == nil {
 			roleDoc := string(roleData)
