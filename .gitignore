@@ -1,0 +1,5 @@
+pkg/web/dist/
+apps/dashboard/dist/
+strandyard
+strand
+node_modules/
