@@ -26,24 +26,14 @@ func NewTestEnv(t testing.TB) *TestEnv {
 
 	baseDir := filepath.Join(rootDir, ".strand")
 	tasksDir := filepath.Join(baseDir, "tasks")
-	if err := os.MkdirAll(tasksDir, 0755); err != nil {
-		t.Fatalf("Failed to create tasks dir: %v", err)
-	}
 
-	rolesDir := filepath.Join(baseDir, "roles")
-	if err := os.MkdirAll(rolesDir, 0755); err != nil {
-		t.Fatalf("Failed to create roles dir: %v", err)
-	}
-
-	templatesDir := filepath.Join(baseDir, "templates")
-	if err := os.MkdirAll(templatesDir, 0755); err != nil {
-		t.Fatalf("Failed to create templates dir: %v", err)
-	}
-
-	gitInit := exec.Command("git", "init")
-	gitInit.Dir = rootDir
-	if output, err := gitInit.CombinedOutput(); err != nil {
-		t.Fatalf("Failed to init git repo: %v\nOutput: %s", err, string(output))
+	// Use the built binary to initialize the project
+	// This ensures we test the actual init logic and directory structure
+	initCmd := exec.Command(strandBinary, "init", "--storage=local")
+	initCmd.Dir = rootDir
+	initCmd.Env = append(os.Environ(), "STRAND_CONFIG_DIR="+rootDir) // Isolate global config just in case, though --storage=local shouldn't use it
+	if output, err := initCmd.CombinedOutput(); err != nil {
+		t.Fatalf("Failed to run strand init: %v\nOutput: %s", err, string(output))
 	}
 
 	env := &TestEnv{

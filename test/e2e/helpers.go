@@ -59,26 +59,15 @@ func (e *TestEnv) CreateTemplate(templateName string, content string) {
 
 // RunCommand executes a CLI command in test environment
 func (e *TestEnv) RunCommand(args ...string) (string, error) {
-	// Build binary first to avoid go.mod issues
-	binaryPath := "/tmp/strand-test"
-	wd, err := os.Getwd()
-	if err != nil {
-		return "", fmt.Errorf("failed to get working directory: %v", err)
-	}
-	repoRoot := filepath.Clean(filepath.Join(wd, "../.."))
-	buildCmd := exec.Command("go", "build", "-o", binaryPath, ".")
-	buildCmd.Dir = repoRoot
-	if output, err := buildCmd.CombinedOutput(); err != nil {
-		return "", fmt.Errorf("build failed: %v\nOutput: %s", err, string(output))
+	if strandBinary == "" {
+		return "", fmt.Errorf("strand binary not built (check TestMain)")
 	}
 
-	// Make binary executable
-	if err := os.Chmod(binaryPath, 0755); err != nil {
-		return "", fmt.Errorf("failed to make binary executable: %v", err)
-	}
-
-	cmd := exec.Command(binaryPath, args...)
+	cmd := exec.Command(strandBinary, args...)
 	cmd.Dir = e.rootDir
+
+	// Pass through the isolated config dir
+	cmd.Env = append(os.Environ(), "STRAND_CONFIG_DIR="+e.rootDir)
 
 	output, err := cmd.CombinedOutput()
 	return string(output), err
