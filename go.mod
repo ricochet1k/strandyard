@@ -1,4 +1,4 @@
-module github.com/ricochet1k/streamyard
+module github.com/ricochet1k/strandyard
 
 go 1.24.3
 

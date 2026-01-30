@@ -1,11 +1,11 @@
-# Streamyard
+# Strand
 
 A task management system with real-time web dashboard.
 
 ## Installation
 
 ```bash
-go install github.com/ricochet1k/streamyard/cmd/strand@latest
+go install github.com/ricochet1k/strandyard/cmd/strand@latest
 ```
 
 This will install the `strand` binary to your `$GOPATH/bin` (or `$GOBIN` if set).

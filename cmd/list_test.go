@@ -4,7 +4,7 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/ricochet1k/streamyard/pkg/task"
+	"github.com/ricochet1k/strandyard/pkg/task"
 )
 
 func TestRunListValidation(t *testing.T) {

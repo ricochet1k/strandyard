@@ -110,6 +110,9 @@ func gitRootDir() (string, error) {
 }
 
 func configDir() (string, error) {
+	if dir := os.Getenv("STRAND_CONFIG_DIR"); dir != "" {
+		return dir, nil
+	}
 	home, err := os.UserHomeDir()
 	if err != nil {
 		return "", fmt.Errorf("unable to resolve home directory: %w", err)

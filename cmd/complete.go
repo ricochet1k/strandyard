@@ -9,7 +9,7 @@ import (
 	"strings"
 	"time"
 
-	"github.com/ricochet1k/streamyard/pkg/task"
+	"github.com/ricochet1k/strandyard/pkg/task"
 	"github.com/spf13/cobra"
 )
 

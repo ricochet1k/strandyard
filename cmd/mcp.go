@@ -8,7 +8,7 @@ import (
 
 	"github.com/mark3labs/mcp-go/mcp"
 	"github.com/mark3labs/mcp-go/server"
-	"github.com/ricochet1k/streamyard/pkg/task"
+	"github.com/ricochet1k/strandyard/pkg/task"
 	"github.com/spf13/cobra"
 )
 

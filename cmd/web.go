@@ -8,7 +8,7 @@ import (
 	"path/filepath"
 	"strings"
 
-	"github.com/ricochet1k/streamyard/pkg/web"
+	"github.com/ricochet1k/strandyard/pkg/web"
 	"github.com/spf13/cobra"
 )
 

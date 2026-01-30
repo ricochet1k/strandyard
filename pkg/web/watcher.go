@@ -5,7 +5,7 @@ import (
 	"path/filepath"
 	"strings"
 
-	"github.com/ricochet1k/streamyard/pkg/task"
+	"github.com/ricochet1k/strandyard/pkg/task"
 )
 
 func (s *Server) startWatchers(ctx context.Context) error {

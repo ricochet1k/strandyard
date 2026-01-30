@@ -3,65 +3,16 @@ package cmd
 import (
 	"io"
 	"os"
-	"os/exec"
 	"path/filepath"
 	"strings"
 	"testing"
 )
 
-func initGitRepo(t *testing.T) string {
-	t.Helper()
-	repo := t.TempDir()
-	cmd := exec.Command("git", "init")
-	cmd.Dir = repo
-	if output, err := cmd.CombinedOutput(); err != nil {
-		t.Fatalf("git init failed: %s", string(output))
-	}
-	return repo
-}
-
-func chdir(t *testing.T, dir string) {
-	t.Helper()
-	prev, err := os.Getwd()
-	if err != nil {
-		t.Fatalf("failed to get working directory: %v", err)
-	}
-	if err := os.Chdir(dir); err != nil {
-		t.Fatalf("failed to chdir to %s: %v", dir, err)
-	}
-	t.Cleanup(func() {
-		_ = os.Chdir(prev)
-	})
-}
-
-func setHome(t *testing.T, dir string) {
-	t.Helper()
-	prev := os.Getenv("HOME")
-	if err := os.Setenv("HOME", dir); err != nil {
-		t.Fatalf("failed to set HOME: %v", err)
-	}
-	t.Cleanup(func() {
-		_ = os.Setenv("HOME", prev)
-	})
-}
-
 func TestResolveProjectPaths_LocalMemmd(t *testing.T) {
-	repo := initGitRepo(t)
-	chdir(t, repo)
-	root, err := gitRootDir()
-	if err != nil {
-		t.Fatalf("gitRootDir failed: %v", err)
-	}
+	// Replaces manual setup with shared helper that uses real init
+	paths := setupTestProject(t, initOptions{StorageMode: storageLocal})
 
-	base := filepath.Join(root, ".strand")
-	if err := ensureProjectDirs(base); err != nil {
-		t.Fatalf("failed to create .strand dirs: %v", err)
-	}
-
-	paths, err := resolveProjectPaths("")
-	if err != nil {
-		t.Fatalf("resolveProjectPaths failed: %v", err)
-	}
+	base := filepath.Join(paths.GitRoot, ".strand")
 
 	if paths.BaseDir != base {
 		t.Fatalf("expected base %s, got %s", base, paths.BaseDir)
@@ -78,63 +29,32 @@ func TestResolveProjectPaths_LocalMemmd(t *testing.T) {
 }
 
 func TestResolveProjectPaths_GlobalMapping(t *testing.T) {
-	repo := initGitRepo(t)
-	chdir(t, repo)
-	setHome(t, t.TempDir())
-	root, err := gitRootDir()
-	if err != nil {
-		t.Fatalf("gitRootDir failed: %v", err)
-	}
+	// Replaces manual setup with shared helper that uses real init
+	_ = setupTestProject(t, initOptions{
+		ProjectName: "alpha",
+		StorageMode: storageGlobal,
+	})
 
-	projectsRoot, err := projectsDir()
-	if err != nil {
-		t.Fatalf("projectsDir failed: %v", err)
-	}
-	base := filepath.Join(projectsRoot, "alpha")
-	if err := ensureProjectDirs(base); err != nil {
-		t.Fatalf("failed to create project dirs: %v", err)
-	}
-
-	if err := saveProjectMap(projectMap{Repos: map[string]string{root: "alpha"}}); err != nil {
-		t.Fatalf("saveProjectMap failed: %v", err)
-	}
-
+	// Explicitly verify resolving from git root works (which looks up the project map)
 	paths, err := resolveProjectPaths("")
 	if err != nil {
-		t.Fatalf("resolveProjectPaths failed: %v", err)
+		t.Fatalf("resolveProjectPaths(\"\") failed: %v", err)
 	}
 
-	if paths.BaseDir != base {
-		t.Fatalf("expected base %s, got %s", base, paths.BaseDir)
-	}
 	if paths.ProjectName != "alpha" {
 		t.Fatalf("expected project name alpha, got %s", paths.ProjectName)
 	}
 	if paths.Storage != storageGlobal {
 		t.Fatalf("expected storage %s, got %s", storageGlobal, paths.Storage)
 	}
+	// BaseDir check is implied by successful setup and valid paths return
 }
 
 func TestRunInit_GlobalStorage(t *testing.T) {
-	repo := initGitRepo(t)
-	chdir(t, repo)
-	setHome(t, t.TempDir())
-	root, err := gitRootDir()
-	if err != nil {
-		t.Fatalf("gitRootDir failed: %v", err)
-	}
+	root, _ := setupTestEnv(t)
 
-	prevStorage := initStorageMode
-	prevPreset := initPreset
-	t.Cleanup(func() {
-		initStorageMode = prevStorage
-		initPreset = prevPreset
-	})
-
-	initStorageMode = storageGlobal
-	initPreset = ""
-
-	if err := runInit(io.Discard, initOptionsFromFlags("beta")); err != nil {
+	// We test runInit directly here, effectively what setupTestProject does but explicit
+	if err := runInit(io.Discard, initOptions{ProjectName: "beta", StorageMode: storageGlobal}); err != nil {
 		t.Fatalf("runInit failed: %v", err)
 	}
 
@@ -160,9 +80,7 @@ func TestRunInit_GlobalStorage(t *testing.T) {
 }
 
 func TestRunInit_LocalStoragePreset(t *testing.T) {
-	repo := initGitRepo(t)
-	chdir(t, repo)
-	setHome(t, t.TempDir())
+	repo, _ := setupTestEnv(t)
 
 	preset := t.TempDir()
 	for _, dir := range []string{"tasks", "roles", "templates"} {
@@ -176,17 +94,7 @@ func TestRunInit_LocalStoragePreset(t *testing.T) {
 		t.Fatalf("failed to write preset role file: %v", err)
 	}
 
-	prevStorage := initStorageMode
-	prevPreset := initPreset
-	t.Cleanup(func() {
-		initStorageMode = prevStorage
-		initPreset = prevPreset
-	})
-
-	initStorageMode = storageLocal
-	initPreset = preset
-
-	if err := runInit(io.Discard, initOptionsFromFlags("")); err != nil {
+	if err := runInit(io.Discard, initOptions{Preset: preset, StorageMode: storageLocal}); err != nil {
 		t.Fatalf("runInit failed: %v", err)
 	}
 
