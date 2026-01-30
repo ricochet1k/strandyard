@@ -75,7 +75,7 @@ go test ./...
   - **completed**: Boolean flag (marks task as done)
   - **owner_approval**: Boolean flag (optional)
 
-- Task file format (follow exactly):
+- Task file format:
 
 ```markdown
 ---
@@ -113,18 +113,17 @@ Add the goldmark-frontmatter library to the project...
  - Two deterministic master list files are kept at `tasks/root-tasks.md` and `tasks/free-tasks.md`.
   - `root-tasks.md`: lists all root tasks (no Parent)
   - `free-tasks.md`: lists tasks with no blockers (ready to start), grouped by priority
-- These files are updated deterministically by the CLI commands (including `complete` and `repair`); they should not be edited manually except for bootstrapping.
+- These files are updated deterministically by the CLI commands (including `complete` and `repair`); they should not be edited manually.
 
 ## CLI responsibilities (high level)
 
 - Provide commands to:
   - `init` — initialize repo structure and optional example tasks/roles
-  - `scan` — parse the tasks tree and repair references
-  - `sync` — update `root-tasks.md` and `free-tasks.md` deterministically
+  - `next` - print out the next task with it's role's full description as the full context an agent needs to complete the task
   - `add`/`new` — create a new task directory and `task.md` with provided metadata
   - `assign` — change a task's Role/Assignee
   - `block`/`unblock` — add/remove blockers and update related tasks
-  - `render` — render a task (or list) to HTML/terminal via `goldmark`
+  - `repair` — parse the tasks tree and repair references
 
 ## Templates
 
