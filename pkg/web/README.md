@@ -14,17 +14,17 @@ The `strand web` command provides a web-based dashboard for viewing and editing 
 
 ```bash
 # Start the web server (auto-opens browser)
-strandyard web
+strand web
 
 # Start without auto-opening browser
-strandyard web --no-open
+strand web --no-open
 
 # Use a custom port
-strandyard web --port 3000
+strand web --port 3000
 
 # Filter to only global or local projects using environment variables
-STRAND_STORAGE=global strandyard web
-STRAND_STORAGE=local strandyard web
+STRAND_STORAGE=global strand web
+STRAND_STORAGE=local strand web
 ```
 
 ## Development
@@ -35,7 +35,7 @@ For dashboard development with hot reload:
 
 ```bash
 # Terminal 1: Start the API server
-strandyard web --no-open
+strand web --no-open
 
 # Terminal 2: Start Vite dev server (proxies API to :8686)
 cd apps/dashboard
@@ -49,13 +49,13 @@ To build the complete production binary with embedded dashboard:
 
 ```bash
 ./scripts/build-web.sh
-./strandyard web
+./strand web
 ```
 
 This:
 1. Builds the dashboard static files to `pkg/web/dist/`
 2. Embeds them in the Go binary using `go:embed`
-3. Creates a single `strandyard` binary with everything included
+3. Creates a single `strand` binary with everything included
 
 ## Architecture
 

@@ -1,6 +1,7 @@
 package task
 
 import (
+	"fmt"
 	"os"
 	"path/filepath"
 	"testing"
@@ -8,16 +9,18 @@ import (
 
 func TestParseFileWithType(t *testing.T) {
 	tmp := t.TempDir()
-	taskID := "I1abc-example-issue"
+	taskID := "T1abc-example"
 	taskDir := filepath.Join(tmp, taskID)
 	if err := os.MkdirAll(taskDir, 0o755); err != nil {
 		t.Fatalf("mkdir task dir: %v", err)
 	}
 
 	taskFile := filepath.Join(taskDir, taskID+".md")
-	content := `---
-type: issue
-role: developer
+	roleName := testRoleName(t, "role")
+	typeName := testTypeName(t, "type")
+	content := fmt.Sprintf(`---
+type: %s
+role: %s
 priority: medium
 parent:
 blockers: []
@@ -28,8 +31,8 @@ owner_approval: false
 completed: false
 ---
 
-# Issue Title
-`
+# Example Title
+`, typeName, roleName)
 	if err := os.WriteFile(taskFile, []byte(content), 0o644); err != nil {
 		t.Fatalf("write task file: %v", err)
 	}
@@ -40,7 +43,7 @@ completed: false
 		t.Fatalf("parse file: %v", err)
 	}
 
-	if parsed.Meta.Type != "issue" {
-		t.Fatalf("expected type=issue, got %q", parsed.Meta.Type)
+	if parsed.Meta.Type != typeName {
+		t.Fatalf("expected type=%s, got %q", typeName, parsed.Meta.Type)
 	}
 }

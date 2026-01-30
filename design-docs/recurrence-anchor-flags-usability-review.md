@@ -97,7 +97,7 @@ Evaluate how users discover and apply anchor flags for recurring definitions.
 ```
 
 ## Scope
-Evaluate how users discover the correct anchor value and recover from errors when using `memmd recurring add` for time-based and git-based units.
+Evaluate how users discover the correct anchor value and recover from errors when using `strand recurring add` for time-based and git-based units.
 
 ## Primary User Journeys
 - Define a recurring task using a time-based unit (days/weeks/months).

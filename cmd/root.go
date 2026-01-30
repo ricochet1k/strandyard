@@ -11,14 +11,11 @@ import (
 
 // rootCmd represents the base command when called without any subcommands
 var rootCmd = &cobra.Command{
-	Use:   "memmd",
-	Short: "A brief description of your application",
-	Long: `A longer description that spans multiple lines and likely contains
-examples and usage of using your application. For example:
-
-Cobra is a CLI library for Go that empowers applications.
-This application is a tool to generate the needed files
-to quickly create a Cobra application.`,
+	Use:   "strand",
+	Short: "Task management CLI for StrandYard",
+	Long: `StrandYard is a Go library + CLI that manages a filesystem-backed task database
+stored as plain Markdown files. Use the strand CLI to create, track, and organize
+tasks with rich metadata, role-based workflows, and hierarchical relationships.`,
 	// Uncomment the following line if your bare application
 	// has an action associated with it:
 	// Run: func(cmd *cobra.Command, args []string) { },

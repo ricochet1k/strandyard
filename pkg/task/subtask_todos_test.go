@@ -1,13 +1,15 @@
 package task
 
 import (
+	"fmt"
 	"strings"
 	"testing"
 )
 
 func TestUpdateParentTodoEntriesPreservesManualItems(t *testing.T) {
-	parentContent := `---
-role: developer
+	role := testRoleName(t, "parent")
+	parentContent := fmt.Sprintf(`---
+role: %s
 parent: ""
 blockers: []
 blocks: []
@@ -26,7 +28,7 @@ completed: false
 
 ## Acceptance Criteria
 - done
-`
+`, role)
 
 	parent := &Task{
 		ID:      "P1",
@@ -56,8 +58,9 @@ completed: false
 }
 
 func TestUpdateParentTodoEntriesInsertsTasksSection(t *testing.T) {
-	parentContent := `---
-role: developer
+	role := testRoleName(t, "parent")
+	parentContent := fmt.Sprintf(`---
+role: %s
 parent: ""
 blockers: []
 blocks: []
@@ -74,7 +77,7 @@ Details.
 
 ## Acceptance Criteria
 - done
-`
+`, role)
 
 	parent := &Task{ID: "P1", Content: parentContent}
 	sub := &Task{ID: "T1aaa-first", Meta: Metadata{Parent: "P1"}, Content: "# First\n"}

@@ -5,12 +5,13 @@ package cmd
 
 import (
 	"fmt"
+	"io"
 	"os"
 	"path/filepath"
 	"sort"
 	"strings"
 
-	"github.com/ricochet1k/memmd/pkg/task"
+	"github.com/ricochet1k/streamyard/pkg/task"
 	"github.com/spf13/cobra"
 )
 
@@ -25,7 +26,7 @@ Also prints the full role (from metadata or first TODO) so that the output
 contains all the information an agent needs to execute the task without
 looking anything else up.`,
 	RunE: func(cmd *cobra.Command, args []string) error {
-		return runNext(nextRole)
+		return runNext(cmd.OutOrStdout(), projectName, nextRole)
 	},
 }
 
@@ -34,7 +35,7 @@ func init() {
 	nextCmd.Flags().StringVar(&nextRole, "role", "", "optional: filter tasks by role")
 }
 
-func runNext(roleFilter string) error {
+func runNext(w io.Writer, projectName, roleFilter string) error {
 	paths, err := resolveProjectPaths(projectName)
 	if err != nil {
 		return err
@@ -44,7 +45,7 @@ func runNext(roleFilter string) error {
 	freePath := paths.FreeTasksFile
 	if _, err := os.Stat(freePath); os.IsNotExist(err) {
 		// Run repair to generate lists
-		if err := runRepair(paths.TasksDir, paths.RootTasksFile, freePath, "text"); err != nil {
+		if err := runRepair(w, paths.TasksDir, paths.RootTasksFile, freePath, "text"); err != nil {
 			return fmt.Errorf("unable to generate master lists: %w", err)
 		}
 	}
@@ -63,7 +64,7 @@ func runNext(roleFilter string) error {
 
 	parsed := task.ParseFreeList(string(data), tasks)
 	if len(parsed.TaskIDs) == 0 {
-		fmt.Println("No free tasks found")
+		fmt.Fprintln(w, "No free tasks found")
 		return nil
 	}
 
@@ -94,9 +95,9 @@ func runNext(roleFilter string) error {
 
 	if len(candidatesParsed) == 0 {
 		if roleFilter != "" {
-			fmt.Printf("No free tasks found for role: %s\n", roleFilter)
+			fmt.Fprintf(w, "No free tasks found for role: %s\n", roleFilter)
 		} else {
-			fmt.Println("No free tasks found")
+			fmt.Fprintln(w, "No free tasks found")
 		}
 		return nil
 	}
@@ -118,23 +119,23 @@ func runNext(roleFilter string) error {
 		roleData, err := os.ReadFile(rolePath)
 		if err == nil {
 			roleDoc := string(roleData)
-			fmt.Printf("Your role is %s. Here's the description of that role:\n\n", role)
-			fmt.Print(roleDoc)
+			fmt.Fprintf(w, "Your role is %s. Here's the description of that role:\n\n", role)
+			fmt.Fprint(w, roleDoc)
 			if !strings.HasSuffix(roleDoc, "\n") {
-				fmt.Print("\n")
+				fmt.Fprint(w, "\n")
 			}
-			fmt.Print("\n---\n")
+			fmt.Fprint(w, "\n---\n")
 		} else {
-			fmt.Printf("Your role is %s. This role appears to be missing, ask the user what to do.\n\n", role)
+			fmt.Fprintf(w, "Your role is %s. This role appears to be missing, ask the user what to do.\n\n", role)
 		}
 	} else {
-		fmt.Print("This task has no role, ask the user what to do.\n\n")
+		fmt.Fprint(w, "This task has no role, ask the user what to do.\n\n")
 	}
 
-	fmt.Printf("\nYour task is %s. Here's the description of that task:\n\n", selectedTask.ID)
+	fmt.Fprintf(w, "\nYour task is %s. Here's the description of that task:\n\n", selectedTask.ID)
 
 	// Print task content
-	fmt.Print(selectedTask.Content)
+	fmt.Fprint(w, selectedTask.Content)
 
 	return nil
 }

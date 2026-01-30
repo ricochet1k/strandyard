@@ -10,7 +10,7 @@ priority: medium
 - CLI.md (recurring add section)
 
 ## Scope
-Error message strategy for recurrence anchors in `memmd recurring add --every`.
+Error message strategy for recurrence anchors in `strand recurring add --every`.
 
 ## Review Focus
 - Decision framing and tradeoffs
@@ -83,7 +83,7 @@ Create new tasks for concerns or deferred decisions instead of editing this task
 - design-docs/recurrence-anchor-error-messages-alternatives.md
 
 ## Scope
-Error message strategy for recurrence anchors in `memmd recurring add --every`.
+Error message strategy for recurrence anchors in `strand recurring add --every`.
 
 ## Review Focus
 - Decision framing and tradeoffs

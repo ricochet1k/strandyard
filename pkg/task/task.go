@@ -223,7 +223,7 @@ func WriteDirtyTasks(tasks map[string]*Task) (int, error) {
 }
 
 // ExtractFirstTodoRole extracts the role from the first TODO item in task content
-// Format: - [ ] (role: developer) Do something
+// Format: - [ ] (role: <role>) Do something
 func ExtractFirstTodoRole(content string) string {
 	lines := strings.Split(content, "\n")
 	for _, line := range lines {

@@ -5,10 +5,11 @@ package cmd
 
 import (
 	"fmt"
+	"io"
 	"strings"
 	"time"
 
-	"github.com/ricochet1k/memmd/pkg/task"
+	"github.com/ricochet1k/streamyard/pkg/task"
 	"github.com/spf13/cobra"
 )
 
@@ -21,7 +22,7 @@ Also updates the date_edited field to the current time.`,
 	Args: cobra.ExactArgs(1),
 	RunE: func(cmd *cobra.Command, args []string) error {
 		taskID := args[0]
-		return runComplete(taskID)
+		return runComplete(cmd.OutOrStdout(), projectName, taskID)
 	},
 }
 
@@ -29,7 +30,7 @@ func init() {
 	rootCmd.AddCommand(completeCmd)
 }
 
-func runComplete(taskID string) error {
+func runComplete(w io.Writer, projectName, taskID string) error {
 	paths, err := resolveProjectPaths(projectName)
 	if err != nil {
 		return err
@@ -42,6 +43,12 @@ func runComplete(taskID string) error {
 		return fmt.Errorf("failed to load tasks: %w", err)
 	}
 
+	resolvedID, err := task.ResolveTaskID(tasks, taskID)
+	if err != nil {
+		return err
+	}
+	taskID = resolvedID
+
 	// Find the task by ID
 	t, exists := tasks[taskID]
 	if !exists {
@@ -50,7 +57,7 @@ func runComplete(taskID string) error {
 
 	// Check if already completed
 	if t.Meta.Completed {
-		fmt.Printf("Task %s is already marked as completed\n", taskID)
+		fmt.Fprintf(w, "Task %s is already marked as completed\n", task.ShortID(taskID))
 		return nil
 	}
 
@@ -69,7 +76,7 @@ func runComplete(taskID string) error {
 		return fmt.Errorf("failed to write task file: %w", err)
 	}
 
-	fmt.Printf("✓ Task %s marked as completed\n", taskID)
+	fmt.Fprintf(w, "✓ Task %s marked as completed\n", task.ShortID(taskID))
 
 	if strings.TrimSpace(t.Meta.Parent) != "" {
 		if _, err := task.UpdateParentTodoEntries(tasks, t.Meta.Parent); err != nil {
@@ -82,12 +89,12 @@ func runComplete(taskID string) error {
 
 	// Try incremental update first, fall back to full validation
 	if err := task.UpdateFreeListIncrementally(tasks, paths.FreeTasksFile, update); err != nil {
-		fmt.Printf("⚠️  Incremental update failed, falling back to full repair: %v\n", err)
-		if err := runRepair(paths.TasksDir, paths.RootTasksFile, paths.FreeTasksFile, "text"); err != nil {
+		fmt.Fprintf(w, "⚠️  Incremental update failed, falling back to full repair: %v\n", err)
+		if err := runRepair(w, paths.TasksDir, paths.RootTasksFile, paths.FreeTasksFile, "text"); err != nil {
 			return err
 		}
 	} else {
-		fmt.Printf("✓ Incrementally updated free-tasks.md\n")
+		fmt.Fprintf(w, "✓ Incrementally updated free-tasks.md\n")
 		// Still need to run repair for error checking, but skip master list generation
 		validator := task.NewValidatorWithRoles(tasks, paths.RolesDir)
 		errors := validator.Validate()
@@ -95,15 +102,15 @@ func runComplete(taskID string) error {
 			return fmt.Errorf("failed to write repaired tasks: %w", err)
 		}
 		if len(errors) > 0 {
-			fmt.Printf("⚠️  Repair errors found:\n")
+			fmt.Fprintf(w, "⚠️  Repair errors found:\n")
 			for _, e := range errors {
-				fmt.Printf("ERROR: %s\n", e.Error())
+				fmt.Fprintf(w, "ERROR: %s\n", e.Error())
 			}
 			return fmt.Errorf("repair failed: %d error(s)", len(errors))
 		}
 	}
 
-	fmt.Printf("💡 Consider committing your changes: git add -A && git commit -m \"complete: %s\"\n", taskID)
+	fmt.Fprintf(w, "💡 Consider committing your changes: git add -A && git commit -m \"complete: %s\"\n", task.ShortID(taskID))
 
 	return nil
 }

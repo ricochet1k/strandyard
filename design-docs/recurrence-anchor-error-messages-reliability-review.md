@@ -11,7 +11,7 @@ priority: medium
 - CLI.md (recurring add section)
 
 ## Scope
-Define the error output contract for parsing `--every` anchors in `memmd recurring add`.
+Define the error output contract for parsing `--every` anchors in `strand recurring add`.
 Implementation details and test implementation are out of scope.
 
 ## Review Focus
@@ -27,7 +27,7 @@ Implementation details and test implementation are out of scope.
 - Reason text should always include the unit/metric and expected anchor type to reduce ambiguous retries.
 
 ## Contract Alignment (per decision doc)
-- Line 1 prefix: `memmd: error: ` followed by a single-line reason.
+- Line 1 prefix: `strand: error: ` followed by a single-line reason.
 - Line 2 (optional): `hint: ` followed by a minimal example.
 - `<reason>` should include the unit/metric and expected anchor type (`date` or `commit`) and quote user-provided tokens.
 - Emit on stderr only; exit code `2` for `--every` parse/validation failures and `1` for other runtime errors.

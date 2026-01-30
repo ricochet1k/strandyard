@@ -2,6 +2,7 @@ package e2e
 
 import (
 	"os"
+	"os/exec"
 	"path/filepath"
 	"testing"
 )
@@ -10,6 +11,7 @@ import (
 type TestEnv struct {
 	t        testing.TB
 	rootDir  string
+	baseDir  string
 	tasksDir string
 }
 
@@ -17,24 +19,37 @@ type TestEnv struct {
 func NewTestEnv(t testing.TB) *TestEnv {
 	t.Helper()
 
-	rootDir, err := os.MkdirTemp("", "memmd-test-*")
+	rootDir, err := os.MkdirTemp("", "strand-test-*")
 	if err != nil {
 		t.Fatalf("Failed to create temp dir: %v", err)
 	}
 
-	tasksDir := filepath.Join(rootDir, "tasks")
+	baseDir := filepath.Join(rootDir, ".strand")
+	tasksDir := filepath.Join(baseDir, "tasks")
 	if err := os.MkdirAll(tasksDir, 0755); err != nil {
 		t.Fatalf("Failed to create tasks dir: %v", err)
 	}
 
-	rolesDir := filepath.Join(rootDir, "roles")
+	rolesDir := filepath.Join(baseDir, "roles")
 	if err := os.MkdirAll(rolesDir, 0755); err != nil {
 		t.Fatalf("Failed to create roles dir: %v", err)
+	}
+
+	templatesDir := filepath.Join(baseDir, "templates")
+	if err := os.MkdirAll(templatesDir, 0755); err != nil {
+		t.Fatalf("Failed to create templates dir: %v", err)
+	}
+
+	gitInit := exec.Command("git", "init")
+	gitInit.Dir = rootDir
+	if output, err := gitInit.CombinedOutput(); err != nil {
+		t.Fatalf("Failed to init git repo: %v\nOutput: %s", err, string(output))
 	}
 
 	env := &TestEnv{
 		t:        t,
 		rootDir:  rootDir,
+		baseDir:  baseDir,
 		tasksDir: tasksDir,
 	}
 

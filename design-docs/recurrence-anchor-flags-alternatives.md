@@ -1,7 +1,7 @@
 # Design Alternatives — Recurrence Anchor Flags and Help Text
 
 ## Summary
-Clarify how `memmd recurring add` captures the recurrence anchor across time-based and git-based metrics. This document focuses on the CLI flags and help text, aligned with `design-docs/recurrence-metrics.md` and the `recurring add` section in `CLI.md`.
+Clarify how `strand recurring add` captures the recurrence anchor across time-based and git-based metrics. This document focuses on the CLI flags and help text, aligned with `design-docs/recurrence-metrics.md` and the `recurring add` section in `CLI.md`.
 
 ## Context
 - `design-docs/recurrence-metrics.md`

@@ -1,11 +1,13 @@
 package task
 
 import (
-	"github.com/yuin/goldmark/text"
+	"fmt"
 	"os"
 	"path/filepath"
 	"strings"
 	"testing"
+
+	"github.com/yuin/goldmark/text"
 )
 
 func TestValidateTaskLinks(t *testing.T) {
@@ -19,8 +21,10 @@ func TestValidateTaskLinks(t *testing.T) {
 		t.Fatalf("failed to create role dir: %v", err)
 	}
 
-	if err := os.WriteFile(filepath.Join(roleDir, "developer.md"), []byte("# Developer\n\nDeveloper role."), 0644); err != nil {
-		t.Fatalf("failed to create developer role file: %v", err)
+	roleName := testRoleName(t, "validate")
+	roleContent := fmt.Sprintf("# %s\n\nRole for validation.", strings.Title(roleName))
+	if err := os.WriteFile(filepath.Join(roleDir, roleName+".md"), []byte(roleContent), 0o644); err != nil {
+		t.Fatalf("failed to create role file: %v", err)
 	}
 
 	// Change working directory temporarily for role validation
@@ -46,7 +50,7 @@ See [T2bbb-missing](tasks/T2bbb-missing/T2bbb-missing.md) for details.
 Also check [T1aaa-exists](tasks/T1aaa-exists/T1aaa-exists.md) for self-reference.
 `,
 			Meta: Metadata{
-				Role: "developer",
+				Role: roleName,
 			},
 		},
 		"T3ccc-no-links": {
@@ -57,7 +61,7 @@ Also check [T1aaa-exists](tasks/T1aaa-exists/T1aaa-exists.md) for self-reference
 This task has no links to other tasks.
 `,
 			Meta: Metadata{
-				Role: "developer",
+				Role: roleName,
 			},
 		},
 	}
@@ -180,11 +184,12 @@ func TestGenerateMasterLists_FreeTasksPrioritySections(t *testing.T) {
 }
 
 func TestCalculateIncrementalFreeListUpdate(t *testing.T) {
+	roleName := testRoleName(t, "incremental")
 	tasks := map[string]*Task{
 		"T1completed": {
 			ID: "T1completed",
 			Meta: Metadata{
-				Role:      "developer",
+				Role:      roleName,
 				Priority:  "high",
 				Blockers:  []string{},
 				Completed: false,
@@ -194,7 +199,7 @@ func TestCalculateIncrementalFreeListUpdate(t *testing.T) {
 		"T2blocked": {
 			ID: "T2blocked",
 			Meta: Metadata{
-				Role:      "developer",
+				Role:      roleName,
 				Priority:  "medium",
 				Blockers:  []string{"T1completed"},
 				Completed: false,
@@ -204,7 +209,7 @@ func TestCalculateIncrementalFreeListUpdate(t *testing.T) {
 		"T3blocked": {
 			ID: "T3blocked",
 			Meta: Metadata{
-				Role:      "developer",
+				Role:      roleName,
 				Priority:  "low",
 				Blockers:  []string{"T1completed", "T4other"},
 				Completed: false,
@@ -214,7 +219,7 @@ func TestCalculateIncrementalFreeListUpdate(t *testing.T) {
 		"T4other": {
 			ID: "T4other",
 			Meta: Metadata{
-				Role:      "developer",
+				Role:      roleName,
 				Priority:  "medium",
 				Blockers:  []string{},
 				Completed: true,
@@ -253,6 +258,7 @@ func TestCalculateIncrementalFreeListUpdate(t *testing.T) {
 
 func TestUpdateFreeListIncrementally(t *testing.T) {
 	tempDir := t.TempDir()
+	roleName := testRoleName(t, "free-list")
 
 	// Create an initial free-tasks.md file
 	freeFile := filepath.Join(tempDir, "free.md")
@@ -280,35 +286,35 @@ func TestUpdateFreeListIncrementally(t *testing.T) {
 		"T1": {
 			ID: "T1",
 			Meta: Metadata{
-				Role:      "developer",
+				Role:      roleName,
 				Priority:  "high",
 				Blockers:  []string{},
 				Completed: false,
 			},
 			FilePath: "tasks/T1.md",
-			Content:  "---\nrole: developer\npriority: high\n---\n\n# T1 Title",
+			Content:  "---\nrole: " + roleName + "\npriority: high\n---\n\n# T1 Title",
 		},
 		"T2": {
 			ID: "T2",
 			Meta: Metadata{
-				Role:      "developer",
+				Role:      roleName,
 				Priority:  "medium",
 				Blockers:  []string{},
 				Completed: false,
 			},
 			FilePath: "tasks/T2.md",
-			Content:  "---\nrole: developer\npriority: medium\n---\n\n# T2 Title",
+			Content:  "---\nrole: " + roleName + "\npriority: medium\n---\n\n# T2 Title",
 		},
 		"T4": {
 			ID: "T4",
 			Meta: Metadata{
-				Role:      "developer",
+				Role:      roleName,
 				Priority:  "low",
 				Blockers:  []string{},
 				Completed: false,
 			},
 			FilePath: "tasks/T4.md",
-			Content:  "---\nrole: developer\npriority: low\n---\n\n# T4 Title",
+			Content:  "---\nrole: " + roleName + "\npriority: low\n---\n\n# T4 Title",
 		},
 	}
 

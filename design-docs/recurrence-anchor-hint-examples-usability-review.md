@@ -80,7 +80,7 @@ Review documentation-facing examples for clarity and consistency with error mess
 ```
 
 ## Scope
-Review documentation-facing canonical hint examples for `memmd recurring add --every`, focusing on clarity of examples and recovery hints. Implementation behavior or parser details are out of scope.
+Review documentation-facing canonical hint examples for `strand recurring add --every`, focusing on clarity of examples and recovery hints. Implementation behavior or parser details are out of scope.
 
 ## Primary User Journeys
 - Read docs to understand how to format `--every` without anchors.

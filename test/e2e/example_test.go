@@ -1,19 +1,22 @@
 package e2e
 
 import (
+	"fmt"
+	"strings"
 	"testing"
 )
 
 func TestRepair_ValidTasks(t *testing.T) {
 	env := NewTestEnv(t)
 	defer env.Cleanup()
+	roleName := testRoleName(t, "role")
 
 	env.CreateTask("T3k7x-example", TaskOpts{
-		Role:     "developer",
+		Role:     roleName,
 		Parent:   "",
 		Blockers: []string{},
 	})
-	env.CreateRole("developer")
+	env.CreateRole(roleName)
 
 	output, err := env.RunCommand("repair")
 
@@ -22,10 +25,10 @@ func TestRepair_ValidTasks(t *testing.T) {
 	}
 
 	// Check for success indicators
-	env.AssertFileExists("tasks/free-tasks.md")
-	env.AssertFileExists("tasks/root-tasks.md")
-	env.AssertFileContains("tasks/free-tasks.md", "T3k7x-example")
-	env.AssertFileContains("tasks/root-tasks.md", "T3k7x-example")
+	env.AssertFileExists(".strand/tasks/free-tasks.md")
+	env.AssertFileExists(".strand/tasks/root-tasks.md")
+	env.AssertFileContains(".strand/tasks/free-tasks.md", "T3k7x-example")
+	env.AssertFileContains(".strand/tasks/root-tasks.md", "T3k7x-example")
 
 	// Check output contains success message
 	if !contains(output, "repair: ok") {
@@ -36,15 +39,16 @@ func TestRepair_ValidTasks(t *testing.T) {
 func TestRepair_InvalidID(t *testing.T) {
 	env := NewTestEnv(t)
 	defer env.Cleanup()
+	roleName := testRoleName(t, "invalid")
 
 	// Create task with invalid ID (only 3 chars in token)
-	env.CreateTaskRaw("T3kx-bad", `---
-role: developer
+	env.CreateTaskRaw("T3kx-bad", fmt.Sprintf(`---
+role: %s
 parent: ""
 blockers: []
 ---
 # Bad Task
-`)
+`, roleName))
 
 	output, err := env.RunCommand("repair")
 
@@ -61,9 +65,10 @@ blockers: []
 func TestRepair_MissingRole(t *testing.T) {
 	env := NewTestEnv(t)
 	defer env.Cleanup()
+	roleName := testRoleName(t, "missing")
 
 	env.CreateTask("T3k7x-example", TaskOpts{
-		Role:     "nonexistent",
+		Role:     roleName,
 		Parent:   "",
 		Blockers: []string{},
 	})
@@ -84,13 +89,14 @@ func TestRepair_MissingRole(t *testing.T) {
 func TestNext_FreeTask(t *testing.T) {
 	env := NewTestEnv(t)
 	defer env.Cleanup()
+	roleName := testRoleName(t, "next")
 
 	env.CreateTask("T3k7x-example", TaskOpts{
-		Role:     "developer",
+		Role:     roleName,
 		Parent:   "",
 		Blockers: []string{},
 	})
-	env.CreateRole("developer")
+	env.CreateRole(roleName)
 
 	// First run repair to generate free-tasks.md
 	_, err := env.RunCommand("repair")
@@ -105,7 +111,7 @@ func TestNext_FreeTask(t *testing.T) {
 	}
 
 	// Check output contains task information
-	if !contains(output, "# Developer") {
+	if !contains(output, "# "+strings.Title(roleName)) {
 		t.Errorf("Expected output to contain role document, got: %s", output)
 	}
 	if !contains(output, "TODO: Add role description.") {
@@ -125,19 +131,20 @@ func TestNext_FreeTask(t *testing.T) {
 func TestNext_NoFreeTasks(t *testing.T) {
 	env := NewTestEnv(t)
 	defer env.Cleanup()
+	roleName := testRoleName(t, "blocked")
 
 	// Create two tasks that block each other (so none are free)
 	env.CreateTask("T5h7w-blocker", TaskOpts{
-		Role:     "developer",
+		Role:     roleName,
 		Parent:   "",
 		Blockers: []string{"T3k7x-blocked"},
 	})
 	env.CreateTask("T3k7x-blocked", TaskOpts{
-		Role:     "developer",
+		Role:     roleName,
 		Parent:   "",
 		Blockers: []string{"T5h7w-blocker"},
 	})
-	env.CreateRole("developer")
+	env.CreateRole(roleName)
 
 	output, err := env.RunCommand("next")
 

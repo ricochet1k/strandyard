@@ -5,6 +5,7 @@ package cmd
 
 import (
 	"fmt"
+	"io"
 	"os"
 	"os/exec"
 	"path/filepath"
@@ -16,15 +17,16 @@ import (
 // initCmd represents the init command
 var initCmd = &cobra.Command{
 	Use:   "init [project_name]",
-	Short: "Initialize memmd storage",
-	Long:  "Initialize the memmd project storage.\n\nBy default this creates a global project under ~/.config/memmd/projects/<project_name> and records a mapping from the current git root to the project name. Use --storage=local to place tasks, roles, and templates inside .memmd/ at the git root instead.",
+	Short: "Initialize strand storage",
+	Long:  "Initialize the strand project storage.\n\nBy default this creates a global project under ~/.config/strand/projects/<project_name> and records a mapping from the current git root to the project name. Use --storage=local to place tasks, roles, and templates inside .strand/ at the git root instead.",
 	Args:  cobra.MaximumNArgs(1),
 	RunE: func(cmd *cobra.Command, args []string) error {
 		project := ""
 		if len(args) > 0 {
 			project = strings.TrimSpace(args[0])
 		}
-		return runInit(cmd, project)
+		opts := initOptionsFromFlags(project)
+		return runInit(cmd.OutOrStdout(), opts)
 	},
 }
 
@@ -46,8 +48,22 @@ var (
 	initPreset      string
 )
 
-func runInit(cmd *cobra.Command, projectArg string) error {
-	storage := strings.ToLower(strings.TrimSpace(initStorageMode))
+type initOptions struct {
+	ProjectName string
+	StorageMode string
+	Preset      string
+}
+
+func initOptionsFromFlags(projectArg string) initOptions {
+	return initOptions{
+		ProjectName: strings.TrimSpace(projectArg),
+		StorageMode: strings.TrimSpace(initStorageMode),
+		Preset:      strings.TrimSpace(initPreset),
+	}
+}
+
+func runInit(w io.Writer, opts initOptions) error {
+	storage := strings.ToLower(strings.TrimSpace(opts.StorageMode))
 	if storage == "" {
 		storage = storageGlobal
 	}
@@ -62,14 +78,14 @@ func runInit(cmd *cobra.Command, projectArg string) error {
 		return err
 	}
 
-	projectName := strings.TrimSpace(projectArg)
+	projectName := strings.TrimSpace(opts.ProjectName)
 	if projectName == "" {
 		projectName = filepath.Base(gitRoot)
 	}
 
 	var baseDir string
 	if storage == storageLocal {
-		baseDir = filepath.Join(gitRoot, ".memmd")
+		baseDir = filepath.Join(gitRoot, ".strand")
 	} else {
 		projectsRoot, err := projectsDir()
 		if err != nil {
@@ -80,9 +96,9 @@ func runInit(cmd *cobra.Command, projectArg string) error {
 
 	if info, err := os.Stat(baseDir); err == nil {
 		if info.IsDir() {
-			return fmt.Errorf("memmd already initialized at %s", baseDir)
+			return fmt.Errorf("strand already initialized at %s", baseDir)
 		}
-		return fmt.Errorf("memmd path exists and is not a directory: %s", baseDir)
+		return fmt.Errorf("strand path exists and is not a directory: %s", baseDir)
 	} else if !os.IsNotExist(err) {
 		return err
 	}
@@ -91,8 +107,8 @@ func runInit(cmd *cobra.Command, projectArg string) error {
 		return err
 	}
 
-	if strings.TrimSpace(initPreset) != "" {
-		if err := applyPreset(baseDir, strings.TrimSpace(initPreset)); err != nil {
+	if strings.TrimSpace(opts.Preset) != "" {
+		if err := applyPreset(baseDir, strings.TrimSpace(opts.Preset)); err != nil {
 			return err
 		}
 	}
@@ -108,9 +124,9 @@ func runInit(cmd *cobra.Command, projectArg string) error {
 		}
 	}
 
-	fmt.Printf("✓ Initialized memmd at %s\n", baseDir)
+	fmt.Fprintf(w, "✓ Initialized strand at %s\n", baseDir)
 	if storage == storageGlobal {
-		fmt.Printf("✓ Linked %s to project %s\n", gitRoot, projectName)
+		fmt.Fprintf(w, "✓ Linked %s to project %s\n", gitRoot, projectName)
 	}
 	return nil
 }
@@ -120,7 +136,7 @@ func applyPreset(baseDir, preset string) error {
 	cleanup := func() {}
 
 	if info, err := os.Stat(preset); err != nil || !info.IsDir() {
-		tempDir, err := os.MkdirTemp("", "memmd-preset-")
+		tempDir, err := os.MkdirTemp("", "strand-preset-")
 		if err != nil {
 			return fmt.Errorf("failed to create temp dir: %w", err)
 		}

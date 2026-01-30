@@ -1,9 +1,10 @@
 package cmd
 
 import (
+	"strings"
 	"testing"
 
-	"github.com/ricochet1k/memmd/pkg/task"
+	"github.com/ricochet1k/streamyard/pkg/task"
 )
 
 func TestRunListValidation(t *testing.T) {
@@ -55,28 +56,13 @@ func TestRunListValidation(t *testing.T) {
 			wantErr: true,
 		},
 		{
-			name:    "scope free with path",
-			opts:    task.ListOptions{Scope: "free", Path: "tasks/epic"},
-			wantErr: true,
-		},
-		{
 			name:    "scope free with group parent",
 			opts:    task.ListOptions{Scope: "free", Group: "parent"},
 			wantErr: true,
 		},
 		{
-			name:    "parent and path",
-			opts:    task.ListOptions{Scope: "all", Parent: "T0000", Path: "tasks/epic"},
-			wantErr: true,
-		},
-		{
 			name:    "parent with scope root",
 			opts:    task.ListOptions{Scope: "root", Parent: "T0000"},
-			wantErr: true,
-		},
-		{
-			name:    "path with scope root",
-			opts:    task.ListOptions{Scope: "root", Path: "tasks/epic"},
 			wantErr: true,
 		},
 	}
@@ -85,7 +71,8 @@ func TestRunListValidation(t *testing.T) {
 		tc := tc
 		t.Run(tc.name, func(t *testing.T) {
 			t.Parallel()
-			err := runList("tasks", tc.opts)
+			var output strings.Builder
+			err := runList(&output, "tasks", tc.opts)
 			if tc.wantErr && err == nil {
 				t.Fatalf("expected error, got nil")
 			}

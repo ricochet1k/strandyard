@@ -13,8 +13,8 @@ import (
 	"strings"
 	"time"
 
-	"github.com/ricochet1k/memmd/pkg/idgen"
-	"github.com/ricochet1k/memmd/pkg/task"
+	"github.com/ricochet1k/streamyard/pkg/idgen"
+	"github.com/ricochet1k/streamyard/pkg/task"
 	"github.com/spf13/cobra"
 	"gopkg.in/yaml.v3"
 )
@@ -26,7 +26,15 @@ var addCmd = &cobra.Command{
 	Long:  "Create a task using a template in templates/. Types correspond to template filenames (without .md). Templates define default roles and priorities. Provide a detailed body on stdin (pipe or heredoc); it will be inserted where the template uses {{ .Body }} or appended to the end.",
 	Args:  cobra.MinimumNArgs(1),
 	RunE: func(cmd *cobra.Command, args []string) error {
-		return runAdd(cmd, args)
+		body, err := readStdin()
+		if err != nil {
+			return err
+		}
+		opts, err := addOptionsFromFlags(cmd, args, body)
+		if err != nil {
+			return err
+		}
+		return runAdd(cmd.OutOrStdout(), opts)
 	},
 }
 
@@ -49,13 +57,50 @@ var (
 	addNoRepair bool
 )
 
-func runAdd(cmd *cobra.Command, args []string) error {
-	paths, err := resolveProjectPaths(projectName)
+type addOptions struct {
+	ProjectName       string
+	TemplateName      string
+	Title             string
+	Role              string
+	Priority          string
+	Parent            string
+	Blockers          []string
+	NoRepair          bool
+	RoleSpecified     bool
+	PrioritySpecified bool
+	Body              string
+}
+
+func addOptionsFromFlags(cmd *cobra.Command, args []string, body string) (addOptions, error) {
+	if len(args) == 0 {
+		return addOptions{}, fmt.Errorf("type is required")
+	}
+	title := strings.TrimSpace(addTitle)
+	if title == "" && len(args) > 1 {
+		title = strings.TrimSpace(strings.Join(args[1:], " "))
+	}
+	return addOptions{
+		ProjectName:       projectName,
+		TemplateName:      strings.TrimSpace(args[0]),
+		Title:             title,
+		Role:              strings.TrimSpace(addRole),
+		Priority:          strings.TrimSpace(addPriority),
+		Parent:            strings.TrimSpace(addParent),
+		Blockers:          addBlockers,
+		NoRepair:          addNoRepair,
+		RoleSpecified:     cmd.Flags().Changed("role"),
+		PrioritySpecified: cmd.Flags().Changed("priority"),
+		Body:              body,
+	}, nil
+}
+
+func runAdd(w io.Writer, opts addOptions) error {
+	paths, err := resolveProjectPaths(opts.ProjectName)
 	if err != nil {
 		return err
 	}
 
-	tmplName := strings.TrimSpace(args[0])
+	tmplName := strings.TrimSpace(opts.TemplateName)
 	if tmplName == "" {
 		return fmt.Errorf("type is required")
 	}
@@ -72,10 +117,7 @@ func runAdd(cmd *cobra.Command, args []string) error {
 		return fmt.Errorf("unknown type %q (available: %s)", tmplName, strings.Join(templates, ", "))
 	}
 
-	title := strings.TrimSpace(addTitle)
-	if title == "" && len(args) > 1 {
-		title = strings.TrimSpace(strings.Join(args[1:], " "))
-	}
+	title := strings.TrimSpace(opts.Title)
 	if title == "" {
 		return fmt.Errorf("title is required (use --title or provide it as an argument)")
 	}
@@ -86,8 +128,8 @@ func runAdd(cmd *cobra.Command, args []string) error {
 		return err
 	}
 
-	role := strings.TrimSpace(addRole)
-	if !cmd.Flags().Changed("role") {
+	role := strings.TrimSpace(opts.Role)
+	if !opts.RoleSpecified {
 		role = strings.TrimSpace(templateMeta.Role)
 	}
 	if role == "" {
@@ -97,33 +139,44 @@ func runAdd(cmd *cobra.Command, args []string) error {
 		return err
 	}
 
-	priority := task.NormalizePriority(addPriority)
-	if !cmd.Flags().Changed("priority") && templateMeta.Priority != "" {
+	priority := task.NormalizePriority(opts.Priority)
+	if !opts.PrioritySpecified && templateMeta.Priority != "" {
 		priority = task.NormalizePriority(templateMeta.Priority)
 	}
 	if !task.IsValidPriority(priority) {
 		return fmt.Errorf("invalid priority: %s", priority)
 	}
 
-	parent := strings.TrimSpace(addParent)
+	parent := strings.TrimSpace(opts.Parent)
 	parentDir := paths.TasksDir
 	var tasks map[string]*task.Task
 	var parser *task.Parser
-	if parent != "" {
+	if parent != "" || len(opts.Blockers) > 0 {
 		parser = task.NewParser()
 		loaded, err := parser.LoadTasks(paths.TasksDir)
 		if err != nil {
 			return err
 		}
-		parentTask, ok := loaded[parent]
+		tasks = loaded
+	}
+	if parent != "" {
+		resolvedParent, err := task.ResolveTaskID(tasks, parent)
+		if err != nil {
+			return fmt.Errorf("parent task %s does not exist: %w", parent, err)
+		}
+		parent = resolvedParent
+		parentTask, ok := tasks[parent]
 		if !ok {
 			return fmt.Errorf("parent task %s does not exist", parent)
 		}
 		parentDir = parentTask.Dir
-		tasks = loaded
 	}
 
-	id, err := idgen.GenerateID(taskPrefixForTemplate(tmplName), title)
+	prefix, err := normalizeIDPrefix(templateMeta.IDPrefix)
+	if err != nil {
+		return err
+	}
+	id, err := idgen.GenerateID(prefix, title)
 	if err != nil {
 		return err
 	}
@@ -136,7 +189,10 @@ func runAdd(cmd *cobra.Command, args []string) error {
 		return fmt.Errorf("failed to create task directory: %w", err)
 	}
 
-	blockers := normalizeTaskIDs(addBlockers)
+	blockers, err := resolveTaskIDs(tasks, normalizeTaskIDs(opts.Blockers))
+	if err != nil {
+		return err
+	}
 	now := time.Now().UTC()
 	meta := task.Metadata{
 		Type:          tmplName,
@@ -151,28 +207,23 @@ func runAdd(cmd *cobra.Command, args []string) error {
 		Completed:     false,
 	}
 
-	stdinBody, err := readStdin()
-	if err != nil {
-		return err
-	}
-
 	body := renderTemplateBody(templateBody, map[string]string{
 		"Title":               title,
 		"SuggestedSubtaskDir": fmt.Sprintf("%s-subtask", id),
-		"Body":                stdinBody,
+		"Body":                opts.Body,
 	})
-	if stdinBody != "" && !strings.Contains(templateBody, "{{ .Body }}") {
+	if opts.Body != "" && !strings.Contains(templateBody, "{{ .Body }}") {
 		if strings.TrimSpace(body) != "" {
 			body += "\n\n"
 		}
-		body += stdinBody
+		body += opts.Body
 	}
 	taskFile := filepath.Join(taskDir, id+".md")
 	if err := writeTaskFile(taskFile, meta, body); err != nil {
 		return err
 	}
 
-	fmt.Printf("✓ Task created: %s\n", filepath.ToSlash(taskFile))
+	fmt.Fprintf(w, "✓ Task created: %s\n", filepath.ToSlash(taskFile))
 
 	if parent != "" {
 		newTask, err := parser.ParseFile(taskFile)
@@ -188,8 +239,8 @@ func runAdd(cmd *cobra.Command, args []string) error {
 		}
 	}
 
-	if !addNoRepair {
-		if err := runRepair(paths.TasksDir, paths.RootTasksFile, paths.FreeTasksFile, "text"); err != nil {
+	if !opts.NoRepair {
+		if err := runRepair(w, paths.TasksDir, paths.RootTasksFile, paths.FreeTasksFile, "text"); err != nil {
 			return err
 		}
 	}
@@ -225,13 +276,15 @@ func containsTemplate(names []string, name string) bool {
 	return false
 }
 
-func taskPrefixForTemplate(name string) string {
-	switch name {
-	case "issue":
-		return "I"
-	default:
-		return "T"
+func normalizeIDPrefix(prefix string) (string, error) {
+	normalized := strings.ToUpper(strings.TrimSpace(prefix))
+	if normalized == "" {
+		return "T", nil
 	}
+	if len(normalized) != 1 || normalized[0] < 'A' || normalized[0] > 'Z' {
+		return "", fmt.Errorf("invalid id_prefix %q (expected single A-Z character)", prefix)
+	}
+	return normalized, nil
 }
 
 func normalizeTaskIDs(items []string) []string {
@@ -255,9 +308,34 @@ func normalizeTaskIDs(items []string) []string {
 	return out
 }
 
+func resolveTaskIDs(tasks map[string]*task.Task, inputs []string) ([]string, error) {
+	if len(inputs) == 0 {
+		return nil, nil
+	}
+	if tasks == nil {
+		return nil, fmt.Errorf("failed to resolve task IDs: no tasks loaded")
+	}
+	seen := map[string]struct{}{}
+	resolved := make([]string, 0, len(inputs))
+	for _, input := range inputs {
+		id, err := task.ResolveTaskID(tasks, input)
+		if err != nil {
+			return nil, err
+		}
+		if _, ok := seen[id]; ok {
+			continue
+		}
+		seen[id] = struct{}{}
+		resolved = append(resolved, id)
+	}
+	sort.Strings(resolved)
+	return resolved, nil
+}
+
 type templateDefaults struct {
 	Role     string `yaml:"role"`
 	Priority string `yaml:"priority"`
+	IDPrefix string `yaml:"id_prefix"`
 }
 
 func loadTemplate(path string) (templateDefaults, string, error) {

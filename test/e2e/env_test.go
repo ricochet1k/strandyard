@@ -1,6 +1,7 @@
 package e2e
 
 import (
+	"strings"
 	"testing"
 )
 
@@ -9,51 +10,54 @@ func TestNewTestEnv(t *testing.T) {
 	defer env.Cleanup()
 
 	// Verify directories exist
-	env.AssertFileExists("tasks")
-	env.AssertFileExists("roles")
+	env.AssertFileExists(".strand/tasks")
+	env.AssertFileExists(".strand/roles")
 }
 
 func TestCreateTask(t *testing.T) {
 	env := NewTestEnv(t)
 	defer env.Cleanup()
+	roleName := testRoleName(t, "task")
 
 	env.CreateTask("T3k7x-example", TaskOpts{
-		Role:     "developer",
+		Role:     roleName,
 		Parent:   "",
 		Blockers: []string{},
 		Priority: "high",
 	})
 
 	// Verify task file exists
-	env.AssertFileExists("tasks/T3k7x-example/T3k7x-example.md")
+	env.AssertFileExists(".strand/tasks/T3k7x-example/T3k7x-example.md")
 
 	// Verify content
-	env.AssertFileContains("tasks/T3k7x-example/T3k7x-example.md", "role: developer")
-	env.AssertFileContains("tasks/T3k7x-example/T3k7x-example.md", "priority: high")
-	env.AssertFileContains("tasks/T3k7x-example/T3k7x-example.md", "# T3k7x-example")
+	env.AssertFileContains(".strand/tasks/T3k7x-example/T3k7x-example.md", "role: "+roleName)
+	env.AssertFileContains(".strand/tasks/T3k7x-example/T3k7x-example.md", "priority: high")
+	env.AssertFileContains(".strand/tasks/T3k7x-example/T3k7x-example.md", "# T3k7x-example")
 }
 
 func TestCreateRole(t *testing.T) {
 	env := NewTestEnv(t)
 	defer env.Cleanup()
+	roleName := testRoleName(t, "role")
 
-	env.CreateRole("developer")
+	env.CreateRole(roleName)
 
 	// Verify role file exists
-	env.AssertFileExists("roles/developer.md")
-	env.AssertFileContains("roles/developer.md", "# Developer")
+	env.AssertFileExists(".strand/roles/" + roleName + ".md")
+	env.AssertFileContains(".strand/roles/"+roleName+".md", "# "+strings.Title(roleName))
 }
 
 func TestRunCommand(t *testing.T) {
 	env := NewTestEnv(t)
 	defer env.Cleanup()
+	roleName := testRoleName(t, "role")
 
 	env.CreateTask("T3k7x-example", TaskOpts{
-		Role:     "developer",
+		Role:     roleName,
 		Parent:   "",
 		Blockers: []string{},
 	})
-	env.CreateRole("developer")
+	env.CreateRole(roleName)
 
 	output, err := env.RunCommand("repair")
 
@@ -66,6 +70,6 @@ func TestRunCommand(t *testing.T) {
 	t.Logf("Repair output: %s", output)
 
 	// Check for success indicators
-	env.AssertFileContains("tasks/free-tasks.md", "T3k7x-example")
-	env.AssertFileContains("tasks/root-tasks.md", "T3k7x-example")
+	env.AssertFileContains(".strand/tasks/free-tasks.md", "T3k7x-example")
+	env.AssertFileContains(".strand/tasks/root-tasks.md", "T3k7x-example")
 }

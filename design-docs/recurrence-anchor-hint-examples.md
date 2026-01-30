@@ -1,7 +1,7 @@
 # Canonical Hint Examples for --every Anchors
 
 ## Summary
-Define deterministic, reusable hint examples for `memmd recurring add --every` anchor parsing errors so tests and automation remain stable.
+Define deterministic, reusable hint examples for `strand recurring add --every` anchor parsing errors so tests and automation remain stable.
 
 ## Context
 - design-docs/recurrence-anchor-error-messages-alternatives.md

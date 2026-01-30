@@ -1,15 +1,15 @@
 # CLI Design: Commands & Examples
 
-This document describes the planned CLI surface for `memmd`. The implementation uses `cobra` for commands and `goldmark` for parsing markdown task bodies. IDs and Parent are derived from task directory/file names; Blockers/Blocks are maintained by the CLI and should not be edited by hand.
+This document describes the planned CLI surface for `strand`. The implementation uses `cobra` for commands and `goldmark` for parsing markdown task bodies. IDs and Parent are derived from task directory/file names; Blockers/Blocks are maintained by the CLI and should not be edited by hand.
 
 Command summary (revised)
-- `memmd init` — bootstrap repository structure and optional examples.
-- `memmd repair` — parse tasks, repair metadata/links, and automatically update deterministic master lists (`tasks/root-tasks.md`, `tasks/free-tasks.md`).
-- `memmd add` / `memmd new` — create a new task directory from a task template.
-- `memmd assign` — change a task's `Role`/assignee.
-- `memmd block` — add/remove blocker relationships between tasks.
-- `memmd templates list` — list available templates.
-- `memmd next` — primary agent-facing command; emits role doc followed by the next task document for that role.
+- `strand init` — bootstrap repository structure and optional examples.
+- `strand repair` — parse tasks, repair metadata/links, and automatically update deterministic master lists (`tasks/root-tasks.md`, `tasks/free-tasks.md`).
+- `strand add` / `strand new` — create a new task directory from a task template.
+- `strand assign` — change a task's `Role`/assignee.
+- `strand block` — add/remove blocker relationships between tasks.
+- `strand templates list` — list available templates.
+- `strand next` — primary agent-facing command; emits role doc followed by the next task document for that role.
 
 High-level behaviour and guarantees
 - Filesystem-first: each task is a file `<task-id>/<task-id>.md` (plus attachments). Directory hierarchy represents parent/child lineage.
@@ -28,15 +28,15 @@ Task ID format
 
 Primary commands (details)
 
-1) `memmd init`
+1) `strand init`
 - Purpose: create initial directories and bootstrap templates, roles and example tasks if missing.
 - Example:
 
 ```bash
-memmd init --force
+strand init --force
 ```
 
-2) `memmd repair`
+2) `strand repair`
 - Purpose: parse the `tasks/` tree, repair referential integrity (roles exist, parent links valid), enforce formatting rules, and automatically regenerate deterministic master lists.
 - Behaviour:
 	- Parse all `<task-id>.md` files, extract metadata sections, and repair references.
@@ -45,45 +45,45 @@ memmd init --force
 - Example:
 
 ```bash
-memmd repair --path tasks --format json
+strand repair --path tasks --format json
 ```
 
-3) `memmd add` / `memmd new`
+3) `strand add` / `strand new`
 - Purpose: create a new task directory and `<task-id>.md` from a template. CLI will generate the canonical ID and directory name.
 - Flags: `--title`, `--role`, `--parent` (task id or "root"), `--template`.
 - Example:
 
 ```bash
-memmd add --title "Implement validation" --role developer --parent scaffold-cli --template task_template
+strand add --title "Implement validation" --role developer --parent scaffold-cli --template task_template
 ```
 
 - Effect: CLI generates an ID (e.g. `T3k7x-impl`), creates `tasks/T3k7x-impl/<task-id>.md` with template-filled fields. `repair` runs implicitly (or will be run later) to update master lists.
 
-4) `memmd assign`
+4) `strand assign`
 - Purpose: change the `Role`/assignee of a task.
 - Example:
 
 ```bash
-memmd assign T3k7x-impl --role owner
+strand assign T3k7x-impl --role owner
 ```
 
 - Effect: updates the `role` field in the YAML frontmatter of `<task-id>.md` atomically.
 
-5) `memmd block` (subcommands: `add`, `remove`, `list`)
+5) `strand block` (subcommands: `add`, `remove`, `list`)
 - Purpose: manage blocker relationships using canonical IDs.
 - Examples:
 
 ```bash
-memmd block add --task T3k7x-impl --blocks T9x2b-design
-memmd block list --task T3k7x-impl
+strand block add --task T3k7x-impl --blocks T9x2b-design
+strand block list --task T3k7x-impl
 ```
 
 - Effect: updates the `blockers` and `blocks` fields in the YAML frontmatter of involved tasks deterministically and ensures sorted order.
 
-6) `memmd templates list`
+6) `strand templates list`
 - Purpose: list available templates in `templates/`.
 
-7) `memmd next` (primary agent-facing command)
+7) `strand next` (primary agent-facing command)
 - Purpose: provide an agent with all context it needs to start work: first the Role document, then the task document for the next actionable item for that role.
 - Behaviour:
 	- It selects the highest-priority/first `free` task for that role from `tasks/free-tasks.md` and prints the task's `<task-id>.md` content.
@@ -92,7 +92,7 @@ memmd block list --task T3k7x-impl
 - Example:
 
 ```bash
-memmd next
+strand next
 ```
 
 Implementation notes
@@ -107,13 +107,13 @@ Developer commands (examples)
 go test ./... 
 
 # Build CLI
-go build -o bin/memmd ./
+go build -o bin/strand ./
 
 # Quick local test (init + add + repair + next)
-memmd init --force
-memmd add --title "Quick task" --role developer
-memmd repair
-MEMMD_ROLE=developer memmd next
+strand init --force
+strand add --title "Quick task" --role developer
+strand repair
+MEMMD_ROLE=developer strand next
 ```
 
 Files and templates

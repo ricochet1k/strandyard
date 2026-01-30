@@ -13,8 +13,8 @@ This review compares the implemented CLI (`cmd/*.go`) against the intended behav
 **Tests run**: 2026-01-27
 ```bash
 # go test ./...
-?   	github.com/ricochet1k/memmd	[no test files]
-?   	github.com/ricochet1k/memmd/cmd	[no test files]
+?   	github.com/ricochet1k/strandyard	[no test files]
+?   	github.com/ricochet1k/strandyard/cmd	[no test files]
 
 # go run . repair --path tasks --format text
 ERROR: missing role file roles/developer.md for task T000002-setup-infra
@@ -105,7 +105,7 @@ Current task IDs like `T000001` have 6 digits, which matches the regex (total 7 
 **Owner Decision Required**: Choose between A (keep sequential, update docs) or B (switch to random tokens, matches original design spec).
 
 ### 3) `next` role-filtering behaviour
-- Observation: Implementation requires a role (flag or `MEMMD_ROLE`) and selects tasks by exact `Role:` match first, then unassigned tasks, then any task. Design doc suggests `memmd next` should emit role doc then next task and not require filters.
+- Observation: Implementation requires a role (flag or `MEMMD_ROLE`) and selects tasks by exact `Role:` match first, then unassigned tasks, then any task. Design doc suggests `strand next` should emit role doc then next task and not require filters.
 
 Alternatives
 - Minimal change: keep current behaviour (require role) but document it clearly in the design doc and role files.
@@ -315,7 +315,7 @@ One possible priority ordering based on impact and effort analysis:
   - Expand template and write `<task-id>.md`
   - Run `repair` to update master lists
   - **Files**: cmd/add.go
-  - **Acceptance**: `memmd add --title "Test task" --role developer` creates valid task
+  - **Acceptance**: `strand add --title "Test task" --role developer` creates valid task
 
 - **Task E3-T4**: Implement `assign` command
   - Parse flags: `<task-id>` (positional), `--role <role>`
@@ -323,7 +323,7 @@ One possible priority ordering based on impact and effort analysis:
   - Write atomically (temp file + rename)
   - Repair role file exists before updating
   - **Files**: cmd/assign.go
-  - **Acceptance**: `memmd assign T000001-test --role owner` updates role correctly
+  - **Acceptance**: `strand assign T000001-test --role owner` updates role correctly
 
 ### Epic E4: Implement Blocker Management (P2)
 **Owner**: developer
@@ -335,19 +335,19 @@ One possible priority ordering based on impact and effort analysis:
   - Maintain sorted order
   - Run `repair` to update free-tasks list
   - **Files**: cmd/block.go
-  - **Acceptance**: `memmd block add --task T000002 --blocks T000001` updates both tasks
+  - **Acceptance**: `strand block add --task T000002 --blocks T000001` updates both tasks
 
 - **Task E4-T2**: Implement `block remove` subcommand
   - Parse flags: `--task <task-id>` `--blocks <blocker-id>`
   - Remove from both tasks' lists
   - **Files**: cmd/block.go
-  - **Acceptance**: `memmd block remove --task T000002 --blocks T000001` removes blocker
+  - **Acceptance**: `strand block remove --task T000002 --blocks T000001` removes blocker
 
 - **Task E4-T3**: Implement `block list` subcommand
   - Parse flags: `--task <task-id>`
   - Display blockers and blocks for the task
   - **Files**: cmd/block.go
-  - **Acceptance**: `memmd block list --task T000002` shows blockers and blocks
+  - **Acceptance**: `strand block list --task T000002` shows blockers and blocks
 
 ### Epic E5: Polish & Nice-to-Have Features (P3)
 **Owner**: developer
@@ -358,13 +358,13 @@ One possible priority ordering based on impact and effort analysis:
   - Copy example roles if `--examples` flag provided
   - Create sample tasks if `--examples` flag provided
   - **Files**: cmd/init.go, embedded example files
-  - **Acceptance**: `memmd init --examples` bootstraps a working repository
+  - **Acceptance**: `strand init --examples` bootstraps a working repository
 
 - **Task E5-T2**: Implement `templates list` subcommand
   - List all templates in `templates/task-templates/` and `templates/doc-templates/`
   - Show template name and first line of description
   - **Files**: cmd/templates.go
-  - **Acceptance**: `memmd templates list` shows available templates
+  - **Acceptance**: `strand templates list` shows available templates
 
 - **Task E5-T3**: Improve `next` role selection UX
   - Make `--role` optional

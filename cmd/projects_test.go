@@ -1,9 +1,11 @@
 package cmd
 
 import (
+	"io"
 	"os"
 	"os/exec"
 	"path/filepath"
+	"strings"
 	"testing"
 )
 
@@ -51,9 +53,9 @@ func TestResolveProjectPaths_LocalMemmd(t *testing.T) {
 		t.Fatalf("gitRootDir failed: %v", err)
 	}
 
-	base := filepath.Join(root, ".memmd")
+	base := filepath.Join(root, ".strand")
 	if err := ensureProjectDirs(base); err != nil {
-		t.Fatalf("failed to create .memmd dirs: %v", err)
+		t.Fatalf("failed to create .strand dirs: %v", err)
 	}
 
 	paths, err := resolveProjectPaths("")
@@ -132,7 +134,7 @@ func TestRunInit_GlobalStorage(t *testing.T) {
 	initStorageMode = storageGlobal
 	initPreset = ""
 
-	if err := runInit(nil, "beta"); err != nil {
+	if err := runInit(io.Discard, initOptionsFromFlags("beta")); err != nil {
 		t.Fatalf("runInit failed: %v", err)
 	}
 
@@ -168,8 +170,9 @@ func TestRunInit_LocalStoragePreset(t *testing.T) {
 			t.Fatalf("failed to create preset %s: %v", dir, err)
 		}
 	}
-	roleFile := filepath.Join(preset, "roles", "developer.md")
-	if err := os.WriteFile(roleFile, []byte("# Developer\n"), 0o644); err != nil {
+	roleName := testRoleName(t, "preset")
+	roleFile := filepath.Join(preset, "roles", roleName+".md")
+	if err := os.WriteFile(roleFile, []byte("# "+strings.Title(roleName)+"\n"), 0o644); err != nil {
 		t.Fatalf("failed to write preset role file: %v", err)
 	}
 
@@ -183,12 +186,12 @@ func TestRunInit_LocalStoragePreset(t *testing.T) {
 	initStorageMode = storageLocal
 	initPreset = preset
 
-	if err := runInit(nil, ""); err != nil {
+	if err := runInit(io.Discard, initOptionsFromFlags("")); err != nil {
 		t.Fatalf("runInit failed: %v", err)
 	}
 
-	base := filepath.Join(repo, ".memmd")
-	if _, err := os.Stat(filepath.Join(base, "roles", "developer.md")); err != nil {
+	base := filepath.Join(repo, ".strand")
+	if _, err := os.Stat(filepath.Join(base, "roles", roleName+".md")); err != nil {
 		t.Fatalf("expected preset role file to be copied: %v", err)
 	}
 

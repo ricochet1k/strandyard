@@ -2,10 +2,12 @@ package e2e
 
 import (
 	"fmt"
+	"hash/fnv"
 	"os"
 	"os/exec"
 	"path/filepath"
 	"strings"
+	"testing"
 )
 
 // TaskOpts represents options for creating a task
@@ -33,7 +35,8 @@ func (e *TestEnv) CreateTask(taskID string, opts TaskOpts) {
 
 // CreateRole creates a role markdown file
 func (e *TestEnv) CreateRole(roleName string) {
-	roleFile := filepath.Join(e.Root(), "roles", roleName+".md")
+	roleDir := filepath.Join(e.baseDir, "roles")
+	roleFile := filepath.Join(roleDir, roleName+".md")
 	content := fmt.Sprintf("# %s\n\nTODO: Add role description.", strings.Title(roleName))
 
 	if err := os.WriteFile(roleFile, []byte(content), 0644); err != nil {
@@ -43,7 +46,7 @@ func (e *TestEnv) CreateRole(roleName string) {
 
 // CreateTemplate creates a template file
 func (e *TestEnv) CreateTemplate(templateName string, content string) {
-	templateDir := filepath.Join(e.Root(), "templates")
+	templateDir := filepath.Join(e.baseDir, "templates")
 	if err := os.MkdirAll(templateDir, 0755); err != nil {
 		e.t.Fatalf("Failed to create templates dir: %v", err)
 	}
@@ -57,7 +60,7 @@ func (e *TestEnv) CreateTemplate(templateName string, content string) {
 // RunCommand executes a CLI command in test environment
 func (e *TestEnv) RunCommand(args ...string) (string, error) {
 	// Build binary first to avoid go.mod issues
-	binaryPath := "/tmp/memmd-test"
+	binaryPath := "/tmp/strand-test"
 	wd, err := os.Getwd()
 	if err != nil {
 		return "", fmt.Errorf("failed to get working directory: %v", err)
@@ -74,37 +77,8 @@ func (e *TestEnv) RunCommand(args ...string) (string, error) {
 		return "", fmt.Errorf("failed to make binary executable: %v", err)
 	}
 
-	var cmd *exec.Cmd
-
-	// Special handling for 'next' command which has hardcoded paths
-	if len(args) > 0 && args[0] == "next" {
-		// For 'next', run from test environment so hardcoded paths work
-		cmd = exec.Command(binaryPath, args...)
-		cmd.Dir = e.rootDir
-	} else {
-		// For other commands, run from project root with custom paths
-		allArgs := args
-		command := ""
-		if len(args) > 0 {
-			command = args[0]
-		}
-
-		// Commands that support --path flag
-		if command == "repair" {
-			if !containsFlag(args, "--path") {
-				allArgs = append(allArgs, "--path", e.tasksDir)
-			}
-			if !containsFlag(args, "--roots") {
-				allArgs = append(allArgs, "--roots", e.Path("tasks/root-tasks.md"))
-			}
-			if !containsFlag(args, "--free") {
-				allArgs = append(allArgs, "--free", e.Path("tasks/free-tasks.md"))
-			}
-		}
-
-		cmd = exec.Command(binaryPath, allArgs...)
-		cmd.Dir = repoRoot
-	}
+	cmd := exec.Command(binaryPath, args...)
+	cmd.Dir = e.rootDir
 
 	output, err := cmd.CombinedOutput()
 	return string(output), err
@@ -190,11 +164,15 @@ func (e *TestEnv) CreateTaskRaw(taskID, content string) {
 }
 
 // containsFlag checks if a flag is already present in args
-func containsFlag(args []string, flag string) bool {
-	for _, arg := range args {
-		if arg == flag {
-			return true
-		}
+func testToken(parts ...string) string {
+	h := fnv.New32a()
+	for _, part := range parts {
+		_, _ = h.Write([]byte(part))
 	}
-	return false
+	return fmt.Sprintf("%08x", h.Sum32())[:6]
+}
+
+func testRoleName(t *testing.T, suffix string) string {
+	name := strings.TrimSpace(t.Name())
+	return "role-" + testToken("role", name, suffix)
 }

@@ -21,8 +21,10 @@ func TestUpdateBlockersFromChildren(t *testing.T) {
 	parentFile := filepath.Join(parentDir, parentID+".md")
 	childFile := filepath.Join(childDir, childID+".md")
 
-	writeTask(t, parentFile, "architect", "high", "", []string{"Z9zzz-other"}, false)
-	writeTask(t, childFile, "developer", "medium", parentID, nil, false)
+	parentRole := testRoleName(t, "parent")
+	childRole := testRoleName(t, "child")
+	writeTask(t, parentFile, parentRole, "high", "", []string{"Z9zzz-other"}, false)
+	writeTask(t, childFile, childRole, "medium", parentID, nil, false)
 
 	parser := NewParser()
 	tasks, err := parser.LoadTasks(tasksRoot)
@@ -50,7 +52,7 @@ func TestUpdateBlockersFromChildren(t *testing.T) {
 	}
 
 	// Mark child completed and ensure blocker is removed.
-	writeTask(t, childFile, "developer", "medium", parentID, nil, true)
+	writeTask(t, childFile, childRole, "medium", parentID, nil, true)
 	tasks, err = parser.LoadTasks(tasksRoot)
 	if err != nil {
 		t.Fatalf("reload tasks: %v", err)

@@ -41,7 +41,7 @@ func resolveProjectPaths(projectName string) (projectPaths, error) {
 		return projectPaths{}, err
 	}
 
-	localDir := filepath.Join(gitRoot, ".memmd")
+	localDir := filepath.Join(gitRoot, ".strand")
 	if info, err := os.Stat(localDir); err == nil && info.IsDir() {
 		return projectPathsFromBase(localDir, "", gitRoot, storageLocal)
 	}
@@ -52,7 +52,7 @@ func resolveProjectPaths(projectName string) (projectPaths, error) {
 	}
 	project, ok := cfg.Repos[gitRoot]
 	if !ok || strings.TrimSpace(project) == "" {
-		return projectPaths{}, fmt.Errorf("no memmd project found for %s (run memmd init or pass --project)", gitRoot)
+		return projectPaths{}, fmt.Errorf("no strand project found for %s (run strand init or pass --project)", gitRoot)
 	}
 	return projectPathsForName(project)
 }
@@ -114,7 +114,7 @@ func configDir() (string, error) {
 	if err != nil {
 		return "", fmt.Errorf("unable to resolve home directory: %w", err)
 	}
-	return filepath.Join(home, ".config", "memmd"), nil
+	return filepath.Join(home, ".config", "strand"), nil
 }
 
 func projectsDir() (string, error) {

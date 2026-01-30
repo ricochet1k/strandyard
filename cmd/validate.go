@@ -6,17 +6,15 @@ package cmd
 import (
 	"encoding/json"
 	"fmt"
+	"io"
 	"path/filepath"
 
-	"github.com/ricochet1k/memmd/pkg/task"
+	"github.com/ricochet1k/streamyard/pkg/task"
 	"github.com/spf13/cobra"
 )
 
 var (
-	repairPath  string
-	repairRoots string
-	repairFree  string
-	repairFmt   string
+	repairFmt string
 )
 
 // repairCmd represents the repair command
@@ -28,31 +26,16 @@ var repairCmd = &cobra.Command{
 		if err != nil {
 			return err
 		}
-		tasksRoot := repairPath
-		rootsFile := repairRoots
-		freeFile := repairFree
-		if !cmd.Flags().Changed("path") {
-			tasksRoot = paths.TasksDir
-		}
-		if !cmd.Flags().Changed("roots") {
-			rootsFile = paths.RootTasksFile
-		}
-		if !cmd.Flags().Changed("free") {
-			freeFile = paths.FreeTasksFile
-		}
-		return runRepair(tasksRoot, rootsFile, freeFile, repairFmt)
+		return runRepair(cmd.OutOrStdout(), paths.TasksDir, paths.RootTasksFile, paths.FreeTasksFile, repairFmt)
 	},
 }
 
 func init() {
 	rootCmd.AddCommand(repairCmd)
-	repairCmd.Flags().StringVar(&repairPath, "path", "tasks", "path to tasks directory")
-	repairCmd.Flags().StringVar(&repairRoots, "roots", "tasks/root-tasks.md", "path to write root tasks list")
-	repairCmd.Flags().StringVar(&repairFree, "free", "tasks/free-tasks.md", "path to write free tasks list")
 	repairCmd.Flags().StringVar(&repairFmt, "format", "text", "output format for repair errors: text|json")
 }
 
-func runRepair(tasksRoot, rootsFile, freeFile, outFormat string) error {
+func runRepair(w io.Writer, tasksRoot, rootsFile, freeFile, outFormat string) error {
 	// Parse all tasks
 	parser := task.NewParser()
 	tasks, err := parser.LoadTasks(tasksRoot)
@@ -89,7 +72,7 @@ func runRepair(tasksRoot, rootsFile, freeFile, outFormat string) error {
 	// Report repairs to missing references
 	if len(fixed) > 0 && outFormat != "json" {
 		for _, e := range fixed {
-			fmt.Println("ERROR:", e.Error())
+			fmt.Fprintln(w, "ERROR:", e.Error())
 		}
 	}
 
@@ -109,10 +92,10 @@ func runRepair(tasksRoot, rootsFile, freeFile, outFormat string) error {
 				payload["fixed"] = fixedMsgs
 			}
 			b, _ := json.MarshalIndent(payload, "", "  ")
-			fmt.Println(string(b))
+			fmt.Fprintln(w, string(b))
 		} else {
 			for _, e := range errors {
-				fmt.Println("ERROR:", e.Error())
+				fmt.Fprintln(w, "ERROR:", e.Error())
 			}
 		}
 		return fmt.Errorf("repair failed: %d error(s)", len(errors))
@@ -140,11 +123,11 @@ func runRepair(tasksRoot, rootsFile, freeFile, outFormat string) error {
 			payload["fixed"] = fixedMsgs
 		}
 		b, _ := json.MarshalIndent(payload, "", "  ")
-		fmt.Println(string(b))
+		fmt.Fprintln(w, string(b))
 	} else {
-		fmt.Println("repair: ok")
-		fmt.Printf("Repaired %d tasks\n", len(tasks))
-		fmt.Printf("Master lists updated: %s, %s\n", rootsFile, freeFile)
+		fmt.Fprintln(w, "repair: ok")
+		fmt.Fprintf(w, "Repaired %d tasks\n", len(tasks))
+		fmt.Fprintf(w, "Master lists updated: %s, %s\n", rootsFile, freeFile)
 	}
 
 	return nil

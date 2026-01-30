@@ -11,7 +11,8 @@ import (
 func TestListFilteringAndSorting(t *testing.T) {
 	t.Parallel()
 
-	root := setupListFixture(t)
+	fixture := setupListFixture(t)
+	root := fixture.Root
 
 	cases := []struct {
 		name string
@@ -35,7 +36,7 @@ func TestListFilteringAndSorting(t *testing.T) {
 		},
 		{
 			name: "role filter",
-			opts: ListOptions{Scope: "all", Role: "developer"},
+			opts: ListOptions{Scope: "all", Role: fixture.Roles.Dev},
 			want: []string{"T4a1a-completed", "T1a1a-child", "T3a1a-blocked"},
 		},
 		{
@@ -57,11 +58,6 @@ func TestListFilteringAndSorting(t *testing.T) {
 			name: "owner approval filter",
 			opts: ListOptions{Scope: "all", OwnerApproval: boolPtr(true)},
 			want: []string{"T5a1a-blocks"},
-		},
-		{
-			name: "path filter",
-			opts: ListOptions{Scope: "all", Path: filepath.Join("tasks", "E1a1a-epic")},
-			want: []string{"E1a1a-epic", "T1a1a-child"},
 		},
 		{
 			name: "sort by id desc",
@@ -90,7 +86,14 @@ func TestListFilteringAndSorting(t *testing.T) {
 }
 
 func TestFormatOutputs(t *testing.T) {
-	root := setupListFixture(t)
+	fixture := setupListFixture(t)
+	root := fixture.Root
+	replacements := map[string]string{
+		"<ROLE_EPIC>":   fixture.Roles.Epic,
+		"<ROLE_DEV>":    fixture.Roles.Dev,
+		"<ROLE_DESIGN>": fixture.Roles.Design,
+		"<ROLE_REVIEW>": fixture.Roles.Review,
+	}
 
 	tasks, err := ListTasks(root, ListOptions{Scope: "all"})
 	if err != nil {
@@ -131,13 +134,31 @@ func TestFormatOutputs(t *testing.T) {
 			if tc.normalize {
 				output = strings.ReplaceAll(output, filepath.ToSlash(root)+"/", "<ROOT>/")
 			}
-			assertGolden(t, tc.golden, output)
+			assertGolden(t, tc.golden, output, replacements)
 		})
 	}
 }
 
-func setupListFixture(t *testing.T) string {
+type listRoles struct {
+	Epic   string
+	Dev    string
+	Design string
+	Review string
+}
+
+type listFixture struct {
+	Root  string
+	Roles listRoles
+}
+
+func setupListFixture(t *testing.T) listFixture {
 	t.Helper()
+	roles := listRoles{
+		Epic:   testRoleName(t, "epic"),
+		Dev:    testRoleName(t, "dev"),
+		Design: testRoleName(t, "design"),
+		Review: testRoleName(t, "review"),
+	}
 
 	root := filepath.Join(t.TempDir(), "tasks")
 	if err := os.MkdirAll(root, 0o755); err != nil {
@@ -145,7 +166,7 @@ func setupListFixture(t *testing.T) string {
 	}
 
 	writeListTask(t, root, "E1a1a-epic", taskFixture{
-		Role:        "architect",
+		Role:        roles.Epic,
 		Priority:    "high",
 		Parent:      "",
 		Blockers:    nil,
@@ -158,7 +179,7 @@ func setupListFixture(t *testing.T) string {
 	})
 
 	writeListTask(t, root, "T1a1a-child", taskFixture{
-		Role:        "developer",
+		Role:        roles.Dev,
 		Priority:    "medium",
 		Parent:      "E1a1a-epic",
 		Blockers:    nil,
@@ -172,7 +193,7 @@ func setupListFixture(t *testing.T) string {
 	})
 
 	writeListTask(t, root, "T2a1a-free", taskFixture{
-		Role:        "designer",
+		Role:        roles.Design,
 		Priority:    "low",
 		Parent:      "",
 		Blockers:    nil,
@@ -185,7 +206,7 @@ func setupListFixture(t *testing.T) string {
 	})
 
 	writeListTask(t, root, "T3a1a-blocked", taskFixture{
-		Role:        "developer",
+		Role:        roles.Dev,
 		Priority:    "medium",
 		Parent:      "",
 		Blockers:    []string{"T9x9x-blocker"},
@@ -198,7 +219,7 @@ func setupListFixture(t *testing.T) string {
 	})
 
 	writeListTask(t, root, "T4a1a-completed", taskFixture{
-		Role:        "developer",
+		Role:        roles.Dev,
 		Priority:    "high",
 		Parent:      "",
 		Blockers:    nil,
@@ -211,7 +232,7 @@ func setupListFixture(t *testing.T) string {
 	})
 
 	writeListTask(t, root, "T5a1a-blocks", taskFixture{
-		Role:        "reviewer",
+		Role:        roles.Review,
 		Priority:    "medium",
 		Parent:      "",
 		Blockers:    nil,
@@ -223,7 +244,7 @@ func setupListFixture(t *testing.T) string {
 		Title:       "Blocks Task",
 	})
 
-	return root
+	return listFixture{Root: root, Roles: roles}
 }
 
 type taskFixture struct {
@@ -305,10 +326,15 @@ func boolPtr(value bool) *bool {
 	return &v
 }
 
-func assertGolden(t *testing.T, path, got string) {
+func assertGolden(t *testing.T, path, got string, replacements map[string]string) {
 	t.Helper()
 
 	if os.Getenv("UPDATE_GOLDEN") == "1" {
+		for token, value := range replacements {
+			if value != "" {
+				got = strings.ReplaceAll(got, value, token)
+			}
+		}
 		if err := os.MkdirAll(filepath.Dir(path), 0o755); err != nil {
 			t.Fatalf("mkdir golden dir: %v", err)
 		}
@@ -322,7 +348,13 @@ func assertGolden(t *testing.T, path, got string) {
 	if err != nil {
 		t.Fatalf("read golden: %v", err)
 	}
-	if strings.TrimSpace(string(want)) != strings.TrimSpace(got) {
-		t.Fatalf("golden mismatch\n--- got ---\n%s\n--- want ---\n%s", got, string(want))
+	wantText := string(want)
+	for token, value := range replacements {
+		if value != "" {
+			wantText = strings.ReplaceAll(wantText, token, value)
+		}
+	}
+	if strings.TrimSpace(wantText) != strings.TrimSpace(got) {
+		t.Fatalf("golden mismatch\n--- got ---\n%s\n--- want ---\n%s", got, wantText)
 	}
 }

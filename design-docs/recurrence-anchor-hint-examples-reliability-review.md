@@ -82,7 +82,7 @@ Review the canonical --every hint examples for determinism and automation stabil
 ```
 
 ## Scope
-Review deterministic hint examples for `memmd recurring add --every` anchor parsing.
+Review deterministic hint examples for `strand recurring add --every` anchor parsing.
 Implementation details for parsing or formatting are out of scope.
 
 ## Review Focus

@@ -1,7 +1,7 @@
 # Design Alternatives — Recurrence Anchor Error Messages
 
 ## Summary
-Compare approaches for user-facing error messages when parsing recurrence anchors in `memmd recurring add --every`, with an emphasis on clarity, recoverability, and deterministic behavior.
+Compare approaches for user-facing error messages when parsing recurrence anchors in `strand recurring add --every`, with an emphasis on clarity, recoverability, and deterministic behavior.
 
 ## Context
 - design-docs/recurrence-anchor-flags-alternatives.md
@@ -53,7 +53,7 @@ Compare approaches for user-facing error messages when parsing recurrence anchor
   - Overly generic messages could increase support churn.
 - Rough effort estimate: Low to Medium.
 - Example messages:
-  - "memmd: error: invalid --every value: expected date anchor after 'from', got '2026-13-01'"
+  - "strand: error: invalid --every value: expected date anchor after 'from', got '2026-13-01'"
   - "hint: --every \"10 days from Jan 28 2026 09:00\""
 
 ### Alternative C — Default anchors with warning-only errors
@@ -75,7 +75,7 @@ Compare approaches for user-facing error messages when parsing recurrence anchor
 - Use "from now" for immediate run + recur; use "after now" to schedule the first run at the next interval after now.
 
 ## Output Contract
-- Error prefix: `memmd: error: ` (stable, single-line prefix for the primary error line).
+- Error prefix: `strand: error: ` (stable, single-line prefix for the primary error line).
 - Hint line: optional second line prefixed with `hint: `.
 - Output channel: errors and hints emit to stderr only; no stdout output on failure.
 - Exit codes:

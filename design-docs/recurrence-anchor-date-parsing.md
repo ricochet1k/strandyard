@@ -1,7 +1,7 @@
 # Date Parsing Options for --every Anchors
 
 ## Summary
-Evaluate Go date parsing libraries for `memmd recurring add --every` anchor inputs. The goal is to accept human-friendly dates while keeping parsing deterministic for CLI usage.
+Evaluate Go date parsing libraries for `strand recurring add --every` anchor inputs. The goal is to accept human-friendly dates while keeping parsing deterministic for CLI usage.
 
 ## Context
 - design-docs/recurrence-anchor-flags-alternatives.md
@@ -73,7 +73,7 @@ If broader locale support becomes a requirement, revisit Option C with a strict 
 
 ## Local Evaluation Steps
 ```bash
-cat <<'EOF' > /tmp/memmd-when-eval.go
+cat <<'EOF' > /tmp/strand-when-eval.go
 package main
 
 import (
@@ -103,11 +103,11 @@ func main() {
 }
 EOF
 
-go run /tmp/memmd-when-eval.go
+go run /tmp/strand-when-eval.go
 ```
 
 ```bash
-cat <<'EOF' > /tmp/memmd-dateparse-eval.go
+cat <<'EOF' > /tmp/strand-dateparse-eval.go
 package main
 
 import (
@@ -128,11 +128,11 @@ func main() {
 }
 EOF
 
-go run /tmp/memmd-dateparse-eval.go
+go run /tmp/strand-dateparse-eval.go
 ```
 
 ```bash
-cat <<'EOF' > /tmp/memmd-go-dateparser-eval.go
+cat <<'EOF' > /tmp/strand-go-dateparser-eval.go
 package main
 
 import (
@@ -157,5 +157,5 @@ func main() {
 }
 EOF
 
-go run /tmp/memmd-go-dateparser-eval.go
+go run /tmp/strand-go-dateparser-eval.go
 ```

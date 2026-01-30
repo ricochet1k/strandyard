@@ -1,6 +1,6 @@
-# AGENTS — memmd
+# AGENTS — StrandYard
 
-Purpose: record repository-specific knowledge for AI coding agents working on memmd (a Go library + CLI managing a task DB stored as plain Markdown files).
+Purpose: record repository-specific knowledge for AI coding agents working on StrandYard (a Go library + CLI managing a task DB stored as plain Markdown files).
 
 ## Overview
 
@@ -16,18 +16,18 @@ For detailed CLI command documentation, see [CLI.md](CLI.md).
 **Quick commands**:
 ```bash
 # Get next task to work on
-memmd next
+strand next
 
 # Mark task as completed
-memmd complete <task-id>
+strand complete <task-id>
 
 # Repair all tasks and update master lists
-memmd repair
+strand repair
 ```
 
 ## Quick setup (what to ask the repo owner if missing)
 
-- Desired Go module path (e.g. `github.com/<you>/memmd`) — required for `go mod init`.
+- Desired Go module path (e.g. `github.com/<you>/strand`) — required for `go mod init`.
 - CI/test commands (if any custom ones).
 
 ## Recommended developer commands
@@ -37,8 +37,8 @@ go install github.com/spf13/cobra-cli@latest
 ```
 - Init project (example — replace module path):
 ```bash
-go mod init github.com/yourname/memmd
-cobra-cli init --pkg-name github.com/yourname/memmd
+go mod init github.com/yourname/strand
+cobra-cli init --pkg-name github.com/yourname/strand
 go get github.com/yuin/goldmark
 go get github.com/spf13/cobra
 ```
@@ -164,8 +164,8 @@ Add the goldmark-frontmatter library to the project...
 - **Policy**: Agents must not unilaterally choose which alternative to implement. Present clear alternatives with pros/cons and defer the final decision to a human maintainer (mark as "Decision: deferred" in reviews). Once a decision is made, update the entire design doc to reflect the final decision and any user preferences, and remove or condense alternatives.
 - **Corrections**: When the user provides a general correction or preference, record it in this file as a durable rule or guideline.
 - **Execution**: Do the next logical steps yourself (tests, commits, review requests, follow-ups) unless blocked by a missing decision, credentials, or explicit instruction to wait. Do not suggest next steps in responses; execute them or state the specific blocker that prevents execution.
-- **Next task selection**: `memmd next` should respect role metadata that marks roles as opt-in/ignored by default; those roles are only selected when explicitly requested (for example via `memmd next --role <role>`), and owner tasks should be handled in task order.
-- **Session title**: Always set the session title immediately after receiving any task assignment (including `memmd next`). Use `<role>: <task title>` exactly (lowercase role, task title as shown). Do not proceed with task work until the title is set; if you realize it was missed, set it immediately.
+- **Next task selection**: `strand next` should respect role metadata that marks roles as opt-in/ignored by default; those roles are only selected when explicitly requested (for example via `strand next --role <role>`), and owner tasks should be handled in task order.
+- **Session title**: Always set the session title immediately after receiving any task assignment (including `strand next`). Use `<role>: <task title>` exactly (lowercase role, task title as shown). Do not proceed with task work until the title is set; if you realize it was missed, set it immediately.
 - **Task references in responses**: Use the task ID or `Title (short id)`; avoid full task paths unless explicitly requested.
 - **Commit after completion or block**: After completing a task or becoming blocked, commit your changes with a clear message before starting the next task or handing off.
 - **Guidance**: When preparing role-based reviews or selecting the next actionable task, run `go run . next` to obtain the canonical role document and next task. Include the full stdout/stderr output from that command in review artifacts and do not assume task selection without running it.
@@ -174,11 +174,11 @@ Add the goldmark-frontmatter library to the project...
 - **Questions before handoff**: If you need user input, ask it before committing and before starting a new session. After you commit and start a new session, do not ask more questions in the current session.
 - **When blocked waiting on other work**: If the current task is blocked on reviews, owner decisions, or other tasks (including when you add wait-only subtasks) or the user says "done for now," use the `session` tool with `mode: "new"` and `async: true` to start a new session with the exact text `do the next task and you can commit if complete or blocked`, then stop work in the current session.
 - **Interactive handoff timing**: If a user is actively interacting (especially after being asked a question), do not hand off or start a new session until the user explicitly says to do so. Only hand off when the user is not intervening or asking follow-ups.
-- **When asked "work on the next thing"**: Run `memmd next` and report a summary of the task. Then perform the role's duties on that task.
+- **When asked "work on the next thing"**: Run `strand next` and report a summary of the task. Then perform the role's duties on that task.
 - **Repair after manual edits**: If you manually edit any task markdown files under `tasks/`, run `go run . repair` immediately afterward to regenerate master lists and confirm consistency. Make sure there's an issue filed to make sure the manual edit can be performed with a command eventually.
-- **Complete tasks via CLI**: When a task is done (including planning-only tasks), run `memmd complete <task-id>` rather than editing frontmatter by hand. `memmd complete` should update master lists; if `memmd repair` changes anything afterward, treat it as a bug and file an issue.
+- **Complete tasks via CLI**: When a task is done (including planning-only tasks), run `strand complete <task-id>` rather than editing frontmatter by hand. `strand complete` should update master lists; if `strand repair` changes anything afterward, treat it as a bug and file an issue.
 - **File issues for manual edits**: If work requires manual edits or repairs outside the CLI, file an issue with repro steps, logs, and affected task IDs.
-- **Use add for new tasks/issues**: When asked to add tasks/issues, use `memmd add` instead of creating task files manually.
+- **Use add for new tasks/issues**: When asked to add tasks/issues, use `strand add` instead of creating task files manually.
 
 ## Questions to ask the repo owner (useful prompts)
 - What Go module path should be used for `go mod init`?

@@ -5,16 +5,18 @@ package cmd
 
 import (
 	"fmt"
+	"io"
+	"os"
 	"strings"
 
-	"github.com/ricochet1k/memmd/pkg/task"
+	"github.com/ricochet1k/streamyard/pkg/task"
 	"github.com/spf13/cobra"
+	"golang.org/x/term"
 )
 
 var (
 	listScope          string
-	listParent         string
-	listPath           string
+	listChildren       string
 	listRole           string
 	listPriority       string
 	listCompleted      bool
@@ -44,7 +46,7 @@ var listCmd = &cobra.Command{
 		if err != nil {
 			return err
 		}
-		return runList(paths.TasksDir, opts)
+		return runList(cmd.OutOrStdout(), paths.TasksDir, opts)
 	},
 }
 
@@ -52,11 +54,10 @@ func init() {
 	rootCmd.AddCommand(listCmd)
 
 	listCmd.Flags().StringVar(&listScope, "scope", "all", "scope of tasks to list: all|root|free")
-	listCmd.Flags().StringVar(&listParent, "parent", "", "list direct children of the given parent task ID")
-	listCmd.Flags().StringVar(&listPath, "path", "", "list tasks under a subtree path (repo-relative under tasks/)")
+	listCmd.Flags().StringVar(&listChildren, "children", "", "list direct children of the given task ID")
 	listCmd.Flags().StringVar(&listRole, "role", "", "filter by role name")
 	listCmd.Flags().StringVar(&listPriority, "priority", "", "filter by priority: high|medium|low")
-	listCmd.Flags().BoolVar(&listCompleted, "completed", false, "filter by completed status")
+	listCmd.Flags().BoolVar(&listCompleted, "completed", false, "list only completed tasks (default: uncompleted)")
 	listCmd.Flags().BoolVar(&listBlocked, "blocked", false, "filter by blocked status (has blockers)")
 	listCmd.Flags().BoolVar(&listBlocks, "blocks", false, "filter by blocks status (has blocks)")
 	listCmd.Flags().BoolVar(&listOwnerApproval, "owner-approval", false, "filter by owner approval")
@@ -73,8 +74,7 @@ func init() {
 func listOptionsFromFlags(cmd *cobra.Command) (task.ListOptions, error) {
 	opts := task.ListOptions{
 		Scope:          strings.ToLower(strings.TrimSpace(listScope)),
-		Parent:         strings.TrimSpace(listParent),
-		Path:           strings.TrimSpace(listPath),
+		Parent:         strings.TrimSpace(listChildren),
 		Role:           strings.TrimSpace(listRole),
 		Priority:       strings.ToLower(strings.TrimSpace(listPriority)),
 		Label:          strings.TrimSpace(listLabel),
@@ -84,6 +84,10 @@ func listOptionsFromFlags(cmd *cobra.Command) (task.ListOptions, error) {
 		Group:          strings.ToLower(strings.TrimSpace(listGroup)),
 		MdTable:        listMDTable,
 		UseMasterLists: listUseMasterLists,
+	}
+
+	if !cmd.Flags().Changed("completed") {
+		opts.Completed = boolPtr(false)
 	}
 
 	if cmd.Flags().Changed("completed") {
@@ -110,10 +114,14 @@ func listOptionsFromFlags(cmd *cobra.Command) (task.ListOptions, error) {
 		}
 	}
 
+	if opts.Format != "json" {
+		opts.Color = term.IsTerminal(int(os.Stdout.Fd()))
+	}
+
 	return opts, nil
 }
 
-func runList(tasksRoot string, opts task.ListOptions) error {
+func runList(w io.Writer, tasksRoot string, opts task.ListOptions) error {
 	if opts.Label != "" {
 		return fmt.Errorf("label filter is not supported yet")
 	}
@@ -147,23 +155,14 @@ func runList(tasksRoot string, opts task.ListOptions) error {
 	}
 	if opts.Scope == "free" {
 		if opts.Parent != "" {
-			return fmt.Errorf("invalid flag combination: --scope free cannot be used with --parent")
-		}
-		if opts.Path != "" {
-			return fmt.Errorf("invalid flag combination: --scope free cannot be used with --path")
+			return fmt.Errorf("invalid flag combination: --scope free cannot be used with --children")
 		}
 		if opts.Group == "parent" {
 			return fmt.Errorf("invalid flag combination: --scope free cannot be used with --group parent")
 		}
 	}
-	if opts.Parent != "" && opts.Path != "" {
-		return fmt.Errorf("invalid flag combination: --parent cannot be used with --path")
-	}
 	if opts.Parent != "" && opts.Scope != "all" {
-		return fmt.Errorf("invalid flag combination: --parent cannot be used with --scope %s", opts.Scope)
-	}
-	if opts.Path != "" && opts.Scope != "all" {
-		return fmt.Errorf("invalid flag combination: --path cannot be used with --scope %s", opts.Scope)
+		return fmt.Errorf("invalid flag combination: --children cannot be used with --scope %s", opts.Scope)
 	}
 
 	tasks, err := task.ListTasks(tasksRoot, opts)
@@ -175,9 +174,17 @@ func runList(tasksRoot string, opts task.ListOptions) error {
 		return err
 	}
 	if output != "" {
-		fmt.Println(output)
+		fmt.Fprintln(w, output)
 	}
 	return nil
+}
+
+func runListWithProject(w io.Writer, projectName string, opts task.ListOptions) error {
+	paths, err := resolveProjectPaths(projectName)
+	if err != nil {
+		return err
+	}
+	return runList(w, paths.TasksDir, opts)
 }
 
 func boolPtr(value bool) *bool {

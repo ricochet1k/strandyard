@@ -8,6 +8,6 @@ npm run build
 
 echo "Building Go binary..."
 cd ../..
-go build -o strandyard main.go
+go build -o strand ./cmd/strand
 
-echo "Done! Run './strandyard web' to start"
+echo "Done! Run './strand web' to start"

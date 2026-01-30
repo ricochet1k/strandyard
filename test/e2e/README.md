@@ -2,7 +2,7 @@
 
 ## Overview
 
-This framework provides isolated test environments for testing the memmd CLI commands end-to-end.
+This framework provides isolated test environments for testing the StrandYard CLI commands end-to-end.
 
 ## Architecture
 
@@ -11,7 +11,7 @@ This framework provides isolated test environments for testing the memmd CLI com
 The `TestEnv` struct manages a temporary directory with the following structure:
 
 ```
-/tmp/memmd-test-*/
+/tmp/strand-test-*/
 ├── tasks/          # Task files
 ├── roles/          # Role files
 └── templates/      # Template files (optional)

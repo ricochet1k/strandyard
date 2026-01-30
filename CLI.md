@@ -1,12 +1,12 @@
-# memmd CLI Usage Guide
+# StrandYard CLI Usage Guide
 
-This document describes how to use the `memmd` command-line tool for managing tasks.
+This document describes how to use the `strand` command-line tool for managing tasks.
 
 ## Prerequisites
 
 ```bash
 # Build the CLI
-go build -o memmd .
+go build -o strand .
 
 # Or run directly with go run
 go run . <command>
@@ -14,23 +14,23 @@ go run . <command>
 
 ## Project storage and selection
 
-memmd stores `tasks/`, `roles/`, and `templates/` either in a local `.memmd/` directory at the git root or in a global project directory under `~/.config/memmd/projects/<project_name>` (default).
+strand stores `tasks/`, `roles/`, and `templates/` either in a local `.strand/` directory at the git root or in a global project directory under `~/.config/strand/projects/<project_name>` (default).
 
 Initialize storage for the current repository with:
 
 ```bash
-memmd init [project_name] [--storage global|local] [--preset <dir-or-git-url>]
+strand init [project_name] [--storage global|local] [--preset <dir-or-git-url>]
 ```
 
 Flags:
-- `--storage`: choose `global` (default) or `local` (`.memmd/` at git root)
+- `--storage`: choose `global` (default) or `local` (`.strand/` at git root)
 - `--preset`: path to a directory or a git repo containing `tasks/`, `roles/`, and `templates/` to copy into the project
 
 Use `--project <name>` on any command to operate on a specific global project by name:
 
 ```bash
-memmd list --project my-project
-memmd add task "Follow up" --project my-project
+strand list --project my-project
+strand add task "Follow up" --project my-project
 ```
 
 ## Core Commands
@@ -40,7 +40,7 @@ memmd add task "Follow up" --project my-project
 Creates tasks using the appropriate template by type.
 
 ```bash
-memmd add <type> [title] [flags]
+strand add <type> [title] [flags]
 
 Flags:
   -t, --title string      task title (can also be passed as positional argument)
@@ -53,16 +53,16 @@ Flags:
 
 **Example**:
 ```bash
-memmd add task "Quick task" --role developer --priority high
+strand add task "Quick task" --role developer --priority high
 ```
 
 **Detailed body via stdin**:
 ```bash
 # Pipe from a file
-memmd add task "Incident followup" --role developer < ./notes.md
+strand add task "Incident followup" --role developer < ./notes.md
 
 # Heredoc
-memmd add task "Incident followup" --role developer <<'EOF'
+strand add task "Incident followup" --role developer <<'EOF'
 ## Summary
 Capture findings from the incident review.
 
@@ -80,15 +80,14 @@ Notes:
 Lists tasks from the tasks tree with optional filtering, sorting, and grouping.
 
 ```bash
-memmd list [flags]
+strand list [flags]
 
 Flags:
   --scope string         scope of tasks to list: all|root|free (default "all")
-  --parent string        list direct children of the given parent task ID
-  --path string          list tasks under a subtree path (repo-relative under tasks/)
+  --children string      list direct children of the given task ID
   --role string          filter by role name
   --priority string      filter by priority: high|medium|low
-  --completed            filter by completed status (only when flag is present)
+  --completed            list only completed tasks (default: uncompleted)
   --blocked              filter by blocked status (has blockers)
   --blocks               filter by blocks status (has blocks)
   --owner-approval       filter by owner approval
@@ -104,36 +103,62 @@ Flags:
 
 **Examples**:
 ```bash
-# List all tasks (default scope)
-memmd list
+# List uncompleted tasks (default)
+strand list
+
+# List completed tasks
+strand list --completed
 
 # List root tasks
-memmd list --scope root
+strand list --scope root
 
 # List free tasks grouped by priority in Markdown
-memmd list --scope free --format md --group priority
+strand list --scope free --format md --group priority
 
-# List children of a parent task
-memmd list --parent E2k7x-metadata-format
-
-# List tasks under a subtree path
-memmd list --path tasks/E2k7x-metadata-format
+# List children of a task (short IDs supported)
+strand list --children E2k7x
 
 # List tasks with filtering and sorting
-memmd list --role developer --priority high --sort created --order desc
+strand list --role developer --priority high --sort created --order desc
 ```
 
 **Notes**:
-- `--scope free` cannot be combined with `--parent`, `--path`, or `--group parent`.
-- `--parent` and `--path` are mutually exclusive and only valid with `--scope all`.
+- `--scope free` cannot be combined with `--children` or `--group parent`.
+- `--children` is only valid with `--scope all`.
 - `--label` is reserved and will error until labels are implemented.
+
+### `search` - Search tasks by content
+
+Searches task title, description, and todos. Subtask names are excluded from search results.
+
+```bash
+strand search <query> [flags]
+
+Flags:
+  --sort string          sort by: id|priority|created|edited|role
+  --order string         sort order: asc|desc (default "asc")
+  --format string        output format: table|md|json (default "table")
+  --columns string       comma-separated list of columns to include
+  --group string         group by: none|priority|parent|role (default "none")
+  --md-table             use markdown table output (with --format md)
+```
+
+**Examples**:
+```bash
+# Search by keyword
+strand search "frontmatter"
+
+# Search and output Markdown
+strand search "owner approval" --format md --group priority
+```
+- Task ID flags accept short IDs like `T3k7x` (prefix + token).
 
 ### `add issue` - Create an issue task
 
 Creates an issue-style task using the issue template and required metadata.
 
 ```bash
-memmd add issue [title] [flags]
+strand add issue [title] [flags]
 
 Flags:
   -t, --title string      issue title (can also be passed as positional argument)
@@ -146,7 +171,7 @@ Flags:
 
 **Example**:
 ```bash
-memmd add issue "Add issue command" --priority high
+strand add issue "Add issue command" --priority high
 ```
 
 ### `recurring add` - Create recurring task definitions
@@ -154,7 +179,7 @@ memmd add issue "Add issue command" --priority high
 Creates a recurring task definition that can be materialized into normal tasks.
 
 ```bash
-memmd recurring add [title] [flags]
+strand recurring add [title] [flags]
 
 Flags:
   -t, --title string           definition title (can also be passed as positional argument)
@@ -172,7 +197,7 @@ Flags:
 
 **Example**:
 ```bash
-memmd recurring add "Quarterly docs review" --interval 3 --unit months --anchor 2026-01-01T00:00:00Z --role reviewer
+strand recurring add "Quarterly docs review" --interval 3 --unit months --anchor 2026-01-01T00:00:00Z --role reviewer
 ```
 
 **Resulting definition (example)**:
@@ -210,18 +235,17 @@ tasks/
 Generates concrete task instances for any recurring definitions that are due.
 
 ```bash
-memmd recurring materialize [flags]
+strand recurring materialize [flags]
 
 Flags:
   --as-of string         override the current time (ISO 8601)
-  --path string          path to tasks directory (default "tasks")
   --dry-run              preview materialization without writing files
   --limit int            limit number of instances generated
 ```
 
 **Example**:
 ```bash
-memmd recurring materialize --as-of 2026-04-01T00:00:00Z
+strand recurring materialize --as-of 2026-04-01T00:00:00Z
 ```
 
 ### `repair` - Repair task structure
@@ -229,12 +253,9 @@ memmd recurring materialize --as-of 2026-04-01T00:00:00Z
 Repairs all tasks and regenerates master lists (`root-tasks.md` and `free-tasks.md`).
 
 ```bash
-memmd repair [flags]
+strand repair [flags]
 
 Flags:
-  --path string      path to tasks directory (default "tasks")
-  --roots string     path to write root tasks list (default "tasks/root-tasks.md")
-  --free string      path to write free tasks list (default "tasks/free-tasks.md")
   --format string    output format: text|json (default "text")
 ```
 
@@ -250,7 +271,7 @@ Flags:
 
 **Example**:
 ```bash
-$ memmd repair
+$ strand repair
 repair: ok
 Repaired 25 tasks
 Master lists updated: tasks/root-tasks.md, tasks/free-tasks.md
@@ -261,7 +282,7 @@ Master lists updated: tasks/root-tasks.md, tasks/free-tasks.md
 Displays the next free task (tasks with no blockers) with the role document.
 
 ```bash
-memmd next [flags]
+strand next [flags]
 
 Flags:
   --role string    optional: filter tasks by role
@@ -276,7 +297,7 @@ Invariant: `next` must print the full role document (not just the role name); te
 
 **Example**:
 ```bash
-$ memmd next
+$ strand next
 # Architect
 
 ## Role
@@ -299,7 +320,7 @@ Replace the current simple field format...
 
 **With role filter**:
 ```bash
-$ memmd next --role developer
+$ strand next --role developer
 ```
 
 ### `complete` - Mark task as completed
@@ -307,7 +328,7 @@ $ memmd next --role developer
 Marks a task as completed by setting `completed: true` in the frontmatter and updating `date_edited`.
 
 ```bash
-memmd complete <task-id>
+strand complete <task-id>
 ```
 
 **What it does**:
@@ -316,16 +337,16 @@ memmd complete <task-id>
 - Updates `date_edited` to current timestamp
 - Preserves all other metadata
 
-**After completing**: `memmd complete` should update master lists and remove the completed task from `free-tasks.md`. If `memmd repair` changes anything afterward, treat it as a bug.
+**After completing**: `strand complete` should update master lists and remove the completed task from `free-tasks.md`. If `strand repair` changes anything afterward, treat it as a bug.
 
 **Example**:
 ```bash
-$ memmd complete T3m9p-add-frontmatter-dep
+$ strand complete T3m9p-add-frontmatter-dep
 ✓ Task T3m9p-add-frontmatter-dep marked as completed
 
-Optional: run 'memmd repair' to verify no changes
+Optional: run 'strand repair' to verify no changes
 
-$ memmd repair
+$ strand repair
 repair: ok
 Repaired 0 tasks
 Master lists unchanged: tasks/root-tasks.md, tasks/free-tasks.md
@@ -337,19 +358,19 @@ Master lists unchanged: tasks/root-tasks.md, tasks/free-tasks.md
 
 1. **Find next task**:
    ```bash
-   memmd next
+   strand next
    ```
 
 2. **Work on the task** (write code, update files, etc.)
 
 3. **Mark task complete**:
    ```bash
-   memmd complete <task-id>
+   strand complete <task-id>
    ```
 
 4. **Optional verification** (should be a no-op):
    ```bash
-   memmd repair
+   strand repair
    ```
 
 ### Checking task status
@@ -362,14 +383,14 @@ cat tasks/free-tasks.md
 cat tasks/root-tasks.md
 
 # Repair entire task tree
-memmd repair
+strand repair
 ```
 
 ### Working with roles
 
 ```bash
 # Get next task for specific role
-memmd next --role developer
+strand next --role developer
 
 # See what roles are available
 ls roles/
@@ -470,7 +491,7 @@ Task IDs must follow this format: `<PREFIX><4-char-token>-<slug>`
 ## Directory Structure
 
 ```
-memmd/
+strand/
 ├── tasks/
 │   ├── root-tasks.md          # Auto-generated list of root tasks
 │   ├── free-tasks.md          # Auto-generated list of free tasks
@@ -518,7 +539,7 @@ Set `priority: high|medium|low` or remove the field to default to `medium`.
 Task ID doesn't exist in the task tree. Check spelling or use `repair` to see all tasks.
 
 ### `recurring add --every` hint examples
-Hint lines for `memmd recurring add --every` use deterministic examples so automation and tests remain stable. Canonical examples and anchor guidance live in `design-docs/recurrence-anchor-hint-examples.md`.
+Hint lines for `strand recurring add --every` use deterministic examples so automation and tests remain stable. Canonical examples and anchor guidance live in `design-docs/recurrence-anchor-hint-examples.md`.
 
 Default anchor examples:
 - `--every "10 days"`

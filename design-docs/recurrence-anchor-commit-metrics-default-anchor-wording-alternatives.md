@@ -19,8 +19,8 @@ These steps mirror the git commands used by commit metrics in `design-docs/recur
 
 Unborn `HEAD` (no commits):
 ```bash
-mkdir -p /tmp/memmd-head-test-unborn
-cd /tmp/memmd-head-test-unborn
+mkdir -p /tmp/strand-head-test-unborn
+cd /tmp/strand-head-test-unborn
 git init
 git rev-list --count HEAD..HEAD
 git diff --numstat HEAD..HEAD
@@ -29,12 +29,12 @@ Expected: both commands error with "ambiguous argument 'HEAD..HEAD'".
 
 Detached `HEAD` (valid commit):
 ```bash
-mkdir -p /tmp/memmd-head-test-detached
-cd /tmp/memmd-head-test-detached
+mkdir -p /tmp/strand-head-test-detached
+cd /tmp/strand-head-test-detached
 git init
 printf "test\n" > README.md
 git add README.md
-git -c user.name="memmd" -c user.email="memmd@example.com" commit -m "init"
+git -c user.name="strand" -c user.email="strand@example.com" commit -m "init"
 git checkout --detach HEAD
 git rev-list --count HEAD..HEAD
 git diff --numstat HEAD..HEAD

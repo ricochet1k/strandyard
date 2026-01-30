@@ -49,7 +49,7 @@ Add a `recurrence_triggers` list with metric definitions that can be combined.
 
 ## Tasks-Completed Metric Options
 ### Option A: Add `date_completed` to task metadata
-- Store completion timestamp when `memmd complete` runs.
+- Store completion timestamp when `strand complete` runs.
 - Recurrence counts completed tasks where `date_completed > anchor`.
 - **Pros**: Simple to compute and audit.
 - **Cons**: Requires metadata migration for historical tasks.
@@ -75,7 +75,7 @@ Add a `recurrence_triggers` list with metric definitions that can be combined.
 ## Integration Points
 - `pkg/task` parser and validator for new recurrence fields.
 - Recurrence materialization logic (when implemented) to query git and task metadata.
-- `memmd complete` to capture completion timestamps if Option A for tasks-completed is selected.
+- `strand complete` to capture completion timestamps if Option A for tasks-completed is selected.
 
 ## Testing Strategy
 - Unit tests for schema validation and due-calculation per metric.

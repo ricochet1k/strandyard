@@ -8,6 +8,8 @@ import (
 	"strings"
 	"text/tabwriter"
 	"time"
+
+	"github.com/fatih/color"
 )
 
 // ListOptions defines filters and output parameters for listing tasks.
@@ -29,6 +31,7 @@ type ListOptions struct {
 	Group          string
 	MdTable        bool
 	UseMasterLists bool
+	Color          bool
 }
 
 // ListTasks loads tasks and returns a filtered, deterministically sorted list.
@@ -69,30 +72,28 @@ func filterTasks(tasksRoot string, tasks map[string]*Task, opts ListOptions) ([]
 	}
 
 	if opts.Parent != "" {
-		if _, ok := tasks[opts.Parent]; !ok {
-			return nil, fmt.Errorf("parent task not found: %s", opts.Parent)
+		resolved, err := ResolveTaskID(tasks, opts.Parent)
+		if err != nil {
+			return nil, fmt.Errorf("parent task not found: %w", err)
 		}
+		opts.Parent = resolved
 	}
 
-	basePath := ""
-	if strings.TrimSpace(opts.Path) != "" {
-		path := filepath.Clean(opts.Path)
-		if strings.HasPrefix(path, "tasks"+string(filepath.Separator)) || path == "tasks" {
-			basePath = filepath.Join(filepath.Dir(tasksRoot), path)
-		} else {
-			basePath = filepath.Join(tasksRoot, path)
-		}
+	pathFilter := strings.TrimSpace(opts.Path)
+	var pathRoot string
+	if pathFilter != "" {
+		pathRoot = filepath.Clean(filepath.Join(tasksRoot, pathFilter))
 	}
 
 	filtered := make([]*Task, 0, len(items))
 	for _, t := range items {
+		if pathRoot != "" && !isUnderPath(t.Dir, pathRoot) {
+			continue
+		}
 		if !matchesScope(t, opts) {
 			continue
 		}
 		if opts.Parent != "" && t.Meta.Parent != opts.Parent {
-			continue
-		}
-		if basePath != "" && !isWithinPath(t.Dir, basePath) {
 			continue
 		}
 		if opts.Role != "" && strings.ToLower(t.GetEffectiveRole()) != strings.ToLower(opts.Role) {
@@ -125,6 +126,21 @@ func filterTasks(tasksRoot string, tasks map[string]*Task, opts ListOptions) ([]
 	return filtered, nil
 }
 
+func isUnderPath(path, root string) bool {
+	path = filepath.Clean(path)
+	root = filepath.Clean(root)
+	if path == root {
+		return true
+	}
+	if !strings.HasSuffix(root, string(filepath.Separator)) {
+		root += string(filepath.Separator)
+	}
+	if !strings.HasSuffix(path, string(filepath.Separator)) {
+		path += string(filepath.Separator)
+	}
+	return strings.HasPrefix(path, root)
+}
+
 func matchesScope(t *Task, opts ListOptions) bool {
 	switch opts.Scope {
 	case "", "all":
@@ -136,17 +152,6 @@ func matchesScope(t *Task, opts ListOptions) bool {
 	default:
 		return true
 	}
-}
-
-func isWithinPath(dir, base string) bool {
-	rel, err := filepath.Rel(base, dir)
-	if err != nil {
-		return false
-	}
-	if rel == "." {
-		return true
-	}
-	return !strings.HasPrefix(rel, ".."+string(filepath.Separator)) && rel != ".."
 }
 
 func sortTasks(items []*Task, opts ListOptions) {
@@ -220,15 +225,18 @@ type listRow struct {
 func toListRows(tasks []*Task) []listRow {
 	rows := make([]listRow, 0, len(tasks))
 	for _, t := range tasks {
+		shortParent := ShortID(t.Meta.Parent)
+		shortBlockers := shortenTaskIDs(t.Meta.Blockers)
+		shortBlocks := shortenTaskIDs(t.Meta.Blocks)
 		rows = append(rows, listRow{
-			ID:          t.ID,
+			ID:          ShortID(t.ID),
 			Title:       t.Title(),
 			Role:        t.GetEffectiveRole(),
 			Priority:    NormalizePriority(t.Meta.Priority),
-			Parent:      t.Meta.Parent,
+			Parent:      shortParent,
 			Completed:   t.Meta.Completed,
-			Blockers:    append([]string{}, t.Meta.Blockers...),
-			Blocks:      append([]string{}, t.Meta.Blocks...),
+			Blockers:    shortBlockers,
+			Blocks:      shortBlocks,
 			Path:        filepath.ToSlash(t.FilePath),
 			DateCreated: t.Meta.DateCreated.Format(time.RFC3339),
 			DateEdited:  t.Meta.DateEdited.Format(time.RFC3339),
@@ -237,15 +245,26 @@ func toListRows(tasks []*Task) []listRow {
 	return rows
 }
 
+func shortenTaskIDs(ids []string) []string {
+	if len(ids) == 0 {
+		return []string{}
+	}
+	out := make([]string, 0, len(ids))
+	for _, id := range ids {
+		out = append(out, ShortID(id))
+	}
+	return out
+}
+
 func formatTable(tasks []*Task, opts ListOptions) (string, error) {
-	columns := normalizeColumns(opts.Columns, []string{"id", "title", "priority", "role", "completed", "blockers"})
 	rows := toListRows(tasks)
+	columns := defaultColumnsForRows(opts, rows, []string{"id", "title", "priority", "role", "completed", "blockers"}, true)
 
 	builder := &strings.Builder{}
 	writer := tabwriter.NewWriter(builder, 0, 4, 2, ' ', 0)
 	fmt.Fprintln(writer, strings.ToUpper(strings.Join(columns, "\t")))
 	for _, row := range rows {
-		fmt.Fprintln(writer, strings.Join(rowValues(row, columns, true), "\t"))
+		fmt.Fprintln(writer, strings.Join(rowValues(row, columns, true, opts), "\t"))
 	}
 	_ = writer.Flush()
 	return strings.TrimRight(builder.String(), "\n"), nil
@@ -261,7 +280,7 @@ func formatMarkdown(tasks []*Task, opts ListOptions) (string, error) {
 	if opts.MdTable {
 		return formatMarkdownTable(rows, opts)
 	}
-	return formatMarkdownList(rows), nil
+	return formatMarkdownList(rows, opts), nil
 }
 
 func formatMarkdownGrouped(grouped map[string][]listRow, opts ListOptions) (string, error) {
@@ -275,7 +294,7 @@ func formatMarkdownGrouped(grouped map[string][]listRow, opts ListOptions) (stri
 			table, _ := formatMarkdownTable(grouped[key], opts)
 			fmt.Fprintln(part, table)
 		} else {
-			list := formatMarkdownList(grouped[key])
+			list := formatMarkdownList(grouped[key], opts)
 			fmt.Fprintln(part, list)
 		}
 		parts = append(parts, strings.TrimRight(part.String(), "\n"))
@@ -284,7 +303,7 @@ func formatMarkdownGrouped(grouped map[string][]listRow, opts ListOptions) (stri
 }
 
 func formatMarkdownTable(rows []listRow, opts ListOptions) (string, error) {
-	columns := normalizeColumns(opts.Columns, []string{"id", "title", "priority", "role", "completed", "blockers"})
+	columns := defaultColumnsForRows(opts, rows, []string{"id", "title", "priority", "role", "completed", "blockers"}, false)
 	builder := &strings.Builder{}
 	fmt.Fprintln(builder, "| "+strings.Join(columns, " | ")+" |")
 	separators := make([]string, 0, len(columns))
@@ -293,19 +312,26 @@ func formatMarkdownTable(rows []listRow, opts ListOptions) (string, error) {
 	}
 	fmt.Fprintln(builder, "| "+strings.Join(separators, " | ")+" |")
 	for _, row := range rows {
-		fmt.Fprintln(builder, "| "+strings.Join(rowValues(row, columns, false), " | ")+" |")
+		fmt.Fprintln(builder, "| "+strings.Join(rowValues(row, columns, false, opts), " | ")+" |")
 	}
 	return strings.TrimRight(builder.String(), "\n"), nil
 }
 
-func formatMarkdownList(rows []listRow) string {
+func formatMarkdownList(rows []listRow, opts ListOptions) string {
 	if len(rows) == 0 {
 		return ""
 	}
+	columns := defaultColumnsForRows(opts, rows, []string{"id", "title", "priority", "role", "completed"}, false)
 	builder := &strings.Builder{}
 	for _, row := range rows {
-		fmt.Fprintf(builder, "- %s — %s (priority: %s, role: %s, completed: %t)\n",
-			row.ID, row.Title, row.Priority, row.Role, row.Completed)
+		id := colorizeValue(row, "id", row.ID, opts)
+		title := colorizeValue(row, "title", row.Title, opts)
+		parts := listMetadataParts(row, columns, opts)
+		if len(parts) == 0 {
+			fmt.Fprintf(builder, "- %s — %s\n", id, title)
+			continue
+		}
+		fmt.Fprintf(builder, "- %s — %s (%s)\n", id, title, strings.Join(parts, ", "))
 	}
 	return strings.TrimRight(builder.String(), "\n")
 }
@@ -349,38 +375,159 @@ func normalizeColumns(cols, defaults []string) []string {
 	return out
 }
 
-func rowValues(row listRow, columns []string, numericForCounts bool) []string {
+func rowValues(row listRow, columns []string, numericForCounts bool, opts ListOptions) []string {
 	values := make([]string, 0, len(columns))
 	for _, col := range columns {
-		switch col {
-		case "id":
-			values = append(values, row.ID)
-		case "title":
-			values = append(values, row.Title)
-		case "priority":
-			values = append(values, row.Priority)
-		case "role":
-			values = append(values, row.Role)
-		case "parent":
-			values = append(values, row.Parent)
-		case "completed":
-			values = append(values, fmt.Sprintf("%t", row.Completed))
-		case "blockers":
-			values = append(values, formatListValue(row.Blockers, numericForCounts))
-		case "blocks":
-			values = append(values, formatListValue(row.Blocks, numericForCounts))
-		case "path":
-			values = append(values, row.Path)
-		case "date_created":
-			values = append(values, row.DateCreated)
-		case "date_edited":
-			values = append(values, row.DateEdited)
-		default:
-			values = append(values, "")
-		}
+		value := columnValue(row, col, numericForCounts)
+		values = append(values, colorizeValue(row, col, value, opts))
 	}
 	return values
 }
+
+func defaultColumnsForRows(opts ListOptions, rows []listRow, defaults []string, numericForCounts bool) []string {
+	if len(opts.Columns) > 0 {
+		return normalizeColumns(opts.Columns, defaults)
+	}
+	columns := normalizeColumns(nil, defaults)
+	return filterConstantColumns(rows, columns, numericForCounts)
+}
+
+func filterConstantColumns(rows []listRow, columns []string, numericForCounts bool) []string {
+	if len(rows) == 0 {
+		return columns
+	}
+	alwaysKeep := map[string]bool{"id": true, "title": true}
+	out := make([]string, 0, len(columns))
+	for _, col := range columns {
+		if alwaysKeep[col] {
+			out = append(out, col)
+			continue
+		}
+		baseline := columnValue(rows[0], col, numericForCounts)
+		allSame := true
+		for _, row := range rows[1:] {
+			if columnValue(row, col, numericForCounts) != baseline {
+				allSame = false
+				break
+			}
+		}
+		if allSame {
+			continue
+		}
+		out = append(out, col)
+	}
+	return out
+}
+
+func columnValue(row listRow, col string, numericForCounts bool) string {
+	switch col {
+	case "id":
+		return row.ID
+	case "title":
+		return row.Title
+	case "priority":
+		return row.Priority
+	case "role":
+		return row.Role
+	case "parent":
+		return row.Parent
+	case "completed":
+		return fmt.Sprintf("%t", row.Completed)
+	case "blockers":
+		return formatListValue(row.Blockers, numericForCounts)
+	case "blocks":
+		return formatListValue(row.Blocks, numericForCounts)
+	case "path":
+		return row.Path
+	case "date_created":
+		return row.DateCreated
+	case "date_edited":
+		return row.DateEdited
+	default:
+		return ""
+	}
+}
+
+func colorizeValue(row listRow, col string, value string, opts ListOptions) string {
+	if !opts.Color || value == "" {
+		return value
+	}
+	switch col {
+	case "priority":
+		return colorizePriority(value)
+	case "id", "title":
+		if len(row.Blockers) > 0 {
+			return colorBlocked(value)
+		}
+	}
+	return value
+}
+
+func colorizePriority(priority string) string {
+	switch NormalizePriority(priority) {
+	case PriorityHigh:
+		return colorHigh(priority)
+	case PriorityMedium:
+		return colorMedium(priority)
+	case PriorityLow:
+		return colorLow(priority)
+	default:
+		return colorOther(priority)
+	}
+}
+
+func listMetadataParts(row listRow, columns []string, opts ListOptions) []string {
+	parts := []string{}
+	for _, col := range columns {
+		if col == "id" || col == "title" {
+			continue
+		}
+		value := columnValue(row, col, false)
+		if value == "" {
+			continue
+		}
+		value = colorizeValue(row, col, value, opts)
+		label := columnLabel(col)
+		if label == "" {
+			continue
+		}
+		parts = append(parts, fmt.Sprintf("%s: %s", label, value))
+	}
+	return parts
+}
+
+func columnLabel(col string) string {
+	switch col {
+	case "priority":
+		return "priority"
+	case "role":
+		return "role"
+	case "completed":
+		return "completed"
+	case "blockers":
+		return "blockers"
+	case "blocks":
+		return "blocks"
+	case "parent":
+		return "parent"
+	case "path":
+		return "path"
+	case "date_created":
+		return "created"
+	case "date_edited":
+		return "edited"
+	default:
+		return ""
+	}
+}
+
+var (
+	colorHigh    = color.New(color.FgRed, color.Bold).SprintFunc()
+	colorMedium  = color.New(color.FgYellow).SprintFunc()
+	colorLow     = color.New(color.FgGreen).SprintFunc()
+	colorOther   = color.New(color.FgCyan).SprintFunc()
+	colorBlocked = color.New(color.FgRed, color.Bold).SprintFunc()
+)
 
 func formatListValue(values []string, numeric bool) string {
 	if numeric {
