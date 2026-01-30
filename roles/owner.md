@@ -18,6 +18,8 @@ Owner (human)
 
 ### Interactions with agents
 - Agents may create tasks for the Owner and wait for decisions; Owners should acknowledge or delegate.
+- When an AI agent unblocks any task, it must start a new session with `mode: "new"` and `async: true` using the exact text `do the next task and you can commit if complete or blocked`.
+- When owner tasks are unblocked or pending, AI agents must start a new session with `mode: "new"` and `async: true` using the exact text `do the next --role owner task` so the Owner can resolve all owner tasks in order.
 
 ## Notes
 - Owner is expected to be a human role — avoid fully automating Owner approvals.
