@@ -103,6 +103,9 @@ func gitRootDir() (string, error) {
 	if root == "" {
 		return "", errors.New("unable to locate git root (run inside a git repo or use --project)")
 	}
+	if resolved, err := filepath.EvalSymlinks(root); err == nil {
+		root = resolved
+	}
 	return root, nil
 }
 

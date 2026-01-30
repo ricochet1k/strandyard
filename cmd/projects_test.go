@@ -46,8 +46,12 @@ func setHome(t *testing.T, dir string) {
 func TestResolveProjectPaths_LocalMemmd(t *testing.T) {
 	repo := initGitRepo(t)
 	chdir(t, repo)
+	root, err := gitRootDir()
+	if err != nil {
+		t.Fatalf("gitRootDir failed: %v", err)
+	}
 
-	base := filepath.Join(repo, ".memmd")
+	base := filepath.Join(root, ".memmd")
 	if err := ensureProjectDirs(base); err != nil {
 		t.Fatalf("failed to create .memmd dirs: %v", err)
 	}
@@ -75,6 +79,10 @@ func TestResolveProjectPaths_GlobalMapping(t *testing.T) {
 	repo := initGitRepo(t)
 	chdir(t, repo)
 	setHome(t, t.TempDir())
+	root, err := gitRootDir()
+	if err != nil {
+		t.Fatalf("gitRootDir failed: %v", err)
+	}
 
 	projectsRoot, err := projectsDir()
 	if err != nil {
@@ -85,7 +93,7 @@ func TestResolveProjectPaths_GlobalMapping(t *testing.T) {
 		t.Fatalf("failed to create project dirs: %v", err)
 	}
 
-	if err := saveProjectMap(projectMap{Repos: map[string]string{repo: "alpha"}}); err != nil {
+	if err := saveProjectMap(projectMap{Repos: map[string]string{root: "alpha"}}); err != nil {
 		t.Fatalf("saveProjectMap failed: %v", err)
 	}
 
@@ -109,6 +117,10 @@ func TestRunInit_GlobalStorage(t *testing.T) {
 	repo := initGitRepo(t)
 	chdir(t, repo)
 	setHome(t, t.TempDir())
+	root, err := gitRootDir()
+	if err != nil {
+		t.Fatalf("gitRootDir failed: %v", err)
+	}
 
 	prevStorage := initStorageMode
 	prevPreset := initPreset
@@ -140,8 +152,8 @@ func TestRunInit_GlobalStorage(t *testing.T) {
 	if err != nil {
 		t.Fatalf("loadProjectMap failed: %v", err)
 	}
-	if cfg.Repos[repo] != "beta" {
-		t.Fatalf("expected mapping for %s to beta, got %s", repo, cfg.Repos[repo])
+	if cfg.Repos[root] != "beta" {
+		t.Fatalf("expected mapping for %s to beta, got %s", root, cfg.Repos[root])
 	}
 }
 
