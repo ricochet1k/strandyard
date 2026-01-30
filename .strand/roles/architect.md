@@ -1,3 +1,9 @@
+---
+role: architect
+workflow:
+  creates: [task, issue]
+---
+
 # Architect
 
 ## Role

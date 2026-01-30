@@ -1,3 +1,9 @@
+---
+role: designer
+workflow:
+  creates: [task, review, review-security, review-usability]
+---
+
 # Designer
 
 ## Role
