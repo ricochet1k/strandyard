@@ -75,6 +75,39 @@ EOF
 Notes:
 - Stdin content is inserted where the template uses `{{ .Body }}` or appended to the end.
 
+### `edit` - Edit a task
+
+Edits a task's metadata and description.
+
+```bash
+strand edit <task-id> [flags]
+
+Flags:
+  -t, --title string      task title
+  -r, --role string       role responsible for the task
+  -p, --parent string     parent task ID
+      --priority string   priority: high, medium, or low
+      --blocker strings   blocker task ID(s); can be repeated or comma-separated
+      --no-repair       skip repair and master list updates
+```
+
+**Example**:
+```bash
+strand edit T3k7x --priority high --role architect
+```
+
+**Edit description via stdin (heredoc)**:
+```bash
+strand edit T3k7x <<'EOF'
+# Updated Title
+New description goes here.
+EOF
+```
+
+Notes:
+- If stdin is a terminal, the description remains unchanged.
+- If both `--title` and stdin are provided, the title flag overrides any H1 in the stdin content.
+
 ### `list` - List tasks with filters and output formats
 
 Lists tasks from the tasks tree with optional filtering, sorting, and grouping.

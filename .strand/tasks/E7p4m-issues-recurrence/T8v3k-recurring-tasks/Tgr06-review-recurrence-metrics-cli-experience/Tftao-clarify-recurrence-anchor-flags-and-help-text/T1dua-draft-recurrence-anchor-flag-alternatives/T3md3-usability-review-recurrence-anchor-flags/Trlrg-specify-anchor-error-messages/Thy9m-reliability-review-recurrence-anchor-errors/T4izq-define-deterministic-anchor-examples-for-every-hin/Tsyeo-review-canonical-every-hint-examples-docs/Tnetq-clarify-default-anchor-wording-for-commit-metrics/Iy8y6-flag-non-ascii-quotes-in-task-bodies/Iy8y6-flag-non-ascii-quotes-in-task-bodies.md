@@ -15,6 +15,8 @@ completed: true
 # Flag non-ASCII quotes in task bodies
 
 ## Summary
+
+
 ## Summary
 Manual edit needed to replace a smart quote in a review task body. Consider adding a lint/repair rule or add command validation to flag non-ASCII quotes so manual edits are avoidable.
 

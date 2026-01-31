@@ -16,6 +16,11 @@ completed: false
 ## Context
 Capture recurring blocker validation errors as tracked issues with repro steps and logs.
 
+## Acceptance Criteria
+- Clear, runnable steps to reproduce locally.
+- Tests covering functionality and passing.
+- Required reviews completed and blockers cleared.
+
 ## TODOs
 - [ ] (role: {{ .Role }}) Implement the behavior described in Context.
 - [ ] (role: developer) Add unit and integration tests covering the main flows.
@@ -24,10 +29,4 @@ Capture recurring blocker validation errors as tracked issues with repro steps a
 - [ ] (role: documentation) Update user-facing docs and examples.
 
 ## Subtasks
-Use subtasks for work that should be tracked as separate task directories. List them here when useful:
-- tasks/T2k6s-blocker-validation-issue-reports-subtask/task.md — short description of subtask
-
-## Acceptance Criteria
-- Clear, runnable steps to reproduce locally.
-- Tests covering functionality and passing.
-- Required reviews completed and blockers cleared.
+- [ ] (subtask: T2k6s) short description of subtask

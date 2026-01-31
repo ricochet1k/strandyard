@@ -12,7 +12,7 @@ owner_approval: false
 completed: true
 ---
 
-# Design CLI commands for full task/issue metadata editing
+# Config file format
 
 ## Context
 This task is to design CLI commands that allow creating and editing all metadata fields for tasks and issues without requiring manual markdown file editing. This addresses issue Ivahc-revamp-task-and-issue-commands-for-full-metadata-e.
@@ -31,7 +31,6 @@ This task is to design CLI commands that allow creating and editing all metadata
 - Option 4: Configuration file approach for complex updates
 
 ## Research: Current CLI patterns and limitations
-
 ### Current `add` command capabilities
 - Templates: `leaf` (dev tasks) and `issue` (bug reports)
 - Flags supported: `--role`, `--priority`, `--parent`, `--blocker`
@@ -55,16 +54,12 @@ This task is to design CLI commands that allow creating and editing all metadata
 5. Cannot edit body content without opening file
 
 ## Design Alternatives
-
 ### Option 1: Extend existing commands with rich flag set
 **Approach**: Add comprehensive flags to `add` and create new `edit` command
 
-```bash
-# Creation
-strand add leaf "Feature X" --role developer --priority high --parent ABC123 \
+```bashstrand add leaf "Feature X" --role developer --priority high --parent ABC123 \
   --blockers DEF456,GHI789 --blocks JKL012 --owner-approval
 
-# Editing
 strand edit ABC123 --priority low --add-blocker MNO345 --remove-blocker DEF456 \
   --set-owner-approval --toggle-completed
 ```
@@ -133,13 +128,11 @@ strand issue edit I789 --add-blocker T123
 **Approach**: Support YAML/JSON files for complex metadata updates
 
 ```bash
-# Create from config
+
 strand add leaf --from-config feature-x.yaml
 
-# Edit with config diff
 strand edit ABC123 --apply-changes changes.yaml
 
-# Config file format
 changes.yaml:
   priority: high
   add_blockers: [DEF456, GHI789]
@@ -160,7 +153,6 @@ changes.yaml:
 - Learning curve for config format
 
 ## Recommendation: Hybrid Approach
-
 **Primary Recommendation**: Option 1 + Limited Option 2
 
 1. **Extend `add`** with comprehensive flags for all metadata fields
@@ -175,7 +167,6 @@ This provides:
 - Clean migration path
 
 ## Implementation Phases
-
 ### Phase 1: Core flag extensions
 - Add missing metadata flags to `add` command
 - Create basic `edit` command with same flag set
@@ -192,7 +183,6 @@ This provides:
 - Evaluate config file support for bulk operations
 
 ## Risk Assessment
-
 **Low Risk**:
 - Backward compatibility (preserve existing behavior)
 - Flag extensions (well-established pattern)
@@ -205,11 +195,16 @@ This provides:
 - Breaking existing command structure (avoided in recommendation)
 
 ## Migration Considerations
-
 - All existing `strand add` commands continue to work
 - New flags are optional - no forced changes
 - `edit` command is purely additive
 - Interactive mode is opt-in
+
+## Acceptance Criteria
+- Complete design alternatives document with pros/cons analysis
+- User experience flows documented for each alternative
+- Risk assessment and migration considerations
+- Recommendation ready for owner decision
 
 ## TODOs
 - [x] (role: designer) Research current CLI patterns and limitations
@@ -218,12 +213,3 @@ This provides:
 - [x] (role: designer) Create mockups/UX flows for each alternative
 - [ ] (role: master-reviewer) Review design alternatives
 - [ ] (role: owner) Select preferred alternative
-
-## Subtasks
-Follow-on implementation tasks will be created based on selected design alternative.
-
-## Acceptance Criteria
-- Complete design alternatives document with pros/cons analysis
-- User experience flows documented for each alternative
-- Risk assessment and migration considerations
-- Recommendation ready for owner decision

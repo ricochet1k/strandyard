@@ -18,13 +18,10 @@ completed: false
 Provide links to relevant design documents, diagrams, and decision records.
 
 ## Description
+
+
 ## Summary
 Add validation in task creation/repair to flag non-ASCII quotes in task bodies so manual edits are avoidable.
-
-## Tasks
-- [ ] Identify where body text is normalized during strand add/repair.
-- [ ] Decide whether to reject or warn on non-ASCII quotes.
-- [ ] Add validation and tests covering smart quote input.
 
 ## Acceptance Criteria
 - strand add warns or fails on smart quotes in body text.
@@ -39,12 +36,11 @@ Tasks are disposable. Use follow-up tasks for open questions/concerns. Record de
 - Required reviews completed and blockers cleared.
 
 ## TODOs
-Check this off one at a time with `strand complete <task_id> --role <my_given_role> --todo <num>` only if your Role matches the todo's role.
-1. [ ] (role: developer) Implement the behavior described in Context.
-2. [ ] (role: developer) Add unit and integration tests covering the main flows.
-3. [ ] (role: tester) Execute test-suite and report failures.
-4. [ ] (role: master-reviewer) Coordinate required reviews: `reviewer-reliability`, `reviewer-security`, `reviewer-usability`.
-5. [ ] (role: documentation) Update user-facing docs and examples.
-
-## Subtasks
-Use subtasks for work that should be tracked separately or assigned to a different role. Use `strand add <type> "title" --parent <this_task_id> <<EOF description EOF`  to create subtasks.
+- [ ] Identify where body text is normalized during strand add/repair.
+- [ ] Decide whether to reject or warn on non-ASCII quotes.
+- [ ] Add validation and tests covering smart quote input.
+- [ ] (role: developer) Implement the behavior described in Context.
+- [ ] (role: developer) Add unit and integration tests covering the main flows.
+- [ ] (role: tester) Execute test-suite and report failures.
+- [ ] (role: master-reviewer) Coordinate required reviews: `reviewer-reliability`, `reviewer-security`, `reviewer-usability`.
+- [ ] (role: documentation) Update user-facing docs and examples.

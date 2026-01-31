@@ -11,7 +11,7 @@ owner_approval: false
 completed: true
 ---
 
-# Evaluate list filter flag design alternatives
+# Add these aliases:
 
 ## Context
 Issue: tasks/I5c1s-explore-alternate-list-filter-flag-designs/I5c1s-explore-alternate-list-filter-flag-designs.md
@@ -19,7 +19,6 @@ Design doc: design-docs/list-command.md (Filters section)
 Current flags: cmd/list.go
 
 ## Current Implementation Analysis
-
 The current implementation uses boolean flags with optional `--flag=false` for negation:
 
 ```bash
@@ -36,23 +35,17 @@ The current implementation uses boolean flags with optional `--flag=false` for n
 4. **Discoverability**: Users might not realize boolean flags accept `false` values
 
 ## Alternative Filter Flag Designs
-
 ### Alternative 1: Positive/Negative Flag Pairs
 
-```bash
-# Instead of: --completed [true|false]
---completed     # show completed tasks
+```bash--completed     # show completed tasks
 --incomplete    # show incomplete tasks
 
-# Instead of: --blocked [true|false]  
 --blocked       # show blocked tasks
 --unblocked     # show unblocked tasks
 
-# Instead of: --blocks [true|false]
 --blocking      # show tasks that block others
 --not-blocking  # show tasks that don't block others
 
-# Instead of: --owner-approval [true|false]
 --needs-approval # show tasks needing owner approval
 --approved      # show tasks with owner approval
 ```
@@ -80,7 +73,6 @@ The current implementation uses boolean flags with optional `--flag=false` for n
 --filter priority=high
 --filter owner-approval=true
 
-# Can be repeated for multiple filters:
 --filter completed=false --filter role=developer --filter priority=high
 ```
 
@@ -103,10 +95,9 @@ The current implementation uses boolean flags with optional `--flag=false` for n
 
 ```bash
 --status completed|incomplete|blocked|unblocked|ready|waiting
-# Can be repeated:
+
 --status incomplete --status unblocked
 
-# or comma-separated:
 --status incomplete,unblocked
 ```
 
@@ -129,13 +120,12 @@ The current implementation uses boolean flags with optional `--flag=false` for n
 Keep current boolean flags but add negative aliases:
 
 ```bash
-# Current flags remain:
+
 --completed [true|false]
 --blocked [true|false]  
 --blocks [true|false]
 --owner-approval [true|false]
 
-# Add aliases for common negations:
 --incomplete    # alias for --completed=false
 --unblocked     # alias for --blocked=false
 --not-blocking  # alias for --blocks=false
@@ -156,7 +146,6 @@ Keep current boolean flags but add negative aliases:
 **Risk**: Low - conservative evolutionary change
 
 ## Comparison Matrix
-
 | Alternative | Usability | Composability | Backward Compatibility | Help Clarity | Implementation Complexity |
 |-------------|-----------|---------------|----------------------|--------------|--------------------------|
 | Current     | Medium    | High          | High                 | Low          | Low                      |
@@ -166,7 +155,6 @@ Keep current boolean flags but add negative aliases:
 | Aliases     | High      | High          | High                 | High         | Low                      |
 
 ## Recommendations
-
 ### Primary Recommendation: Alternative 4 (Aliases)
 
 Add negative aliases while preserving current boolean flags:
@@ -178,14 +166,11 @@ Add negative aliases while preserving current boolean flags:
 4. **Simple implementation**: Just flag aliases, no complex logic changes
 
 **Implementation approach**:
-```bash
-# Keep existing flags unchanged
---completed [true|false]
+```bash--completed [true|false]
 --blocked [true|false]
 --blocks [true|false]
 --owner-approval [true|false]
 
-# Add these aliases:
 --incomplete    # maps to --completed=false
 --unblocked     # maps to --blocked=false
 --not-blocking  # maps to --blocks=false
@@ -208,7 +193,6 @@ If breaking changes become acceptable, migrate to explicit positive/negative pai
 4. Phase 4: Add negative flags as separate options
 
 ## Updated Help Text Example
-
 ```bash
 Filter flags:
   --completed           Show completed tasks
@@ -221,13 +205,13 @@ Filter flags:
   --approved            Show tasks with owner approval (alias: --owner-approval=true)
 ```
 
-## Tasks
-- [x] Draft 2–4 alternative filter flag designs (e.g., `--filter key=value`, `--status`, boolean pairs like `--blocked/--unblocked`).
-- [x] Compare each alternative for usability, composability, backward compatibility, and help/UX clarity.
-- [x] Identify recommended default and whether to support aliases for transition.
-- [ ] Update or propose updates to `design-docs/list-command.md` with the chosen pattern (await owner approval).
-
 ## Acceptance Criteria
 - [x] Alternatives with pros/cons and risks are documented.
 - [x] A recommended pattern is proposed with rationale.
 - [ ] Owner approval is requested before any implementation work proceeds.
+
+## TODOs
+- [x] Draft 2–4 alternative filter flag designs (e.g., `--filter key=value`, `--status`, boolean pairs like `--blocked/--unblocked`).
+- [x] Compare each alternative for usability, composability, backward compatibility, and help/UX clarity.
+- [x] Identify recommended default and whether to support aliases for transition.
+- [ ] Update or propose updates to `design-docs/list-command.md` with the chosen pattern (await owner approval).

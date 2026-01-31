@@ -16,6 +16,11 @@ completed: false
 ## Context
 Provide links to relevant design documents, diagrams, and decision records.
 
+## Acceptance Criteria
+- Clear, runnable steps to reproduce locally.
+- Tests covering functionality and passing.
+- Required reviews completed and blockers cleared.
+
 ## TODOs
 - [ ] (role: {{ .Role }}) Implement the behavior described in Context.
 - [ ] (role: developer) Add unit and integration tests covering the main flows.
@@ -24,10 +29,4 @@ Provide links to relevant design documents, diagrams, and decision records.
 - [ ] (role: documentation) Update user-facing docs and examples.
 
 ## Subtasks
-Use subtasks for work that should be tracked as separate task directories. List them here when useful:
-- tasks/T9f4w-code-review-cleanup-recurring-design-subtask/task.md — short description of subtask
-
-## Acceptance Criteria
-- Clear, runnable steps to reproduce locally.
-- Tests covering functionality and passing.
-- Required reviews completed and blockers cleared.
+- [ ] (subtask: T9f4w) short description of subtask

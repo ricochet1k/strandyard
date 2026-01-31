@@ -121,6 +121,7 @@ Add the goldmark-frontmatter library to the project...
   - `init` — initialize repo structure and optional example tasks/roles
   - `next` - print out the next task with it's role's full description as the full context an agent needs to complete the task
   - `add`/`new` — create a new task directory and `task.md` with provided metadata
+  - `edit` — update a task's metadata and description
   - `assign` — change a task's Role/Assignee
   - `block`/`unblock` — add/remove blockers and update related tasks
   - `repair` — parse the tasks tree and repair references

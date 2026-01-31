@@ -33,13 +33,12 @@ Create new tasks for concerns or open questions instead of editing this task. Re
 - [ ] Concerns captured as subtasks.
 - [ ] Decision items deferred to Owner as separate subtasks when needed.
 
-
 ## Summary
 Review the canonical --every hint examples for determinism and automation stability.
 
-## Tasks
-- [ ] Confirm examples in design-docs/recurrence-anchor-hint-examples.md are stable and deterministic
-- [ ] Validate hint strings are suitable for tests and error output contracts
-
 ## Acceptance Criteria
 - Review notes recorded and actionable follow-ups captured as tasks
+
+## TODOs
+- [ ] Confirm examples in design-docs/recurrence-anchor-hint-examples.md are stable and deterministic
+- [ ] Validate hint strings are suitable for tests and error output contracts

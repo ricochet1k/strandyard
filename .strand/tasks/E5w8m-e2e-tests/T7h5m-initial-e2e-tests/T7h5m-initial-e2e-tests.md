@@ -1,42 +1,24 @@
 ---
+type: ""
 role: developer
+priority: low
 parent: E5w8m-e2e-tests
 blockers:
-  - T2n9w-sample-environments
+    - T2n9w-sample-environments
 blocks:
-  - E5w8m-e2e-tests
-date_created: 2026-01-27
-date_edited: 2026-01-27
-priority: low
+    - E5w8m-e2e-tests
+date_created: 2026-01-27T00:00:00Z
+date_edited: 2026-01-27T00:00:00Z
+owner_approval: false
+completed: false
 ---
 
 # Create Initial E2E Tests for Repair and Next
 
 ## Summary
-
 Create the first set of end-to-end tests covering the repair and next commands with various scenarios.
 
-## Tasks
-
-- [ ] Create test suite for `repair` command:
-  - Valid task structure
-  - Invalid ID format
-  - Missing role file
-  - Broken parent links
-  - Broken blocker links
-  - Master list generation
-- [ ] Create test suite for `next` command:
-  - First free task selection
-  - Empty free-tasks list
-  - Role extraction from metadata
-  - Role extraction from TODO
-  - Output format validation
-- [ ] Create test fixtures with known-good and known-bad task files
-- [ ] Ensure all tests clean up properly
-- [ ] Document test cases and expected behavior
-
 ## Acceptance Criteria
-
 - All repair scenarios have tests
 - All next scenarios have tests
 - Tests pass with current implementation
@@ -45,13 +27,11 @@ Create the first set of end-to-end tests covering the repair and next commands w
 - Clear test names describing what they repair
 
 ## Files
-
 - test/e2e/repair_test.go (new)
 - test/e2e/next_test.go (new)
 - test/e2e/testdata/ (fixtures)
 
 ## Example Test
-
 ```go
 func TestRepair_ValidTasks(t *testing.T) {
     env := NewTestEnv(t)
@@ -85,3 +65,21 @@ func TestRepair_InvalidID(t *testing.T) {
     assert.Contains(t, err.Error(), "malformed ID")
 }
 ```
+
+## TODOs
+- [ ] Create test suite for `repair` command:
+- [ ] Valid task structure
+- [ ] Invalid ID format
+- [ ] Missing role file
+- [ ] Broken parent links
+- [ ] Broken blocker links
+- [ ] Master list generation
+- [ ] Create test suite for `next` command:
+- [ ] First free task selection
+- [ ] Empty free-tasks list
+- [ ] Role extraction from metadata
+- [ ] Role extraction from TODO
+- [ ] Output format validation
+- [ ] Create test fixtures with known-good and known-bad task files
+- [ ] Ensure all tests clean up properly
+- [ ] Document test cases and expected behavior

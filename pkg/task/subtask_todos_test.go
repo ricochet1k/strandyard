@@ -1,41 +1,34 @@
 package task
 
 import (
-	"fmt"
 	"strings"
 	"testing"
 )
 
 func TestUpdateParentTodoEntriesPreservesManualItems(t *testing.T) {
-	role := testRoleName(t, "parent")
-	parentContent := fmt.Sprintf(`---
-role: %s
+	parser := NewParser()
+	parentContent := `---
+role: developer
 parent: ""
-blockers: []
-blocks: []
-date_created: 2026-01-27T00:00:00Z
-date_edited: 2026-01-27T00:00:00Z
-owner_approval: false
-completed: false
 ---
 
 # Parent Task
 
-## Tasks
+## TODOs
 
-- [ ] Manual item
-- [x] (subtask: T2bbb-old) Old subtask entry
+1. [ ] Manual item
+2. [x] (subtask: T2bbb-old) Old subtask entry
 
 ## Acceptance Criteria
 - done
-`, role)
+`
 
-	parent := &Task{
-		ID:      "P1",
-		Content: parentContent,
-	}
-	sub1 := &Task{ID: "T1aaa-first", Meta: Metadata{Parent: "P1", Completed: false}, Content: "# First\n"}
-	sub2 := &Task{ID: "T2bbb-second", Meta: Metadata{Parent: "P1", Completed: true}, Content: "# Second\n"}
+	parent, _ := parser.ParseString(parentContent, "P1")
+	sub1, _ := parser.ParseString("# First\n", "T1aaa-first")
+	sub1.Meta.Parent = "P1"
+	sub2, _ := parser.ParseString("# Second\n", "T2bbb-second")
+	sub2.Meta.Parent = "P1"
+	sub2.Meta.Completed = true
 
 	tasks := map[string]*Task{
 		"P1":           parent,
@@ -51,23 +44,23 @@ completed: false
 		t.Fatalf("expected UpdateParentTodoEntries to report changes")
 	}
 
-	expected := "## Tasks\n\n- [ ] Manual item\n\n- [ ] (subtask: T1aaa-first) First\n- [x] (subtask: T2bbb-second) Second\n\n## Acceptance Criteria"
-	if !strings.Contains(parent.Content, expected) {
-		t.Fatalf("updated content missing expected tasks section\nExpected snippet:\n%s\nGot:\n%s", expected, parent.Content)
+	content := parent.Content()
+	if !strings.Contains(content, "1. [ ] Manual item") {
+		t.Errorf("manual item missing:\n%s", content)
+	}
+	if !strings.Contains(content, "- [ ] (subtask: T1aaa-first) First") {
+		t.Errorf("sub1 missing:\n%s", content)
+	}
+	if !strings.Contains(content, "- [x] (subtask: T2bbb-second) Second") {
+		t.Errorf("sub2 missing:\n%s", content)
 	}
 }
 
-func TestUpdateParentTodoEntriesInsertsTasksSection(t *testing.T) {
-	role := testRoleName(t, "parent")
-	parentContent := fmt.Sprintf(`---
-role: %s
+func TestUpdateParentTodoEntriesInsertsSubtasksSection(t *testing.T) {
+	parser := NewParser()
+	parentContent := `---
+role: developer
 parent: ""
-blockers: []
-blocks: []
-date_created: 2026-01-27T00:00:00Z
-date_edited: 2026-01-27T00:00:00Z
-owner_approval: false
-completed: false
 ---
 
 # Parent Task
@@ -77,10 +70,11 @@ Details.
 
 ## Acceptance Criteria
 - done
-`, role)
+`
 
-	parent := &Task{ID: "P1", Content: parentContent}
-	sub := &Task{ID: "T1aaa-first", Meta: Metadata{Parent: "P1"}, Content: "# First\n"}
+	parent, _ := parser.ParseString(parentContent, "P1")
+	sub, _ := parser.ParseString("# First\n", "T1aaa-first")
+	sub.Meta.Parent = "P1"
 
 	tasks := map[string]*Task{
 		"P1":          parent,
@@ -95,12 +89,11 @@ Details.
 		t.Fatalf("expected UpdateParentTodoEntries to report changes")
 	}
 
-	tasksIndex := strings.Index(parent.Content, "## Tasks")
-	acceptanceIndex := strings.Index(parent.Content, "## Acceptance Criteria")
-	if tasksIndex == -1 || acceptanceIndex == -1 || tasksIndex > acceptanceIndex {
-		t.Fatalf("expected ## Tasks section before Acceptance Criteria, got content:\n%s", parent.Content)
+	content := parent.Content()
+	if !strings.Contains(content, "## Subtasks") {
+		t.Errorf("Subtasks section missing:\n%s", content)
 	}
-	if !strings.Contains(parent.Content, "- [ ] (subtask: T1aaa-first) First") {
-		t.Fatalf("expected subtask entry in inserted Tasks section\nGot:\n%s", parent.Content)
+	if !strings.Contains(content, "- [ ] (subtask: T1aaa-first) First") {
+		t.Errorf("subtask entry missing:\n%s", content)
 	}
 }

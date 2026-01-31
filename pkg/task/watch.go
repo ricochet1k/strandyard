@@ -22,14 +22,14 @@ const (
 
 // TaskSnapshot is a JSON-marshable representation of a task at a point in time.
 type TaskSnapshot struct {
-	ID       string        `json:"id"`
-	Dir      string        `json:"dir"`
-	FilePath string        `json:"file_path"`
-	Meta     Metadata      `json:"meta"`
-	Content  string        `json:"content"`
-	Title    string        `json:"title"`
-	Todos    []TodoItem    `json:"todos,omitempty"`
-	Subtasks []SubtaskItem `json:"subtasks,omitempty"`
+	ID       string     `json:"id"`
+	Dir      string     `json:"dir"`
+	FilePath string     `json:"file_path"`
+	Meta     Metadata   `json:"meta"`
+	Content  string     `json:"content"`
+	Title    string     `json:"title"`
+	Todos    []TaskItem `json:"todos,omitempty"`
+	Subtasks []TaskItem `json:"subtasks,omitempty"`
 }
 
 // TaskUpdate represents a task change event.
@@ -138,25 +138,17 @@ func snapshotFromTask(task *Task) (*TaskSnapshot, error) {
 		return nil, nil
 	}
 
-	todos, err := ParseTodoItems(task.Content, task.FilePath)
-	if err != nil {
-		return nil, err
-	}
-
-	subtasks, err := ParseSubtaskItems(task.Content, task.FilePath)
-	if err != nil {
-		return nil, err
-	}
+	content := task.Content()
 
 	return &TaskSnapshot{
 		ID:       task.ID,
 		Dir:      task.Dir,
 		FilePath: task.FilePath,
 		Meta:     task.Meta,
-		Content:  task.Content,
+		Content:  content,
 		Title:    task.Title(),
-		Todos:    todos,
-		Subtasks: subtasks,
+		Todos:    task.TodoItems,
+		Subtasks: task.SubsItems,
 	}, nil
 }
 

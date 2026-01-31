@@ -9,7 +9,7 @@ blockers:
 blocks:
     - Trlrg-specify-anchor-error-messages
 date_created: 2026-01-29T15:19:02.019232Z
-date_edited: 2026-01-30T02:22:10.222375Z
+date_edited: 2026-01-30T22:38:51.494406Z
 owner_approval: false
 completed: true
 ---
@@ -34,7 +34,6 @@ Create new tasks for concerns or open questions instead of editing this task. Re
 - [ ] Concerns captured as subtasks.
 - [ ] Decision items deferred to Owner as separate subtasks when needed.
 
-
 ## Artifacts
 - design-docs/recurrence-anchor-error-messages-alternatives.md
 
@@ -46,7 +45,6 @@ Determinism, testability, and backward compatibility of error messaging.
 - Failure mode coverage and determinism
 - Impact on automation workflows
 
-## Tasks
-
-- [x] (subtask: T4izq-define-deterministic-anchor-examples-for-every-hin) Define deterministic anchor examples for --every hints
-- [ ] (subtask: Tc3zv-align-exit-code-conventions-for-every-failures) Align exit code conventions for --every failures
+## Subtasks
+- [x] (subtask: T4izq) Define deterministic anchor examples for --every hints
+- [ ] (subtask: Tc3zv) Align exit code conventions for --every failures

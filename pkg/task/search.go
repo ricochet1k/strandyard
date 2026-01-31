@@ -57,27 +57,15 @@ func matchesQuery(t *Task, query string) (bool, error) {
 }
 
 func taskSearchText(t *Task) (string, error) {
-	body, err := taskBody(t.Content, t.FilePath)
-	if err != nil {
-		return "", err
-	}
+	// Concatenate all searchable parts
+	var sb strings.Builder
+	sb.WriteString(t.TitleContent)
+	sb.WriteString("\n")
+	sb.WriteString(t.BodyContent)
+	sb.WriteString("\n")
+	sb.WriteString(FormatTodoItems(t.TodoItems))
+	sb.WriteString("\n")
+	sb.WriteString(t.OtherContent)
 
-	lines := strings.Split(body, "\n")
-	filtered := make([]string, 0, len(lines))
-	for _, line := range lines {
-		if isSubtaskTodoLine(line) {
-			continue
-		}
-		filtered = append(filtered, line)
-	}
-
-	return t.Title() + "\n" + strings.Join(filtered, "\n"), nil
-}
-
-func taskBody(content, path string) (string, error) {
-	parts := strings.SplitN(content, "---", 3)
-	if len(parts) < 3 {
-		return "", errInvalidFrontmatter(path)
-	}
-	return parts[2], nil
+	return sb.String(), nil
 }

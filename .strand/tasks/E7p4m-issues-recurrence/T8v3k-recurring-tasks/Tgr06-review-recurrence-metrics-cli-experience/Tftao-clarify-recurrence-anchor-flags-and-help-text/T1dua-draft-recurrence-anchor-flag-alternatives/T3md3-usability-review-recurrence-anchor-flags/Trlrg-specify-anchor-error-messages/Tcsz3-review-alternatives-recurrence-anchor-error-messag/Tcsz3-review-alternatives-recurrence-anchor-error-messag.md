@@ -9,7 +9,7 @@ blockers:
 blocks:
     - Trlrg-specify-anchor-error-messages
 date_created: 2026-01-29T15:19:01.741649Z
-date_edited: 2026-01-30T02:22:10.222207Z
+date_edited: 2026-01-30T22:38:51.494405Z
 owner_approval: false
 completed: true
 ---
@@ -34,7 +34,6 @@ Create new tasks for concerns or deferred decisions instead of editing this task
 - [ ] Concerns captured as subtasks.
 - [ ] Decision items deferred to Owner as separate subtasks when needed.
 
-
 ## Artifacts
 - design-docs/recurrence-anchor-error-messages-alternatives.md
 
@@ -46,7 +45,6 @@ Error message strategy for recurrence anchors in `strand recurring add --every`.
 - Alignment with project principles
 - Testability and determinism
 
-## Tasks
-
-- [x] (subtask: T14az-define-error-message-format-contract-for-every-anc) Define error message format contract for --every anchor parsing
-- [x] (subtask: T4kdz-decide-recurrence-anchor-error-message-strategy-a) Decide recurrence anchor error message strategy (A/B/C)
+## Subtasks
+- [x] (subtask: T14az) Define error message format contract for --every anchor parsing
+- [x] (subtask: T4kdz) Decide recurrence anchor error message strategy (A/B/C)

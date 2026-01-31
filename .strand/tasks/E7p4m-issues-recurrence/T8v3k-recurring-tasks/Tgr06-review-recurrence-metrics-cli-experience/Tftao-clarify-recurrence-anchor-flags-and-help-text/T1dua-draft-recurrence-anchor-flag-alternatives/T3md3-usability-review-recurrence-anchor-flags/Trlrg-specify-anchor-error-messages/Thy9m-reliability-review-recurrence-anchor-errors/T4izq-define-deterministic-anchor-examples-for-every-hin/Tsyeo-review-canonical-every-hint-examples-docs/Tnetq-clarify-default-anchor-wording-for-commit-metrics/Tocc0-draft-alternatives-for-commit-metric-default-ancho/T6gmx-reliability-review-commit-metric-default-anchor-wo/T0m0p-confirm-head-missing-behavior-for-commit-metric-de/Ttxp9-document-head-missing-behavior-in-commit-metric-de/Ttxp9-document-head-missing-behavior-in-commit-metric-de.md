@@ -18,12 +18,10 @@ completed: true
 Provide links to relevant design documents, diagrams, and decision records.
 
 ## Description
+
+
 ## Summary
 Capture the HEAD-missing/unborn behavior for commit-based recurrence metrics in user-facing docs once wording is finalized.
-
-## Tasks
-- [ ] Add a short note to CLI/docs explaining that commit-metric defaults rely on a valid HEAD.
-- [ ] Provide a recovery hint for unborn repos (make initial commit or specify explicit anchor).
 
 ## Acceptance Criteria
 - CLI/docs mention the HEAD requirement for commit-based default anchors.
@@ -38,12 +36,10 @@ Tasks are disposable. Use follow-up tasks for open questions/concerns. Record de
 - Required reviews completed and blockers cleared.
 
 ## TODOs
-Check this off one at a time with `strand complete <task_id> --role <my_given_role> --todo <num>` only if your Role matches the todo's role.
-1. [ ] (role: developer) Implement the behavior described in Context.
-2. [ ] (role: developer) Add unit and integration tests covering the main flows.
-3. [ ] (role: tester) Execute test-suite and report failures.
-4. [ ] (role: master-reviewer) Coordinate required reviews: `reviewer-reliability`, `reviewer-security`, `reviewer-usability`.
-5. [ ] (role: documentation) Update user-facing docs and examples.
-
-## Subtasks
-Use subtasks for work that should be tracked separately or assigned to a different role. Use `strand add <type> "title" --parent <this_task_id> <<EOF description EOF`  to create subtasks.
+- [ ] Add a short note to CLI/docs explaining that commit-metric defaults rely on a valid HEAD.
+- [ ] Provide a recovery hint for unborn repos (make initial commit or specify explicit anchor).
+- [ ] (role: developer) Implement the behavior described in Context.
+- [ ] (role: developer) Add unit and integration tests covering the main flows.
+- [ ] (role: tester) Execute test-suite and report failures.
+- [ ] (role: master-reviewer) Coordinate required reviews: `reviewer-reliability`, `reviewer-security`, `reviewer-usability`.
+- [ ] (role: documentation) Update user-facing docs and examples.

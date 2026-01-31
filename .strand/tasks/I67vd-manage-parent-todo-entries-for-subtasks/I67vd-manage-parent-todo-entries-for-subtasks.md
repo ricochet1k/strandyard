@@ -14,13 +14,10 @@ completed: false
 # Manage parent TODO entries for subtasks
 
 ## Summary
+
+
 ## Summary
 Ensure parent tasks keep a permanent TODO list of their subtasks. When a subtask is created, add a TODO entry in the parent task's `## Tasks` section; when the subtask is completed, check off the corresponding entry. The task library should own this section so it stays consistent and deterministic.
-
-## Tasks
-- [ ] Add parent TODO entry when creating a subtask via `strand add --parent`
-- [ ] Check off parent TODO entry when completing a subtask via `strand complete`
-- [ ] Preserve non-subtask TODO items and keep deterministic ordering
 
 ## Acceptance Criteria
 - Parent task `## Tasks` includes entries for all subtasks
@@ -38,3 +35,8 @@ Describe severity and who/what is affected.
 
 ## Escalation
 Tasks are disposable. Use follow-up tasks for open questions/concerns. Record decisions and final rationale in design docs; do not edit this task to capture outcomes.
+
+## TODOs
+- [ ] Add parent TODO entry when creating a subtask via `strand add --parent`
+- [ ] Check off parent TODO entry when completing a subtask via `strand complete`
+- [ ] Preserve non-subtask TODO items and keep deterministic ordering

@@ -9,8 +9,6 @@ import (
 	"testing"
 )
 
-var strandBinary string
-
 func TestMain(m *testing.M) {
 	if err := buildStrandBinary(); err != nil {
 		fmt.Fprintf(os.Stderr, "Failed to build strand binary: %v\n", err)

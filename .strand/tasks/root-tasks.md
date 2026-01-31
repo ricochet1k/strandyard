@@ -13,7 +13,7 @@
 - [Add websocket streaming option for dashboard](Isfkq-add-websocket-streaming-option-for-dashboard/Isfkq-add-websocket-streaming-option-for-dashboard.md)
 - [Merge recurring add into add](Ish6g-merge-recurring-add-into-add/Ish6g-merge-recurring-add-into-add.md)
 - [Add auth + file write safeguards for dashboard](Iuu2v-add-auth-file-write-safeguards-for-dashboard/Iuu2v-add-auth-file-write-safeguards-for-dashboard.md)
-- [Support role opt-in filtering for strand next](Ixf4f-support-role-opt-in-filtering-for-strand-next/Ixf4f-support-role-opt-in-filtering-for-strand-next.md)
+- [Support role opt-in filtering for strand next](Ixf4f-support-role-opt-in-filtering-for-memmd-next/Ixf4f-support-role-opt-in-filtering-for-memmd-next.md)
 - [Design improved task templates](T1j6m-improved-task-templates-design/T1j6m-improved-task-templates-design.md)
 - [File issue reports for blocker validation errors](T2k6s-blocker-validation-issue-reports/T2k6s-blocker-validation-issue-reports.md)
 - [Design PTY-only TUI for incomplete commands](T2r8k-pty-tui-incomplete-commands-design/T2r8k-pty-tui-incomplete-commands-design.md)

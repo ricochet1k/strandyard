@@ -39,7 +39,6 @@ Create new tasks for concerns or open questions instead of editing this task. Re
 - [ ] Concerns captured as subtasks.
 - [ ] Decision items deferred to Owner as separate subtasks when needed.
 
-
 ## Artifacts
 - design-docs/recurrence-anchor-flags-alternatives.md
 - design-docs/recurrence-metrics.md

@@ -15,6 +15,8 @@ completed: false
 # Add CLI support for updating task decision/question sections
 
 ## Summary
+
+
 ## Summary
 We manually updated a task section label from "Decisions Needed" to "Questions Needed". Provide a CLI command to update common task section headings to avoid manual edits.
 

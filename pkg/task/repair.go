@@ -8,8 +8,6 @@ import (
 	"sort"
 	"strings"
 	"time"
-
-	"github.com/yuin/goldmark/ast"
 )
 
 // ValidationError represents a validation error
@@ -61,7 +59,7 @@ func NewValidatorWithRoles(tasks map[string]*Task, rolesDir string) *Validator {
 }
 
 // Validate runs all validations, auto-fixes relationships, and returns errors
-func (v *Validator) Validate() []ValidationError {
+func (v *Validator) ValidateAndRepair() []ValidationError {
 	v.errors = []ValidationError{}
 
 	// First pass: verify basic task properties
@@ -76,6 +74,7 @@ func (v *Validator) Validate() []ValidationError {
 
 	// Auto-fix bidirectional blocker relationships
 	v.fixBlockerRelationships()
+	v.fixSubtaskTextTitles()
 
 	// Second pass: verify bidirectional relationships are now correct
 	for id, task := range v.tasks {
@@ -181,13 +180,21 @@ func (v *Validator) fixBlockerRelationships() {
 	}
 }
 
+func (v *Validator) fixSubtaskTextTitles() {
+	for taskID, task := range v.tasks {
+		for _, subtask := range task.SubsItems {
+			if v.tasks
+		}
+	}
+}
+
 // verifyID checks if the task ID follows the correct format
 func (v *Validator) verifyID(id string, task *Task) {
 	if !v.idPattern.MatchString(id) {
 		v.errors = append(v.errors, ValidationError{
 			TaskID:  id,
 			File:    task.FilePath,
-			Message: fmt.Sprintf("malformed ID: must be <PREFIX><4-lowercase-alphanumeric>-<slug> (e.g., T3k7x-example)"),
+			Message: "malformed ID: must be <PREFIX><4-lowercase-alphanumeric>-<slug> (e.g., T3k7x-example)",
 		})
 	}
 }
@@ -266,28 +273,29 @@ func (v *Validator) verifyBlockers(id string, task *Task) {
 
 // verifyTaskLinks scans task content for references to other tasks and verifies they exist
 func (v *Validator) verifyTaskLinks(id string, task *Task) {
-	ast.Walk(task.Document, func(n ast.Node, entering bool) (ast.WalkStatus, error) {
-		if !entering {
-			return ast.WalkContinue, nil
-		}
+	// Task ID pattern: <PREFIX><4-lowercase-alphanumeric>-<slug>
+	// Simplified regex for identifying task links in markdown [text](path)
+	linkPattern := regexp.MustCompile(`\[[^\]]*\]\(([^)]+)\)`)
 
-		// Look for link nodes
-		if link, ok := n.(*ast.Link); ok {
-			destination := string(link.Destination)
-			taskID := extractTaskIDFromPath(destination)
-			if taskID != "" && taskID != id { // Don't verify self-references
-				if _, exists := v.tasks[taskID]; !exists {
-					v.errors = append(v.errors, ValidationError{
-						TaskID:  id,
-						File:    task.FilePath,
-						Message: fmt.Sprintf("broken link: task %s does not exist", taskID),
-					})
-				}
+	allContent := task.TitleContent + "\n" + task.BodyContent + "\n" + FormatTodoItems(task.TodoItems) + "\n" + FormatSubtaskItems(task.SubsItems) + "\n" + task.OtherContent
+	matches := linkPattern.FindAllStringSubmatch(allContent, -1)
+
+	for _, match := range matches {
+		if len(match) < 2 {
+			continue
+		}
+		destination := match[1]
+		targetID := extractTaskIDFromPath(destination)
+		if targetID != "" && targetID != id {
+			if _, exists := v.tasks[targetID]; !exists {
+				v.errors = append(v.errors, ValidationError{
+					TaskID:  id,
+					File:    task.FilePath,
+					Message: fmt.Sprintf("broken link: task %s does not exist", targetID),
+				})
 			}
 		}
-
-		return ast.WalkContinue, nil
-	})
+	}
 }
 
 // verifyBidirectionalBlockers ensures blocker relationships are bidirectional

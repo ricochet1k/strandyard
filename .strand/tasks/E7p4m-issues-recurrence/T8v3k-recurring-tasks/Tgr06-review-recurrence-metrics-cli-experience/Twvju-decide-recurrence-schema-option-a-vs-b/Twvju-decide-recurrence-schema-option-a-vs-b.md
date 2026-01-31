@@ -17,6 +17,14 @@ completed: false
 ## Context
 Provide links to relevant design documents, diagrams, and decision records.
 
+## Escalation
+Tasks are disposable. Use follow-up tasks for open questions/concerns. Record decisions and final rationale in design docs; do not edit this task to capture outcomes.
+
+## Acceptance Criteria
+- Clear, runnable steps to reproduce locally.
+- Tests covering functionality and passing.
+- Required reviews completed and blockers cleared.
+
 ## TODOs
 - [ ] (role: {{ .Role }}) Implement the behavior described in Context.
 - [ ] (role: developer) Add unit and integration tests covering the main flows.
@@ -25,13 +33,4 @@ Provide links to relevant design documents, diagrams, and decision records.
 - [ ] (role: documentation) Update user-facing docs and examples.
 
 ## Subtasks
-Use subtasks for work that should be tracked as separate task directories. List them here when useful:
-- tasks/Twvju-decide-recurrence-schema-option-a-vs-b-subtask/task.md — short description of subtask
-
-## Escalation
-Tasks are disposable. Use follow-up tasks for open questions/concerns. Record decisions and final rationale in design docs; do not edit this task to capture outcomes.
-
-## Acceptance Criteria
-- Clear, runnable steps to reproduce locally.
-- Tests covering functionality and passing.
-- Required reviews completed and blockers cleared.
+- [ ] (subtask: Twvju) short description of subtask

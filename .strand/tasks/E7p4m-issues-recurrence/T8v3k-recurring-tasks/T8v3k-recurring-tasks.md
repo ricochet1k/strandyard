@@ -14,7 +14,7 @@ blocks:
     - E7p4m-issues-recurrence
     - Iquw5-create-recurring-review-task-plan
 date_created: 2026-01-27T00:00:00Z
-date_edited: 2026-01-29T20:46:27.230291-07:00
+date_edited: 2026-01-30T22:38:51.495302Z
 owner_approval: false
 completed: false
 ---
@@ -22,27 +22,9 @@ completed: false
 # Add Recurring Task Support
 
 ## Summary
-
 Implement recurring task definitions (e.g., clean up AGENTS.md every N days or commits) and a CLI command to create and materialize them.
 
-## Tasks
-
-- [ ] Define recurrence metadata schema (interval type, interval value, anchor date/commit)
-- [ ] Decide where recurrence definitions live (task frontmatter vs. separate registry)
-- [ ] Add CLI subcommand to add recurring task definitions
-- [ ] Add CLI subcommand to materialize due recurring tasks into normal task directories
-- [ ] Ensure deterministic ordering and IDs for generated tasks
-- [ ] Update validation rules to check recurrence definitions
-
-- [x] (subtask: T968i-design-recurrence-metrics-for-commits-lines-change) Design recurrence metrics for commits, lines changed, and tasks completed
-- [ ] (subtask: Tcb90-document-recurrence-metrics-options) Document recurrence metrics options
-- [x] (subtask: Tgr06-review-recurrence-metrics-cli-experience) Review recurrence metrics CLI experience
-- [ ] (subtask: Thnhh-review-recurrence-metrics-schema) Review recurrence metrics schema
-- [ ] (subtask: Tl4cn-approve-recurrence-metrics-design) Approve recurrence metrics design
-- [ ] (subtask: Tyvdv-extend-recurrence-schema-and-validation-for-new-me) Extend recurrence schema and validation for new metrics
-
 ## Implementation Plan
-
 ### Architecture overview
 
 Model recurrence as a first-class task definition that can generate concrete tasks on demand. Recurrence definitions should live in the filesystem-backed task tree and be parsed by the same `pkg/task` parser, but marked with a `type: recurring` (or `recurring: true`) and scheduling metadata. A separate command materializes due instances into normal tasks, placing them in deterministic directories and updating the definition’s “last run” or “next due” metadata.
@@ -89,8 +71,23 @@ Model recurrence as a first-class task definition that can generate concrete tas
 - **Cron-style strings only**: rejected as too opaque for deterministic validation and user ergonomics.
 
 ## Acceptance Criteria
-
 - Recurring tasks can be created via CLI with explicit interval settings
 - Due recurring tasks can be materialized into normal tasks without manual edits
 - Generated tasks appear in `free-tasks.md` when unblocked
 - Validation reports malformed recurrence metadata
+
+## TODOs
+- [ ] Define recurrence metadata schema (interval type, interval value, anchor date/commit)
+- [ ] Decide where recurrence definitions live (task frontmatter vs. separate registry)
+- [ ] Add CLI subcommand to add recurring task definitions
+- [ ] Add CLI subcommand to materialize due recurring tasks into normal task directories
+- [ ] Ensure deterministic ordering and IDs for generated tasks
+- [ ] Update validation rules to check recurrence definitions
+
+## Subtasks
+- [x] (subtask: T968i) Design recurrence metrics for commits, lines changed, and tasks completed
+- [ ] (subtask: Tcb90) Document recurrence metrics options
+- [x] (subtask: Tgr06) Review recurrence metrics CLI experience
+- [ ] (subtask: Thnhh) Review recurrence metrics schema
+- [ ] (subtask: Tl4cn) Approve recurrence metrics design
+- [ ] (subtask: Tyvdv) Extend recurrence schema and validation for new metrics

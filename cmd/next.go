@@ -135,7 +135,7 @@ func runNext(w io.Writer, projectName, roleFilter string) error {
 	fmt.Fprintf(w, "\nYour task is %s. Here's the description of that task:\n\n", selectedTask.ID)
 
 	// Print task content
-	fmt.Fprint(w, selectedTask.Content)
+	fmt.Fprint(w, selectedTask.Content())
 
 	return nil
 }

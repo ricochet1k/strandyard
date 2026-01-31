@@ -17,6 +17,14 @@ completed: true
 ## Context
 Provide links to relevant design documents, diagrams, and decision records.
 
+## Escalation
+If new concerns or decisions arise, create follow-up tasks instead of editing this task.
+
+## Acceptance Criteria
+- Clear, runnable steps to reproduce locally.
+- Tests covering functionality and passing.
+- Required reviews completed and blockers cleared.
+
 ## TODOs
 - [ ] (role: {{ .Role }}) Implement the behavior described in Context.
 - [ ] (role: developer) Add unit and integration tests covering the main flows.
@@ -25,13 +33,4 @@ Provide links to relevant design documents, diagrams, and decision records.
 - [ ] (role: documentation) Update user-facing docs and examples.
 
 ## Subtasks
-Use subtasks for work that should be tracked as separate task directories. List them here when useful:
-- tasks/T3ebv-define-tasks-completed-scope-and-anchor-semantics-subtask/task.md — short description of subtask
-
-## Escalation
-If new concerns or decisions arise, create follow-up tasks instead of editing this task.
-
-## Acceptance Criteria
-- Clear, runnable steps to reproduce locally.
-- Tests covering functionality and passing.
-- Required reviews completed and blockers cleared.
+- [ ] (subtask: T3ebv) short description of subtask

@@ -10,7 +10,7 @@ blockers:
 blocks:
     - T1dua-draft-recurrence-anchor-flag-alternatives
 date_created: 2026-01-29T05:45:07.908116Z
-date_edited: 2026-01-30T02:22:10.222383Z
+date_edited: 2026-01-30T22:38:51.494407Z
 owner_approval: false
 completed: true
 ---
@@ -42,7 +42,6 @@ Create new tasks for concerns or deferred decisions instead of editing this task
 - [ ] Concerns captured as subtasks.
 - [ ] Decision items deferred to Owner as separate subtasks when needed.
 
-
 ## Artifacts
 - design-docs/recurrence-anchor-flags-alternatives.md
 - CLI.md (recurring add section)
@@ -65,8 +64,7 @@ Evaluate how users discover and apply anchor flags for recurring definitions.
 - Minimizing user confusion across units
 - Error messaging expectations
 
-## Tasks
-
-- [x] (subtask: Te6hk-decide-anchor-flag-approach-a-b-c) Decide anchor flag approach (A/B/C)
-- [ ] (subtask: Trlrg-specify-anchor-error-messages) Specify anchor error messages
-- [ ] (subtask: Tusef-define-anchor-help-text-and-examples) Define anchor help text and examples
+## Subtasks
+- [x] (subtask: Te6hk) Decide anchor flag approach (A/B/C)
+- [ ] (subtask: Trlrg) Specify anchor error messages
+- [ ] (subtask: Tusef) Define anchor help text and examples

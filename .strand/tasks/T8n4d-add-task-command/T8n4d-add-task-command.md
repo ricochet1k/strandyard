@@ -14,19 +14,16 @@ completed: true
 # Add Task Subcommand
 
 ## Summary
-
 Implement a CLI subcommand to create standard tasks with required metadata and deterministic IDs using templates and the existing filesystem conventions.
 
-## Tasks
+## Acceptance Criteria
+- CLI command creates task directory and markdown file that pass validation
+- Generated frontmatter adheres to required schema and ordering
+- Example usage documented in the task body or CLI docs
 
+## TODOs
 - [ ] Define required flags and defaults (role, parent, priority, blockers)
 - [ ] Implement `strand task add` (or `strand add`) command skeleton
 - [ ] Wire template rendering for standard tasks in `templates/`
 - [ ] Ensure directory naming and ID generation are deterministic
 - [ ] Validate created tasks via existing parser/validator
-
-## Acceptance Criteria
-
-- CLI command creates task directory and markdown file that pass validation
-- Generated frontmatter adheres to required schema and ordering
-- Example usage documented in the task body or CLI docs

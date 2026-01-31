@@ -9,7 +9,7 @@ blocks:
     - T4izq-define-deterministic-anchor-examples-for-every-hin
     - Tm6qi-document-canonical-every-hint-examples
 date_created: 2026-01-29T19:24:40.775932Z
-date_edited: 2026-01-30T02:22:10.222169Z
+date_edited: 2026-01-30T22:38:51.494428Z
 owner_approval: false
 completed: true
 ---
@@ -34,16 +34,15 @@ Create new tasks for concerns or open questions instead of editing this task. Re
 - [ ] Concerns captured as subtasks.
 - [ ] Decision items deferred to Owner as separate subtasks when needed.
 
-
 ## Summary
 Review documentation-facing examples for clarity and consistency with error message contract.
 
-## Tasks
+## Acceptance Criteria
+- Usability review feedback captured as tasks or approval noted
 
+## TODOs
 - [ ] Validate wording and clarity of canonical examples in docs
 - [ ] Check consistency with CLI.md and design docs
 
-- [ ] (subtask: Tnetq-clarify-default-anchor-wording-for-commit-metrics) Clarify default anchor wording for commit metrics
-
-## Acceptance Criteria
-- Usability review feedback captured as tasks or approval noted
+## Subtasks
+- [ ] (subtask: Tnetq) Clarify default anchor wording for commit metrics

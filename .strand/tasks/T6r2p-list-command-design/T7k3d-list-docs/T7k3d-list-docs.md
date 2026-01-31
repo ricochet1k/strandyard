@@ -16,10 +16,10 @@ completed: true
 ## Context
 See design doc: design-docs/list-command.md
 
-## Tasks
-- [ ] Update `CLI.md` with list command usage, flags, and examples.
-- [ ] Add a short example to `doc-examples/` if needed.
-
 ## Acceptance Criteria
 - `CLI.md` includes list command docs consistent with the design.
 - Documentation matches flags and defaults in the implementation.
+
+## TODOs
+- [ ] Update `CLI.md` with list command usage, flags, and examples.
+- [ ] Add a short example to `doc-examples/` if needed.

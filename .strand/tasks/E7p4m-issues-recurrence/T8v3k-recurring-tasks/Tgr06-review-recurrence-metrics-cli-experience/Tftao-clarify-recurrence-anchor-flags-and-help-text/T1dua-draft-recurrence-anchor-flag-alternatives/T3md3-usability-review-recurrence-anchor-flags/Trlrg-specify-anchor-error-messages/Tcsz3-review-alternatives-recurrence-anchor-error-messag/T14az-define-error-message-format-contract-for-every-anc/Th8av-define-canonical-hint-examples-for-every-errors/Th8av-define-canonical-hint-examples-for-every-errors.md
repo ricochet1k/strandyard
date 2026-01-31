@@ -10,7 +10,7 @@ blockers:
 blocks:
     - T14az-define-error-message-format-contract-for-every-anc
 date_created: 2026-01-29T16:55:20.213085Z
-date_edited: 2026-01-29T20:46:27.230291-07:00
+date_edited: 2026-01-30T22:38:51.495305Z
 owner_approval: false
 completed: false
 ---
@@ -21,14 +21,10 @@ completed: false
 Provide links to relevant design documents, diagrams, and decision records.
 
 ## Description
+
+
 ## Summary
 Select canonical example anchors and full `--every` examples for each unit/metric to use in hint lines.
-
-## Tasks
-
-- [ ] (subtask: I3g1d-add-cli-support-for-updating-task-decision-questio) Add CLI support for updating task decision/question sections
-- [x] (subtask: Tm91y-decide-every-anchor-defaults-and-hint-examples) Questions: --every anchor defaults and hint examples
-- [x] (subtask: Tmxs6-evaluate-date-parsing-library-for-every-anchors) Evaluate date parsing library for --every anchors
 
 ## Acceptance Criteria
 - One canonical example per unit/metric is specified.
@@ -43,12 +39,13 @@ Tasks are disposable. Use follow-up tasks for open questions/concerns. Record de
 - Required reviews completed and blockers cleared.
 
 ## TODOs
-Check this off one at a time with `strand complete <task_id> --role <my_given_role> --todo <num>` only if your Role matches the todo's role.
-1. [ ] (role: developer) Implement the behavior described in Context.
-2. [ ] (role: developer) Add unit and integration tests covering the main flows.
-3. [ ] (role: tester) Execute test-suite and report failures.
-4. [ ] (role: master-reviewer) Coordinate required reviews: `reviewer-reliability`, `reviewer-security`, `reviewer-usability`.
-5. [ ] (role: documentation) Update user-facing docs and examples.
+- [ ] (role: developer) Implement the behavior described in Context.
+- [ ] (role: developer) Add unit and integration tests covering the main flows.
+- [ ] (role: tester) Execute test-suite and report failures.
+- [ ] (role: master-reviewer) Coordinate required reviews: `reviewer-reliability`, `reviewer-security`, `reviewer-usability`.
+- [ ] (role: documentation) Update user-facing docs and examples.
 
 ## Subtasks
-Use subtasks for work that should be tracked separately or assigned to a different role. Use `strand add <type> "title" --parent <this_task_id> <<EOF description EOF`  to create subtasks.
+- [ ] (subtask: I3g1d) Add CLI support for updating task decision/question sections
+- [x] (subtask: Tm91y) Questions: --every anchor defaults and hint examples
+- [x] (subtask: Tmxs6) Evaluate date parsing library for --every anchors

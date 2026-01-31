@@ -15,17 +15,9 @@ completed: true
 # Document Recurring Task Commands
 
 ## Summary
-
 Update CLI documentation to describe the recurring task commands, including examples and metadata fields.
 
-## Tasks
-
-- [ ] Add command docs to `CLI.md`
-- [ ] Provide examples for recurring task creation and materialization
-- [ ] Document recurrence metadata schema and validation rules
-
 ## Implementation Plan
-
 ### Architecture overview
 
 Document the new command surface area in `CLI.md` so it matches the actual CLI flags and metadata schema. Keep docs authoritative for the recurrence metadata and provide realistic examples aligned with templates and parser expectations.
@@ -58,7 +50,11 @@ Document the new command surface area in `CLI.md` so it matches the actual CLI f
 - **Separate docs file for issues/recurrence**: rejected to keep CLI usage centralized in `CLI.md`.
 
 ## Acceptance Criteria
-
 - `CLI.md` includes new command descriptions and examples
 - Docs reflect the accepted metadata schema
 - Examples are consistent with actual command flags
+
+## TODOs
+- [ ] Add command docs to `CLI.md`
+- [ ] Provide examples for recurring task creation and materialization
+- [ ] Document recurrence metadata schema and validation rules

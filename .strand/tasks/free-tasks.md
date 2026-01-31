@@ -32,7 +32,7 @@
 - [Investigate date_edited churn on no-op repair](Ihv0n-investigate-date-edited-churn-on-no-op-repair/Ihv0n-investigate-date-edited-churn-on-no-op-repair.md)
 - [Add websocket streaming option for dashboard](Isfkq-add-websocket-streaming-option-for-dashboard/Isfkq-add-websocket-streaming-option-for-dashboard.md)
 - [Merge recurring add into add](Ish6g-merge-recurring-add-into-add/Ish6g-merge-recurring-add-into-add.md)
-- [Support role opt-in filtering for strand next](Ixf4f-support-role-opt-in-filtering-for-strand-next/Ixf4f-support-role-opt-in-filtering-for-strand-next.md)
+- [Support role opt-in filtering for strand next](Ixf4f-support-role-opt-in-filtering-for-memmd-next/Ixf4f-support-role-opt-in-filtering-for-memmd-next.md)
 
 ## Low
 

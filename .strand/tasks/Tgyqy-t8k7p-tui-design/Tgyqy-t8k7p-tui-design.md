@@ -16,18 +16,17 @@ completed: false
 ## Context
 Provide links to relevant design documents, diagrams, and decision records.
 
+## Acceptance Criteria
+- Clear, runnable steps to reproduce locally.
+- Tests covering functionality and passing.
+- Required reviews completed and blockers cleared.
+
 ## TODOs
-- [ ] (role: {{ .Role }}) Implement the behavior described in Context.
+- [ ] (role: developer) Implement the behavior described in Context.
 - [ ] (role: developer) Add unit and integration tests covering the main flows.
 - [ ] (role: tester) Execute test-suite and report failures.
 - [ ] (role: master-reviewer) Coordinate required reviews: `reviewer-reliability`, `reviewer-security`, `reviewer-usability`.
 - [ ] (role: documentation) Update user-facing docs and examples.
 
 ## Subtasks
-Use subtasks for work that should be tracked as separate task directories. List them here when useful:
-- tasks/Tgyqy-t8k7p-tui-design-subtask/task.md — short description of subtask
-
-## Acceptance Criteria
-- Clear, runnable steps to reproduce locally.
-- Tests covering functionality and passing.
-- Required reviews completed and blockers cleared.
+- [ ] (subtask: Tgyqy) — short description of subtask

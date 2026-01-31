@@ -16,6 +16,11 @@ completed: true
 ## Context
 Define `--project` flags and environment variables for selecting external task storage per project.
 
+## Acceptance Criteria
+- Clear, runnable steps to reproduce locally.
+- Tests covering functionality and passing.
+- Required reviews completed and blockers cleared.
+
 ## TODOs
 - [ ] (role: {{ .Role }}) Implement the behavior described in Context.
 - [ ] (role: developer) Add unit and integration tests covering the main flows.
@@ -24,10 +29,4 @@ Define `--project` flags and environment variables for selecting external task s
 - [ ] (role: documentation) Update user-facing docs and examples.
 
 ## Subtasks
-Use subtasks for work that should be tracked as separate task directories. List them here when useful:
-- tasks/T1h8q-project-selection-flags-env-subtask/task.md — short description of subtask
-
-## Acceptance Criteria
-- Clear, runnable steps to reproduce locally.
-- Tests covering functionality and passing.
-- Required reviews completed and blockers cleared.
+- [ ] (subtask: T1h8q) short description of subtask

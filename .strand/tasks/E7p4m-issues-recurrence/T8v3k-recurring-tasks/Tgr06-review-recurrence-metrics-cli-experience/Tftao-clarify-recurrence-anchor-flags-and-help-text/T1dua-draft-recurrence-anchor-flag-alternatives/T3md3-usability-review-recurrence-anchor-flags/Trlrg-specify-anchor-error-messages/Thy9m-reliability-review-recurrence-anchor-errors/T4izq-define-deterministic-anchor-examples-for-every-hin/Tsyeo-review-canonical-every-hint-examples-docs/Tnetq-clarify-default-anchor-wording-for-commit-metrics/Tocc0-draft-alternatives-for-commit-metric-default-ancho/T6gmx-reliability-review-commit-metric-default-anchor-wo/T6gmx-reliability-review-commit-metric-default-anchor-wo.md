@@ -8,7 +8,7 @@ blockers:
 blocks:
     - Tocc0-draft-alternatives-for-commit-metric-default-ancho
 date_created: 2026-01-29T20:00:34.457399Z
-date_edited: 2026-01-30T02:22:10.222327Z
+date_edited: 2026-01-30T22:38:51.49442Z
 owner_approval: false
 completed: true
 ---
@@ -33,7 +33,6 @@ Create new tasks for concerns or open questions instead of editing this task. Re
 - [ ] Concerns captured as subtasks.
 - [ ] Decision items deferred to Owner as separate subtasks when needed.
 
-
 ## Artifacts
 - design-docs/recurrence-anchor-commit-metrics-default-anchor-wording-alternatives.md
 
@@ -45,6 +44,5 @@ Determinism and test stability of hint wording for commit-based metric defaults.
 - Alignment with actual default anchor behavior
 - Impact on snapshot or golden tests
 
-## Tasks
-
-- [x] (subtask: T0m0p-confirm-head-missing-behavior-for-commit-metric-de) Confirm HEAD-missing behavior for commit-metric defaults
+## Subtasks
+- [x] (subtask: T0m0p) Confirm HEAD-missing behavior for commit-metric defaults

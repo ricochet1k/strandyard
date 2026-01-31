@@ -6,10 +6,12 @@ package cmd
 import (
 	"fmt"
 	"io"
+	"os"
 	"strings"
 
 	"github.com/ricochet1k/strandyard/pkg/task"
 	"github.com/spf13/cobra"
+	"golang.org/x/term"
 )
 
 var (
@@ -89,6 +91,10 @@ func searchOptionsFromFlags(query string) (task.SearchOptions, error) {
 				opts.Columns = append(opts.Columns, col)
 			}
 		}
+	}
+
+	if opts.Format != "json" {
+		opts.Color = term.IsTerminal(int(os.Stdout.Fd()))
 	}
 
 	switch opts.Sort {

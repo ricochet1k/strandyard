@@ -55,12 +55,10 @@ func ParseFreeList(content string, tasks map[string]*Task) FreeListParse {
 
 func resolveTaskIDFromListPath(path string, tasks map[string]*Task) string {
 	cleaned := filepath.ToSlash(strings.TrimSpace(path))
-	if tasks != nil {
-		for id, task := range tasks {
-			taskPath := filepath.ToSlash(task.FilePath)
-			if cleaned == taskPath || strings.HasSuffix(cleaned, taskPath) || strings.HasSuffix(taskPath, cleaned) {
-				return id
-			}
+	for id, task := range tasks {
+		taskPath := filepath.ToSlash(task.FilePath)
+		if cleaned == taskPath || strings.HasSuffix(cleaned, taskPath) || strings.HasSuffix(taskPath, cleaned) {
+			return id
 		}
 	}
 

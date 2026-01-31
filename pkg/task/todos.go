@@ -1,105 +1,93 @@
 package task
 
 import (
+	"fmt"
 	"regexp"
 	"strings"
 )
 
-var todoItemPattern = regexp.MustCompile(`^(?:\d+\.|-)\s*\[([ xX])\]\s*(?:\(role:\s*([^)]+)\)\s*)?(.*)$`)
-var subtaskItemPattern = regexp.MustCompile(`^-\s*\[([ xX])\]\s*\(subtask:\s*([^)]+)\)\s*(.*)$`)
+var itemPattern = regexp.MustCompile(`^(?:\d+\.|-)\s*(?:\[([ xX])\]\s*)?(?:\(role:\s*([^)]+)\)\s*)?(?:\(subtask:\s*([^)]+)\)\s*)?(.*)$`)
 
-// TodoItem represents an entry in the TODOs section.
-type TodoItem struct {
-	Index   int    `json:"index"`
-	Checked bool   `json:"checked"`
-	Role    string `json:"role,omitempty"`
-	Text    string `json:"text"`
-	Raw     string `json:"raw"`
+// TaskItem represents an entry in a task list (TODOs or Subtasks).
+type TaskItem struct {
+	Checked   bool   `json:"checked"`
+	Role      string `json:"role,omitempty"`
+	SubtaskID string `json:"subtask_id,omitempty"`
+	Text      string `json:"text"`
 }
 
-// SubtaskItem represents a subtask entry in the Tasks section.
-type SubtaskItem struct {
-	ID      string `json:"id"`
-	Checked bool   `json:"checked"`
-	Title   string `json:"title"`
-	Raw     string `json:"raw"`
-}
+// ParseTaskItems parses a section's content into structured items.
+func ParseTaskItems(content string) []TaskItem {
+	lines := strings.Split(content, "\n")
+	var items []TaskItem
 
-// ParseTodoItems parses the ## TODOs section into structured items.
-func ParseTodoItems(content, path string) ([]TodoItem, error) {
-	body, err := taskBody(content, path)
-	if err != nil {
-		return nil, err
-	}
-
-	lines := strings.Split(body, "\n")
-	start := findHeaderLine(lines, "## TODOs")
-	if start == -1 {
-		return nil, nil
-	}
-	end := findNextHeader(lines, start+1)
-
-	items := []TodoItem{}
-	index := 1
-	for _, line := range lines[start+1 : end] {
+	for _, line := range lines {
 		trimmed := strings.TrimSpace(line)
 		if trimmed == "" {
 			continue
 		}
-		match := todoItemPattern.FindStringSubmatch(trimmed)
+		match := itemPattern.FindStringSubmatch(trimmed)
 		if match == nil {
 			continue
 		}
 		checked := strings.ToLower(match[1]) == "x"
 		role := strings.TrimSpace(match[2])
-		text := strings.TrimSpace(match[3])
-		items = append(items, TodoItem{
-			Index:   index,
-			Checked: checked,
-			Role:    role,
-			Text:    text,
-			Raw:     trimmed,
+		subtaskID := strings.TrimSpace(match[3])
+		text := strings.TrimSpace(match[4])
+
+		items = append(items, TaskItem{
+			Checked:   checked,
+			Role:      role,
+			SubtaskID: subtaskID,
+			Text:      text,
 		})
-		index++
 	}
 
-	return items, nil
+	return items
 }
 
-// ParseSubtaskItems parses subtask entries in the ## Tasks section.
-func ParseSubtaskItems(content, path string) ([]SubtaskItem, error) {
-	body, err := taskBody(content, path)
-	if err != nil {
-		return nil, err
-	}
-
-	lines := strings.Split(body, "\n")
-	start := findHeaderLine(lines, "## Tasks")
-	if start == -1 {
-		return nil, nil
-	}
-	end := findNextHeader(lines, start+1)
-
-	items := []SubtaskItem{}
-	for _, line := range lines[start+1 : end] {
-		trimmed := strings.TrimSpace(line)
-		if trimmed == "" {
-			continue
+// FormatTodoItems formats a list of items as a numbered list.
+func FormatTodoItems(items []TaskItem) string {
+	var sb strings.Builder
+	for i, item := range items {
+		if i > 0 {
+			sb.WriteString("\n")
 		}
-		match := subtaskItemPattern.FindStringSubmatch(trimmed)
-		if match == nil {
-			continue
+		status := " "
+		if item.Checked {
+			status = "x"
 		}
-		checked := strings.ToLower(match[1]) == "x"
-		id := strings.TrimSpace(match[2])
-		title := strings.TrimSpace(match[3])
-		items = append(items, SubtaskItem{
-			ID:      id,
-			Checked: checked,
-			Title:   title,
-			Raw:     trimmed,
-		})
+		sb.WriteString(fmt.Sprintf("- [%s] ", status))
+		if item.Role != "" {
+			sb.WriteString(fmt.Sprintf("(role: %s) ", item.Role))
+		}
+		if item.SubtaskID != "" {
+			sb.WriteString(fmt.Sprintf("(subtask: %s) ", ShortID(item.SubtaskID)))
+		}
+		sb.WriteString(item.Text)
 	}
+	return sb.String()
+}
 
-	return items, nil
+// FormatSubtaskItems formats a list of items as a bulleted list.
+func FormatSubtaskItems(items []TaskItem) string {
+	var sb strings.Builder
+	for i, item := range items {
+		if i > 0 {
+			sb.WriteString("\n")
+		}
+		status := " "
+		if item.Checked {
+			status = "x"
+		}
+		sb.WriteString(fmt.Sprintf("- [%s] ", status))
+		if item.Role != "" {
+			sb.WriteString(fmt.Sprintf("(role: %s) ", item.Role))
+		}
+		if item.SubtaskID != "" {
+			sb.WriteString(fmt.Sprintf("(subtask: %s) ", ShortID(item.SubtaskID)))
+		}
+		sb.WriteString(item.Text)
+	}
+	return sb.String()
 }

@@ -6,8 +6,6 @@ import (
 	"path/filepath"
 	"strings"
 	"testing"
-
-	"github.com/yuin/goldmark/text"
 )
 
 func TestValidateTaskLinks(t *testing.T) {
@@ -38,44 +36,37 @@ func TestValidateTaskLinks(t *testing.T) {
 		t.Fatalf("failed to change working directory: %v", err)
 	}
 
-	tasks := map[string]*Task{
-		"T1aaa-exists": {
-			ID:       "T1aaa-exists",
-			FilePath: "tasks/T1aaa-exists/T1aaa-exists.md",
-			Content: `# Exists Task
+	tasks := make(map[string]*Task)
+
+	t1Content := fmt.Sprintf(`---
+role: %s
+---
+
+# Exists Task
 
 This task exists.
 
 See [T2bbb-missing](tasks/T2bbb-missing/T2bbb-missing.md) for details.
 Also check [T1aaa-exists](tasks/T1aaa-exists/T1aaa-exists.md) for self-reference.
-`,
-			Meta: Metadata{
-				Role: roleName,
-			},
-		},
-		"T3ccc-no-links": {
-			ID:       "T3ccc-no-links",
-			FilePath: "tasks/T3ccc-no-links/T3ccc-no-links.md",
-			Content: `# No Links Task
+`, roleName)
+	t1, _ := parser.ParseString(t1Content, "T1aaa-exists")
+	t1.FilePath = "tasks/T1aaa-exists/T1aaa-exists.md"
+	tasks[t1.ID] = t1
+
+	t3Content := fmt.Sprintf(`---
+role: %s
+---
+
+# No Links Task
 
 This task has no links to other tasks.
-`,
-			Meta: Metadata{
-				Role: roleName,
-			},
-		},
-	}
-
-	// Parse the content to build ASTs
-	for id, task := range tasks {
-		reader := text.NewReader([]byte(task.Content))
-		doc := parser.md.Parser().Parse(reader)
-		task.Document = doc
-		tasks[id] = task
-	}
+`, roleName)
+	t3, _ := parser.ParseString(t3Content, "T3ccc-no-links")
+	t3.FilePath = "tasks/T3ccc-no-links/T3ccc-no-links.md"
+	tasks[t3.ID] = t3
 
 	v := NewValidator(tasks)
-	errors := v.Validate()
+	errors := v.ValidateAndRepair()
 
 	// Should have 1 error for the missing T2bbb-missing task
 	if len(errors) != 1 {
@@ -122,34 +113,26 @@ func TestExtractTaskIDFromPath(t *testing.T) {
 }
 
 func TestGenerateMasterLists_FreeTasksPrioritySections(t *testing.T) {
+	parser := NewParser()
 	tmp := t.TempDir()
 	rootsFile := filepath.Join(tmp, "root-tasks.md")
 	freeFile := filepath.Join(tmp, "free-tasks.md")
 
-	tasks := map[string]*Task{
-		"T1aaa-high": {
-			ID:       "T1aaa-high",
-			FilePath: "tasks/T1aaa-high/T1aaa-high.md",
-			Content:  "# High Task\n",
-			Meta: Metadata{
-				Priority: PriorityHigh,
-			},
-		},
-		"T2bbb-default": {
-			ID:       "T2bbb-default",
-			FilePath: "tasks/T2bbb-default/T2bbb-default.md",
-			Content:  "# Default Task\n",
-			Meta:     Metadata{},
-		},
-		"T3ccc-low": {
-			ID:       "T3ccc-low",
-			FilePath: "tasks/T3ccc-low/T3ccc-low.md",
-			Content:  "# Low Task\n",
-			Meta: Metadata{
-				Priority: PriorityLow,
-			},
-		},
-	}
+	tasks := make(map[string]*Task)
+
+	t1, _ := parser.ParseString("# High Task\n", "T1aaa-high")
+	t1.Meta.Priority = PriorityHigh
+	t1.FilePath = "tasks/T1aaa-high/T1aaa-high.md"
+	tasks[t1.ID] = t1
+
+	t2, _ := parser.ParseString("# Default Task\n", "T2bbb-default")
+	t2.FilePath = "tasks/T2bbb-default/T2bbb-default.md"
+	tasks[t2.ID] = t2
+
+	t3, _ := parser.ParseString("# Low Task\n", "T3ccc-low")
+	t3.Meta.Priority = PriorityLow
+	t3.FilePath = "tasks/T3ccc-low/T3ccc-low.md"
+	tasks[t3.ID] = t3
 
 	if err := GenerateMasterLists(tasks, "tasks", rootsFile, freeFile); err != nil {
 		t.Fatalf("GenerateMasterLists failed: %v", err)
@@ -184,12 +167,10 @@ func TestGenerateMasterLists_FreeTasksPrioritySections(t *testing.T) {
 }
 
 func TestCalculateIncrementalFreeListUpdate(t *testing.T) {
-	roleName := testRoleName(t, "incremental")
 	tasks := map[string]*Task{
 		"T1completed": {
 			ID: "T1completed",
 			Meta: Metadata{
-				Role:      roleName,
 				Priority:  "high",
 				Blockers:  []string{},
 				Completed: false,
@@ -199,7 +180,6 @@ func TestCalculateIncrementalFreeListUpdate(t *testing.T) {
 		"T2blocked": {
 			ID: "T2blocked",
 			Meta: Metadata{
-				Role:      roleName,
 				Priority:  "medium",
 				Blockers:  []string{"T1completed"},
 				Completed: false,
@@ -209,7 +189,6 @@ func TestCalculateIncrementalFreeListUpdate(t *testing.T) {
 		"T3blocked": {
 			ID: "T3blocked",
 			Meta: Metadata{
-				Role:      roleName,
 				Priority:  "low",
 				Blockers:  []string{"T1completed", "T4other"},
 				Completed: false,
@@ -219,7 +198,6 @@ func TestCalculateIncrementalFreeListUpdate(t *testing.T) {
 		"T4other": {
 			ID: "T4other",
 			Meta: Metadata{
-				Role:      roleName,
 				Priority:  "medium",
 				Blockers:  []string{},
 				Completed: true,
@@ -258,7 +236,6 @@ func TestCalculateIncrementalFreeListUpdate(t *testing.T) {
 
 func TestUpdateFreeListIncrementally(t *testing.T) {
 	tempDir := t.TempDir()
-	roleName := testRoleName(t, "free-list")
 
 	// Create an initial free-tasks.md file
 	freeFile := filepath.Join(tempDir, "free.md")
@@ -286,35 +263,32 @@ func TestUpdateFreeListIncrementally(t *testing.T) {
 		"T1": {
 			ID: "T1",
 			Meta: Metadata{
-				Role:      roleName,
 				Priority:  "high",
 				Blockers:  []string{},
 				Completed: false,
 			},
-			FilePath: "tasks/T1.md",
-			Content:  "---\nrole: " + roleName + "\npriority: high\n---\n\n# T1 Title",
+			FilePath:     "tasks/T1.md",
+			TitleContent: "T1 Title",
 		},
 		"T2": {
 			ID: "T2",
 			Meta: Metadata{
-				Role:      roleName,
 				Priority:  "medium",
 				Blockers:  []string{},
 				Completed: false,
 			},
-			FilePath: "tasks/T2.md",
-			Content:  "---\nrole: " + roleName + "\npriority: medium\n---\n\n# T2 Title",
+			FilePath:     "tasks/T2.md",
+			TitleContent: "T2 Title",
 		},
 		"T4": {
 			ID: "T4",
 			Meta: Metadata{
-				Role:      roleName,
 				Priority:  "low",
 				Blockers:  []string{},
 				Completed: false,
 			},
-			FilePath: "tasks/T4.md",
-			Content:  "---\nrole: " + roleName + "\npriority: low\n---\n\n# T4 Title",
+			FilePath:     "tasks/T4.md",
+			TitleContent: "T4 Title",
 		},
 	}
 

@@ -15,6 +15,7 @@ import (
 
 var (
 	repairFmt string
+	repairAll bool
 )
 
 // repairCmd represents the repair command
@@ -33,6 +34,7 @@ var repairCmd = &cobra.Command{
 func init() {
 	rootCmd.AddCommand(repairCmd)
 	repairCmd.Flags().StringVar(&repairFmt, "format", "text", "output format for repair errors: text|json")
+	repairCmd.Flags().BoolVar(&repairAll, "all", false, "output format for repair errors: text|json")
 }
 
 func runRepair(w io.Writer, tasksRoot, rootsFile, freeFile, outFormat string) error {
@@ -57,10 +59,18 @@ func runRepair(w io.Writer, tasksRoot, rootsFile, freeFile, outFormat string) er
 	rolesDir := filepath.Join(filepath.Dir(tasksRoot), "roles")
 	validator := task.NewValidatorWithRoles(tasks, rolesDir)
 	fixed := validator.FixMissingReferences()
-	errors := validator.Validate()
+	errors := validator.ValidateAndRepair()
 
-	// Persist repaired tasks at the end of the run
-	if _, err := task.WriteDirtyTasks(tasks); err != nil {
+	var repairedCount int
+	if repairAll {
+		// Persist repaired tasks at the end of the run
+		fmt.Printf("Writing all tasks...")
+		repairedCount, err = task.WriteAllTasks(tasks)
+	} else {
+		// Persist repaired tasks at the end of the run
+		repairedCount, err = task.WriteDirtyTasks(tasks)
+	}
+	if err != nil {
 		return fmt.Errorf("failed to write repaired tasks: %w", err)
 	}
 
@@ -126,8 +136,7 @@ func runRepair(w io.Writer, tasksRoot, rootsFile, freeFile, outFormat string) er
 		fmt.Fprintln(w, string(b))
 	} else {
 		fmt.Fprintln(w, "repair: ok")
-		fmt.Fprintf(w, "Repaired %d tasks\n", len(tasks))
-		fmt.Fprintf(w, "Master lists updated: %s, %s\n", rootsFile, freeFile)
+		fmt.Fprintf(w, "Repaired %d tasks\n", repairedCount)
 	}
 
 	return nil

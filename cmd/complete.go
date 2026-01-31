@@ -97,7 +97,7 @@ func runComplete(w io.Writer, projectName, taskID string) error {
 		fmt.Fprintf(w, "✓ Incrementally updated free-tasks.md\n")
 		// Still need to run repair for error checking, but skip master list generation
 		validator := task.NewValidatorWithRoles(tasks, paths.RolesDir)
-		errors := validator.Validate()
+		errors := validator.ValidateAndRepair()
 		if _, err := task.WriteDirtyTasks(tasks); err != nil {
 			return fmt.Errorf("failed to write repaired tasks: %w", err)
 		}

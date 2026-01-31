@@ -8,7 +8,7 @@ blockers:
 blocks:
     - Tocc0-draft-alternatives-for-commit-metric-default-ancho
 date_created: 2026-01-29T20:00:34.411722Z
-date_edited: 2026-01-30T02:22:10.222259Z
+date_edited: 2026-01-30T22:38:51.494429Z
 owner_approval: false
 completed: true
 ---
@@ -33,7 +33,6 @@ Create new tasks for concerns or open questions instead of editing this task. Re
 - [ ] Concerns captured as subtasks.
 - [ ] Decision items deferred to Owner as separate subtasks when needed.
 
-
 ## Artifacts
 - design-docs/recurrence-anchor-commit-metrics-default-anchor-wording-alternatives.md
 
@@ -45,6 +44,5 @@ Default anchor wording for commit-based recurrence metrics in docs and hint exam
 - Alignment with project principles
 - Deterministic wording and test stability
 
-## Tasks
-
-- [x] (subtask: Tiyms-decide-default-anchor-wording-for-commit-metrics-a) Decide default anchor wording for commit metrics (A/B/C)
+## Subtasks
+- [x] (subtask: Tiyms) Decide default anchor wording for commit metrics (A/B/C)

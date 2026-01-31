@@ -36,21 +36,6 @@ The goal is to update master lists incrementally by only touching the specific e
 4. Update `free-tasks.md` by removing completed task and adding newly unblocked tasks
 5. Keep full validation as fallback if any errors occur during incremental update
 
-## Tasks
-- [x] (role: architect) Design incremental master list update algorithm
-- [x] (role: architect) Add helper functions to pkg/task for incremental updates
-- [x] (role: architect) Update cmd/complete.go to use incremental updates
-- [x] (role: developer) Add unit and integration tests covering incremental update flows.
-- [ ] (role: developer) Add performance benchmarks comparing full vs incremental updates
-- [x] (role: tester) Execute test-suite and report failures.
-- [ ] (role: master-reviewer) Coordinate required reviews: `reviewer-reliability`, `reviewer-security`, `reviewer-usability`.
-- [ ] (role: documentation) Update user-facing docs and examples.
-
-## Subtasks
-- tasks/Taucp-make-complete-update-master-lists-incrementally/design-algorithm.md — Design the incremental update algorithm
-- tasks/Taucp-make-complete-update-master-lists-incrementally/implement-helpers.md — Implement helper functions
-- tasks/Taucp-make-complete-update-master-lists-incrementally/update-complete-cmd.md — Update complete command
-
 ## Acceptance Criteria
 - [x] Complete command uses incremental master list updates instead of full validation
 - [x] Unit tests cover all incremental update scenarios (single task, multiple newly unblocked tasks, edge cases)
@@ -59,7 +44,6 @@ The goal is to update master lists incrementally by only touching the specific e
 - [x] Master list formatting and ordering remain consistent with full validation
 
 ## Implementation Details
-
 ### Added Functions
 1. **IncrementalFreeListUpdate struct** - Represents changes to make to free-tasks.md
 2. **CalculateIncrementalFreeListUpdate** - Determines what changes needed when task is completed
@@ -78,3 +62,16 @@ The goal is to update master lists incrementally by only touching the specific e
 - For single task completion: only reads/writes free-tasks.md once
 - Eliminates full task tree scan and master list regeneration
 - Maintains same output format and ordering
+
+## TODOs
+- [x] (role: architect) Design incremental master list update algorithm
+- [x] (role: architect) Add helper functions to pkg/task for incremental updates
+- [x] (role: architect) Update cmd/complete.go to use incremental updates
+- [x] (role: developer) Add unit and integration tests covering incremental update flows.
+- [ ] (role: developer) Add performance benchmarks comparing full vs incremental updates
+- [x] (role: tester) Execute test-suite and report failures.
+- [ ] (role: master-reviewer) Coordinate required reviews: `reviewer-reliability`, `reviewer-security`, `reviewer-usability`.
+- [ ] (role: documentation) Update user-facing docs and examples.
+- [ ] tasks/Taucp-make-complete-update-master-lists-incrementally/design-algorithm.md — Design the incremental update algorithm
+- [ ] tasks/Taucp-make-complete-update-master-lists-incrementally/implement-helpers.md — Implement helper functions
+- [ ] tasks/Taucp-make-complete-update-master-lists-incrementally/update-complete-cmd.md — Update complete command

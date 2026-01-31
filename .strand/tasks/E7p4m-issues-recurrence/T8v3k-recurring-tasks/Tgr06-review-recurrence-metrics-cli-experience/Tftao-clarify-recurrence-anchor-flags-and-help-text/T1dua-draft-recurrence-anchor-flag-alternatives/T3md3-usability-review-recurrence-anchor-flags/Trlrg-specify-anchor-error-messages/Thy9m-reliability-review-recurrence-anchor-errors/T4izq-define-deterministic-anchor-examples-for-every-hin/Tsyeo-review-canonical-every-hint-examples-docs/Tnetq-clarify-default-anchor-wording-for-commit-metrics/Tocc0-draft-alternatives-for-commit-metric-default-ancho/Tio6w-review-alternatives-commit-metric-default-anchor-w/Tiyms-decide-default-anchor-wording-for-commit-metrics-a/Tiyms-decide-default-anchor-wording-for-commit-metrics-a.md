@@ -9,7 +9,7 @@ blockers:
 blocks:
     - Tio6w-review-alternatives-commit-metric-default-anchor-w
 date_created: 2026-01-29T22:24:02.846165Z
-date_edited: 2026-01-30T02:22:10.222134Z
+date_edited: 2026-01-30T22:38:51.494402Z
 owner_approval: false
 completed: true
 ---
@@ -20,6 +20,8 @@ completed: true
 Provide links to relevant design documents, diagrams, and decision records.
 
 ## Description
+
+
 ## Summary
 Choose the default anchor wording for commit-based metrics in docs and hint examples.
 
@@ -31,11 +33,6 @@ Choose the default anchor wording for commit-based metrics in docs and hint exam
 ## Decision
 - Select Alternative A, B, or C from the alternatives doc.
 - Confirm whether the wording must explicitly mention the need for a valid HEAD or initial commit.
-
-## Tasks
-
-- [ ] (subtask: Tuu18-update-docs-and-hints-to-say-from-head) Update docs and hints to say from HEAD
-- [ ] (subtask: Tv5ra-implement-ignore-invalid-head-for-commit-metrics) Implement ignore invalid HEAD for commit metrics
 
 ## Acceptance Criteria
 - Decision recorded in the alternatives doc under the Decision section.
@@ -50,12 +47,12 @@ Tasks are disposable. Use follow-up tasks for open questions/concerns. Record de
 - Required reviews completed and blockers cleared.
 
 ## TODOs
-Check this off one at a time with `strand complete <task_id> --role <my_given_role> --todo <num>` only if your Role matches the todo's role.
-1. [ ] (role: developer) Implement the behavior described in Context.
-2. [ ] (role: developer) Add unit and integration tests covering the main flows.
-3. [ ] (role: tester) Execute test-suite and report failures.
-4. [ ] (role: master-reviewer) Coordinate required reviews: `reviewer-reliability`, `reviewer-security`, `reviewer-usability`.
-5. [ ] (role: documentation) Update user-facing docs and examples.
+- [ ] (role: developer) Implement the behavior described in Context.
+- [ ] (role: developer) Add unit and integration tests covering the main flows.
+- [ ] (role: tester) Execute test-suite and report failures.
+- [ ] (role: master-reviewer) Coordinate required reviews: `reviewer-reliability`, `reviewer-security`, `reviewer-usability`.
+- [ ] (role: documentation) Update user-facing docs and examples.
 
 ## Subtasks
-Use subtasks for work that should be tracked separately or assigned to a different role. Use `strand add <type> "title" --parent <this_task_id> <<EOF description EOF`  to create subtasks.
+- [ ] (subtask: Tuu18) Update docs and hints to say from HEAD
+- [ ] (subtask: Tv5ra) Implement ignore invalid HEAD for commit metrics

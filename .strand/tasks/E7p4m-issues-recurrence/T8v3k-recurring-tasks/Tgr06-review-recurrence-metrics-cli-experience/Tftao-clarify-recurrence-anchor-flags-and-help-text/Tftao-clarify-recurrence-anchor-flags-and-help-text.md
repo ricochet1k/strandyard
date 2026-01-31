@@ -11,7 +11,7 @@ blockers:
 blocks:
     - Tgr06-review-recurrence-metrics-cli-experience
 date_created: 2026-01-28T19:01:01.774306Z
-date_edited: 2026-01-30T02:22:10.222287Z
+date_edited: 2026-01-30T22:38:51.494418Z
 owner_approval: false
 completed: false
 ---
@@ -21,6 +21,14 @@ completed: false
 ## Context
 Provide links to relevant design documents, diagrams, and decision records.
 
+## Escalation
+Tasks are disposable. Use follow-up tasks for open questions/concerns. Record decisions and final rationale in design docs; do not edit this task to capture outcomes.
+
+## Acceptance Criteria
+- Clear, runnable steps to reproduce locally.
+- Tests covering functionality and passing.
+- Required reviews completed and blockers cleared.
+
 ## TODOs
 - [ ] (role: {{ .Role }}) Implement the behavior described in Context.
 - [ ] (role: developer) Add unit and integration tests covering the main flows.
@@ -29,20 +37,7 @@ Provide links to relevant design documents, diagrams, and decision records.
 - [ ] (role: documentation) Update user-facing docs and examples.
 
 ## Subtasks
-Use subtasks for work that should be tracked as separate task directories. List them here when useful:
-- tasks/Tftao-clarify-recurrence-anchor-flags-and-help-text-subtask/task.md — short description of subtask
-
-## Escalation
-Tasks are disposable. Use follow-up tasks for open questions/concerns. Record decisions and final rationale in design docs; do not edit this task to capture outcomes.
-
-## Tasks
-
-- [ ] (subtask: T1dua-draft-recurrence-anchor-flag-alternatives) Draft recurrence anchor flag alternatives
-- [ ] (subtask: T6oqp-usability-review-recurrence-anchor-flags) Usability review: recurrence anchor flags
-- [ ] (subtask: T7wm3-review-recurrence-anchor-flag-alternatives) Review recurrence anchor flag alternatives
-- [ ] (subtask: Tpgq2-reliability-review-recurrence-anchor-flags) Reliability review: recurrence anchor flags
-
-## Acceptance Criteria
-- Clear, runnable steps to reproduce locally.
-- Tests covering functionality and passing.
-- Required reviews completed and blockers cleared.
+- [ ] (subtask: T1dua) Draft recurrence anchor flag alternatives
+- [ ] (subtask: T6oqp) Usability review: recurrence anchor flags
+- [ ] (subtask: T7wm3) Review recurrence anchor flag alternatives
+- [ ] (subtask: Tpgq2) Reliability review: recurrence anchor flags

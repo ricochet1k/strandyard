@@ -6,7 +6,7 @@ parent: ""
 blockers: []
 blocks: []
 date_created: 2026-01-27T00:00:00Z
-date_edited: 2026-01-30T02:22:10.222164Z
+date_edited: 2026-01-30T22:38:51.494434Z
 owner_approval: false
 completed: true
 ---
@@ -14,31 +14,16 @@ completed: true
 # Update Documentation
 
 ## Summary
-
 Update all documentation to reflect Owner decisions: flat template structure, YAML frontmatter format, 4-char random IDs, and proper document organization.
 
 ## Context
-
 **Owner Decisions**:
 - Template organization: Use current flat structure (templates/leaf.md), update docs to match
 - Move design-alternatives-review.md out of doc-examples (it's not an example)
 - Update AGENTS.md to reflect YAML frontmatter format
 - Update design-docs to match implementation
 
-## Subtasks
-
-1. [T8p5w-design-docs-templates](T8p5w-design-docs-templates/T8p5w-design-docs-templates.md) - Update design-docs to match flat template structure
-2. [T6m3h-agents-frontmatter](T6m3h-agents-frontmatter/T6m3h-agents-frontmatter.md) - Update AGENTS.md to reflect YAML frontmatter
-3. [T9k2n-move-alternatives-doc](T9k2n-move-alternatives-doc/T9k2n-move-alternatives-doc.md) - Move design-alternatives-review.md to design-docs
-
-## Tasks
-
-- [x] (subtask: T6m3h-agents-frontmatter) Update AGENTS.md to Reflect YAML Frontmatter
-- [x] (subtask: T8p5w-design-docs-templates) Update Design Docs to Match Flat Template Structure
-- [x] (subtask: T9k2n-move-alternatives-doc) Move Design Alternatives Review to Proper Location
-
 ## Acceptance Criteria
-
 - All documentation accurate and up-to-date
 - design-alternatives-review.md in correct location
 - AGENTS.md shows YAML frontmatter format
@@ -46,7 +31,16 @@ Update all documentation to reflect Owner decisions: flat template structure, YA
 - No contradictions between docs and implementation
 
 ## Files
-
 - design-docs/commands-design.md
 - AGENTS.md
 - doc-examples/design-alternatives-review.md (move)
+
+## TODOs
+- [ ] [T8p5w-design-docs-templates](T8p5w-design-docs-templates/T8p5w-design-docs-templates.md) - Update design-docs to match flat template structure
+- [ ] [T6m3h-agents-frontmatter](T6m3h-agents-frontmatter/T6m3h-agents-frontmatter.md) - Update AGENTS.md to reflect YAML frontmatter
+- [ ] [T9k2n-move-alternatives-doc](T9k2n-move-alternatives-doc/T9k2n-move-alternatives-doc.md) - Move design-alternatives-review.md to design-docs
+
+## Subtasks
+- [x] (subtask: T6m3h) Title: Initialize project skeleton
+- [x] (subtask: T8p5w) Update Design Docs to Match Flat Template Structure
+- [x] (subtask: T9k2n) Move Design Alternatives Review to Proper Location

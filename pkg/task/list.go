@@ -6,7 +6,6 @@ import (
 	"path/filepath"
 	"sort"
 	"strings"
-	"text/tabwriter"
 	"time"
 
 	"github.com/fatih/color"
@@ -96,7 +95,7 @@ func filterTasks(tasksRoot string, tasks map[string]*Task, opts ListOptions) ([]
 		if opts.Parent != "" && t.Meta.Parent != opts.Parent {
 			continue
 		}
-		if opts.Role != "" && strings.ToLower(t.GetEffectiveRole()) != strings.ToLower(opts.Role) {
+		if opts.Role != "" && strings.EqualFold(t.GetEffectiveRole(), opts.Role) {
 			continue
 		}
 		if opts.Priority != "" && NormalizePriority(t.Meta.Priority) != NormalizePriority(opts.Priority) {
@@ -260,13 +259,50 @@ func formatTable(tasks []*Task, opts ListOptions) (string, error) {
 	rows := toListRows(tasks)
 	columns := defaultColumnsForRows(opts, rows, []string{"id", "title", "priority", "role", "completed", "blockers"}, true)
 
-	builder := &strings.Builder{}
-	writer := tabwriter.NewWriter(builder, 0, 4, 2, ' ', 0)
-	fmt.Fprintln(writer, strings.ToUpper(strings.Join(columns, "\t")))
-	for _, row := range rows {
-		fmt.Fprintln(writer, strings.Join(rowValues(row, columns, true, opts), "\t"))
+	if len(rows) == 0 {
+		return "", nil
 	}
-	_ = writer.Flush()
+
+	// Calculate widths based on non-colored values
+	widths := make(map[string]int)
+	for _, col := range columns {
+		widths[col] = len(col)
+	}
+	for _, row := range rows {
+		for _, col := range columns {
+			val := columnValue(row, col, true)
+			if len(val) > widths[col] {
+				widths[col] = len(val)
+			}
+		}
+	}
+
+	builder := &strings.Builder{}
+	// Print header
+	for i, col := range columns {
+		header := strings.ToUpper(col)
+		builder.WriteString(header)
+		if i < len(columns)-1 {
+			padding := widths[col] - len(header) + 2 // 2 spaces minimal padding
+			builder.WriteString(strings.Repeat(" ", padding))
+		}
+	}
+	builder.WriteString("\n")
+
+	// Print rows
+	for _, row := range rows {
+		for i, col := range columns {
+			val := columnValue(row, col, true)
+			colored := colorizeValue(row, col, val, opts)
+			builder.WriteString(colored)
+			if i < len(columns)-1 {
+				padding := widths[col] - len(val) + 2
+				builder.WriteString(strings.Repeat(" ", padding))
+			}
+		}
+		builder.WriteString("\n")
+	}
+
 	return strings.TrimRight(builder.String(), "\n"), nil
 }
 
@@ -459,6 +495,9 @@ func colorizeValue(row listRow, col string, value string, opts ListOptions) stri
 		if len(row.Blockers) > 0 {
 			return colorBlocked(value)
 		}
+		if NormalizePriority(row.Priority) == PriorityHigh {
+			return colorBold(value)
+		}
 	}
 	return value
 }
@@ -526,7 +565,8 @@ var (
 	colorMedium  = color.New(color.FgYellow).SprintFunc()
 	colorLow     = color.New(color.FgGreen).SprintFunc()
 	colorOther   = color.New(color.FgCyan).SprintFunc()
-	colorBlocked = color.New(color.FgRed, color.Bold).SprintFunc()
+	colorBlocked = color.New(color.FgHiBlack).SprintFunc()
+	colorBold    = color.New(color.Bold).SprintFunc()
 )
 
 func formatListValue(values []string, numeric bool) string {

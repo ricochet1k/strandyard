@@ -16,13 +16,13 @@ completed: true
 ## Context
 See design doc: design-docs/list-command.md
 
-## Tasks
-- [ ] Add filtering helpers for role/priority/completed/blocked/blocks/owner-approval.
-- [ ] Implement deterministic sorting with tie-breakers.
-- [ ] Implement table, markdown, and JSON formatters with shared schema fields.
-- [ ] Add golden tests for formatting outputs.
-
 ## Acceptance Criteria
 - Filters and sorting match the design doc in all listed combinations.
 - Output formats are deterministic and stable for the same input.
 - Tests cover the filter + sort matrix and format schemas.
+
+## TODOs
+- [ ] Add filtering helpers for role/priority/completed/blocked/blocks/owner-approval.
+- [ ] Implement deterministic sorting with tie-breakers.
+- [ ] Implement table, markdown, and JSON formatters with shared schema fields.
+- [ ] Add golden tests for formatting outputs.

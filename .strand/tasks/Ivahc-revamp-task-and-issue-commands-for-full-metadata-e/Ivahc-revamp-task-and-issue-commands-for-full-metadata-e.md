@@ -7,7 +7,7 @@ blockers:
     - T6jry-design-cli-commands-for-full-task-issue-metadata-e
 blocks: []
 date_created: 2026-01-27T23:25:07Z
-date_edited: 2026-01-30T02:22:10.222219Z
+date_edited: 2026-01-30T22:38:51.494411Z
 owner_approval: false
 completed: true
 ---
@@ -28,12 +28,11 @@ CLI supports creating and editing tasks/issues, including full frontmatter and b
 ## Actual Result
 CLI can create tasks/issues, but editing metadata or body content requires manual Markdown edits.
 
-## Tasks
-
-- [x] (subtask: T6jry-design-cli-commands-for-full-task-issue-metadata-e) Design CLI commands for full task/issue metadata editing
-
 ## Acceptance Criteria
 - CLI provides commands to create tasks/issues with all metadata fields supplied via flags or prompts.
 - CLI provides commands to edit metadata and body content for existing tasks/issues.
 - No manual editing of task Markdown files is required for standard workflows.
 - `strand repair` passes after creating or editing tasks/issues.
+
+## Subtasks
+- [x] (subtask: T6jry) Config file format

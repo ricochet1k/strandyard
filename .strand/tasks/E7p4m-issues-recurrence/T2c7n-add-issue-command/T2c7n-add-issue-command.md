@@ -14,19 +14,9 @@ completed: true
 # Add Issue Subcommand
 
 ## Summary
-
 Add a CLI subcommand to create issue-style tasks (non-recurring) with required metadata and a default template.
 
-## Tasks
-
-- [ ] Define issue metadata fields and defaults (role, parent, blockers, labels if needed)
-- [ ] Add `strand issue add` (or `strand add --issue`) command skeleton
-- [ ] Create issue task template in `templates/`
-- [ ] Ensure new issues are created with deterministic IDs and directory layout
-- [ ] Validate created issues via existing parser/validator
-
 ## Implementation Plan
-
 ### Architecture overview
 
 Introduce an issue-flavored task creation flow that reuses the existing task creation pipeline and templates. Issues are regular tasks with a specific template and a small metadata extension (e.g., `type: issue` or `issue: true`) so validation and listing logic stays consistent. The command should write a task directory + markdown file that passes the existing parser/validator.
@@ -64,8 +54,14 @@ Introduce an issue-flavored task creation flow that reuses the existing task cre
 - **No schema field, only template difference**: rejected because validation cannot distinguish issues for future reporting or filters.
 
 ## Acceptance Criteria
-
 - CLI command creates a task directory and markdown file for an issue
 - Generated task conforms to frontmatter conventions and directory naming rules
 - `strand repair` passes after adding an issue
 - Example usage documented in task body
+
+## TODOs
+- [ ] Define issue metadata fields and defaults (role, parent, blockers, labels if needed)
+- [ ] Add `strand issue add` (or `strand add --issue`) command skeleton
+- [ ] Create issue task template in `templates/`
+- [ ] Ensure new issues are created with deterministic IDs and directory layout
+- [ ] Validate created issues via existing parser/validator

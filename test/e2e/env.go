@@ -7,6 +7,8 @@ import (
 	"testing"
 )
 
+var strandBinary string
+
 // TestEnv provides an isolated test environment for E2E tests
 type TestEnv struct {
 	t        testing.TB
