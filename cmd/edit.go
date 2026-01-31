@@ -52,7 +52,8 @@ func init() {
 	editCmd.Flags().StringVarP(&editRole, "role", "r", "", "role responsible for the task")
 	editCmd.Flags().StringVarP(&editParent, "parent", "p", "", "parent task ID")
 	editCmd.Flags().StringVar(&editPriority, "priority", "", "priority: high, medium, or low")
-	editCmd.Flags().StringSliceVar(&editBlockers, "blocker", nil, "blocker task ID(s); can be repeated or comma-separated")
+	// TODO: Not implemented
+	// editCmd.Flags().StringSliceVar(&editBlockers, "blocker", nil, "blocker task ID(s); can be repeated or comma-separated")
 	editCmd.Flags().BoolVar(&editNoRepair, "no-repair", false, "skip repair and master list updates")
 }
 
@@ -119,13 +120,14 @@ func runEdit(cmd *cobra.Command, taskID, newBody string) error {
 	}
 
 	if cmd.Flags().Changed("blocker") {
-		blockers, err := resolveTaskIDs(tasks, normalizeTaskIDs(editBlockers))
-		if err != nil {
-			return err
-		}
-		t.Meta.Blockers = blockers
-		t.MarkDirty()
-		changes = true
+		panic("Unimplemented: TODO: Must update blockers AND child blocks list")
+		// blockers, err := resolveTaskIDs(tasks, normalizeTaskIDs(editBlockers))
+		// if err != nil {
+		// 	return err
+		// }
+		// t.Meta.Blockers = blockers
+		// t.MarkDirty()
+		// changes = true
 	}
 
 	// Body from stdin

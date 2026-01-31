@@ -5,10 +5,12 @@ go 1.24.3
 require (
 	github.com/fatih/color v1.18.0
 	github.com/fsnotify/fsnotify v1.9.0
+	github.com/google/go-cmp v0.5.9
 	github.com/mark3labs/mcp-go v0.43.2
 	github.com/spf13/cobra v1.10.2
 	github.com/yuin/goldmark v1.7.16
 	go.abhg.dev/goldmark/frontmatter v0.3.0
+	golang.org/x/sync v0.19.0
 	golang.org/x/term v0.39.0
 	gopkg.in/yaml.v3 v3.0.1
 )

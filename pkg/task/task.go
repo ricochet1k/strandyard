@@ -1,10 +1,12 @@
 package task
 
 import (
+	"errors"
 	"fmt"
 	"io/fs"
 	"os"
 	"path/filepath"
+	"runtime"
 	"strings"
 	"time"
 
@@ -12,6 +14,7 @@ import (
 	"github.com/yuin/goldmark/parser"
 	"github.com/yuin/goldmark/text"
 	"go.abhg.dev/goldmark/frontmatter"
+	"golang.org/x/sync/errgroup"
 	"gopkg.in/yaml.v3"
 )
 
@@ -79,6 +82,9 @@ func (t *Task) SetBody(newBody string) {
 // MarkDirty marks the task as modified.
 func (t *Task) MarkDirty() {
 	if !t.Dirty {
+		if _, file, line, ok := runtime.Caller(1); ok {
+			fmt.Printf("MarkDirty called from %v:%v\n", file, line)
+		}
 		t.Meta.DateEdited = time.Now().UTC()
 	}
 	t.Dirty = true
@@ -342,59 +348,78 @@ func ExtractTitle(content string) string {
 	return ""
 }
 
-// LoadTasks walks the tasks directory and loads all tasks
+// LoadTasks walks the tasks directory and loads all tasks, in parallel.
 func (p *Parser) LoadTasks(tasksRoot string) (map[string]*Task, error) {
-	tasks := make(map[string]*Task)
+	tasksChan := make(chan *Task)
+	errChan := make(chan error)
 
-	err := filepath.WalkDir(tasksRoot, func(path string, d fs.DirEntry, err error) error {
-		if err != nil {
-			return err
-		}
+	go func() {
+		var eg errgroup.Group
+		eg.SetLimit(10)
 
-		// Skip the root directory
-		if path == tasksRoot {
-			return nil
-		}
-
-		// Only process directories
-		if !d.IsDir() {
-			return nil
-		}
-
-		// Look for task file in this directory
-		// Priority: <task-id>.md, then task.md, then README.md
-		dirName := filepath.Base(path)
-		taskFile := ""
-
-		candidates := []string{
-			filepath.Join(path, dirName+".md"),
-			filepath.Join(path, "task.md"),
-			filepath.Join(path, "README.md"),
-		}
-
-		for _, candidate := range candidates {
-			if _, err := os.Stat(candidate); err == nil {
-				taskFile = candidate
-				break
+		err := filepath.WalkDir(tasksRoot, func(path string, d fs.DirEntry, err error) error {
+			if err != nil {
+				return err
 			}
-		}
 
-		if taskFile == "" {
-			// No task file found, skip this directory
+			// Skip the root directory
+			if path == tasksRoot {
+				return nil
+			}
+
+			// Only process directories
+			if !d.IsDir() {
+				return nil
+			}
+
+			// Look for task file in this directory
+			// Priority: <task-id>.md, then task.md, then README.md
+			dirName := filepath.Base(path)
+			taskFile := ""
+
+			candidates := []string{
+				filepath.Join(path, dirName+".md"),
+				filepath.Join(path, "task.md"),
+			}
+
+			for _, candidate := range candidates {
+				if _, err := os.Stat(candidate); err == nil {
+					taskFile = candidate
+					break
+				}
+			}
+
+			if taskFile == "" {
+				// No task file found, skip this directory
+				return nil
+			}
+
+			eg.Go(func() error {
+				// Parse the task
+				task, err := p.ParseFile(taskFile)
+				if err != nil {
+					return fmt.Errorf("failed to parse task %s: %w", taskFile, err)
+				}
+
+				tasksChan <- task
+				return nil
+			})
+
 			return nil
-		}
+		})
 
-		// Parse the task
-		task, err := p.ParseFile(taskFile)
-		if err != nil {
-			return fmt.Errorf("failed to parse task %s: %w", taskFile, err)
-		}
+		wgErr := eg.Wait()
+		close(tasksChan)
 
-		// Store by ID
+		errChan <- errors.Join(err, wgErr)
+	}()
+
+	tasks := make(map[string]*Task)
+	for task := range tasksChan {
 		tasks[task.ID] = task
+	}
 
-		return nil
-	})
+	err := <-errChan
 
 	return tasks, err
 }

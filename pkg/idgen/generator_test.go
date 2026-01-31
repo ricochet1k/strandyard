@@ -99,9 +99,9 @@ func TestGenerateID(t *testing.T) {
 		title  string
 		wantRe string // regex pattern to match
 	}{
-		{"T", "Implement Parser", `^T[0-9a-z]{4}-implement-parser$`},
-		{"E", "Epic Task", `^E[0-9a-z]{4}-epic-task$`},
-		{"D", "Design Doc", `^D[0-9a-z]{4}-design-doc$`},
+		{"T", "Implement Parser", `^T[0-9a-z]{4,6}-implement-parser$`},
+		{"E", "Epic Task", `^E[0-9a-z]{4,6}-epic-task$`},
+		{"D", "Design Doc", `^D[0-9a-z]{4,6}-design-doc$`},
 	}
 
 	for _, tt := range tests {

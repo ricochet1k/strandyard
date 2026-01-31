@@ -8,8 +8,8 @@ import (
 )
 
 var (
-	shortIDPattern = regexp.MustCompile(`^[A-Z][0-9a-z]{4}$`)
-	fullIDPattern  = regexp.MustCompile(`^([A-Z][0-9a-z]{4})-[a-zA-Z0-9-]+$`)
+	shortIDPattern = regexp.MustCompile(`^[A-Z][0-9a-z]{4,6}$`)
+	fullIDPattern  = regexp.MustCompile(`^([A-Z][0-9a-z]{4,6})-[a-zA-Z0-9-]+$`)
 )
 
 // ShortID returns the short form of a task ID (prefix + token).

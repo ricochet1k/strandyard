@@ -11,7 +11,7 @@ import (
 const (
 	// Base36 alphabet (0-9, a-z)
 	base36Chars = "0123456789abcdefghijklmnopqrstuvwxyz"
-	tokenLength = 4
+	tokenLength = 6
 )
 
 // GenerateToken creates a cryptographically secure 4-character base36 token

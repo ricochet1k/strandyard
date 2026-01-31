@@ -4,11 +4,10 @@ role: architect
 priority: high
 parent: ""
 blockers:
-    - T5f2q-docs-issue-recurring
     - T8v3k-recurring-tasks
 blocks: []
 date_created: 2026-01-27T00:00:00Z
-date_edited: 2026-01-31T04:41:33.150438Z
+date_edited: 2026-01-31T06:15:24.27202Z
 owner_approval: false
 completed: false
 ---

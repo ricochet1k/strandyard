@@ -48,7 +48,7 @@ func NewValidatorWithRoles(tasks map[string]*Task, rolesDir string) *Validator {
 	// PREFIX is single uppercase letter
 	// Token is 4 lowercase base36 characters (0-9, a-z)
 	// Slug is 1+ alphanumeric/hyphen characters
-	idPattern := regexp.MustCompile(`^[A-Z][0-9a-z]{4}-[a-zA-Z0-9-]+$`)
+	idPattern := regexp.MustCompile(`^[A-Z][0-9a-z]{4,6}-[a-zA-Z0-9-]+$`)
 
 	return &Validator{
 		tasks:     tasks,
@@ -68,18 +68,10 @@ func (v *Validator) ValidateAndRepair() []ValidationError {
 		v.verifyRole(id, task)
 		v.verifyPriority(id, task)
 		v.verifyParent(id, task)
-		v.verifyBlockers(id, task)
 		v.verifyTaskLinks(id, task)
 	}
 
-	// Auto-fix bidirectional blocker relationships
-	v.fixBlockerRelationships()
 	v.fixSubtaskTextTitles()
-
-	// Second pass: verify bidirectional relationships are now correct
-	for id, task := range v.tasks {
-		v.verifyBidirectionalBlockers(id, task)
-	}
 
 	return v.errors
 }
@@ -136,43 +128,6 @@ func (v *Validator) FixMissingReferences() []ValidationError {
 	}
 
 	return notices
-}
-
-// fixBlockerRelationships automatically fixes missing bidirectional blocker relationships
-func (v *Validator) fixBlockerRelationships() {
-	for taskID, task := range v.tasks {
-		for _, blockerID := range task.Meta.Blockers {
-			if blockerID == "" {
-				continue
-			}
-			blocker, exists := v.tasks[blockerID]
-			if !exists {
-				continue // Will be caught by validation
-			}
-
-			updated, changed := addUniqueSorted(blocker.Meta.Blocks, taskID)
-			if changed {
-				blocker.Meta.Blocks = updated
-				blocker.MarkDirty()
-			}
-		}
-
-		for _, blockedID := range task.Meta.Blocks {
-			if blockedID == "" {
-				continue
-			}
-			blocked, exists := v.tasks[blockedID]
-			if !exists {
-				continue // Will be caught by validation
-			}
-
-			updated, changed := addUniqueSorted(blocked.Meta.Blockers, taskID)
-			if changed {
-				blocked.Meta.Blockers = updated
-				blocked.MarkDirty()
-			}
-		}
-	}
 }
 
 func (v *Validator) fixSubtaskTextTitles() {
@@ -257,23 +212,6 @@ func (v *Validator) verifyParent(id string, task *Task) {
 	}
 }
 
-// verifyBlockers checks if blocker tasks exist
-func (v *Validator) verifyBlockers(id string, task *Task) {
-	for _, blocker := range task.Meta.Blockers {
-		if blocker == "" {
-			continue
-		}
-
-		if _, exists := v.tasks[blocker]; !exists {
-			v.errors = append(v.errors, ValidationError{
-				TaskID:  id,
-				File:    task.FilePath,
-				Message: fmt.Sprintf("blocker task %s does not exist", blocker),
-			})
-		}
-	}
-}
-
 // verifyTaskLinks scans task content for references to other tasks and verifies they exist
 func (v *Validator) verifyTaskLinks(id string, task *Task) {
 	// Task ID pattern: <PREFIX><4-lowercase-alphanumeric>-<slug>
@@ -297,57 +235,6 @@ func (v *Validator) verifyTaskLinks(id string, task *Task) {
 					Message: fmt.Sprintf("broken link: task %s does not exist", targetID),
 				})
 			}
-		}
-	}
-}
-
-// verifyBidirectionalBlockers ensures blocker relationships are bidirectional
-func (v *Validator) verifyBidirectionalBlockers(id string, task *Task) {
-	// For each blocker that this task lists, verify it lists this task in its blocks field
-	for _, blockerID := range task.Meta.Blockers {
-		if blockerID == "" {
-			continue
-		}
-
-		blocker, exists := v.tasks[blockerID]
-		if !exists {
-			// Already caught by verifyBlockers
-			continue
-		}
-
-		// Check if blocker lists this task in its blocks field
-		if !slices.Contains(blocker.Meta.Blocks, id) {
-			v.errors = append(v.errors, ValidationError{
-				TaskID:  id,
-				File:    task.FilePath,
-				Message: fmt.Sprintf("task has blocker %s, but %s doesn't list this task in blocks field", blockerID, blockerID),
-			})
-		}
-	}
-
-	// For each task that this one blocks, verify it lists this task in its blockers field
-	for _, blockedID := range task.Meta.Blocks {
-		if blockedID == "" {
-			continue
-		}
-
-		blocked, exists := v.tasks[blockedID]
-		if !exists {
-			v.errors = append(v.errors, ValidationError{
-				TaskID:  id,
-				File:    task.FilePath,
-				Message: fmt.Sprintf("blocks non-existent task %s", blockedID),
-			})
-			continue
-		}
-
-		// Check if blocked task lists this in its blockers field
-		if !slices.Contains(blocked.Meta.Blockers, id) {
-			v.errors = append(v.errors, ValidationError{
-				TaskID:  id,
-				File:    task.FilePath,
-				Message: fmt.Sprintf("task blocks %s, but %s doesn't list this task in blockers field", blockedID, blockedID),
-			})
 		}
 	}
 }
@@ -404,7 +291,7 @@ func extractTaskIDFromPath(path string) string {
 	parts := strings.Split(filepath.ToSlash(path), "/")
 
 	// Task ID pattern: <PREFIX><4-lowercase-alphanumeric>-<slug>
-	idPattern := regexp.MustCompile(`^[A-Z][0-9a-z]{4}-[a-zA-Z0-9-]+$`)
+	idPattern := regexp.MustCompile(`^[A-Z][0-9a-z]{4,6}-[a-zA-Z0-9-]+$`)
 
 	// Scan path components for ID pattern
 	for _, part := range parts {

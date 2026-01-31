@@ -4,13 +4,12 @@ role: designer
 priority: medium
 parent: Tftao-clarify-recurrence-anchor-flags-and-help-text
 blockers:
-    - T3md3-usability-review-recurrence-anchor-flags
     - Tnsrg-reliability-review-recurrence-anchor-flags
     - Tu1pm-review-recurrence-anchor-flags-alternatives
 blocks:
     - Tftao-clarify-recurrence-anchor-flags-and-help-text
 date_created: 2026-01-29T05:16:13.851401Z
-date_edited: 2026-01-31T04:41:33.150441Z
+date_edited: 2026-01-31T06:15:24.272075Z
 owner_approval: false
 completed: false
 ---

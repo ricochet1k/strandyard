@@ -68,7 +68,7 @@ func resolveTaskIDFromListPath(path string, tasks map[string]*Task) string {
 func extractTaskIDFromPathLast(path string) string {
 	path = filepath.Clean(path)
 	parts := strings.Split(filepath.ToSlash(path), "/")
-	idPattern := regexp.MustCompile(`^[A-Z][0-9a-z]{4}-[a-zA-Z0-9-]+$`)
+	idPattern := regexp.MustCompile(`^[A-Z][0-9a-z]{4,6}-[a-zA-Z0-9-]+$`)
 	match := ""
 	for _, part := range parts {
 		if idPattern.MatchString(part) {
