@@ -95,7 +95,7 @@ func filterTasks(tasksRoot string, tasks map[string]*Task, opts ListOptions) ([]
 		if opts.Parent != "" && t.Meta.Parent != opts.Parent {
 			continue
 		}
-		if opts.Role != "" && strings.EqualFold(t.GetEffectiveRole(), opts.Role) {
+		if opts.Role != "" && !strings.EqualFold(t.GetEffectiveRole(), opts.Role) {
 			continue
 		}
 		if opts.Priority != "" && NormalizePriority(t.Meta.Priority) != NormalizePriority(opts.Priority) {

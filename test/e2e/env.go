@@ -29,6 +29,12 @@ func NewTestEnv(t testing.TB) *TestEnv {
 	baseDir := filepath.Join(rootDir, ".strand")
 	tasksDir := filepath.Join(baseDir, "tasks")
 
+	gitInitCmd := exec.Command("git", "init")
+	gitInitCmd.Dir = rootDir
+	if output, err := gitInitCmd.CombinedOutput(); err != nil {
+		t.Fatalf("Failed to run git init: %v\nOutput: %s", err, string(output))
+	}
+
 	// Use the built binary to initialize the project
 	// This ensures we test the actual init logic and directory structure
 	initCmd := exec.Command(strandBinary, "init", "--storage=local")
