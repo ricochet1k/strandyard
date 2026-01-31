@@ -58,7 +58,7 @@ Clarify how `strand recurring add` captures the recurrence anchor across time-ba
 
 ### Alternative D — Single `--every` with structured string parsing
 - Description: Replace `--unit`/`--anchor` with a single repeatable `--every` flag that accepts a small structured string: `<amount> <metric> [from <anchor>]` (e.g., `--every "5 days from Jan 28 2026 09:00"`). Allow multiple `--every` flags for mixed metrics.
-- Assumptions: The parser enforces a strict grammar (not free-form NLP). The anchor is optional and defaults to "now" for all metrics.
+- Assumptions: The parser enforces a strict grammar (not free-form NLP). The anchor is optional; defaults to "now" for time-based metrics and "HEAD" for commit-based metrics.
 - Pros:
   - Single flag with clear, compact syntax; supports mixed metrics by repeating the flag.
   - Avoids multiple anchor flags while still allowing per-metric anchors.
@@ -80,7 +80,7 @@ Clarify how `strand recurring add` captures the recurrence anchor across time-ba
   - `--anchor`: Anchor value; format depends on `--anchor-type`.
   - `--anchor-type`: Anchor type: date|commit (required for git-based units).
 - Alternative D example:
-  - `--every`: Repeatable recurrence rule. Format: `<amount> <metric> [from <anchor>]` (e.g., `"5 days from Jan 28 2026 09:00"`, `"50 commits"`).
+  - `--every`: Repeatable recurrence rule. Format: `<amount> <metric> [from <anchor>]` (e.g., `"5 days from Jan 28 2026 09:00"`, `"50 commits from HEAD"`).
 
 ## Decision
 - Decision: Alternative D. Use repeatable `--every` with a strict structured grammar and per-metric anchors via `from <anchor>`.
@@ -89,7 +89,7 @@ Clarify how `strand recurring add` captures the recurrence anchor across time-ba
 - Recommendation: Alternative D to keep the CLI surface to a single flag while supporting mixed metrics via repeated `--every` rules.
 
 ## Defaults and Examples
-- `from <anchor>` is optional; if omitted, the anchor defaults to `now` for all metrics and is treated as "from now".
+- `from <anchor>` is optional; if omitted, the anchor defaults to "now" for time-based metrics and "HEAD" for commit-based metrics.
 - `from now` means run immediately and then recur; `after now` means the first run occurs at the next interval after the current time.
 - Examples and hint text should prefer human-friendly dates; ISO 8601 may be added only when needed for clarity.
 

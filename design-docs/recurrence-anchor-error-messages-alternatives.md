@@ -30,7 +30,7 @@ Compare approaches for user-facing error messages when parsing recurrence anchor
   - Small grammar changes can cascade into many expected-string updates.
 - Rough effort estimate: Medium.
 - Example messages:
-  - Recovery hint: "Example: --every \"10 commits\" (defaults to now)"
+  - Recovery hint: "Example: --every \"10 commits from HEAD\""
   - Malformed date anchor: "invalid anchor '2026-13-01': expected ISO 8601 timestamp after 'from'"
   - Recovery hint: "Use \"Jan 28 2026 09:00\""
   - Malformed commit anchor: "invalid anchor '2026-01-01': expected commit hash after 'from'"
@@ -84,8 +84,7 @@ Compare approaches for user-facing error messages when parsing recurrence anchor
   - `0` on success.
 
 ## Defaults and Hint Examples
-- `from <anchor>` is optional; if omitted, the anchor defaults to `now` and is treated as "from now".
-- Default anchor is `now` for all metrics, interpreted relative to what the metric measures (for example, `HEAD` for commit-based metrics).
+- `from <anchor>` is optional; if omitted, the anchor defaults to "now" for time-based metrics and "HEAD" for commit-based metrics.
 - `after now` means the first run occurs at the next interval after the current time; `from now` triggers an immediate run and then recurs.
 - Hint examples should prefer human-friendly dates (for example, "Jan 28 2026 09:00") and may include ISO 8601 as a secondary reference if needed.
 
