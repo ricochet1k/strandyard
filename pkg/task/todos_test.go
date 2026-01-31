@@ -39,7 +39,7 @@ func TestFormatTaskItems(t *testing.T) {
 	}
 
 	todoStr := FormatTodoItems(items)
-	expectedTodo := "1. [ ] (role: dev) Task 1\n2. [x] (subtask: T1) Sub 1"
+	expectedTodo := "- [ ] (role: dev) Task 1\n- [x] (subtask: T1) Sub 1"
 	if todoStr != expectedTodo {
 		t.Errorf("FormatTodoItems mismatch:\nGot: %q\nWant: %q", todoStr, expectedTodo)
 	}

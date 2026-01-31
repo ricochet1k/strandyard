@@ -45,7 +45,7 @@ parent: ""
 	}
 
 	content := parent.Content()
-	if !strings.Contains(content, "1. [ ] Manual item") {
+	if !strings.Contains(content, "- [ ] Manual item") {
 		t.Errorf("manual item missing:\n%s", content)
 	}
 	if !strings.Contains(content, "- [ ] (subtask: T1aaa) First") {

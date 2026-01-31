@@ -5,9 +5,9 @@ import (
 	"os"
 	"path/filepath"
 	"regexp"
+	"slices"
 	"sort"
 	"strings"
-	"time"
 )
 
 // ValidationError represents a validation error
@@ -88,7 +88,6 @@ func (v *Validator) ValidateAndRepair() []ValidationError {
 // Returns notices describing each fix that was applied.
 func (v *Validator) FixMissingReferences() []ValidationError {
 	notices := []ValidationError{}
-	now := time.Now()
 
 	for id, task := range v.tasks {
 		changed := false
@@ -113,7 +112,7 @@ func (v *Validator) FixMissingReferences() []ValidationError {
 				Message: fmt.Sprintf("blocker task %s does not exist", blocker),
 			})
 		}
-		if !equalStringSlices(task.Meta.Blockers, blockers) {
+		if !slices.Equal(task.Meta.Blockers, blockers) {
 			task.Meta.Blockers = blockers
 			changed = true
 		}
@@ -126,13 +125,12 @@ func (v *Validator) FixMissingReferences() []ValidationError {
 				Message: fmt.Sprintf("blocks non-existent task %s", blocked),
 			})
 		}
-		if !equalStringSlices(task.Meta.Blocks, blocks) {
+		if !slices.Equal(task.Meta.Blocks, blocks) {
 			task.Meta.Blocks = blocks
 			changed = true
 		}
 
 		if changed {
-			task.Meta.DateEdited = now
 			task.MarkDirty()
 		}
 	}
@@ -142,7 +140,6 @@ func (v *Validator) FixMissingReferences() []ValidationError {
 
 // fixBlockerRelationships automatically fixes missing bidirectional blocker relationships
 func (v *Validator) fixBlockerRelationships() {
-	now := time.Now()
 	for taskID, task := range v.tasks {
 		for _, blockerID := range task.Meta.Blockers {
 			if blockerID == "" {
@@ -156,7 +153,6 @@ func (v *Validator) fixBlockerRelationships() {
 			updated, changed := addUniqueSorted(blocker.Meta.Blocks, taskID)
 			if changed {
 				blocker.Meta.Blocks = updated
-				blocker.Meta.DateEdited = now
 				blocker.MarkDirty()
 			}
 		}
@@ -173,7 +169,6 @@ func (v *Validator) fixBlockerRelationships() {
 			updated, changed := addUniqueSorted(blocked.Meta.Blockers, taskID)
 			if changed {
 				blocked.Meta.Blockers = updated
-				blocked.Meta.DateEdited = now
 				blocked.MarkDirty()
 			}
 		}
@@ -321,7 +316,7 @@ func (v *Validator) verifyBidirectionalBlockers(id string, task *Task) {
 		}
 
 		// Check if blocker lists this task in its blocks field
-		if !contains(blocker.Meta.Blocks, id) {
+		if !slices.Contains(blocker.Meta.Blocks, id) {
 			v.errors = append(v.errors, ValidationError{
 				TaskID:  id,
 				File:    task.FilePath,
@@ -347,7 +342,7 @@ func (v *Validator) verifyBidirectionalBlockers(id string, task *Task) {
 		}
 
 		// Check if blocked task lists this in its blockers field
-		if !contains(blocked.Meta.Blockers, id) {
+		if !slices.Contains(blocked.Meta.Blockers, id) {
 			v.errors = append(v.errors, ValidationError{
 				TaskID:  id,
 				File:    task.FilePath,
@@ -357,21 +352,11 @@ func (v *Validator) verifyBidirectionalBlockers(id string, task *Task) {
 	}
 }
 
-// contains checks if a string slice contains a value
-func contains(slice []string, val string) bool {
-	for _, item := range slice {
-		if item == val {
-			return true
-		}
-	}
-	return false
-}
-
 func addUniqueSorted(slice []string, val string) ([]string, bool) {
 	if val == "" {
 		return slice, false
 	}
-	if contains(slice, val) {
+	if slices.Contains(slice, val) {
 		return slice, false
 	}
 	slice = append(slice, val)

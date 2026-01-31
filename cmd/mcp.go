@@ -215,7 +215,7 @@ func handleMCPNext(ctx context.Context, request mcp.CallToolRequest, args nextAr
 
 func handleMCPComplete(ctx context.Context, request mcp.CallToolRequest, args completeArgs) (*mcp.CallToolResult, error) {
 	return runWithOutput(func(w io.Writer) error {
-		return runComplete(w, strings.TrimSpace(args.Project), strings.TrimSpace(args.TaskID), 0)
+		return runComplete(w, strings.TrimSpace(args.Project), strings.TrimSpace(args.TaskID), 0, "")
 	})
 }
 

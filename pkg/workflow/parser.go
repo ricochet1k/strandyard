@@ -178,13 +178,12 @@ func extractTodoSequence(content string) []TodoStep {
 
 	for _, line := range lines {
 		matches := todoRolePattern.FindStringSubmatch(line)
-		if matches != nil && len(matches) >= 3 {
+		if len(matches) >= 3 {
 			todoNum++
 			role := strings.TrimSpace(matches[1])
 			description := strings.TrimSpace(matches[2])
 
 			steps = append(steps, TodoStep{
-				Number:      todoNum,
 				Role:        role,
 				Description: description,
 			})

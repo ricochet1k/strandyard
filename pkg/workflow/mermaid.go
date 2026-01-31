@@ -82,14 +82,14 @@ func (g *WorkflowGraph) GenerateMermaidForTemplate(templateName string) (string,
 
 	// Generate nodes and edges for TODO sequence
 	for i, step := range template.TodoSequence {
-		nodeID := fmt.Sprintf("Todo%d", step.Number)
+		nodeID := fmt.Sprintf("Todo%d", i+1)
 		label := fmt.Sprintf("%s: %s", step.Role, truncate(step.Description, 40))
 
 		sb.WriteString(fmt.Sprintf("    %s[\"%s\"]\n", nodeID, label))
 
 		// Connect to next step
 		if i < len(template.TodoSequence)-1 {
-			nextID := fmt.Sprintf("Todo%d", template.TodoSequence[i+1].Number)
+			nextID := fmt.Sprintf("Todo%d", i+1)
 			sb.WriteString(fmt.Sprintf("    %s --> %s\n", nodeID, nextID))
 		}
 	}
@@ -97,8 +97,8 @@ func (g *WorkflowGraph) GenerateMermaidForTemplate(templateName string) (string,
 	// Add styling by role
 	sb.WriteString("\n")
 	roleColors := getRoleColors()
-	for _, step := range template.TodoSequence {
-		nodeID := fmt.Sprintf("Todo%d", step.Number)
+	for i, step := range template.TodoSequence {
+		nodeID := fmt.Sprintf("Todo%d", i+1)
 		if color, ok := roleColors[step.Role]; ok {
 			sb.WriteString(fmt.Sprintf("    style %s fill:%s\n", nodeID, color))
 		} else {
@@ -122,18 +122,18 @@ func sanitizeMermaidID(name string) string {
 // getRoleColors returns a map of role names to colors for styling
 func getRoleColors() map[string]string {
 	return map[string]string{
-		"owner":               "#99ff99",
-		"designer":            "#ffff99",
-		"architect":           "#99ffff",
-		"developer":           "#9999ff",
-		"tester":              "#ff99cc",
-		"documentation":       "#ccff99",
-		"triage":              "#ffcc99",
-		"reviewer":            "#cc99ff",
-		"master-reviewer":     "#cc99ff",
-		"reviewer-security":   "#ff99ff",
+		"owner":                "#99ff99",
+		"designer":             "#ffff99",
+		"architect":            "#99ffff",
+		"developer":            "#9999ff",
+		"tester":               "#ff99cc",
+		"documentation":        "#ccff99",
+		"triage":               "#ffcc99",
+		"reviewer":             "#cc99ff",
+		"master-reviewer":      "#cc99ff",
+		"reviewer-security":    "#ff99ff",
 		"reviewer-reliability": "#ff99ff",
-		"reviewer-usability":  "#ff99ff",
+		"reviewer-usability":   "#ff99ff",
 	}
 }
 

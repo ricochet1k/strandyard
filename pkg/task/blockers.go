@@ -1,6 +1,7 @@
 package task
 
 import (
+	"slices"
 	"sort"
 	"time"
 )
@@ -61,27 +62,14 @@ func UpdateBlockersFromChildren(tasks map[string]*Task) (int, error) {
 		}
 		sort.Strings(desired)
 
-		if equalStringSlices(parent.Meta.Blockers, desired) {
+		if slices.Equal(parent.Meta.Blockers, desired) {
 			continue
 		}
 
 		parent.Meta.Blockers = desired
-		parent.Meta.DateEdited = now
 		parent.MarkDirty()
 		updated++
 	}
 
 	return updated, nil
-}
-
-func equalStringSlices(a, b []string) bool {
-	if len(a) != len(b) {
-		return false
-	}
-	for i := range a {
-		if a[i] != b[i] {
-			return false
-		}
-	}
-	return true
 }

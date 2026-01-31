@@ -28,11 +28,6 @@ Update task templates to use YAML frontmatter format instead of simple field for
 ## Example Template Format
 ```markdown
 ---
-role: {{ .Role }}
-parent: {{ .Parent }}
-blockers: []
-date_created: {{ .DateCreated }}
-date_edited: {{ .DateEdited }}
 ---
 
 ## Context

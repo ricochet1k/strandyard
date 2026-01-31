@@ -4,6 +4,7 @@ Copyright © 2026 NAME HERE <EMAIL ADDRESS>
 package cmd
 
 import (
+	"errors"
 	"fmt"
 	"io"
 	"strings"
@@ -19,21 +20,24 @@ var completeCmd = &cobra.Command{
 	Short: "Mark a task as completed",
 	Long: `Mark a task as completed by setting completed: true in the frontmatter.
 Also updates the date_edited field to the current time.
-Use --todo to check off a specific todo item instead of completing the entire task.`,
+Use --todo to check off a specific todo item instead of completing the entire task.
+Use --role to validate that the current role matches the task role.`,
 	Args: cobra.ExactArgs(1),
 	RunE: func(cmd *cobra.Command, args []string) error {
 		taskID := args[0]
 		todoNum, _ := cmd.Flags().GetInt("todo")
-		return runComplete(cmd.OutOrStdout(), projectName, taskID, todoNum)
+		role, _ := cmd.Flags().GetString("role")
+		return runComplete(cmd.OutOrStdout(), projectName, taskID, todoNum, role)
 	},
 }
 
 func init() {
 	completeCmd.Flags().Int("todo", 0, "Check off a specific todo item (1-based index)")
+	completeCmd.Flags().String("role", "", "Validate role matches task role")
 	rootCmd.AddCommand(completeCmd)
 }
 
-func runComplete(w io.Writer, projectName, taskID string, todoNum int) error {
+func runComplete(w io.Writer, projectName, taskID string, todoNum int, role string) error {
 	paths, err := resolveProjectPaths(projectName)
 	if err != nil {
 		return err
@@ -55,7 +59,59 @@ func runComplete(w io.Writer, projectName, taskID string, todoNum int) error {
 	// Find the task by ID
 	t, exists := tasks[taskID]
 	if !exists {
-		return fmt.Errorf("task not found: %s", taskID)
+		return fmt.Errorf("task not found: %s", task.ShortID(taskID))
+	}
+
+	// Check if there are incomplete todos
+	var incompleteTodos []task.TaskItem
+	for _, todo := range t.TodoItems {
+		if !todo.Checked {
+			incompleteTodos = append(incompleteTodos, todo)
+		}
+	}
+
+	// Validate role if --role flag is provided
+	if role != "" {
+		var taskRole string
+
+		if todoNum > 0 {
+			// For --todo, validate against specific todo role
+			if todoNum <= len(t.TodoItems) {
+				taskRole = t.TodoItems[todoNum-1].Role
+			} else {
+				taskRole = "INVALID_TODO_NUM"
+			}
+		} else {
+			// For task completion, validate against task role
+			taskRole = t.Meta.Role
+			if taskRole == "" {
+				taskRole = t.GetEffectiveRole()
+			}
+		}
+
+		if taskRole != role {
+			// Include all todos in error message if role doesn't match
+			var errorMsg string
+			if len(incompleteTodos) > 0 {
+				target := "task"
+				if todoNum > 0 {
+					target = "todo"
+				}
+				errorMsg = fmt.Sprintf("role validation failed: %s has role '%s' but --role flag specifies '%s'\n\nIncomplete todos:\n",
+					target, taskRole, role)
+				for i, todo := range incompleteTodos {
+					errorMsg += fmt.Sprintf("%d. [ ] (role: %s) %s\n", i+1, todo.Role, todo.Text)
+				}
+			} else {
+				target := "task"
+				if todoNum > 0 {
+					target = "todo"
+				}
+				errorMsg = fmt.Sprintf("role validation failed: %s has role '%s' but --role flag specifies '%s'",
+					target, taskRole, role)
+			}
+			return errors.New(errorMsg)
+		}
 	}
 
 	// Handle todo completion if --todo flag is used
@@ -72,16 +128,48 @@ func runComplete(w io.Writer, projectName, taskID string, todoNum int) error {
 
 		// Mark the todo item as checked
 		t.TodoItems[todoIndex].Checked = true
-		t.Meta.DateEdited = time.Now().UTC()
 		t.MarkDirty()
 
 		if err := t.Write(); err != nil {
 			return fmt.Errorf("failed to write task file: %w", err)
 		}
 
+		// Check if this was the last incomplete todo
+		remainingIncomplete := 0
+		for _, todo := range t.TodoItems {
+			if !todo.Checked {
+				remainingIncomplete++
+			}
+		}
+
+		if remainingIncomplete == 0 {
+			// Last todo completed, mark task as completed
+			t.Meta.Completed = true
+			t.MarkDirty()
+
+			if err := t.Write(); err != nil {
+				return fmt.Errorf("failed to write task file: %w", err)
+			}
+
+			fmt.Fprintf(w, "✓ Todo item %d checked off in task %s (last todo - task marked complete)\n", todoNum, task.ShortID(taskID))
+			fmt.Fprintf(w, "💡 Consider committing your changes: git add -A && git commit -m \"complete: %s\"\n", task.ShortID(taskID))
+			return nil
+		}
+
 		fmt.Fprintf(w, "✓ Todo item %d checked off in task %s\n", todoNum, task.ShortID(taskID))
 		fmt.Fprintf(w, "💡 Consider committing your changes: git add -A && git commit -m \"todo: %s check off item %d\"\n", task.ShortID(taskID), todoNum)
 		return nil
+	}
+
+	// If not using --todo flag, check for incomplete todos
+	if todoNum == 0 {
+		if len(incompleteTodos) > 0 {
+			errorMsg := fmt.Sprintf("cannot complete task %s: incomplete todos remain\n\n", task.ShortID(taskID))
+			for i, todo := range incompleteTodos {
+				errorMsg += fmt.Sprintf("%d. [ ] (role: %s) %s\n", i+1, todo.Role, todo.Text)
+			}
+			return errors.New(errorMsg)
+		}
 	}
 
 	// Check if already completed
@@ -98,7 +186,6 @@ func runComplete(w io.Writer, projectName, taskID string, todoNum int) error {
 
 	// Update metadata
 	t.Meta.Completed = true
-	t.Meta.DateEdited = time.Now().UTC()
 	t.MarkDirty()
 
 	if err := t.Write(); err != nil {

@@ -141,11 +141,11 @@ func (g *WorkflowGraph) GetRoleUsage(roleName string) *RoleUsageInfo {
 	}
 
 	info := &RoleUsageInfo{
-		RoleName:         roleName,
+		RoleName:          roleName,
 		AssignedTemplates: []string{},
-		UsedInTodos:      make(map[string][]int),
-		ReceivesVia:      []string{},
-		Creates:          role.Meta.Workflow.Creates,
+		UsedInTodos:       make(map[string][]int),
+		ReceivesVia:       []string{},
+		Creates:           role.Meta.Workflow.Creates,
 	}
 
 	// Find templates where this role is the primary assigned role
@@ -155,9 +155,9 @@ func (g *WorkflowGraph) GetRoleUsage(roleName string) *RoleUsageInfo {
 		}
 
 		// Find TODOs that use this role
-		for _, step := range template.TodoSequence {
+		for i, step := range template.TodoSequence {
 			if step.Role == roleName {
-				info.UsedInTodos[template.Name] = append(info.UsedInTodos[template.Name], step.Number)
+				info.UsedInTodos[template.Name] = append(info.UsedInTodos[template.Name], i+1)
 			}
 		}
 	}

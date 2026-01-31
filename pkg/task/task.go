@@ -78,8 +78,10 @@ func (t *Task) SetBody(newBody string) {
 
 // MarkDirty marks the task as modified.
 func (t *Task) MarkDirty() {
+	if !t.Dirty {
+		t.Meta.DateEdited = time.Now().UTC()
+	}
 	t.Dirty = true
-	t.Meta.DateEdited = time.Now().UTC()
 }
 
 // Write persists updated metadata to the task file.
