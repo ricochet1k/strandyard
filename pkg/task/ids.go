@@ -43,6 +43,7 @@ func ResolveTaskID(tasks map[string]*Task, input string) (string, error) {
 		}
 	}
 
+	// Try exact short ID match first
 	if shortIDPattern.MatchString(input) {
 		matches := make([]string, 0, 2)
 		for id := range tasks {
@@ -57,6 +58,21 @@ func ResolveTaskID(tasks map[string]*Task, input string) (string, error) {
 			sort.Strings(matches)
 			return "", fmt.Errorf("short id %s is ambiguous: %s", input, strings.Join(matches, ", "))
 		}
+	}
+
+	// Try partial prefix match for any valid prefix
+	matches := make([]string, 0, 2)
+	for id := range tasks {
+		if strings.HasPrefix(id, input) {
+			matches = append(matches, id)
+		}
+	}
+	if len(matches) == 1 {
+		return matches[0], nil
+	}
+	if len(matches) > 1 {
+		sort.Strings(matches)
+		return "", fmt.Errorf("prefix %s is ambiguous: %s", input, strings.Join(matches, ", "))
 	}
 
 	return "", fmt.Errorf("task not found: %s", input)
