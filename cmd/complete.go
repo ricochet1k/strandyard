@@ -18,19 +18,22 @@ var completeCmd = &cobra.Command{
 	Use:   "complete <task-id>",
 	Short: "Mark a task as completed",
 	Long: `Mark a task as completed by setting completed: true in the frontmatter.
-Also updates the date_edited field to the current time.`,
+Also updates the date_edited field to the current time.
+Use --todo to check off a specific todo item instead of completing the entire task.`,
 	Args: cobra.ExactArgs(1),
 	RunE: func(cmd *cobra.Command, args []string) error {
 		taskID := args[0]
-		return runComplete(cmd.OutOrStdout(), projectName, taskID)
+		todoNum, _ := cmd.Flags().GetInt("todo")
+		return runComplete(cmd.OutOrStdout(), projectName, taskID, todoNum)
 	},
 }
 
 func init() {
+	completeCmd.Flags().Int("todo", 0, "Check off a specific todo item (1-based index)")
 	rootCmd.AddCommand(completeCmd)
 }
 
-func runComplete(w io.Writer, projectName, taskID string) error {
+func runComplete(w io.Writer, projectName, taskID string, todoNum int) error {
 	paths, err := resolveProjectPaths(projectName)
 	if err != nil {
 		return err
@@ -53,6 +56,32 @@ func runComplete(w io.Writer, projectName, taskID string) error {
 	t, exists := tasks[taskID]
 	if !exists {
 		return fmt.Errorf("task not found: %s", taskID)
+	}
+
+	// Handle todo completion if --todo flag is used
+	if todoNum > 0 {
+		if todoNum <= 0 || todoNum > len(t.TodoItems) {
+			return fmt.Errorf("invalid todo number %d, task has %d todo items", todoNum, len(t.TodoItems))
+		}
+
+		todoIndex := todoNum - 1
+		if t.TodoItems[todoIndex].Checked {
+			fmt.Fprintf(w, "Todo item %d is already checked off\n", todoNum)
+			return nil
+		}
+
+		// Mark the todo item as checked
+		t.TodoItems[todoIndex].Checked = true
+		t.Meta.DateEdited = time.Now().UTC()
+		t.MarkDirty()
+
+		if err := t.Write(); err != nil {
+			return fmt.Errorf("failed to write task file: %w", err)
+		}
+
+		fmt.Fprintf(w, "✓ Todo item %d checked off in task %s\n", todoNum, task.ShortID(taskID))
+		fmt.Fprintf(w, "💡 Consider committing your changes: git add -A && git commit -m \"todo: %s check off item %d\"\n", task.ShortID(taskID), todoNum)
+		return nil
 	}
 
 	// Check if already completed

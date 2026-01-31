@@ -26,5 +26,6 @@
 - [Design opencode plugin](T7m5z-opencode-plugin-design/T7m5z-opencode-plugin-design.md)
 - [Design MCP server](T8s2d-mcp-server-design/T8s2d-mcp-server-design.md)
 - [Design recurring code review and cleanup tasks](T9f4w-code-review-cleanup-recurring-design/T9f4w-code-review-cleanup-recurring-design.md)
+- [Test todo functionality verification](Ta12n-test-todo-functionality-verification/Ta12n-test-todo-functionality-verification.md)
 - [E7n2q-external-storage](Tbs59-e7n2q-external-storage/Tbs59-e7n2q-external-storage.md)
 - [T8k7p-tui-design](Tgyqy-t8k7p-tui-design/Tgyqy-t8k7p-tui-design.md)

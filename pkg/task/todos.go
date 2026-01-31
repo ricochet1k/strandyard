@@ -57,7 +57,7 @@ func FormatTodoItems(items []TaskItem) string {
 		if item.Checked {
 			status = "x"
 		}
-		sb.WriteString(fmt.Sprintf("- [%s] ", status))
+		sb.WriteString(fmt.Sprintf("%d. [%s] ", i+1, status))
 		if item.Role != "" {
 			sb.WriteString(fmt.Sprintf("(role: %s) ", item.Role))
 		}

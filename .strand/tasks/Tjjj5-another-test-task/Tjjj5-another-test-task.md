@@ -1,20 +1,17 @@
 ---
 type: task
-role: reviewer-reliability
+role: developer
 priority: medium
-parent: Tcsz3-review-alternatives-recurrence-anchor-error-messag
-blockers:
-    - Tegcz-decide-every-error-output-contract-prefix-stderr-e
-    - Th8av-define-canonical-hint-examples-for-every-errors
-blocks:
-    - Tcsz3-review-alternatives-recurrence-anchor-error-messag
-date_created: 2026-01-29T15:28:01.821675Z
-date_edited: 2026-01-31T04:41:33.149335Z
+parent: ""
+blockers: []
+blocks: []
+date_created: 2026-01-31T04:37:46.439918Z
+date_edited: 2026-01-31T04:37:50.179512Z
 owner_approval: false
 completed: true
 ---
 
-# Define error message format contract for --every anchor parsing
+# Another test task
 
 ## Context
 Provide links to relevant design documents, diagrams, and decision records.
@@ -23,7 +20,7 @@ Provide links to relevant design documents, diagrams, and decision records.
 
 
 ## Escalation
-If new concerns or decisions arise, create follow-up tasks instead of editing this task.
+Tasks are disposable. Use follow-up tasks for open questions/concerns. Record decisions and final rationale in design docs; do not edit this task to capture outcomes.
 
 ## Acceptance Criteria
 - Clear, runnable steps to reproduce locally.
@@ -36,7 +33,3 @@ If new concerns or decisions arise, create follow-up tasks instead of editing th
 - [ ] (role: tester) Execute test-suite and report failures.
 - [ ] (role: master-reviewer) Coordinate required reviews: `reviewer-reliability`, `reviewer-security`, `reviewer-usability`.
 - [ ] (role: documentation) Update user-facing docs and examples.
-
-## Subtasks
-- [x] (subtask: Tegcz) Decide --every error output contract (prefix, stderr, exit code)
-- [ ] (subtask: Th8av) Define canonical hint examples for --every errors

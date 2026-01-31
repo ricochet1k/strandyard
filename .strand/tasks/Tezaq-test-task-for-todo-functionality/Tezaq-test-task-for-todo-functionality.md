@@ -1,22 +1,26 @@
 ---
-type: leaf
-role: architect
-priority: low
+type: task
+role: developer
+priority: medium
 parent: ""
-blockers:
-    - Tt13y-t5h8w-config-storage
-blocks:
-    - E5w8m-e2e-tests
-date_created: 2026-01-28T06:58:01.368383Z
-date_edited: 2026-01-31T04:41:33.149349Z
+blockers: []
+blocks: []
+date_created: 2026-01-31T04:37:18.261165Z
+date_edited: 2026-01-31T04:37:42.255561Z
 owner_approval: false
-completed: false
+completed: true
 ---
 
-# E7n2q-external-storage
+# Test task for todo functionality
 
 ## Context
 Provide links to relevant design documents, diagrams, and decision records.
+
+## Description
+
+
+## Escalation
+Tasks are disposable. Use follow-up tasks for open questions/concerns. Record decisions and final rationale in design docs; do not edit this task to capture outcomes.
 
 ## Acceptance Criteria
 - Clear, runnable steps to reproduce locally.
@@ -24,11 +28,8 @@ Provide links to relevant design documents, diagrams, and decision records.
 - Required reviews completed and blockers cleared.
 
 ## TODOs
-- [ ] (role: {{ .Role }}) Implement the behavior described in Context.
+- [x] (role: developer) Implement the behavior described in Context.
 - [ ] (role: developer) Add unit and integration tests covering the main flows.
 - [ ] (role: tester) Execute test-suite and report failures.
 - [ ] (role: master-reviewer) Coordinate required reviews: `reviewer-reliability`, `reviewer-security`, `reviewer-usability`.
 - [ ] (role: documentation) Update user-facing docs and examples.
-
-## Subtasks
-- [ ] (subtask: Tt13y) T5h8w-config-storage

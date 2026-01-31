@@ -181,9 +181,17 @@ func (v *Validator) fixBlockerRelationships() {
 }
 
 func (v *Validator) fixSubtaskTextTitles() {
-	for taskID, task := range v.tasks {
+	for _, task := range v.tasks {
 		for _, subtask := range task.SubsItems {
-			if v.tasks
+			if subtask.SubtaskID != "" {
+				if subtaskTask, exists := v.tasks[subtask.SubtaskID]; exists {
+					// Update subtask text to match the subtask's title if different
+					if subtask.Text != subtaskTask.TitleContent {
+						subtask.Text = subtaskTask.TitleContent
+						task.MarkDirty()
+					}
+				}
+			}
 		}
 	}
 }
