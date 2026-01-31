@@ -13,8 +13,11 @@ import (
 )
 
 var (
-	webPort   int
-	webNoOpen bool
+	webPort           int
+	webNoOpen         bool
+	webAuthToken      string
+	webReadOnly       bool
+	webAllowedOrigins string
 )
 
 var webCmd = &cobra.Command{
@@ -30,6 +33,9 @@ func init() {
 	rootCmd.AddCommand(webCmd)
 	webCmd.Flags().IntVar(&webPort, "port", 8686, "port to listen on")
 	webCmd.Flags().BoolVar(&webNoOpen, "no-open", false, "don't auto-open browser")
+	webCmd.Flags().StringVar(&webAuthToken, "auth-token", "", "authentication token required for API access")
+	webCmd.Flags().BoolVar(&webReadOnly, "read-only", false, "enable read-only mode (disables file writes)")
+	webCmd.Flags().StringVar(&webAllowedOrigins, "allowed-origins", "*", "comma-separated list of allowed CORS origins")
 }
 
 func runWeb() error {
@@ -56,11 +62,23 @@ func runWeb() error {
 		return fmt.Errorf("no projects found (run 'strand init' first)")
 	}
 
+	var allowedOrigins []string
+	if webAllowedOrigins != "" {
+		for _, origin := range strings.Split(webAllowedOrigins, ",") {
+			allowedOrigins = append(allowedOrigins, strings.TrimSpace(origin))
+		}
+	} else {
+		allowedOrigins = []string{"*"}
+	}
+
 	cfg := web.ServerConfig{
 		Port:           webPort,
 		Projects:       projects,
 		CurrentProject: currentProject,
 		AutoOpen:       !webNoOpen,
+		AuthToken:      webAuthToken,
+		ReadOnly:       webReadOnly,
+		AllowedOrigins: allowedOrigins,
 	}
 
 	ctx, stop := signal.NotifyContext(context.Background(), os.Interrupt)

@@ -22,6 +22,15 @@ strand web --no-open
 # Use a custom port
 strand web --port 3000
 
+# Require authentication token
+strand web --auth-token your-secret-token
+
+# Enable read-only mode (no file writes)
+strand web --read-only
+
+# Restrict CORS origins
+strand web --allowed-origins "http://localhost:5173,http://localhost:3000"
+
 # Filter to only global or local projects using environment variables
 STRAND_STORAGE=global strand web
 STRAND_STORAGE=local strand web
@@ -79,6 +88,43 @@ All projects are watched simultaneously, and the dashboard receives updates for 
 - `GET /api/stream` - Server-sent events stream for real-time updates
 
 All endpoints (except `/api/projects` and `/api/health`) accept an optional `?project=X` query parameter to scope the request to a specific project.
+
+## Security
+
+### Authentication
+
+The dashboard supports optional token-based authentication. When `--auth-token` is set, all API requests must include a valid token:
+
+- **Bearer token in Authorization header**:
+  ```
+  Authorization: Bearer your-secret-token
+  ```
+
+- **Token in query string** (for convenience):
+  ```
+  /api/tasks?project=local&token=your-secret-token
+  ```
+
+**Note**: By default, no authentication is required. Always use `--auth-token` in production or shared environments.
+
+### Read-Only Mode
+
+Use `--read-only` to disable all file write operations. This prevents modifications while still allowing read access to tasks, roles, and templates.
+
+### CORS
+
+By default, CORS allows all origins (`*`). Use `--allowed-origins` to restrict access to specific origins:
+
+```bash
+strand web --allowed-origins "http://localhost:5173,https://yourdomain.com"
+```
+
+### File Write Safeguards
+
+File writes are protected by:
+- Path validation: Files can only be written to `tasks/`, `roles/`, or `templates/` directories
+- Content validation: Empty content is rejected
+- Read-only mode: When enabled, all write operations return HTTP 403 Forbidden
 
 ## Environment Variables
 

@@ -8,6 +8,7 @@ import (
 	"log"
 	"net/http"
 	"os"
+	"strings"
 	"time"
 )
 
@@ -46,13 +47,13 @@ func Serve(ctx context.Context, cfg ServerConfig) error {
 	mux := http.NewServeMux()
 
 	// API endpoints
-	mux.HandleFunc("/api/health", server.handleHealth)
-	mux.HandleFunc("/api/projects", server.handleProjects)
-	mux.HandleFunc("/api/state", server.handleState)
-	mux.HandleFunc("/api/tasks", server.handleTasks)
-	mux.HandleFunc("/api/files", server.handleFiles)
-	mux.HandleFunc("/api/file", server.handleFile)
-	mux.HandleFunc("/api/stream", server.handleStream)
+	mux.HandleFunc("/api/health", server.withAuth(server.handleHealth))
+	mux.HandleFunc("/api/projects", server.withAuth(server.handleProjects))
+	mux.HandleFunc("/api/state", server.withAuth(server.handleState))
+	mux.HandleFunc("/api/tasks", server.withAuth(server.handleTasks))
+	mux.HandleFunc("/api/files", server.withAuth(server.handleFiles))
+	mux.HandleFunc("/api/file", server.withAuth(server.handleFile))
+	mux.HandleFunc("/api/stream", server.withAuth(server.handleStream))
 
 	// Static files (embedded dashboard)
 	stripped, err := fs.Sub(distFS, "dist")
@@ -77,7 +78,7 @@ func Serve(ctx context.Context, cfg ServerConfig) error {
 		mux.Handle("/", http.FileServer(http.FS(stripped)))
 	}
 
-	handler := withCORS(mux)
+	handler := server.withCORS(mux)
 
 	addr := fmt.Sprintf(":%d", cfg.Port)
 	url := fmt.Sprintf("http://localhost:%d", cfg.Port)
@@ -119,11 +120,42 @@ func Serve(ctx context.Context, cfg ServerConfig) error {
 	return nil
 }
 
-func withCORS(next http.Handler) http.Handler {
+func (s *Server) withAuth(next http.HandlerFunc) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		if s.config.AuthToken != "" {
+			authHeader := r.Header.Get("Authorization")
+			token := r.URL.Query().Get("token")
+
+			valid := false
+			if strings.HasPrefix(authHeader, "Bearer ") {
+				valid = authHeader[7:] == s.config.AuthToken
+			} else if token != "" {
+				valid = token == s.config.AuthToken
+			}
+
+			if !valid {
+				w.Header().Set("WWW-Authenticate", "Bearer")
+				w.WriteHeader(http.StatusUnauthorized)
+				return
+			}
+		}
+		next(w, r)
+	}
+}
+
+func (s *Server) withCORS(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		w.Header().Set("Access-Control-Allow-Origin", "*")
+		origin := r.Header.Get("Origin")
+		allowedOrigin := "*"
+		for _, allowed := range s.config.AllowedOrigins {
+			if allowed == "*" || allowed == origin {
+				allowedOrigin = allowed
+				break
+			}
+		}
+		w.Header().Set("Access-Control-Allow-Origin", allowedOrigin)
 		w.Header().Set("Access-Control-Allow-Methods", "GET, PUT, POST, OPTIONS")
-		w.Header().Set("Access-Control-Allow-Headers", "Content-Type")
+		w.Header().Set("Access-Control-Allow-Headers", "Content-Type, Authorization")
 		if r.Method == "OPTIONS" {
 			w.WriteHeader(http.StatusNoContent)
 			return

@@ -171,6 +171,10 @@ func (s *Server) handleFile(w http.ResponseWriter, r *http.Request) {
 		}
 		respondJSON(w, http.StatusOK, filePayload{Path: filepath.ToSlash(path), Content: string(data)})
 	case http.MethodPut:
+		if s.config.ReadOnly {
+			respondError(w, http.StatusForbidden, fmt.Errorf("server is in read-only mode"))
+			return
+		}
 		body, err := io.ReadAll(r.Body)
 		if err != nil {
 			respondError(w, http.StatusBadRequest, err)
@@ -179,6 +183,10 @@ func (s *Server) handleFile(w http.ResponseWriter, r *http.Request) {
 		var payload filePayload
 		if err := json.Unmarshal(body, &payload); err != nil {
 			respondError(w, http.StatusBadRequest, err)
+			return
+		}
+		if payload.Content == "" {
+			respondError(w, http.StatusBadRequest, fmt.Errorf("content cannot be empty"))
 			return
 		}
 		if err := os.WriteFile(resolved, []byte(payload.Content), 0o644); err != nil {

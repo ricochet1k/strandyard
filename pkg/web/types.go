@@ -21,6 +21,9 @@ type ServerConfig struct {
 	Projects       []ProjectInfo
 	CurrentProject string
 	AutoOpen       bool
+	AuthToken      string
+	ReadOnly       bool
+	AllowedOrigins []string
 }
 
 type StreamUpdate struct {

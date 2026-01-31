@@ -2,7 +2,6 @@
 
 ## High
 
-- [Add auth + file write safeguards for dashboard](I7ls9-add-auth-file-write-safeguards-for-dashboard/I7ls9-add-auth-file-write-safeguards-for-dashboard.md)
 
 ## Medium
 
