@@ -4,11 +4,13 @@ role: designer
 priority: medium
 parent: T3md3-usability-review-recurrence-anchor-flags
 blockers:
+    - Tcsz3-review-alternatives-recurrence-anchor-error-messag
+    - Thy9m-reliability-review-recurrence-anchor-errors
     - Ti8ig-usability-review-recurrence-anchor-errors
 blocks:
     - T3md3-usability-review-recurrence-anchor-flags
 date_created: 2026-01-29T05:46:59.618092Z
-date_edited: 2026-01-31T06:15:24.271905Z
+date_edited: 2026-01-31T17:29:31.080066Z
 owner_approval: false
 completed: false
 ---

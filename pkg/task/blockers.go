@@ -36,6 +36,8 @@ func UpdateBlockersFromChildren(tasks map[string]*Task) (int, error) {
 	}
 
 	updated := 0
+
+	// Update all tasks that should have blockers
 	for parentID, foundBlockers := range taskBlockers {
 		parent, ok := tasks[parentID]
 		if !ok {
@@ -62,6 +64,22 @@ func UpdateBlockersFromChildren(tasks map[string]*Task) (int, error) {
 		parent.Meta.Blockers = desired
 		parent.MarkDirty()
 		updated++
+	}
+
+	// Clear blockers from tasks that shouldn't have any
+	for _, task := range tasks {
+		if task.Meta.Completed {
+			continue
+		}
+		// If task is not in taskBlockers, it should have no blockers
+		if _, hasBlockers := taskBlockers[task.ID]; !hasBlockers {
+			if len(task.Meta.Blockers) > 0 {
+				fmt.Printf("UpdateBlockersFromChildren clearing blockers from %v (had %v)\n", task.FilePath, task.Meta.Blockers)
+				task.Meta.Blockers = []string{}
+				task.MarkDirty()
+				updated++
+			}
+		}
 	}
 
 	return updated, nil

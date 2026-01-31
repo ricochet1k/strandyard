@@ -2,7 +2,7 @@
 
 ## High
 
-- [Add auth + file write safeguards for dashboard](Iuu2v-add-auth-file-write-safeguards-for-dashboard/Iuu2v-add-auth-file-write-safeguards-for-dashboard.md)
+- [Add auth + file write safeguards for dashboard](I7ls9-add-auth-file-write-safeguards-for-dashboard/I7ls9-add-auth-file-write-safeguards-for-dashboard.md)
 
 ## Medium
 
@@ -30,10 +30,25 @@
 - [Add CLI support for task storage migration](Iff91-add-cli-support-for-task-storage-migration/Iff91-add-cli-support-for-task-storage-migration.md)
 - [Track repair delta and verify complete no-op](Igghk-track-repair-delta-and-verify-complete-no-op/Igghk-track-repair-delta-and-verify-complete-no-op.md)
 - [Investigate date_edited churn on no-op repair](Ihv0n-investigate-date-edited-churn-on-no-op-repair/Ihv0n-investigate-date-edited-churn-on-no-op-repair.md)
+- [Add --parent flag to list command to list only commits that are descendants of a given parent](Iquzx-add-parent-flag-to-list-command-to-list-only-commi/Iquzx-add-parent-flag-to-list-command-to-list-only-commi.md)
 - [Add websocket streaming option for dashboard](Isfkq-add-websocket-streaming-option-for-dashboard/Isfkq-add-websocket-streaming-option-for-dashboard.md)
 - [Merge recurring add into add](Ish6g-merge-recurring-add-into-add/Ish6g-merge-recurring-add-into-add.md)
 - [Support role opt-in filtering for strand next](Ixf4f-support-role-opt-in-filtering-for-memmd-next/Ixf4f-support-role-opt-in-filtering-for-memmd-next.md)
 - [Test todo functionality verification](Ta12n-test-todo-functionality-verification/Ta12n-test-todo-functionality-verification.md)
+- [Review new taskdb.go implementation](Ti6zj-taskdb-api-design-review/T0f98-review-new-taskdb-go-implementation/T0f98-review-new-taskdb-go-implementation.md)
+- [Review blockers.go relationship management](Ti6zj-taskdb-api-design-review/T0q5n-review-blockers-go-relationship-management/T0q5n-review-blockers-go-relationship-management.md)
+- [Review task.go structure and methods](Ti6zj-taskdb-api-design-review/T2lt8-review-task-go-structure-and-methods/T2lt8-review-task-go-structure-and-methods.md)
+- [Write updated godoc with usage examples](Ti6zj-taskdb-api-design-review/T48or-write-updated-godoc-with-usage-examples/T48or-write-updated-godoc-with-usage-examples.md)
+- [Create implementation plan](Ti6zj-taskdb-api-design-review/T7qkw-create-implementation-plan/T7qkw-create-implementation-plan.md)
+- [Design access control strategy](Ti6zj-taskdb-api-design-review/T8bgf-design-access-control-strategy/T8bgf-design-access-control-strategy.md)
+- [Identify code to delete](Ti6zj-taskdb-api-design-review/Tb0oq-identify-code-to-delete/Tb0oq-identify-code-to-delete.md)
+- [Review parser.go and task loading](Ti6zj-taskdb-api-design-review/Tdhrq-review-parser-go-and-task-loading/Tdhrq-review-parser-go-and-task-loading.md)
+- [Document TaskDB responsibilities and boundaries](Ti6zj-taskdb-api-design-review/Thyd1-document-taskdb-responsibilities-and-boundaries/Thyd1-document-taskdb-responsibilities-and-boundaries.md)
+- [Review repair.go validation logic](Ti6zj-taskdb-api-design-review/Trtik-review-repair-go-validation-logic/Trtik-review-repair-go-validation-logic.md)
+- [Update existing usage throughout codebase](Ti6zj-taskdb-api-design-review/Tuu6q-update-existing-usage-throughout-codebase/Tuu6q-update-existing-usage-throughout-codebase.md)
+- [Audit API surface and identify misuse opportunities](Ti6zj-taskdb-api-design-review/Twcdw-audit-api-surface-and-identify-misuse-opportunitie/Twcdw-audit-api-surface-and-identify-misuse-opportunitie.md)
+- [Design relationship management API](Ti6zj-taskdb-api-design-review/Tx4jn-design-relationship-management-api/Tx4jn-design-relationship-management-api.md)
+- [Design task creation API (template-based only)](Ti6zj-taskdb-api-design-review/Txvyh-design-task-creation-api-template-based-only/Txvyh-design-task-creation-api-template-based-only.md)
 
 ## Low
 

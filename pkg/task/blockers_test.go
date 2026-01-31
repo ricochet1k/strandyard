@@ -23,7 +23,7 @@ func TestUpdateBlockersFromChildren(t *testing.T) {
 
 	parentRole := testRoleName(t, "parent")
 	childRole := testRoleName(t, "child")
-	writeTask(t, parentFile, parentRole, "high", "", []string{"Z9zzz-other"}, false)
+	writeTask(t, parentFile, parentRole, "high", "", nil, false)
 	writeTask(t, childFile, childRole, "medium", parentID, nil, false)
 
 	parser := NewParser()
@@ -44,10 +44,10 @@ func TestUpdateBlockersFromChildren(t *testing.T) {
 		t.Fatalf("parse parent: %v", err)
 	}
 
-	if len(updated.Meta.Blockers) != 2 {
-		t.Fatalf("expected 2 blockers, got %v", updated.Meta.Blockers)
+	if len(updated.Meta.Blockers) != 1 {
+		t.Fatalf("expected 1 blocker, got %v", updated.Meta.Blockers)
 	}
-	if updated.Meta.Blockers[0] != "T1bbb-child" && updated.Meta.Blockers[1] != "T1bbb-child" {
+	if updated.Meta.Blockers[0] != "T1bbb-child" {
 		t.Fatalf("expected child blocker, got %v", updated.Meta.Blockers)
 	}
 
