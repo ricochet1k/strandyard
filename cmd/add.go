@@ -96,7 +96,7 @@ func addOptionsFromFlags(cmd *cobra.Command, args []string, body string) (addOpt
 }
 
 // validateEvery validates --every flag values and provides deterministic hint examples
-func validateEvery(every []string) error {
+func validateEvery(every []string, repoPath string, tasks map[string]*task.Task) error {
 	if len(every) == 0 {
 		return nil // --every is optional
 	}
@@ -142,21 +142,14 @@ func validateEvery(every []string) error {
 		// Validate anchor if present
 		if len(parts) >= 4 && parts[2] == "from" {
 			anchor := strings.Join(parts[3:], " ")
-			if metric == "commits" || metric == "lines_changed" {
-				// For git-based metrics, only allow HEAD or hash placeholder
-				if anchor != "HEAD" && anchor != "0123456789abcdef" {
-					fmt.Fprintf(os.Stderr, "strand: error: invalid --every value: commit-based metrics only support \"HEAD\" or commit hashes\n")
+			if err := task.ValidateAnchor(metric, anchor, repoPath, tasks); err != nil {
+				fmt.Fprintf(os.Stderr, "strand: error: invalid --every value: %v\n", err)
+				if metric == "commits" || metric == "lines_changed" {
 					fmt.Fprintf(os.Stderr, "hint: --every \"50 commits from HEAD\"\n")
-					return fmt.Errorf("invalid --every anchor for commit metric")
-				}
-			}
-			// For date-based metrics, only allow specific deterministic date
-			if metric == "days" || metric == "weeks" || metric == "months" {
-				if anchor != "Jan 28 2026 09:00 UTC" {
-					fmt.Fprintf(os.Stderr, "strand: error: invalid --every value: date format not supported\n")
+				} else if metric == "days" || metric == "weeks" || metric == "months" {
 					fmt.Fprintf(os.Stderr, "hint: --every \"10 days from Jan 28 2026 09:00 UTC\"\n")
-					return fmt.Errorf("invalid --every date anchor")
 				}
+				return err
 			}
 		}
 	}
@@ -165,14 +158,20 @@ func validateEvery(every []string) error {
 }
 
 func runAdd(w io.Writer, opts addOptions) error {
-	// Validate --every flag first to provide early hints
-	if err := validateEvery(opts.Every); err != nil {
-		os.Exit(2) // Exit code 2 for --every parse/validation failures per design
-	}
-
 	paths, err := resolveProjectPaths(opts.ProjectName)
 	if err != nil {
 		return err
+	}
+
+	parser := task.NewParser()
+	tasks, err := parser.LoadTasks(paths.TasksDir)
+	if err != nil {
+		return err
+	}
+
+	// Validate --every flag first to provide early hints
+	if err := validateEvery(opts.Every, paths.BaseDir, tasks); err != nil {
+		os.Exit(2) // Exit code 2 for --every parse/validation failures per design
 	}
 
 	tmplName := strings.TrimSpace(opts.TemplateName)
@@ -250,16 +249,6 @@ func runAdd(w io.Writer, opts addOptions) error {
 
 	parent := strings.TrimSpace(opts.Parent)
 	parentDir := paths.TasksDir
-	var tasks map[string]*task.Task
-	var parser *task.Parser
-	if parent != "" || len(opts.Blockers) > 0 {
-		parser = task.NewParser()
-		loaded, err := parser.LoadTasks(paths.TasksDir)
-		if err != nil {
-			return err
-		}
-		tasks = loaded
-	}
 	if parent != "" {
 		resolvedParent, err := task.ResolveTaskID(tasks, parent)
 		if err != nil {

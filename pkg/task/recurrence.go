@@ -126,13 +126,82 @@ func EvaluateTasksCompletedMetric(baseDir, anchor string, taskID string, log *ac
 
 // ResolveGitHash resolves a git reference to a commit hash.
 func ResolveGitHash(repoPath, anchor string) (string, error) {
-	cmd := exec.Command("git", "rev-parse", anchor)
+	cmd := exec.Command("git", "rev-parse", "--verify", anchor+"^{commit}")
 	cmd.Dir = repoPath
 	out, err := cmd.Output()
 	if err != nil {
 		return "", err
 	}
 	return strings.TrimSpace(string(out)), nil
+}
+
+// ValidateAnchor validates a recurrence anchor for a given metric.
+func ValidateAnchor(metric, anchor, repoPath string, tasks map[string]*Task) error {
+	if anchor == "" {
+		return nil
+	}
+
+	switch metric {
+	case "days", "weeks", "months":
+		return ValidateDateAnchor(anchor)
+	case "commits", "lines_changed":
+		if anchor == "HEAD" {
+			return nil
+		}
+		return ValidateCommitAnchor(repoPath, anchor)
+	case "tasks_completed":
+		if anchor == "now" {
+			return nil
+		}
+		// If it's a date, validate as date
+		if err := ValidateDateAnchor(anchor); err == nil {
+			return nil
+		}
+		// Otherwise validate as task ID
+		return ValidateTaskAnchor(tasks, anchor)
+	default:
+		return fmt.Errorf("unsupported metric: %s", metric)
+	}
+}
+
+// ValidateDateAnchor checks if the anchor is a valid date (ISO 8601 or human-friendly).
+func ValidateDateAnchor(anchor string) error {
+	if anchor == "now" {
+		return nil
+	}
+	// Try ISO 8601
+	if _, err := time.Parse(time.RFC3339, anchor); err == nil {
+		return nil
+	}
+	// Try human-friendly format
+	if _, err := time.Parse("Jan 2 2006 15:04 MST", anchor); err == nil {
+		return nil
+	}
+	return fmt.Errorf("invalid date format: %s (expected ISO 8601 or \"Jan 2 2006 15:04 MST\")", anchor)
+}
+
+// ValidateCommitAnchor checks if the anchor exists in the git repository.
+func ValidateCommitAnchor(repoPath, anchor string) error {
+	if anchor == "HEAD" {
+		return nil
+	}
+	_, err := ResolveGitHash(repoPath, anchor)
+	if err != nil {
+		return fmt.Errorf("invalid commit anchor: %s (not found in repository)", anchor)
+	}
+	return nil
+}
+
+// ValidateTaskAnchor checks if the anchor is a valid task ID in the project.
+func ValidateTaskAnchor(tasks map[string]*Task, anchor string) error {
+	if tasks == nil {
+		return nil // Can't validate if tasks are not loaded
+	}
+	_, err := ResolveTaskID(tasks, anchor)
+	if err != nil {
+		return fmt.Errorf("invalid task anchor: %s (task not found)", anchor)
+	}
+	return nil
 }
 
 // isHeadValid checks if the HEAD reference in a git repository is valid.

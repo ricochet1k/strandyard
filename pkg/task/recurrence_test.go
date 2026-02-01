@@ -380,3 +380,55 @@ func TestRecurrenceAnchorResolutionLogging(t *testing.T) {
 		t.Errorf("expected time resolution entry not found")
 	}
 }
+
+func TestValidateAnchor(t *testing.T) {
+	// Setup git repo
+	repo, cleanup, err := setupGitRepo(t, true)
+	if err != nil {
+		t.Fatalf("failed to setup git repo: %v", err)
+	}
+	defer cleanup()
+
+	headHash, err := getCommitHash(t, repo, "HEAD")
+	if err != nil {
+		t.Fatalf("failed to get head hash: %v", err)
+	}
+
+	// Setup tasks map
+	tasks := map[string]*Task{
+		"T1234-existing": {ID: "T1234-existing"},
+	}
+
+	tests := []struct {
+		name    string
+		metric  string
+		anchor  string
+		isValid bool
+	}{
+		{"valid date ISO", "days", "2026-01-28T09:00:00Z", true},
+		{"valid date human", "days", "Jan 28 2026 09:00 UTC", true},
+		{"invalid date", "days", "invalid-date", false},
+		{"valid commit HEAD", "commits", "HEAD", true},
+		{"valid commit hash", "commits", headHash, true},
+		{"invalid commit hash", "commits", "0123456789abcdef0123456789abcdef01234567", false},
+		{"valid task anchor", "tasks_completed", "T1234-existing", true},
+		{"invalid task anchor", "tasks_completed", "T9999-missing", false},
+		{"valid tasks_completed date", "tasks_completed", "Jan 28 2026 09:00 UTC", true},
+		{"valid tasks_completed now", "tasks_completed", "now", true},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			err := ValidateAnchor(tt.metric, tt.anchor, repo, tasks)
+			if tt.isValid {
+				if err != nil {
+					t.Errorf("ValidateAnchor(%s, %s) expected no error but got %v", tt.metric, tt.anchor, err)
+				}
+			} else {
+				if err == nil {
+					t.Errorf("ValidateAnchor(%s, %s) expected error but got nil", tt.metric, tt.anchor)
+				}
+			}
+		})
+	}
+}

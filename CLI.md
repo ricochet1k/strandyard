@@ -461,7 +461,8 @@ every:
 **Anchors**:
 - If no anchor is specified (e.g., `10 days`), the anchor defaults to `now` for time-based rules or `HEAD` for git-based rules.
 - Explicit anchors can be provided using `from <anchor>`.
-- Date anchors should use the format `Jan 2 2006 15:04 MST`.
+- Date anchors support ISO 8601 (e.g., `2026-01-28T09:00:00Z`) and the human-friendly format `Jan 2 2006 15:04 MST`.
+- `tasks_completed` anchors can be a task ID or a date/time.
 
 **Special considerations for git-based recurrence**:
 - When a rule uses `HEAD` as an anchor, it indicates the latest commit.
@@ -554,7 +555,8 @@ Explicit anchor examples (use sparingly):
 Anchor guidance:
 - Use the human-friendly date anchor above for explicit date/time examples.
 - Use `HEAD` for commit-based defaults and explicit commit anchors.
-- Use ISO 8601 anchors only in docs/tests that validate ISO parsing (for example, `2026-01-28T09:00:00Z`).
+- Task ID anchors can be used for `tasks_completed` (e.g., `from T1234-example`).
+- ISO 8601 anchors are fully supported (for example, `2026-01-28T09:00:00Z`).
 
 ## Tips
 

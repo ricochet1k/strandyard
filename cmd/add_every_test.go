@@ -25,7 +25,8 @@ func TestValidateEvery(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			err := validateEvery(tt.every)
+			// We use "." as repoPath, which is the current directory (should be a git repo)
+			err := validateEvery(tt.every, ".", nil)
 
 			if tt.isValid {
 				if err != nil {
