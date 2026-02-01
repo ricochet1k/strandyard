@@ -143,7 +143,7 @@ func applyPreset(baseDir, preset string) error {
 		cleanup = func() {
 			_ = os.RemoveAll(tempDir)
 		}
-		cmd := exec.Command("git", "clone", "--depth", "1", preset, tempDir)
+		cmd := exec.Command("git", "clone", "--depth", "1", "--", preset, tempDir)
 		if output, err := cmd.CombinedOutput(); err != nil {
 			cleanup()
 			return fmt.Errorf("failed to clone preset: %s", strings.TrimSpace(string(output)))
