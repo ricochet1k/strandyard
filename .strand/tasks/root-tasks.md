@@ -28,4 +28,5 @@
 - [Design opencode plugin](T7m5z-opencode-plugin-design/T7m5z-opencode-plugin-design.md)
 - [Design MCP server](T8s2d-mcp-server-design/T8s2d-mcp-server-design.md)
 - [Design recurring code review and cleanup tasks](T9f4w-code-review-cleanup-recurring-design/T9f4w-code-review-cleanup-recurring-design.md)
+- [Complete command should also insert report into parent's subtasks after the relevant checkbox entry](Tfe1ssq-complete-command-should-also-insert-report-into-pa/Tfe1ssq-complete-command-should-also-insert-report-into-pa.md)
 - [TaskDB API Design Review](Ti6zj-taskdb-api-design-review/Ti6zj-taskdb-api-design-review.md)
