@@ -7,9 +7,10 @@ blockers: []
 blocks:
     - Trlrg-specify-anchor-error-messages
 date_created: 2026-01-29T15:19:01.830901Z
-date_edited: 2026-01-29T08:19:01.838171-07:00
+date_edited: 2026-02-01T20:16:41.149143Z
 owner_approval: false
-completed: false
+completed: true
+description: ""
 ---
 
 # Usability review: recurrence anchor errors
@@ -61,3 +62,6 @@ User-facing error strings and recovery hints for missing/malformed anchors.
 - Clarity and actionability of hints
 - Consistency with CLI language patterns
 - Potential confusion around defaults
+
+## Completion Report
+Usability review complete. Concerns captured as subtasks: (1) Anchor flag inconsistency between CLI.md (--anchor) and design doc examples (--every), (2) Missing anchor default behavior unclear - design doc says defaults to 'now'/'HEAD' but Alternative C (which had defaults) was not adopted, (3) Ambiguous anchor type error listed but no concrete message/hint defined, (4) 'after now' vs 'from now' distinction needs clearer documentation. Overall error message format (Alternative B) with structured reason + hint line is actionable and consistent.

@@ -12,9 +12,10 @@ blockers:
 blocks:
     - Thy9m-reliability-review-recurrence-anchor-errors
 date_created: 2026-01-29T19:20:50.103845Z
-date_edited: 2026-01-31T17:29:31.078586Z
+date_edited: 2026-02-01T15:56:45.277436Z
 owner_approval: false
 completed: true
+description: ""
 ---
 
 # Define deterministic anchor examples for --every hints
@@ -23,6 +24,7 @@ completed: true
 Provide links to relevant design documents, diagrams, and decision records.
 
 ## Description
+
 
 ## Summary
 Define canonical, deterministic anchor examples for each anchor type in `--every` hint lines.
@@ -45,4 +47,4 @@ Tasks are disposable. Use follow-up tasks for open questions/concerns. Record de
 - [x] (subtask: Tm6qi) Document canonical --every hint examples
 - [x] (subtask: Tqb9o) Approve canonical --every hint examples
 - [x] (subtask: Tsyeo) Review canonical --every hint examples (docs)
-- [ ] (subtask: Tv4cw) Implement deterministic --every hint examples
+- [x] (subtask: Tv4cw) Implement deterministic --every hint examples

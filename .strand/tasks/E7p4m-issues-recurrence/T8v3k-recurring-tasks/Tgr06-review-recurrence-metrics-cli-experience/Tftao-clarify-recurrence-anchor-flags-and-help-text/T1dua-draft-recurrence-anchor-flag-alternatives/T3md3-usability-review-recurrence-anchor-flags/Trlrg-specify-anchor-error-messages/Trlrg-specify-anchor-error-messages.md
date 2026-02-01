@@ -8,9 +8,10 @@ blockers:
 blocks:
     - T3md3-usability-review-recurrence-anchor-flags
 date_created: 2026-01-29T05:46:59.618092Z
-date_edited: 2026-02-01T04:21:33.585835Z
+date_edited: 2026-02-01T20:16:41.149827Z
 owner_approval: false
 completed: false
+description: ""
 ---
 
 # Specify anchor error messages
@@ -34,4 +35,4 @@ Tasks are disposable. Use follow-up tasks for open questions/concerns. Record de
 ## Subtasks
 - [x] (subtask: Tcsz3) Review alternatives: recurrence anchor error messages
 - [x] (subtask: Thy9m) Reliability review: recurrence anchor errors
-- [ ] (subtask: Ti8ig) Usability review: recurrence anchor errors
+- [x] (subtask: Ti8ig) Usability review: recurrence anchor errors

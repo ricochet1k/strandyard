@@ -198,6 +198,7 @@ func handleMCPAdd(ctx context.Context, request mcp.CallToolRequest, args addArgs
 		Priority:          strings.TrimSpace(args.Priority),
 		Parent:            strings.TrimSpace(args.Parent),
 		Blockers:          args.Blockers,
+		Every:             []string{}, // Not supported in MCP context yet
 		RoleSpecified:     strings.TrimSpace(args.Role) != "",
 		PrioritySpecified: strings.TrimSpace(args.Priority) != "",
 		Body:              args.Body,

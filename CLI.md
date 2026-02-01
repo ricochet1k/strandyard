@@ -207,12 +207,12 @@ Flags:
 strand add issue "Add issue command" --priority high
 ```
 
-### `recurring add` - Create recurring task definitions
+### `add` - Create recurring task definitions
 
 Creates a recurring task definition that can be materialized into normal tasks.
 
 ```bash
-strand recurring add [title] [flags]
+strand add [title] [flags]
 
 Flags:
   -t, --title string           definition title (can also be passed as positional argument)
@@ -230,7 +230,7 @@ Flags:
 
 **Example**:
 ```bash
-strand recurring add "Quarterly docs review" --interval 3 --unit months --anchor 2026-01-01T00:00:00Z --role reviewer
+strand add "Quarterly docs review" --interval 3 --unit months --anchor 2026-01-01T00:00:00Z --role reviewer
 ```
 
 **Resulting definition (example)**:
@@ -570,8 +570,8 @@ Set `priority: high|medium|low` or remove the field to default to `medium`.
 ### "task not found: X"
 Task ID doesn't exist in the task tree. Check spelling or use `repair` to see all tasks.
 
-### `recurring add --every` hint examples
-Hint lines for `strand recurring add --every` use deterministic examples so automation and tests remain stable. Canonical examples and anchor guidance live in `design-docs/recurrence-anchor-hint-examples.md`.
+### `add --every` hint examples
+Hint lines for `strand add --every` use deterministic examples so automation and tests remain stable. Canonical examples and anchor guidance live in `design-docs/recurrence-anchor-hint-examples.md`.
 
 Default anchor examples:
 - `--every "10 days"`
