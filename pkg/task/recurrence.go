@@ -7,6 +7,9 @@ import (
 	"os/exec"
 	"strconv"
 	"strings"
+	"time"
+
+	"github.com/ricochet1k/strandyard/pkg/activity"
 )
 
 // evaluateGitMetric evaluates a git-based recurrence metric (commits or lines_changed).
@@ -79,6 +82,28 @@ func evaluateGitMetric(repoPath, metricType, anchor string) (int, error) {
 	}
 
 	return 0, fmt.Errorf("unsupported metric type after execution: %s", metricType)
+}
+
+// evaluateTasksCompletedMetric evaluates a tasks_completed recurrence metric.
+// It queries the activity log to count task completions since the given anchor time.
+func evaluateTasksCompletedMetric(baseDir, anchor string) (int, error) {
+	anchorTime, err := time.Parse("Jan 2 2006 15:04 MST", anchor)
+	if err != nil {
+		return 0, fmt.Errorf("invalid date anchor format: %w", err)
+	}
+
+	log, err := activity.Open(baseDir)
+	if err != nil {
+		return 0, fmt.Errorf("failed to open activity log: %w", err)
+	}
+	defer log.Close()
+
+	count, err := log.CountCompletionsSince(anchorTime)
+	if err != nil {
+		return 0, fmt.Errorf("failed to count completions: %w", err)
+	}
+
+	return count, nil
 }
 
 // isHeadValid checks if the HEAD reference in a git repository is valid.

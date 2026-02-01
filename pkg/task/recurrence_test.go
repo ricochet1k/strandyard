@@ -7,6 +7,7 @@ import (
 	"path/filepath"
 	"strings"
 	"testing"
+	"time"
 
 	"github.com/google/go-cmp/cmp"
 )
@@ -241,4 +242,73 @@ func getCommitHash(t *testing.T, repoPath, revision string) (string, error) {
 		return "", fmt.Errorf("failed to get commit hash for revision %q: %w", revision, err)
 	}
 	return strings.TrimSpace(string(output)), nil
+}
+
+func TestEvaluateTasksCompletedMetric(t *testing.T) {
+	// Create a temporary directory for the activity log
+	tmpDir, err := os.MkdirTemp("", "activity-test-")
+	if err != nil {
+		t.Fatalf("failed to create temp dir: %v", err)
+	}
+	defer os.RemoveAll(tmpDir)
+
+	// Test case 1: Empty activity log
+	count, err := evaluateTasksCompletedMetric(tmpDir, "Jan 28 2026 09:00 UTC")
+	if err != nil {
+		t.Errorf("evaluateTasksCompletedMetric for empty log returned an error: %v", err)
+	}
+	if count != 0 {
+		t.Errorf("evaluateTasksCompletedMetric for empty log returned %d, expected 0", count)
+	}
+
+	// Test case 2: Some completions
+	// We need to directly write to the activity log for testing
+	// The activity log is at tmpDir/activity.log
+	activityLog, err := os.OpenFile(filepath.Join(tmpDir, "activity.log"), os.O_WRONLY|os.O_CREATE|os.O_TRUNC, 0o644)
+	if err != nil {
+		t.Fatalf("failed to create activity log: %v", err)
+	}
+	defer activityLog.Close()
+
+	// Write some completion entries with specific timestamps
+	now := time.Now().UTC()
+	entries := []string{
+		fmt.Sprintf(`{"timestamp":"%s","task_id":"T1","type":"task_completed","report":"first"}`, now.Add(-48*time.Hour).Format(time.RFC3339)),
+		fmt.Sprintf(`{"timestamp":"%s","task_id":"T2","type":"task_completed","report":"second"}`, now.Add(-24*time.Hour).Format(time.RFC3339)),
+		fmt.Sprintf(`{"timestamp":"%s","task_id":"T3","type":"task_completed","report":"third"}`, now.Add(-2*time.Hour).Format(time.RFC3339)),
+	}
+	for _, entry := range entries {
+		if _, err := activityLog.WriteString(entry + "\n"); err != nil {
+			t.Fatalf("failed to write to activity log: %v", err)
+		}
+	}
+	activityLog.Close()
+
+	// Test with anchor 3 hours ago
+	anchorTime := now.Add(-3 * time.Hour)
+	anchorStr := anchorTime.Format("Jan 2 2006 15:04 MST")
+	count, err = evaluateTasksCompletedMetric(tmpDir, anchorStr)
+	if err != nil {
+		t.Errorf("evaluateTasksCompletedMetric returned an error: %v", err)
+	}
+	if count != 1 {
+		t.Errorf("evaluateTasksCompletedMetric returned %d, expected 1", count)
+	}
+
+	// Test with anchor 49 hours ago (all 3 completions)
+	anchorTime = now.Add(-49 * time.Hour)
+	anchorStr = anchorTime.Format("Jan 2 2006 15:04 MST")
+	count, err = evaluateTasksCompletedMetric(tmpDir, anchorStr)
+	if err != nil {
+		t.Errorf("evaluateTasksCompletedMetric returned an error: %v", err)
+	}
+	if count != 3 {
+		t.Errorf("evaluateTasksCompletedMetric returned %d, expected 3", count)
+	}
+
+	// Test case 3: Invalid date format
+	_, err = evaluateTasksCompletedMetric(tmpDir, "invalid date")
+	if err == nil {
+		t.Errorf("evaluateTasksCompletedMetric for invalid date expected an error, got nil")
+	}
 }
