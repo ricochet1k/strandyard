@@ -10,9 +10,10 @@ blockers:
 blocks:
     - T1dua-draft-recurrence-anchor-flag-alternatives
 date_created: 2026-01-29T05:45:07.908116Z
-date_edited: 2026-01-31T17:29:31.078583Z
+date_edited: 2026-02-01T20:18:56.987789Z
 owner_approval: false
 completed: true
+description: ""
 ---
 
 # Usability review: recurrence anchor flags
@@ -66,5 +67,5 @@ Evaluate how users discover and apply anchor flags for recurring definitions.
 
 ## Subtasks
 - [x] (subtask: Te6hk) Decide anchor flag approach (A/B/C)
-- [ ] (subtask: Trlrg) Specify anchor error messages
+- [x] (subtask: Trlrg) Specify anchor error messages
 - [ ] (subtask: Tusef) Define anchor help text and examples
