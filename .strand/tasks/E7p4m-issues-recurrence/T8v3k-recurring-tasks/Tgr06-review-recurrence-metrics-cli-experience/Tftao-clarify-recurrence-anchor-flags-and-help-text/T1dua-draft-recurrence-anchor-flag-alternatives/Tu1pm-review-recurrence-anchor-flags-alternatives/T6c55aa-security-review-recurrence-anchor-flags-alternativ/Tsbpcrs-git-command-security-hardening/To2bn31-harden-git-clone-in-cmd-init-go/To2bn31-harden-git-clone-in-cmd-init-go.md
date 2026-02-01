@@ -3,12 +3,15 @@ type: implement
 role: developer
 priority: medium
 parent: Tsbpcrs-git-command-security-hardening
-blockers: []
+blockers:
+    - T8qdyx5-reliability-review-harden-git-clone-in-cmd-init-go
+    - Tm0na28-security-review-harden-git-clone-in-cmd-init-go
+    - Tuk75nq-usability-review-harden-git-clone-in-cmd-init-go
 blocks:
     - T29wfxd-review-git-security-hardening
     - Twxmvkr-security-review-of-git-hardening
 date_created: 2026-02-01T22:13:09.503114Z
-date_edited: 2026-02-01T22:27:33.391488Z
+date_edited: 2026-02-01T22:30:28.560559Z
 owner_approval: false
 completed: false
 description: ""
@@ -34,5 +37,11 @@ Use -- separator in git clone for the preset argument to prevent flag injection.
   Added regression tests in cmd/init_test.go covering malicious and normal presets.
 - [x] (role: tester) Execute test-suite and report failures.
   Executed 'go test ./...' and verified that TestInitWithMaliciousPreset specifically tests for flag injection. All tests passed.
-- [ ] (role: master-reviewer) Coordinate required reviews: `reviewer-reliability`, `reviewer-security`, `reviewer-usability`.
+- [x] (role: master-reviewer) Coordinate required reviews: `reviewer-reliability`, `reviewer-security`, `reviewer-usability`.
+  Delegated specialized reviews to reviewer-reliability (T8qdyx5), reviewer-security (Tm0na28), and reviewer-usability (Tuk75nq).
 - [ ] (role: documentation) Update user-facing docs and examples.
+
+## Subtasks
+- [ ] (subtask: T8qdyx5) Description
+- [ ] (subtask: Tm0na28) Description
+- [ ] (subtask: Tuk75nq) Description
