@@ -2,6 +2,7 @@
 role: architect
 workflow:
   creates: [task, issue]
+description: "Breaks accepted designs into implementable epics and tracks."
 ---
 
 # Architect

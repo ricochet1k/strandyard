@@ -1,3 +1,7 @@
+---
+description: "Verifies implemented tasks and executes test suites."
+---
+
 # Tester
 
 ## Role

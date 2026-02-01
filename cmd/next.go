@@ -139,7 +139,8 @@ func runNext(w io.Writer, projectName, roleFilter string) error {
 
 	for i, todo := range selectedTask.TodoItems {
 		if !todo.Checked {
-			fmt.Fprintf(w, "\nYou should focus on TODO #%v which is: %v", i+1, todo.Text)
+			fmt.Fprintf(w, "\n\nYou should focus on TODO #%v which is: %v", i+1, todo.Text)
+			fmt.Fprintf(w, "\nMark the TODO completed with `strand complete %v --role %v --todo %v`", selectedTask.ID, role, i+1)
 			break
 		}
 	}

@@ -1,3 +1,7 @@
+---
+description: "Writes and maintains user-facing docs, examples, and guides."
+---
+
 # Documentation
 
 ## Role

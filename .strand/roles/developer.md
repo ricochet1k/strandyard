@@ -1,3 +1,7 @@
+---
+description: "Implements tasks, writes code, and produces working software."
+---
+
 # Developer
 
 ## Role

@@ -1,25 +1,21 @@
-/*
-Copyright © 2026 NAME HERE <EMAIL ADDRESS>
-*/
 package cmd
 
 import (
 	"fmt"
 	"io"
+	"sort"
 
+	"github.com/ricochet1k/strandyard/pkg/template"
 	"github.com/spf13/cobra"
 )
 
 // templatesCmd represents the templates command
 var templatesCmd = &cobra.Command{
 	Use:   "templates",
-	Short: "A brief description of your command",
-	Long: `A longer description that spans multiple lines and likely contains examples
-and usage of using your command. For example:
-
-Cobra is a CLI library for Go that empowers applications.
-This application is a tool to generate the needed files
-to quickly create a Cobra application.`,
+	Short: "List available task templates with descriptions",
+	Long: `The 'templates' command lists all available task templates found in the '.strand/templates/' directory,
+along with their short descriptions. This helps users choose the appropriate template
+when creating new tasks.`,
 	RunE: func(cmd *cobra.Command, args []string) error {
 		return runTemplates(cmd.OutOrStdout())
 	},
@@ -27,19 +23,35 @@ to quickly create a Cobra application.`,
 
 func init() {
 	rootCmd.AddCommand(templatesCmd)
-
-	// Here you will define your flags and configuration settings.
-
-	// Cobra supports Persistent Flags which will work for this command
-	// and all subcommands, e.g.:
-	// templatesCmd.PersistentFlags().String("foo", "", "A help for foo")
-
-	// Cobra supports local flags which will only run when this command
-	// is called directly, e.g.:
-	// templatesCmd.Flags().BoolP("toggle", "t", false, "Help message for toggle")
 }
 
 func runTemplates(w io.Writer) error {
-	_, err := fmt.Fprintln(w, "templates called")
-	return err
+	paths, err := resolveProjectPaths(projectName)
+	if err != nil {
+		return err
+	}
+
+	templates, err := template.LoadTemplates(paths.TemplatesDir)
+	if err != nil {
+		return err
+	}
+
+	fmt.Fprintln(w, "Available Task Templates:")
+	fmt.Fprintln(w, "--------------------------")
+
+	var names []string
+	for name := range templates {
+		names = append(names, name)
+	}
+	sort.Strings(names)
+
+	for _, name := range names {
+		t := templates[name]
+		desc := t.Meta.Description
+		if desc == "" {
+			desc = "(no description found)"
+		}
+		fmt.Fprintf(w, "%-20s %s\n", name, desc)
+	}
+	return nil
 }

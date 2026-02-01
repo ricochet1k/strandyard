@@ -1,3 +1,7 @@
+---
+description: "Makes final decisions and approves plans and priorities."
+---
+
 # Owner
 
 ## Role

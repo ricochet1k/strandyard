@@ -22,6 +22,7 @@ type Metadata struct {
 	DateEdited    time.Time `yaml:"date_edited"`
 	OwnerApproval bool      `yaml:"owner_approval"`
 	Completed     bool      `yaml:"completed"`
+	Description   string    `yaml:"description"`
 }
 
 // Task represents a complete task with metadata and content

@@ -8,6 +8,7 @@ import (
 	"os"
 	"strings"
 
+	"github.com/ricochet1k/strandyard/pkg/role"
 	"github.com/ricochet1k/strandyard/pkg/task"
 	"github.com/spf13/cobra"
 )
@@ -85,11 +86,11 @@ func runEdit(cmd *cobra.Command, taskID, newBody string) error {
 
 	// Update flags if they were changed
 	if cmd.Flags().Changed("role") {
-		role := strings.TrimSpace(editRole)
-		if err := validateRole(paths.RolesDir, role); err != nil {
+		rName := strings.TrimSpace(editRole)
+		if err := role.ValidateRole(paths.RolesDir, rName); err != nil {
 			return err
 		}
-		t.Meta.Role = role
+		t.Meta.Role = rName
 		t.MarkDirty()
 		changes = true
 	}

@@ -2,6 +2,7 @@
 role: designer
 workflow:
   creates: [task, review, review-security, review-usability]
+description: "Explores alternatives and produces design artifacts."
 ---
 
 # Designer

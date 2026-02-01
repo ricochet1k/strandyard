@@ -49,6 +49,25 @@ func (p *Parser) ParseFile(filePath string) (*Task, error) {
 	return t, nil
 }
 
+// ParseStandaloneFile parses a markdown file that is not in a task directory
+func (p *Parser) ParseStandaloneFile(filePath string) (*Task, error) {
+	data, err := os.ReadFile(filePath)
+	if err != nil {
+		return nil, fmt.Errorf("failed to read file %s: %w", filePath, err)
+	}
+
+	fileName := filepath.Base(filePath)
+	id := strings.TrimSuffix(fileName, filepath.Ext(fileName))
+
+	t, err := p.ParseString(string(data), id)
+	if err != nil {
+		return nil, err
+	}
+	t.FilePath = filePath
+	t.Dir = filepath.Dir(filePath)
+	return t, nil
+}
+
 // ParseString parses a string into a Task
 func (p *Parser) ParseString(content string, id string) (*Task, error) {
 	// Parse the markdown with frontmatter

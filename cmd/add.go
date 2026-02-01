@@ -1,6 +1,3 @@
-/*
-Copyright © 2026 NAME HERE <EMAIL ADDRESS>
-*/
 package cmd
 
 import (
@@ -14,7 +11,9 @@ import (
 	"time"
 
 	"github.com/ricochet1k/strandyard/pkg/idgen"
+	rPkg "github.com/ricochet1k/strandyard/pkg/role"
 	"github.com/ricochet1k/strandyard/pkg/task"
+	"github.com/ricochet1k/strandyard/pkg/template"
 	"github.com/spf13/cobra"
 	"gopkg.in/yaml.v3"
 )
@@ -105,16 +104,27 @@ func runAdd(w io.Writer, opts addOptions) error {
 		return fmt.Errorf("type is required")
 	}
 
-	templates, err := listTemplateNames(paths.TemplatesDir)
+	templates, err := template.LoadTemplates(paths.TemplatesDir)
 	if err != nil {
 		return err
 	}
-	if len(templates) == 0 {
-		return fmt.Errorf("no templates found in %s", paths.TemplatesDir)
-	}
 
-	if !containsTemplate(templates, tmplName) {
-		return fmt.Errorf("unknown type %q (available: %s)", tmplName, strings.Join(templates, ", "))
+	tmpl, ok := templates[tmplName]
+	if !ok {
+		fmt.Fprintln(w, "Unknown type. Available templates:")
+		var names []string
+		for name := range templates {
+			names = append(names, name)
+		}
+		sort.Strings(names)
+		for _, name := range names {
+			desc := templates[name].Meta.Description
+			if desc == "" {
+				desc = "(no description found)"
+			}
+			fmt.Fprintf(w, "  %-15s %s\n", name, desc)
+		}
+		return fmt.Errorf("unknown type %q", tmplName)
 	}
 
 	title := strings.TrimSpace(opts.Title)
@@ -122,26 +132,41 @@ func runAdd(w io.Writer, opts addOptions) error {
 		return fmt.Errorf("title is required (use --title or provide it as an argument)")
 	}
 
-	templatePath := filepath.Join(paths.TemplatesDir, tmplName+".md")
-	templateMeta, templateBody, err := loadTemplate(templatePath)
+	roleName := strings.TrimSpace(opts.Role)
+	if !opts.RoleSpecified {
+		roleName = strings.TrimSpace(tmpl.Meta.Role)
+	}
+	if roleName == "" {
+		return fmt.Errorf("role is required (use --role or set role in template frontmatter)")
+	}
+
+	roles, err := rPkg.LoadRoles(paths.RolesDir)
 	if err != nil {
 		return err
 	}
 
-	role := strings.TrimSpace(opts.Role)
-	if !opts.RoleSpecified {
-		role = strings.TrimSpace(templateMeta.Role)
-	}
-	if role == "" {
-		return fmt.Errorf("role is required (use --role or set role in template frontmatter)")
-	}
-	if err := validateRole(paths.RolesDir, role); err != nil {
-		return err
+	if _, ok := roles[roleName]; !ok {
+		fmt.Fprintln(w, "Invalid role. Available roles:")
+		var names []string
+		for name := range roles {
+			names = append(names, name)
+		}
+		sort.Strings(names)
+		for _, name := range names {
+			desc := roles[name].Meta.Description
+			if desc == "" {
+				desc = "(no description found)"
+			}
+			fmt.Fprintf(w, "  %-15s %s\n", name, desc)
+		}
+		return fmt.Errorf("invalid role %q", roleName)
 	}
 
 	priority := task.NormalizePriority(opts.Priority)
-	if !opts.PrioritySpecified && templateMeta.Priority != "" {
-		priority = task.NormalizePriority(templateMeta.Priority)
+	if !opts.PrioritySpecified {
+		if pStr, ok := tmpl.Meta.Priority.(string); ok && pStr != "" {
+			priority = task.NormalizePriority(pStr)
+		}
 	}
 	if !task.IsValidPriority(priority) {
 		return fmt.Errorf("invalid priority: %s", priority)
@@ -172,10 +197,13 @@ func runAdd(w io.Writer, opts addOptions) error {
 		parentDir = parentTask.Dir
 	}
 
-	prefix, err := normalizeIDPrefix(templateMeta.IDPrefix)
-	if err != nil {
-		return err
+	// We don't have id_prefix in task.Metadata yet, but it was in templateDefaults.
+	// For now, default to "T" or "E" if the template name suggests it.
+	prefix := "T"
+	if strings.Contains(strings.ToLower(tmplName), "epic") {
+		prefix = "E"
 	}
+
 	id, err := idgen.GenerateID(prefix, title)
 	if err != nil {
 		return err
@@ -196,7 +224,7 @@ func runAdd(w io.Writer, opts addOptions) error {
 	now := time.Now().UTC()
 	meta := task.Metadata{
 		Type:          tmplName,
-		Role:          role,
+		Role:          roleName,
 		Priority:      priority,
 		Parent:        parent,
 		Blockers:      blockers,
@@ -207,12 +235,12 @@ func runAdd(w io.Writer, opts addOptions) error {
 		Completed:     false,
 	}
 
-	body := renderTemplateBody(templateBody, map[string]string{
+	body := renderTemplateBody(tmpl.BodyContent, map[string]string{
 		"Title":               title,
 		"SuggestedSubtaskDir": fmt.Sprintf("%s-subtask", id),
 		"Body":                opts.Body,
 	})
-	if opts.Body != "" && !strings.Contains(templateBody, "{{ .Body }}") {
+	if opts.Body != "" && !strings.Contains(tmpl.BodyContent, "{{ .Body }}") {
 		if strings.TrimSpace(body) != "" {
 			body += "\n\n"
 		}
@@ -246,45 +274,6 @@ func runAdd(w io.Writer, opts addOptions) error {
 	}
 
 	return nil
-}
-
-func listTemplateNames(dir string) ([]string, error) {
-	entries, err := os.ReadDir(dir)
-	if err != nil {
-		return nil, fmt.Errorf("failed to read templates directory: %w", err)
-	}
-	var names []string
-	for _, entry := range entries {
-		if entry.IsDir() {
-			continue
-		}
-		name := entry.Name()
-		if strings.HasSuffix(name, ".md") {
-			names = append(names, strings.TrimSuffix(name, ".md"))
-		}
-	}
-	sort.Strings(names)
-	return names, nil
-}
-
-func containsTemplate(names []string, name string) bool {
-	for _, item := range names {
-		if item == name {
-			return true
-		}
-	}
-	return false
-}
-
-func normalizeIDPrefix(prefix string) (string, error) {
-	normalized := strings.ToUpper(strings.TrimSpace(prefix))
-	if normalized == "" {
-		return "T", nil
-	}
-	if len(normalized) != 1 || normalized[0] < 'A' || normalized[0] > 'Z' {
-		return "", fmt.Errorf("invalid id_prefix %q (expected single A-Z character)", prefix)
-	}
-	return normalized, nil
 }
 
 func normalizeTaskIDs(items []string) []string {
@@ -332,36 +321,6 @@ func resolveTaskIDs(tasks map[string]*task.Task, inputs []string) ([]string, err
 	return resolved, nil
 }
 
-type templateDefaults struct {
-	Role     string `yaml:"role"`
-	Priority string `yaml:"priority"`
-	IDPrefix string `yaml:"id_prefix"`
-}
-
-func loadTemplate(path string) (templateDefaults, string, error) {
-	content, err := os.ReadFile(path)
-	if err != nil {
-		return templateDefaults{}, "", fmt.Errorf("failed to read template %s: %w", path, err)
-	}
-	text := string(content)
-	if !strings.HasPrefix(text, "---") {
-		return templateDefaults{}, "", fmt.Errorf("template %s missing frontmatter", path)
-	}
-
-	parts := strings.SplitN(text, "---", 3)
-	if len(parts) < 3 {
-		return templateDefaults{}, "", fmt.Errorf("template %s frontmatter delimiter missing", path)
-	}
-
-	var meta templateDefaults
-	if err := yaml.Unmarshal([]byte(parts[1]), &meta); err != nil {
-		return templateDefaults{}, "", fmt.Errorf("failed to parse template frontmatter %s: %w", path, err)
-	}
-
-	body := strings.TrimLeft(parts[2], "\r\n")
-	return meta, body, nil
-}
-
 func renderTemplateBody(body string, data map[string]string) string {
 	out := body
 	for key, value := range data {
@@ -402,12 +361,4 @@ func readStdin() (string, error) {
 		return "", fmt.Errorf("failed to read stdin: %w", err)
 	}
 	return strings.TrimRight(string(data), "\r\n"), nil
-}
-
-func validateRole(rolesDir, role string) error {
-	rolePath := filepath.Join(rolesDir, role+".md")
-	if _, err := os.Stat(rolePath); err != nil {
-		return fmt.Errorf("role file %s does not exist", rolePath)
-	}
-	return nil
 }

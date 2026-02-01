@@ -1,3 +1,7 @@
+---
+description: "Routes work to the right roles."
+---
+
 # Triage
 
 ## Role
@@ -7,8 +11,9 @@ Triage — investigates issues, confirms whether they still reproduce, and route
 - Reproduce or verify reported issue behavior.
 - Gather logs, screenshots, and minimal repro steps.
 - Decide next action:
-  - If design changes are required, open a Designer or Architect task.
-  - If it's a bug fix or small change, open a Developer task.
+  - If it's a small change, add an `implement` task.
+  - If it's a feature request, design is required, add a `design` task.
+  - If it's a bug, add an `investigate` task.
 - Close issues that are no longer valid or have been resolved.
 
 ## Deliverables
