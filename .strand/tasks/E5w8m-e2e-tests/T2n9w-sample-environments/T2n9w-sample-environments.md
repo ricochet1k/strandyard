@@ -3,14 +3,13 @@ type: ""
 role: developer
 priority: ""
 parent: E5w8m-e2e-tests
-blockers:
-    - T4p7k-test-framework-design
+blockers: []
 blocks:
     - E5w8m-e2e-tests
     - T7h5m-initial-e2e-tests
     - Tml0y-t9m4n-improved-task-templates
 date_created: 2026-01-27T00:00:00Z
-date_edited: 2026-01-28T11:25:10.42807-07:00
+date_edited: 2026-02-01T04:21:33.585965Z
 owner_approval: false
 completed: false
 ---

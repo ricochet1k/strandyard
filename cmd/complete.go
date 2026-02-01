@@ -156,7 +156,8 @@ func runComplete(w io.Writer, projectName, taskID string, todoNum int, role stri
 		}
 
 		fmt.Fprintf(w, "✓ Todo item %d checked off in task %s\n", todoNum, task.ShortID(taskID))
-		fmt.Fprintf(w, "💡 Consider committing your changes: git add -A && git commit -m \"todo: %s check off item %d\"\n", task.ShortID(taskID), todoNum)
+		fmt.Fprintf(w, "- [x] %v", t.TodoItems[todoIndex].Text)
+		fmt.Fprintf(w, "💡 Consider committing your changes: git add -A && git commit -m \"%v (%v) check off %v\"\n", t.Title(), task.ShortID(taskID), t.TodoItems[todoIndex].Text)
 		return nil
 	}
 

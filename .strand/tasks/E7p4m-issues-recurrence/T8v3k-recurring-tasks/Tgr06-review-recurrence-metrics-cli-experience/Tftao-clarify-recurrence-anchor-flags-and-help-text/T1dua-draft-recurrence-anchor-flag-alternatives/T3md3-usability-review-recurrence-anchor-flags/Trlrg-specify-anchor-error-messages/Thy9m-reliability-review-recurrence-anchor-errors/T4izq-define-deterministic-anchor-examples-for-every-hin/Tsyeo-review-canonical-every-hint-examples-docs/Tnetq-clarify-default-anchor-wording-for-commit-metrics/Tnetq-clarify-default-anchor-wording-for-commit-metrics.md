@@ -4,13 +4,12 @@ role: designer
 priority: medium
 parent: Tsyeo-review-canonical-every-hint-examples-docs
 blockers:
-    - Iy8y6-flag-non-ascii-quotes-in-task-bodies
     - Tocc0-draft-alternatives-for-commit-metric-default-ancho
     - Tpcaq-add-validation-for-non-ascii-quotes-in-task-bodies
 blocks:
     - Tsyeo-review-canonical-every-hint-examples-docs
 date_created: 2026-01-29T19:54:15.970672Z
-date_edited: 2026-01-31T17:29:31.080061Z
+date_edited: 2026-02-01T04:21:33.585921Z
 owner_approval: false
 completed: false
 ---

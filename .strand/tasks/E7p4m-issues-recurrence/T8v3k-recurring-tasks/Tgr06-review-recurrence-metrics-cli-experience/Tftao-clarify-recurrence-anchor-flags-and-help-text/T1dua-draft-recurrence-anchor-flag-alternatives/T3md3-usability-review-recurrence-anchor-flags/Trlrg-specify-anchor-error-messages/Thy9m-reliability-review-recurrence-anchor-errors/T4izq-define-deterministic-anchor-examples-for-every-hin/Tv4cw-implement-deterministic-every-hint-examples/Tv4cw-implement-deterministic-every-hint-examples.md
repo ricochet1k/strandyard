@@ -3,13 +3,11 @@ type: task
 role: developer
 priority: medium
 parent: T4izq-define-deterministic-anchor-examples-for-every-hin
-blockers:
-    - Tm2sq-review-canonical-every-hint-examples-implementatio
-    - Tqb9o-approve-canonical-every-hint-examples
+blockers: []
 blocks:
     - T4izq-define-deterministic-anchor-examples-for-every-hin
 date_created: 2026-01-29T19:24:46.390895Z
-date_edited: 2026-01-29T12:24:46.400087-07:00
+date_edited: 2026-02-01T04:21:33.585961Z
 owner_approval: false
 completed: false
 ---

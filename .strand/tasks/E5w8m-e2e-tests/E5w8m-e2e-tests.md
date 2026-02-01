@@ -4,17 +4,13 @@ role: architect
 priority: low
 parent: ""
 blockers:
-    - E2k7x-metadata-format
-    - E3q8p-next-command
-    - E6w3m-id-generation
     - T2n9w-sample-environments
-    - T4p7k-test-framework-design
     - T7h5m-initial-e2e-tests
     - Tbs59-e7n2q-external-storage
     - Tml0y-t9m4n-improved-task-templates
 blocks: []
 date_created: 2026-01-27T00:00:00Z
-date_edited: 2026-01-31T17:29:31.080057Z
+date_edited: 2026-02-01T04:21:33.585893Z
 owner_approval: false
 completed: false
 ---

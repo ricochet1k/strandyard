@@ -4,9 +4,7 @@ role: developer
 priority: low
 parent: E7p4m-issues-recurrence
 blockers:
-    - T968i-design-recurrence-metrics-for-commits-lines-change
     - Tcb90-document-recurrence-metrics-options
-    - Tgr06-review-recurrence-metrics-cli-experience
     - Thnhh-review-recurrence-metrics-schema
     - Tl4cn-approve-recurrence-metrics-design
     - Tyvdv-extend-recurrence-schema-and-validation-for-new-me
@@ -14,7 +12,7 @@ blocks:
     - E7p4m-issues-recurrence
     - Iquw5-create-recurring-review-task-plan
 date_created: 2026-01-27T00:00:00Z
-date_edited: 2026-01-31T17:29:31.080062Z
+date_edited: 2026-02-01T04:21:33.585947Z
 owner_approval: false
 completed: false
 ---
