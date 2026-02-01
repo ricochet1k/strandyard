@@ -45,21 +45,8 @@ Add a `recurrence_triggers` list with metric definitions that can be combined.
 - **Pros**: Supports combinations and clearer validation per trigger.
 - **Cons**: More schema surface area and migration work.
 
-**Decision:** — maintainer chose Option B with modifications
-
-## Tasks-Completed Metric Options
-### Option A: Add `date_completed` to task metadata
-- Store completion timestamp when `strand complete` runs.
-- Recurrence counts completed tasks where `date_completed > anchor`.
-- **Pros**: Simple to compute and audit.
-- **Cons**: Requires metadata migration for historical tasks.
-
-### Option B: Track completion log in recurrence definition
-- Store `recurrence_task_anchor` as a list of completed task IDs or a `last_completed_at` timestamp in the recurring definition.
-- **Pros**: Avoids global schema changes.
-- **Cons**: Re-implements completion tracking in recurrence logic.
-
-**Decision:** — Add date_completed, but at some point old tasks will be cleaned up, so there should also be a project-level log of changes (task add/edit/complete/progress) with line number, timestamp, short id and either task title and/or a short description of the change.
+## Decision
+The project adopts **Option B (Metric Triggers Array)** to support combining multiple triggers (e.g., time + commits). Tasks-completed tracking will use **Option A (date_completed metadata)** supplemented by a project-level change log (audit trail) to ensure long-term auditability even after tasks are archived.
 
 ## Validation Rules
 - Require positive `recurrence_interval` for all triggers.

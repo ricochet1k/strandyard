@@ -70,23 +70,17 @@ Compare approaches for user-facing error messages when parsing recurrence anchor
 - Rough effort estimate: Medium.
 
 ## Decision
-- Decision: Alternative B with a fixed error output contract.
-- Missing anchors are explicitly allowed and preferred for common usage.
-- Use "from now" for immediate run + recur; use "after now" to schedule the first run at the next interval after now.
+Adopted **Alternative B**. Use a unified error format with a structured reason and a secondary hint line for recovery.
 
 ## Output Contract
-- Error prefix: `strand: error: ` (stable, single-line prefix for the primary error line).
-- Hint line: optional second line prefixed with `hint: `.
-- Output channel: errors and hints emit to stderr only; no stdout output on failure.
-- Exit codes:
-  - `2` for parse/validation failures related to `--every`.
-  - `1` for other runtime errors.
-  - `0` on success.
+- Error prefix: `strand: error: ` (emitted to stderr).
+- Hint line: `hint: ` (emitted to stderr).
+- Exit codes: `2` for grammar/validation failures, `1` for other runtime errors.
 
 ## Defaults and Hint Examples
-- `from <anchor>` is optional; if omitted, the anchor defaults to "now" for time-based metrics and "HEAD" for commit-based metrics.
-- `after now` means the first run occurs at the next interval after the current time; `from now` triggers an immediate run and then recurs.
-- Hint examples should prefer human-friendly dates (for example, "Jan 28 2026 09:00") and may include ISO 8601 as a secondary reference if needed.
+- Missing anchors default to "now" (time) or "HEAD" (git).
+- Use "after now" for interval-delayed starts; "from now" for immediate starts.
+- Example hint: `hint: --every "10 days from Jan 28 2026 09:00"`.
 
 ## Review Requests
 - Request review from: `reviewer` (master), `reviewer-usability`, `reviewer-reliability`.

@@ -69,93 +69,10 @@ Constraints for CLI usage:
 If broader locale support becomes a requirement, revisit Option C with a strict configuration that pins locale and time defaults.
 
 ## Decision
-- Decision: deferred (maintainer).
+The project adopts **Option A (`github.com/olebedev/when`)**.
 
-## Local Evaluation Steps
-```bash
-cat <<'EOF' > /tmp/strand-when-eval.go
-package main
-
-import (
-  "fmt"
-  "time"
-
-  "github.com/olebedev/when"
-  "github.com/olebedev/when/rules/common"
-  "github.com/olebedev/when/rules/en"
-)
-
-func main() {
-  w := when.New(nil)
-  w.Add(en.All...)
-  w.Add(common.All...)
-
-  input := "next Tuesday 09:00"
-  base := time.Date(2026, 1, 28, 9, 0, 0, 0, time.UTC)
-  r, err := w.Parse(input, base)
-  if err != nil {
-    panic(err)
-  }
-  if r == nil {
-    panic("no match")
-  }
-  fmt.Printf("match=%q time=%s\n", r.Text, r.Time.Format(time.RFC3339))
-}
-EOF
-
-go run /tmp/strand-when-eval.go
-```
-
-```bash
-cat <<'EOF' > /tmp/strand-dateparse-eval.go
-package main
-
-import (
-  "fmt"
-  "time"
-
-  "github.com/araddon/dateparse"
-)
-
-func main() {
-  time.Local = time.UTC
-  input := "Jan 28 2026 09:00"
-  t, err := dateparse.ParseStrict(input)
-  if err != nil {
-    panic(err)
-  }
-  fmt.Println(t.Format(time.RFC3339))
-}
-EOF
-
-go run /tmp/strand-dateparse-eval.go
-```
-
-```bash
-cat <<'EOF' > /tmp/strand-go-dateparser-eval.go
-package main
-
-import (
-  "fmt"
-  "time"
-
-  dps "github.com/markusmobius/go-dateparser"
-)
-
-func main() {
-  cfg := &dps.Configuration{
-    DefaultLanguages: []string{"en"},
-    CurrentTime:      time.Date(2026, 1, 28, 9, 0, 0, 0, time.UTC),
-    DefaultTimezone:  time.UTC,
-    StrictParsing:    true,
-  }
-  dt, err := dps.Parse(cfg, "in 2 days")
-  if err != nil {
-    panic(err)
-  }
-  fmt.Println(dt.Time.Format(time.RFC3339))
-}
-EOF
-
-go run /tmp/strand-go-dateparser-eval.go
-```
+## Constraints for CLI usage
+- Parse using a fixed base time in UTC (execution time).
+- Require full-string matches; reject partial matches.
+- Treat missing timezones as UTC.
+- Limit rules to English (`en` + `common`).

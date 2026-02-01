@@ -83,15 +83,15 @@ Clarify how `strand recurring add` captures the recurrence anchor across time-ba
   - `--every`: Repeatable recurrence rule. Format: `<amount> <metric> [from <anchor>]` (e.g., `"5 days from Jan 28 2026 09:00"`, `"50 commits from HEAD"`).
 
 ## Decision
-- Decision: Alternative D. Use repeatable `--every` with a strict structured grammar and per-metric anchors via `from <anchor>`.
+Adopted **Alternative D**. Use a repeatable `--every` flag with a strict structured grammar (`<amount> <metric> [from <anchor>]`). This approach keeps the CLI surface clean while providing the flexibility needed for mixed-metric triggers.
 
 ## Recommendation
-- Recommendation: Alternative D to keep the CLI surface to a single flag while supporting mixed metrics via repeated `--every` rules.
+Alternative D is selected for implementation.
 
 ## Defaults and Examples
-- `from <anchor>` is optional; if omitted, the anchor defaults to "now" for time-based metrics and "HEAD" for commit-based metrics.
-- `from now` means run immediately and then recur; `after now` means the first run occurs at the next interval after the current time.
-- Examples and hint text should prefer human-friendly dates; ISO 8601 may be added only when needed for clarity.
+- `from <anchor>` is optional; defaults to "now" for time-based and "HEAD" for commit-based metrics.
+- `from now` triggers an immediate run then recurs; `after now` schedules the first run at the next interval.
+- Example: `--every "1 week from Jan 28 2026 09:00" --every "50 commits from HEAD"`.
 
 ## Review Requests
 - Request review from: `master-reviewer`, `reviewer-usability`, `reviewer-reliability`.
