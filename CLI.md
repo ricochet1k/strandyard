@@ -237,7 +237,7 @@ strand recurring add "Quarterly docs review" --interval 3 --unit months --anchor
 ```markdown
 ---
 type: recurring
-role: reviewer
+role: master-reviewer
 priority: medium
 parent:
 blockers: []

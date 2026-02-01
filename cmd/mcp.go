@@ -45,6 +45,7 @@ type nextArgs struct {
 type completeArgs struct {
 	Project string `json:"project,omitempty" jsonschema_description:"Project name (equivalent to --project)"`
 	TaskID  string `json:"task_id" jsonschema:"required" jsonschema_description:"Task ID or short ID"`
+	Report  string `json:"report,omitempty" jsonschema_description:"Completion report"`
 }
 
 type initArgs struct {
@@ -197,7 +198,6 @@ func handleMCPAdd(ctx context.Context, request mcp.CallToolRequest, args addArgs
 		Priority:          strings.TrimSpace(args.Priority),
 		Parent:            strings.TrimSpace(args.Parent),
 		Blockers:          args.Blockers,
-		NoRepair:          args.NoRepair,
 		RoleSpecified:     strings.TrimSpace(args.Role) != "",
 		PrioritySpecified: strings.TrimSpace(args.Priority) != "",
 		Body:              args.Body,
@@ -215,7 +215,7 @@ func handleMCPNext(ctx context.Context, request mcp.CallToolRequest, args nextAr
 
 func handleMCPComplete(ctx context.Context, request mcp.CallToolRequest, args completeArgs) (*mcp.CallToolResult, error) {
 	return runWithOutput(func(w io.Writer) error {
-		return runComplete(w, strings.TrimSpace(args.Project), strings.TrimSpace(args.TaskID), 0, "")
+		return runComplete(w, strings.TrimSpace(args.Project), strings.TrimSpace(args.TaskID), 0, "", strings.TrimSpace(args.Report))
 	})
 }
 

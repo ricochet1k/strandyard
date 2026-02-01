@@ -7,6 +7,7 @@ import (
 	"errors"
 	"fmt"
 	"io"
+	"os"
 	"strings"
 
 	"github.com/ricochet1k/strandyard/pkg/task"
@@ -15,18 +16,34 @@ import (
 
 // completeCmd represents the complete command
 var completeCmd = &cobra.Command{
-	Use:   "complete <task-id>",
+	Use:   "complete <task-id> [report]",
 	Short: "Mark a task as completed",
 	Long: `Mark a task as completed by setting completed: true in the frontmatter.
 Also updates the date_edited field to the current time.
 Use --todo to check off a specific todo item instead of completing the entire task.
-Use --role to validate that the current role matches the task role.`,
-	Args: cobra.ExactArgs(1),
+Use --role to validate that the current role matches the task role.
+A report can be provided as a second argument or via stdin (e.g. heredoc).`,
+	Args: cobra.RangeArgs(1, 2),
 	RunE: func(cmd *cobra.Command, args []string) error {
 		taskID := args[0]
+		var report string
+		if len(args) > 1 {
+			report = args[1]
+		} else {
+			// Check if stdin is a pipe/redirect (not a terminal)
+			stat, _ := os.Stdin.Stat()
+			if (stat.Mode() & os.ModeCharDevice) == 0 {
+				bytes, err := io.ReadAll(os.Stdin)
+				if err == nil {
+					report = string(bytes)
+				}
+			}
+		}
+		report = strings.TrimSpace(report)
+
 		todoNum, _ := cmd.Flags().GetInt("todo")
 		role, _ := cmd.Flags().GetString("role")
-		return runComplete(cmd.OutOrStdout(), projectName, taskID, todoNum, role)
+		return runComplete(cmd.OutOrStdout(), projectName, taskID, todoNum, role, report)
 	},
 }
 
@@ -36,7 +53,7 @@ func init() {
 	rootCmd.AddCommand(completeCmd)
 }
 
-func runComplete(w io.Writer, projectName, taskID string, todoNum int, role string) error {
+func runComplete(w io.Writer, projectName, taskID string, todoNum int, role string, report string) error {
 	paths, err := resolveProjectPaths(projectName)
 	if err != nil {
 		return err
@@ -127,6 +144,9 @@ func runComplete(w io.Writer, projectName, taskID string, todoNum int, role stri
 
 		// Mark the todo item as checked
 		t.TodoItems[todoIndex].Checked = true
+		if report != "" {
+			t.TodoItems[todoIndex].Report = report
+		}
 		t.MarkDirty()
 
 		if err := t.Write(); err != nil {
@@ -155,8 +175,8 @@ func runComplete(w io.Writer, projectName, taskID string, todoNum int, role stri
 			return nil
 		}
 
+		fmt.Fprintf(w, "- [x] %v\n", t.TodoItems[todoIndex].Text)
 		fmt.Fprintf(w, "✓ Todo item %d checked off in task %s\n", todoNum, task.ShortID(taskID))
-		fmt.Fprintf(w, "- [x] %v", t.TodoItems[todoIndex].Text)
 		fmt.Fprintf(w, "💡 Consider committing your changes: git add -A && git commit -m \"%v (%v) check off %v\"\n", t.Title(), task.ShortID(taskID), t.TodoItems[todoIndex].Text)
 		return nil
 	}
@@ -186,6 +206,12 @@ func runComplete(w io.Writer, projectName, taskID string, todoNum int, role stri
 
 	// Update metadata
 	t.Meta.Completed = true
+	if report != "" {
+		if t.OtherContent != "" {
+			t.OtherContent += "\n\n"
+		}
+		t.OtherContent += "## Completion Report\n" + report
+	}
 	t.MarkDirty()
 
 	if err := t.Write(); err != nil {

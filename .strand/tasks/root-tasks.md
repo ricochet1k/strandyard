@@ -20,6 +20,7 @@
 - [Design PTY-only TUI for incomplete commands](T2r8k-pty-tui-incomplete-commands-design/T2r8k-pty-tui-incomplete-commands-design.md)
 - [Design history and edit log](T3c7p-history-edit-log-design/T3c7p-history-edit-log-design.md)
 - [Design task search command](T3n7p-task-search-command-design/T3n7p-task-search-command-design.md)
+- [New Task: Test](T3u4ruk-test/T3u4ruk-test.md)
 - [Design near-duplicate search on task add](T4k9s-near-duplicate-search-on-add-design/T4k9s-near-duplicate-search-on-add-design.md)
 - [Design task claiming for sessions and owners](T4v2n-task-claiming-session-owner-design/T4v2n-task-claiming-session-owner-design.md)
 - [Design AI exclusion for human-role tasks](T5b9x-human-role-ai-exclusion-design/T5b9x-human-role-ai-exclusion-design.md)

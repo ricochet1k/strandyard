@@ -28,7 +28,7 @@ Provide links to relevant design documents, diagrams, and decision records.
 - [ ] (role: owner) Implement the behavior described in Context.
 - [ ] (role: developer) Add unit and integration tests covering the main flows.
 - [ ] (role: tester) Execute test-suite and report failures.
-- [ ] (role: reviewer) Coordinate required reviews: `reviewer-reliability`, `reviewer-security`, `reviewer-usability`.
+- [ ] (role: master-reviewer) Coordinate required reviews: `reviewer-reliability`, `reviewer-security`, `reviewer-usability`.
 - [ ] (role: documentation) Update user-facing docs and examples.
 
 ## Subtasks

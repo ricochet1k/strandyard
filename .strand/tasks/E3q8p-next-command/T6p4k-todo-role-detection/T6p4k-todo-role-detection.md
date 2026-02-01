@@ -41,4 +41,4 @@ role:
 - [ ] Fallback: if no role in metadata and no TODO role, print "Role: (none)"
 - [ ] Add tests for TODO parsing
 - [ ] (role: developer) Write the code
-- [ ] (role: reviewer) Review the PR
+- [ ] (role: master-reviewer) Review the PR

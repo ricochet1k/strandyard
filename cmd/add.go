@@ -44,7 +44,6 @@ func init() {
 	addCmd.Flags().StringVarP(&addParent, "parent", "p", "", "parent task ID (creates task under that directory)")
 	addCmd.Flags().StringVar(&addPriority, "priority", "medium", "priority: high, medium, or low")
 	addCmd.Flags().StringSliceVar(&addBlockers, "blocker", nil, "blocker task ID(s); can be repeated or comma-separated")
-	addCmd.Flags().BoolVar(&addNoRepair, "no-repair", false, "skip repair and master list updates")
 }
 
 var (
@@ -53,7 +52,6 @@ var (
 	addPriority string
 	addParent   string
 	addBlockers []string
-	addNoRepair bool
 )
 
 type addOptions struct {
@@ -64,7 +62,6 @@ type addOptions struct {
 	Priority          string
 	Parent            string
 	Blockers          []string
-	NoRepair          bool
 	RoleSpecified     bool
 	PrioritySpecified bool
 	Body              string
@@ -86,7 +83,6 @@ func addOptionsFromFlags(cmd *cobra.Command, args []string, body string) (addOpt
 		Priority:          strings.TrimSpace(addPriority),
 		Parent:            strings.TrimSpace(addParent),
 		Blockers:          addBlockers,
-		NoRepair:          addNoRepair,
 		RoleSpecified:     cmd.Flags().Changed("role"),
 		PrioritySpecified: cmd.Flags().Changed("priority"),
 		Body:              body,
@@ -251,7 +247,7 @@ func runAdd(w io.Writer, opts addOptions) error {
 		return err
 	}
 
-	fmt.Fprintf(w, "✓ Task created: %s\n", filepath.ToSlash(taskFile))
+	fmt.Fprintf(w, "✓ Task created: %s\n", id)
 
 	if parent != "" {
 		newTask, err := parser.ParseFile(taskFile)
@@ -267,10 +263,9 @@ func runAdd(w io.Writer, opts addOptions) error {
 		}
 	}
 
-	if !opts.NoRepair {
-		if err := runRepair(w, paths.TasksDir, paths.RootTasksFile, paths.FreeTasksFile, "text"); err != nil {
-			return err
-		}
+	// TODO: This should not be necessary
+	if err := runRepair(w, paths.TasksDir, paths.RootTasksFile, paths.FreeTasksFile, "text"); err != nil {
+		return err
 	}
 
 	return nil

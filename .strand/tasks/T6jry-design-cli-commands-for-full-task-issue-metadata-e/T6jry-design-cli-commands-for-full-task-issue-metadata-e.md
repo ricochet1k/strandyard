@@ -211,5 +211,5 @@ This provides:
 - [x] (role: designer) Document design alternatives with pros/cons
 - [x] (role: designer) Consider user experience for different workflows
 - [x] (role: designer) Create mockups/UX flows for each alternative
-- [ ] (role: reviewer) Review design alternatives
+- [ ] (role: master-reviewer) Review design alternatives
 - [ ] (role: owner) Select preferred alternative

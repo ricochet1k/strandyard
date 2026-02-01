@@ -14,6 +14,7 @@ type TaskItem struct {
 	Role      string `json:"role,omitempty"`
 	SubtaskID string `json:"subtask_id,omitempty"`
 	Text      string `json:"text"`
+	Report    string `json:"report,omitempty"`
 }
 
 // ParseTaskItems parses a section's content into structured items.
@@ -28,6 +29,13 @@ func ParseTaskItems(content string) []TaskItem {
 		}
 		match := itemPattern.FindStringSubmatch(trimmed)
 		if match == nil {
+			// If it doesn't match the pattern, it might be an indented report line for the last item
+			if len(items) > 0 && (strings.HasPrefix(line, "  ") || strings.HasPrefix(line, "\t")) {
+				if items[len(items)-1].Report != "" {
+					items[len(items)-1].Report += "\n"
+				}
+				items[len(items)-1].Report += strings.TrimSpace(line)
+			}
 			continue
 		}
 		checked := strings.ToLower(match[1]) == "x"
@@ -65,6 +73,13 @@ func FormatTodoItems(items []TaskItem) string {
 			sb.WriteString(fmt.Sprintf("(subtask: %s) ", ShortID(item.SubtaskID)))
 		}
 		sb.WriteString(item.Text)
+		if item.Report != "" {
+			reportLines := strings.Split(item.Report, "\n")
+			for _, rl := range reportLines {
+				sb.WriteString("\n  ")
+				sb.WriteString(rl)
+			}
+		}
 	}
 	return sb.String()
 }
@@ -88,6 +103,13 @@ func FormatSubtaskItems(items []TaskItem) string {
 			sb.WriteString(fmt.Sprintf("(subtask: %s) ", ShortID(item.SubtaskID)))
 		}
 		sb.WriteString(item.Text)
+		if item.Report != "" {
+			reportLines := strings.Split(item.Report, "\n")
+			for _, rl := range reportLines {
+				sb.WriteString("\n  ")
+				sb.WriteString(rl)
+			}
+		}
 	}
 	return sb.String()
 }

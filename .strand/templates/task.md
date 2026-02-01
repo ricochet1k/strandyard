@@ -9,4 +9,4 @@ id_prefix: T
 ## Description
 {{ .Body }}
 
-Decide which task template would best fit this task and re-add it with that template.
+Decide which task template would best fit this task and re-add it with that template and the same parent.

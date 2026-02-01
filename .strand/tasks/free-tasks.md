@@ -33,6 +33,7 @@
 - [Add websocket streaming option for dashboard](Isfkq-add-websocket-streaming-option-for-dashboard/Isfkq-add-websocket-streaming-option-for-dashboard.md)
 - [Merge recurring add into add](Ish6g-merge-recurring-add-into-add/Ish6g-merge-recurring-add-into-add.md)
 - [Support role opt-in filtering for strand next](Ixf4f-support-role-opt-in-filtering-for-memmd-next/Ixf4f-support-role-opt-in-filtering-for-memmd-next.md)
+- [New Task: Test](T3u4ruk-test/T3u4ruk-test.md)
 - [Review new taskdb.go implementation](Ti6zj-taskdb-api-design-review/T0f98-review-new-taskdb-go-implementation/T0f98-review-new-taskdb-go-implementation.md)
 - [Review blockers.go relationship management](Ti6zj-taskdb-api-design-review/T0q5n-review-blockers-go-relationship-management/T0q5n-review-blockers-go-relationship-management.md)
 - [Review task.go structure and methods](Ti6zj-taskdb-api-design-review/T2lt8-review-task-go-structure-and-methods/T2lt8-review-task-go-structure-and-methods.md)

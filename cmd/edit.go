@@ -19,7 +19,6 @@ var (
 	editPriority string
 	editParent   string
 	editBlockers []string
-	editNoRepair bool
 )
 
 // editCmd represents the edit command
@@ -53,9 +52,6 @@ func init() {
 	editCmd.Flags().StringVarP(&editRole, "role", "r", "", "role responsible for the task")
 	editCmd.Flags().StringVarP(&editParent, "parent", "p", "", "parent task ID")
 	editCmd.Flags().StringVar(&editPriority, "priority", "", "priority: high, medium, or low")
-	// TODO: Not implemented
-	// editCmd.Flags().StringSliceVar(&editBlockers, "blocker", nil, "blocker task ID(s); can be repeated or comma-separated")
-	editCmd.Flags().BoolVar(&editNoRepair, "no-repair", false, "skip repair and master list updates")
 }
 
 func runEdit(cmd *cobra.Command, taskID, newBody string) error {
@@ -167,10 +163,9 @@ func runEdit(cmd *cobra.Command, taskID, newBody string) error {
 			}
 		}
 
-		if !editNoRepair {
-			if err := runRepair(w, paths.TasksDir, paths.RootTasksFile, paths.FreeTasksFile, "text"); err != nil {
-				return err
-			}
+		// TODO: This should not be necessary
+		if err := runRepair(w, paths.TasksDir, paths.RootTasksFile, paths.FreeTasksFile, "text"); err != nil {
+			return err
 		}
 	} else {
 		fmt.Fprintf(w, "No changes to task %s\n", task.ShortID(resolvedID))

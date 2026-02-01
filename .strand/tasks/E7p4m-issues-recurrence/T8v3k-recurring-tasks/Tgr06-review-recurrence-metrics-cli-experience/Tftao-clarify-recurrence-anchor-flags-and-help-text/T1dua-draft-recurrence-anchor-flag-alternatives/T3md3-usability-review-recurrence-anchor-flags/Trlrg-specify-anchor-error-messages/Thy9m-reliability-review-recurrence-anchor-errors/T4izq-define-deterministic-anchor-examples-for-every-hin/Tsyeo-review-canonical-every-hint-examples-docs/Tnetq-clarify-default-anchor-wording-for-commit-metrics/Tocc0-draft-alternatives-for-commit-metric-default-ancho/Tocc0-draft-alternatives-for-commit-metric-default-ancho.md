@@ -3,12 +3,11 @@ type: task
 role: designer
 priority: medium
 parent: Tnetq-clarify-default-anchor-wording-for-commit-metrics
-blockers:
-    - Tvu5e-usability-review-commit-metric-default-anchor-word
+blockers: []
 blocks:
     - Tnetq-clarify-default-anchor-wording-for-commit-metrics
 date_created: 2026-01-29T19:59:33.996756Z
-date_edited: 2026-02-01T05:24:56.549892Z
+date_edited: 2026-02-01T08:45:19.028372Z
 owner_approval: false
 completed: false
 ---

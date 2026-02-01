@@ -3,7 +3,6 @@ package task
 import (
 	"fmt"
 	"os"
-	"runtime"
 	"strings"
 	"time"
 
@@ -75,9 +74,9 @@ func (t *Task) SetBody(newBody string) {
 // MarkDirty marks the task as modified.
 func (t *Task) MarkDirty() {
 	if !t.Dirty {
-		if _, file, line, ok := runtime.Caller(1); ok {
-			fmt.Printf("MarkDirty called from %v:%v\n", file, line)
-		}
+		// if _, file, line, ok := runtime.Caller(1); ok {
+		// 	fmt.Printf("MarkDirty called from %v:%v\n", file, line)
+		// }
 		t.Meta.DateEdited = time.Now().UTC()
 	}
 	t.Dirty = true
