@@ -10,7 +10,7 @@ blockers:
 blocks:
     - T8eric8-fix-concurrency-risk-in-activity-log-reading
 date_created: 2026-02-01T23:41:37.798468Z
-date_edited: 2026-02-01T23:45:43.578361Z
+date_edited: 2026-02-01T23:49:25.240951Z
 owner_approval: false
 completed: false
 description: ""
@@ -25,6 +25,6 @@ Implementation Task: T8eric8
 Delegate concerns to the relevant role via subtasks.
 
 ## Subtasks
-- [ ] (subtask: Tnhk8ef) Description
+- [x] (subtask: Tnhk8ef) Description
 - [ ] (subtask: Tpr12oz) Description
 - [ ] (subtask: Ts0jbp4) Description
