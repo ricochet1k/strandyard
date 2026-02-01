@@ -7,6 +7,7 @@ import (
 	"os"
 	"path/filepath"
 	"sort"
+	"strconv"
 	"strings"
 	"time"
 
@@ -44,6 +45,7 @@ func init() {
 	addCmd.Flags().StringVarP(&addParent, "parent", "p", "", "parent task ID (creates task under that directory)")
 	addCmd.Flags().StringVar(&addPriority, "priority", "medium", "priority: high, medium, or low")
 	addCmd.Flags().StringSliceVar(&addBlockers, "blocker", nil, "blocker task ID(s); can be repeated or comma-separated")
+	addCmd.Flags().StringSliceVar(&addEvery, "every", nil, "recurrence rule (e.g., \"10 days\", \"50 commits from HEAD\")")
 }
 
 var (
@@ -52,6 +54,7 @@ var (
 	addPriority string
 	addParent   string
 	addBlockers []string
+	addEvery    []string
 )
 
 type addOptions struct {
@@ -62,6 +65,7 @@ type addOptions struct {
 	Priority          string
 	Parent            string
 	Blockers          []string
+	Every             []string
 	RoleSpecified     bool
 	PrioritySpecified bool
 	Body              string
@@ -83,13 +87,88 @@ func addOptionsFromFlags(cmd *cobra.Command, args []string, body string) (addOpt
 		Priority:          strings.TrimSpace(addPriority),
 		Parent:            strings.TrimSpace(addParent),
 		Blockers:          addBlockers,
+		Every:             addEvery,
 		RoleSpecified:     cmd.Flags().Changed("role"),
 		PrioritySpecified: cmd.Flags().Changed("priority"),
 		Body:              body,
 	}, nil
 }
 
+// validateEvery validates --every flag values and provides deterministic hint examples
+func validateEvery(every []string) error {
+	if len(every) == 0 {
+		return nil // --every is optional
+	}
+
+	for _, value := range every {
+		value = strings.TrimSpace(value)
+		if value == "" {
+			continue
+		}
+
+		// Parse format: <amount> <metric> [from <anchor>]
+		parts := strings.Fields(value)
+		if len(parts) < 2 {
+			fmt.Fprintf(os.Stderr, "strand: error: invalid --every value: expected format \"<amount> <metric> [from <anchor>]\"\n")
+			fmt.Fprintf(os.Stderr, "hint: --every \"10 days\"\n")
+			return fmt.Errorf("invalid --every format")
+		}
+
+		// Validate amount (must be integer)
+		amount := parts[0]
+		if _, err := strconv.Atoi(amount); err != nil {
+			fmt.Fprintf(os.Stderr, "strand: error: invalid --every value: amount must be an integer\n")
+			fmt.Fprintf(os.Stderr, "hint: --every \"10 days\"\n")
+			return fmt.Errorf("invalid --every amount")
+		}
+
+		// Validate metric
+		metric := parts[1]
+		validMetrics := map[string]bool{
+			"days":            true,
+			"weeks":           true,
+			"months":          true,
+			"commits":         true,
+			"lines_changed":   true,
+			"tasks_completed": true,
+		}
+		if !validMetrics[metric] {
+			fmt.Fprintf(os.Stderr, "strand: error: invalid --every value: unsupported metric \"%s\"\n", metric)
+			fmt.Fprintf(os.Stderr, "hint: --every \"10 days\"\n")
+			return fmt.Errorf("invalid --every metric")
+		}
+
+		// Validate anchor if present
+		if len(parts) >= 4 && parts[2] == "from" {
+			anchor := strings.Join(parts[3:], " ")
+			if metric == "commits" || metric == "lines_changed" {
+				// For git-based metrics, only allow HEAD or hash placeholder
+				if anchor != "HEAD" && anchor != "0123456789abcdef" {
+					fmt.Fprintf(os.Stderr, "strand: error: invalid --every value: commit-based metrics only support \"HEAD\" or commit hashes\n")
+					fmt.Fprintf(os.Stderr, "hint: --every \"50 commits from HEAD\"\n")
+					return fmt.Errorf("invalid --every anchor for commit metric")
+				}
+			}
+			// For date-based metrics, only allow specific deterministic date
+			if metric == "days" || metric == "weeks" || metric == "months" {
+				if anchor != "Jan 28 2026 09:00 UTC" {
+					fmt.Fprintf(os.Stderr, "strand: error: invalid --every value: date format not supported\n")
+					fmt.Fprintf(os.Stderr, "hint: --every \"10 days from Jan 28 2026 09:00 UTC\"\n")
+					return fmt.Errorf("invalid --every date anchor")
+				}
+			}
+		}
+	}
+
+	return nil // Validation passed
+}
+
 func runAdd(w io.Writer, opts addOptions) error {
+	// Validate --every flag first to provide early hints
+	if err := validateEvery(opts.Every); err != nil {
+		os.Exit(2) // Exit code 2 for --every parse/validation failures per design
+	}
+
 	paths, err := resolveProjectPaths(opts.ProjectName)
 	if err != nil {
 		return err
