@@ -9,9 +9,9 @@ blocks:
     - T7h5m-initial-e2e-tests
     - Tml0y-t9m4n-improved-task-templates
 date_created: 2026-01-27T00:00:00Z
-date_edited: 2026-02-01T04:21:33.585965Z
+date_edited: 2026-02-01T04:27:50.386299Z
 owner_approval: false
-completed: false
+completed: true
 ---
 
 # Implement Sample Environment Setup
@@ -48,11 +48,11 @@ env.AssertFileExists("tasks/free-tasks.md")
 ```
 
 ## TODOs
-- [ ] Implement `TestEnv` struct with temp directory management
-- [ ] Implement `CreateTask()` helper to create task files from structs
-- [ ] Implement `CreateRole()` helper to create role files
-- [ ] Implement `CreateTemplate()` helper to create template files
-- [ ] Implement `RunCommand()` to execute CLI commands in test environment
-- [ ] Implement `Cleanup()` to remove temp directories
-- [ ] Add helpers for asserting file existence and content
-- [ ] Add helpers for asserting command output
+- [x] Implement `TestEnv` struct with temp directory management
+- [x] Implement `CreateTask()` helper to create task files from structs
+- [x] Implement `CreateRole()` helper to create role files
+- [x] Implement `CreateTemplate()` helper to create template files
+- [x] Implement `RunCommand()` to execute CLI commands in test environment
+- [x] Implement `Cleanup()` to remove temp directories
+- [x] Add helpers for asserting file existence and content
+- [x] Add helpers for asserting command output
