@@ -3,11 +3,12 @@ type: review-usability
 role: reviewer-usability
 priority: medium
 parent: Tocc0-draft-alternatives-for-commit-metric-default-ancho
-blockers: []
+blockers:
+    - T9eo473-decision-needed-clarify-invalid-head-behavior-for
 blocks:
     - Tocc0-draft-alternatives-for-commit-metric-default-ancho
 date_created: 2026-01-29T20:00:34.4364Z
-date_edited: 2026-01-29T13:00:34.444851-07:00
+date_edited: 2026-02-01T05:17:09.124334Z
 owner_approval: false
 completed: false
 ---
@@ -57,3 +58,6 @@ User-facing wording for default anchors in commit-based metrics, including hint 
 - Clarity and ambiguity reduction in wording
 - Consistency with other recurrence metric docs
 - Brevity vs. explicitness in hints
+
+## Subtasks
+- [ ] (subtask: T9eo473) Decision needed: Clarify invalid HEAD behavior for commit metrics

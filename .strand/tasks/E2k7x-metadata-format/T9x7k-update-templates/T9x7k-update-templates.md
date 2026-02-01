@@ -37,6 +37,6 @@ Update task templates to use YAML frontmatter format instead of simple field for
 ## TODOs
 - [ ] Update templates/leaf.md to use YAML frontmatter header
 - [ ] Remove `## Role`, `## Track` markdown headings from template body
-- [ ] Add frontmatter with template variables: `{{ .Role }}`, `{{ .Parent }}`, etc.
+- [ ] (role: designer) Add frontmatter with template variables: example, example.
 - [ ] Include date_created and date_edited in frontmatter (should be set to current date when task created)
 - [ ] Test template expansion works correctly with new format

@@ -9,7 +9,7 @@ blockers:
 blocks:
     - Tio6w-review-alternatives-commit-metric-default-anchor-w
 date_created: 2026-01-29T22:24:02.846165Z
-date_edited: 2026-02-01T04:22:23.490153Z
+date_edited: 2026-02-01T05:14:55.339802Z
 owner_approval: false
 completed: true
 ---
@@ -55,4 +55,4 @@ Tasks are disposable. Use follow-up tasks for open questions/concerns. Record de
 
 ## Subtasks
 - [x] (subtask: Tuu18) Update docs and hints to say from HEAD
-- [ ] (subtask: Tv5ra) Implement ignore invalid HEAD for commit metrics
+- [x] (subtask: Tv5ra) Implement ignore invalid HEAD for commit metrics

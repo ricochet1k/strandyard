@@ -25,10 +25,10 @@ Provide links to relevant design documents, diagrams, and decision records.
 - Required reviews completed and blockers cleared.
 
 ## TODOs
-- [ ] (role: {{ .Role }}) Implement the behavior described in Context.
+- [ ] (role: owner) Implement the behavior described in Context.
 - [ ] (role: developer) Add unit and integration tests covering the main flows.
 - [ ] (role: tester) Execute test-suite and report failures.
-- [ ] (role: master-reviewer) Coordinate required reviews: `reviewer-reliability`, `reviewer-security`, `reviewer-usability`.
+- [ ] (role: reviewer) Coordinate required reviews: `reviewer-reliability`, `reviewer-security`, `reviewer-usability`.
 - [ ] (role: documentation) Update user-facing docs and examples.
 
 ## Subtasks
