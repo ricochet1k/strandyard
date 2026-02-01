@@ -11,7 +11,7 @@ blocks:
     - T29wfxd-review-git-security-hardening
     - Twxmvkr-security-review-of-git-hardening
 date_created: 2026-02-01T22:13:09.503114Z
-date_edited: 2026-02-01T22:31:03.053473Z
+date_edited: 2026-02-01T22:31:49.815324Z
 owner_approval: false
 completed: false
 description: ""
@@ -43,5 +43,5 @@ Use -- separator in git clone for the preset argument to prevent flag injection.
 
 ## Subtasks
 - [x] (subtask: T8qdyx5) Description
-- [ ] (subtask: Tm0na28) Description
+- [x] (subtask: Tm0na28) Description
 - [ ] (subtask: Tuk75nq) Description
