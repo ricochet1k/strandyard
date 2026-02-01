@@ -22,10 +22,14 @@ func EvaluateGitMetric(repoPath, metricType, anchor string, taskID string, log *
 		return 0, nil // Unborn or invalid HEAD, treat as no-op
 	}
 
+	resolvedAnchor, err := ResolveGitHash(repoPath, anchor)
+	if err != nil {
+		// Treat unknown revision as no-op
+		return 0, nil
+	}
+
 	if anchor == "HEAD" && log != nil && taskID != "" {
-		if resolved, err := ResolveGitHash(repoPath, "HEAD"); err == nil {
-			_ = log.WriteRecurrenceAnchorResolution(taskID, "HEAD", resolved)
-		}
+		_ = log.WriteRecurrenceAnchorResolution(taskID, "HEAD", resolvedAnchor)
 	}
 
 	var cmd *exec.Cmd
@@ -34,9 +38,9 @@ func EvaluateGitMetric(repoPath, metricType, anchor string, taskID string, log *
 
 	switch metricType {
 	case "commits":
-		cmd = exec.Command("git", "rev-list", "--count", fmt.Sprintf("%s..HEAD", anchor))
+		cmd = exec.Command("git", "rev-list", "--count", fmt.Sprintf("%s..HEAD", resolvedAnchor))
 	case "lines_changed":
-		cmd = exec.Command("git", "diff", "--numstat", fmt.Sprintf("%s..HEAD", anchor))
+		cmd = exec.Command("git", "diff", "--numstat", fmt.Sprintf("%s..HEAD", resolvedAnchor))
 	default:
 		return 0, fmt.Errorf("unsupported git metric type: %s", metricType)
 	}
@@ -45,7 +49,7 @@ func EvaluateGitMetric(repoPath, metricType, anchor string, taskID string, log *
 	cmd.Stdout = &output
 	cmd.Stderr = &stderr
 
-	err := cmd.Run()
+	err = cmd.Run()
 	if err != nil {
 		errStr := stderr.String()
 		// Treat "unknown revision" or "ambiguous argument" errors as no-op for recurrence metrics.
@@ -126,7 +130,7 @@ func EvaluateTasksCompletedMetric(baseDir, anchor string, taskID string, log *ac
 
 // ResolveGitHash resolves a git reference to a commit hash.
 func ResolveGitHash(repoPath, anchor string) (string, error) {
-	cmd := exec.Command("git", "rev-parse", "--verify", anchor+"^{commit}")
+	cmd := exec.Command("git", "rev-parse", "--verify", "--end-of-options", anchor+"^{commit}")
 	cmd.Dir = repoPath
 	out, err := cmd.Output()
 	if err != nil {
@@ -253,7 +257,9 @@ func UpdateAnchor(repoPath, baseDir, metric, currentAnchor string, interval int)
 		newAnchor, err := GetCommitAtOffset(repoPath, currentAnchor, interval)
 		if err != nil {
 			// If anchor is missing (e.g. force push), fallback to HEAD
-			if strings.Contains(err.Error(), "failed to list commits") || strings.Contains(err.Error(), "unknown revision") {
+			if strings.Contains(err.Error(), "failed to list commits") ||
+				strings.Contains(err.Error(), "unknown revision") ||
+				strings.Contains(err.Error(), "failed to resolve anchor") {
 				return ResolveGitHash(repoPath, "HEAD")
 			}
 			return "", err
@@ -264,7 +270,9 @@ func UpdateAnchor(repoPath, baseDir, metric, currentAnchor string, interval int)
 		newAnchor, err := GetCommitCrossingLinesThreshold(repoPath, currentAnchor, interval)
 		if err != nil {
 			// If anchor is missing, fallback to HEAD
-			if strings.Contains(err.Error(), "failed to list commits") || strings.Contains(err.Error(), "unknown revision") {
+			if strings.Contains(err.Error(), "failed to list commits") ||
+				strings.Contains(err.Error(), "unknown revision") ||
+				strings.Contains(err.Error(), "failed to resolve anchor") {
 				return ResolveGitHash(repoPath, "HEAD")
 			}
 			return "", err
@@ -314,11 +322,16 @@ func UpdateAnchor(repoPath, baseDir, metric, currentAnchor string, interval int)
 
 // GetCommitAtOffset returns the commit hash that is exactly 'offset' commits after the 'anchor'.
 func GetCommitAtOffset(repoPath, anchor string, offset int) (string, error) {
-	if offset <= 0 {
-		return ResolveGitHash(repoPath, anchor)
+	resolvedAnchor, err := ResolveGitHash(repoPath, anchor)
+	if err != nil {
+		return "", fmt.Errorf("failed to resolve anchor %q: %w", anchor, err)
 	}
 
-	cmd := exec.Command("git", "rev-list", "--reverse", fmt.Sprintf("%s..HEAD", anchor))
+	if offset <= 0 {
+		return resolvedAnchor, nil
+	}
+
+	cmd := exec.Command("git", "rev-list", "--reverse", fmt.Sprintf("%s..HEAD", resolvedAnchor))
 	cmd.Dir = repoPath
 	out, err := cmd.Output()
 	if err != nil {
@@ -336,11 +349,16 @@ func GetCommitAtOffset(repoPath, anchor string, offset int) (string, error) {
 // GetCommitCrossingLinesThreshold returns the first commit hash where the cumulative
 // lines changed since 'anchor' meets or exceeds the 'threshold'.
 func GetCommitCrossingLinesThreshold(repoPath, anchor string, threshold int) (string, error) {
-	if threshold <= 0 {
-		return ResolveGitHash(repoPath, anchor)
+	resolvedAnchor, err := ResolveGitHash(repoPath, anchor)
+	if err != nil {
+		return "", fmt.Errorf("failed to resolve anchor %q: %w", anchor, err)
 	}
 
-	cmd := exec.Command("git", "rev-list", "--reverse", fmt.Sprintf("%s..HEAD", anchor))
+	if threshold <= 0 {
+		return resolvedAnchor, nil
+	}
+
+	cmd := exec.Command("git", "rev-list", "--reverse", fmt.Sprintf("%s..HEAD", resolvedAnchor))
 	cmd.Dir = repoPath
 	out, err := cmd.Output()
 	if err != nil {
@@ -371,7 +389,14 @@ func GetCommitCrossingLinesThreshold(repoPath, anchor string, threshold int) (st
 }
 
 func getLinesChangedInCommit(repoPath, commit string) (int, error) {
-	cmd := exec.Command("git", "show", "--numstat", "--format=", commit)
+	// commit should already be a resolved hash, but we use ResolveGitHash just in case
+	// to ensure it doesn't look like a flag.
+	resolvedCommit, err := ResolveGitHash(repoPath, commit)
+	if err != nil {
+		return 0, fmt.Errorf("failed to resolve commit %q: %w", commit, err)
+	}
+
+	cmd := exec.Command("git", "show", "--numstat", "--format=", resolvedCommit)
 	cmd.Dir = repoPath
 	out, err := cmd.Output()
 	if err != nil {
@@ -404,7 +429,7 @@ func getLinesChangedInCommit(repoPath, commit string) (int, error) {
 // isHeadValid checks if the HEAD reference in a git repository is valid.
 // It returns true if HEAD is valid (even detached HEAD pointing to a commit), false otherwise (unborn HEAD).
 func isHeadValid(repoPath string) bool {
-	cmd := exec.Command("git", "rev-parse", "--verify", "HEAD")
+	cmd := exec.Command("git", "rev-parse", "--verify", "--end-of-options", "HEAD")
 	cmd.Dir = repoPath
 	if err := cmd.Run(); err != nil {
 		// git rev-parse --verify HEAD returns non-zero exit code if HEAD is invalid/unborn
