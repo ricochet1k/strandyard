@@ -6,7 +6,7 @@ parent: T1dua-draft-recurrence-anchor-flag-alternatives
 blockers: []
 blocks: []
 date_created: 2026-02-01T20:27:58.689359Z
-date_edited: 2026-02-01T20:33:04.712078Z
+date_edited: 2026-02-01T20:39:40.944395Z
 owner_approval: false
 completed: false
 description: ""
@@ -31,7 +31,8 @@ The `tasks_completed` metric for recurring tasks should be based on an activity 
 ## TODOs
 - [x] (role: developer) Design activity log schema (file format, fields, location)
   Updated task from 'implement' to 'design' type. The original task was based on an incorrect assumption that tasks_completed should validate completion timestamp metadata on tasks. Corrected approach: tasks_completed should use an activity log (not yet designed) since completed tasks may be deleted. Updated task title, summary, and TODOs to reflect the activity log design approach.
-- [ ] (role: developer) Implement activity log writer for task completion events
+- [x] (role: developer) Implement activity log writer for task completion events
+  Implemented activity log writer for task completion events. Created pkg/activity package with Log struct that writes JSONL entries to .strand/activity.log. Updated strand complete command to write to activity log when tasks are completed (both directly and via last todo completion).
 - [ ] (role: developer) Implement activity log reader for queries (e.g., count completions since date)
 - [ ] (role: developer) Update `strand complete` to write to activity log
 - [ ] (role: developer) Update recurrence evaluation to query activity log for `tasks_completed` metric

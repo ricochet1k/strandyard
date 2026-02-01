@@ -10,6 +10,7 @@ import (
 	"os"
 	"strings"
 
+	"github.com/ricochet1k/strandyard/pkg/activity"
 	"github.com/ricochet1k/strandyard/pkg/task"
 	"github.com/spf13/cobra"
 )
@@ -170,6 +171,16 @@ func runComplete(w io.Writer, projectName, taskID string, todoNum int, role stri
 				return fmt.Errorf("failed to write task file: %w", err)
 			}
 
+			activityLog, err := activity.Open(paths.BaseDir)
+			if err != nil {
+				return fmt.Errorf("failed to open activity log: %w", err)
+			}
+			defer activityLog.Close()
+
+			if err := activityLog.WriteTaskCompletion(taskID, report); err != nil {
+				return fmt.Errorf("failed to write activity log: %w", err)
+			}
+
 			fmt.Fprintf(w, "✓ Todo item %d checked off in task %s (last todo - task marked complete)\n", todoNum, task.ShortID(taskID))
 			if report == "" {
 				fmt.Fprintf(w, "💡 Next time, consider adding a report: strand complete %s --todo %d \"summary of work\"\n", task.ShortID(taskID), todoNum)
@@ -222,6 +233,16 @@ func runComplete(w io.Writer, projectName, taskID string, todoNum int, role stri
 
 	if err := t.Write(); err != nil {
 		return fmt.Errorf("failed to write task file: %w", err)
+	}
+
+	activityLog, err := activity.Open(paths.BaseDir)
+	if err != nil {
+		return fmt.Errorf("failed to open activity log: %w", err)
+	}
+	defer activityLog.Close()
+
+	if err := activityLog.WriteTaskCompletion(taskID, report); err != nil {
+		return fmt.Errorf("failed to write activity log: %w", err)
 	}
 
 	fmt.Fprintf(w, "✓ Task %s marked as completed\n", task.ShortID(taskID))
