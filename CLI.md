@@ -487,7 +487,12 @@ Recurring definitions require additional scheduling fields and are validated by 
 **Required fields**:
 - `recurrence_interval` (integer > 0)
 - `recurrence_unit` (`days`, `weeks`, `months`, or `commits`)
-- `recurrence_anchor` (ISO 8601 date or commit hash)
+- `recurrence_anchor` (ISO 8601 date or commit hash or "HEAD" for current)
+
+**Special considerations for commit-based recurrence**:
+- When `recurrence_unit` is `commits`, an `recurrence_anchor` of `HEAD` indicates the latest commit.
+- Invalid or "unborn" HEAD states for `recurrence_anchor` are treated as a no-op (no tasks are materialized) rather than an error.
+
 
 **Optional fields**:
 - `recurrence_next_due` (ISO 8601 date; computed if omitted)

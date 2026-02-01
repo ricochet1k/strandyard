@@ -7,9 +7,9 @@ blockers: []
 blocks:
     - Tiyms-decide-default-anchor-wording-for-commit-metrics-a
 date_created: 2026-01-29T22:32:28.748147Z
-date_edited: 2026-02-01T05:11:51.83417Z
+date_edited: 2026-02-01T05:12:48.932808Z
 owner_approval: false
-completed: false
+completed: true
 ---
 
 # Implement ignore invalid HEAD for commit metrics
@@ -33,4 +33,4 @@ Tasks are disposable. Use follow-up tasks for open questions/concerns. Record de
 - [x] (role: developer) Add unit and integration tests covering the main flows.
 - [x] (role: tester) Execute test-suite and report failures.
 - [x] (role: reviewer) Coordinate required reviews: `reviewer-reliability`, `reviewer-security`, `reviewer-usability`.
-- [ ] (role: documentation) Update user-facing docs and examples.
+- [x] (role: documentation) Update user-facing docs and examples.
