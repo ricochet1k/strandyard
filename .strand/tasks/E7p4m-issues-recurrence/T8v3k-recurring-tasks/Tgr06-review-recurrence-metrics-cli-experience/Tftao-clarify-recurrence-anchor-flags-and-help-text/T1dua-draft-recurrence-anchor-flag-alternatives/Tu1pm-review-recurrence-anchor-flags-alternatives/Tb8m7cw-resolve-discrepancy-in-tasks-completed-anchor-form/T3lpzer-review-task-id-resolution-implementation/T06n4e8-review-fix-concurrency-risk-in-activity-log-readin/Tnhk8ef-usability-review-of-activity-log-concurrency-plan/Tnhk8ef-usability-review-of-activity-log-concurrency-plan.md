@@ -7,7 +7,7 @@ blockers:
     - Tpjhzzd-reuse-log-instance-in-evaluatetaskscompletedmetric
 blocks: []
 date_created: 2026-02-01T23:45:43.569814Z
-date_edited: 2026-02-01T23:49:25.22899Z
+date_edited: 2026-02-01T23:52:50.041309Z
 owner_approval: false
 completed: true
 description: ""
@@ -19,8 +19,12 @@ Review design-docs/fix-activity-log-concurrency.md for any impact on the public 
 
 Delegate concerns to the relevant role via subtasks.
 
-## Subtasks
-- [ ] (subtask: Tpjhzzd) Description
+
 
 ## Completion Report
 Usability review complete. The plan is sound and maintains API backward compatibility while fixing thread-safety issues. Identified a minor design flaw in EvaluateTasksCompletedMetric (redundant log opening) and created subtask Tpjhzzd to address it.
+
+## Subtasks
+- [ ] (subtask: T0fielf) Description
+- [x] (subtask: Tpjhzzd) Description
+- [ ] (subtask: Tu4i36m) Reuse log instance in EvaluateTasksCompletedMetric
