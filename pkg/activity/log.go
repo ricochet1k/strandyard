@@ -1,6 +1,7 @@
 package activity
 
 import (
+	"bufio"
 	"encoding/json"
 	"fmt"
 	"os"
@@ -84,4 +85,74 @@ func (l *Log) WriteTaskCompletion(taskID, report string) error {
 		Type:   EventTaskCompleted,
 		Report: report,
 	})
+}
+
+// ReadEntries reads all entries from the activity log
+func (l *Log) ReadEntries() ([]Entry, error) {
+	if err := l.file.Close(); err != nil {
+		return nil, fmt.Errorf("failed to close log for reading: %w", err)
+	}
+
+	file, err := os.Open(l.filepath)
+	if err != nil {
+		return nil, fmt.Errorf("failed to open log for reading: %w", err)
+	}
+	defer file.Close()
+
+	var entries []Entry
+	scanner := bufio.NewScanner(file)
+	for scanner.Scan() {
+		line := scanner.Text()
+		if line == "" {
+			continue
+		}
+		var entry Entry
+		if err := json.Unmarshal([]byte(line), &entry); err != nil {
+			return nil, fmt.Errorf("failed to unmarshal entry: %w", err)
+		}
+		entries = append(entries, entry)
+	}
+
+	if err := scanner.Err(); err != nil {
+		return nil, fmt.Errorf("error reading log: %w", err)
+	}
+
+	l.file, err = os.OpenFile(l.filepath, os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0o644)
+	if err != nil {
+		return nil, fmt.Errorf("failed to reopen log for writing: %w", err)
+	}
+
+	return entries, nil
+}
+
+// CountCompletionsSince counts task completion events since a given time
+func (l *Log) CountCompletionsSince(since time.Time) (int, error) {
+	entries, err := l.ReadEntries()
+	if err != nil {
+		return 0, err
+	}
+
+	count := 0
+	for _, entry := range entries {
+		if entry.Type == EventTaskCompleted && entry.Timestamp.After(since) || entry.Timestamp.Equal(since) {
+			count++
+		}
+	}
+	return count, nil
+}
+
+// CountCompletionsForTaskSince counts completion events for a specific task since a given time
+func (l *Log) CountCompletionsForTaskSince(taskID string, since time.Time) (int, error) {
+	entries, err := l.ReadEntries()
+	if err != nil {
+		return 0, err
+	}
+
+	count := 0
+	for _, entry := range entries {
+		if entry.Type == EventTaskCompleted && entry.TaskID == taskID && (entry.Timestamp.After(since) || entry.Timestamp.Equal(since)) {
+			count++
+		}
+	}
+	return count, nil
 }
