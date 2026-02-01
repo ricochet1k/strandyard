@@ -6,7 +6,6 @@
 ## Medium
 
 - [Align exit code conventions for --every failures](E7p4m-issues-recurrence/T8v3k-recurring-tasks/Tgr06-review-recurrence-metrics-cli-experience/Tftao-clarify-recurrence-anchor-flags-and-help-text/T1dua-draft-recurrence-anchor-flag-alternatives/T3md3-usability-review-recurrence-anchor-flags/Trlrg-specify-anchor-error-messages/Thy9m-reliability-review-recurrence-anchor-errors/Tc3zv-align-exit-code-conventions-for-every-failures/Tc3zv-align-exit-code-conventions-for-every-failures.md)
-- [Define anchor help text and examples](E7p4m-issues-recurrence/T8v3k-recurring-tasks/Tgr06-review-recurrence-metrics-cli-experience/Tftao-clarify-recurrence-anchor-flags-and-help-text/T1dua-draft-recurrence-anchor-flag-alternatives/T3md3-usability-review-recurrence-anchor-flags/Tusef-define-anchor-help-text-and-examples/Tusef-define-anchor-help-text-and-examples.md)
 - [Reliability review: recurrence anchor flags](E7p4m-issues-recurrence/T8v3k-recurring-tasks/Tgr06-review-recurrence-metrics-cli-experience/Tftao-clarify-recurrence-anchor-flags-and-help-text/T1dua-draft-recurrence-anchor-flag-alternatives/Tnsrg-reliability-review-recurrence-anchor-flags/Tnsrg-reliability-review-recurrence-anchor-flags.md)
 - [Review recurrence anchor flags alternatives](E7p4m-issues-recurrence/T8v3k-recurring-tasks/Tgr06-review-recurrence-metrics-cli-experience/Tftao-clarify-recurrence-anchor-flags-and-help-text/T1dua-draft-recurrence-anchor-flag-alternatives/Tu1pm-review-recurrence-anchor-flags-alternatives/Tu1pm-review-recurrence-anchor-flags-alternatives.md)
 - [Usability review: recurrence anchor flags](E7p4m-issues-recurrence/T8v3k-recurring-tasks/Tgr06-review-recurrence-metrics-cli-experience/Tftao-clarify-recurrence-anchor-flags-and-help-text/T6oqp-usability-review-recurrence-anchor-flags/T6oqp-usability-review-recurrence-anchor-flags.md)
@@ -31,6 +30,7 @@
 - [New Task: Test](T3u4ruk-test/T3u4ruk-test.md)
 - [Clarify missing anchor default behavior in recurrence](T3xpql7-clarify-missing-anchor-default-behavior-in-recurre/T3xpql7-clarify-missing-anchor-default-behavior-in-recurre.md)
 - [Clarify anchor flag inconsistency in CLI.md and design doc](T8xy3ry-clarify-anchor-flag-inconsistency-in-cli-md-and-de/T8xy3ry-clarify-anchor-flag-inconsistency-in-cli-md-and-de.md)
+- [Description](Tcc9bjk-review-anchor-help-text-and-examples-alternatives/Tcc9bjk-review-anchor-help-text-and-examples-alternatives.md)
 - [Complete command should also insert report into parent's subtasks after the relevant checkbox entry](Tfe1ssq-complete-command-should-also-insert-report-into-pa/Tfe1ssq-complete-command-should-also-insert-report-into-pa.md)
 - [Review new taskdb.go implementation](Ti6zj-taskdb-api-design-review/T0f98-review-new-taskdb-go-implementation/T0f98-review-new-taskdb-go-implementation.md)
 - [Review blockers.go relationship management](Ti6zj-taskdb-api-design-review/T0q5n-review-blockers-go-relationship-management/T0q5n-review-blockers-go-relationship-management.md)
@@ -47,6 +47,7 @@
 - [Design relationship management API](Ti6zj-taskdb-api-design-review/Tx4jn-design-relationship-management-api/Tx4jn-design-relationship-management-api.md)
 - [Design task creation API (template-based only)](Ti6zj-taskdb-api-design-review/Txvyh-design-task-creation-api-template-based-only/Txvyh-design-task-creation-api-template-based-only.md)
 - [Define error message and recovery hint for ambiguous anchor type](Tiw9in3-define-error-message-and-recovery-hint-for-ambiguo/Tiw9in3-define-error-message-and-recovery-hint-for-ambiguo.md)
+- [New Task: Usability review: anchor help text and examples](Tt3kj2u-usability-review-anchor-help-text-and-examples/Tt3kj2u-usability-review-anchor-help-text-and-examples.md)
 
 ## Low
 
