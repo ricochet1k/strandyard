@@ -1,6 +1,6 @@
 ---
 type: review
-role: reviewer
+role: master-reviewer
 priority: medium
 parent: T1dua-draft-recurrence-anchor-flag-alternatives
 blockers: []

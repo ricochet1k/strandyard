@@ -6,9 +6,10 @@ parent: Tvu5e-usability-review-commit-metric-default-anchor-word
 blockers: []
 blocks: []
 date_created: 2026-02-01T05:17:09.114657Z
-date_edited: 2026-02-01T05:17:09.114657Z
+date_edited: 2026-02-01T09:04:50.75776Z
 owner_approval: false
-completed: false
+completed: true
+description: ""
 ---
 
 # Decision needed: Clarify invalid HEAD behavior for commit metrics
@@ -34,14 +35,3 @@ Tasks are disposable. Use follow-up tasks for open questions/concerns. Record de
 - Clear, runnable steps to reproduce locally.
 - Tests covering functionality and passing.
 - Required reviews completed and blockers cleared.
-
-## TODOs
-Check this off one at a time with `strand complete <task_id> --role <my_given_role> --todo <num>` only if your Role matches the todo's role.
-1. [ ] (role: developer) Implement the behavior described in Context.
-2. [ ] (role: developer) Add unit and integration tests covering the main flows.
-3. [ ] (role: tester) Execute test-suite and report failures.
-4. [ ] (role: master-reviewer) Coordinate required reviews: `reviewer-reliability`, `reviewer-security`, `reviewer-usability`.
-5. [ ] (role: documentation) Update user-facing docs and examples.
-
-## Subtasks
-Use subtasks for work that should be tracked separately or assigned to a different role. Use `strand add <type> "title" --parent <this_task_id> <<EOF description EOF`  to create subtasks.

@@ -8,9 +8,10 @@ blockers:
 blocks:
     - Tocc0-draft-alternatives-for-commit-metric-default-ancho
 date_created: 2026-01-29T20:00:34.4364Z
-date_edited: 2026-02-01T05:24:56.548776Z
+date_edited: 2026-02-01T09:04:50.758779Z
 owner_approval: false
 completed: true
+description: ""
 ---
 
 # Usability review: commit-metric default anchor wording
@@ -60,4 +61,4 @@ User-facing wording for default anchors in commit-based metrics, including hint 
 - Brevity vs. explicitness in hints
 
 ## Subtasks
-- [ ] (subtask: T9eo473) Decision needed: Clarify invalid HEAD behavior for commit metrics
+- [x] (subtask: T9eo473) Decision needed: Clarify invalid HEAD behavior for commit metrics

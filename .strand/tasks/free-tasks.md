@@ -2,7 +2,6 @@
 
 ## High
 
-- [Decision needed: Clarify invalid HEAD behavior for commit metrics](E7p4m-issues-recurrence/T8v3k-recurring-tasks/Tgr06-review-recurrence-metrics-cli-experience/Tftao-clarify-recurrence-anchor-flags-and-help-text/T1dua-draft-recurrence-anchor-flag-alternatives/T3md3-usability-review-recurrence-anchor-flags/Trlrg-specify-anchor-error-messages/Thy9m-reliability-review-recurrence-anchor-errors/T4izq-define-deterministic-anchor-examples-for-every-hin/Tsyeo-review-canonical-every-hint-examples-docs/Tnetq-clarify-default-anchor-wording-for-commit-metrics/Tocc0-draft-alternatives-for-commit-metric-default-ancho/Tvu5e-usability-review-commit-metric-default-anchor-word/T9eo473-decision-needed-clarify-invalid-head-behavior-for/T9eo473-decision-needed-clarify-invalid-head-behavior-for.md)
 
 ## Medium
 

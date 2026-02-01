@@ -1,6 +1,6 @@
 ---
 type: review
-role: reviewer
+role: master-reviewer
 priority: medium
 parent: Tocc0-draft-alternatives-for-commit-metric-default-ancho
 blockers:
