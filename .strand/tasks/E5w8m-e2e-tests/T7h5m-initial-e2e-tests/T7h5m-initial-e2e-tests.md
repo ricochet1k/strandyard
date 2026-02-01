@@ -3,12 +3,11 @@ type: ""
 role: developer
 priority: low
 parent: E5w8m-e2e-tests
-blockers:
-    - T2n9w-sample-environments
+blockers: []
 blocks:
     - E5w8m-e2e-tests
 date_created: 2026-01-27T00:00:00Z
-date_edited: 2026-01-27T00:00:00Z
+date_edited: 2026-02-01T04:29:04.350121Z
 owner_approval: false
 completed: false
 ---

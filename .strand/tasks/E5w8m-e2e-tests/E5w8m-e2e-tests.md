@@ -4,13 +4,12 @@ role: architect
 priority: low
 parent: ""
 blockers:
-    - T2n9w-sample-environments
     - T7h5m-initial-e2e-tests
     - Tbs59-e7n2q-external-storage
     - Tml0y-t9m4n-improved-task-templates
 blocks: []
 date_created: 2026-01-27T00:00:00Z
-date_edited: 2026-02-01T04:21:33.585893Z
+date_edited: 2026-02-01T04:29:04.350102Z
 owner_approval: false
 completed: false
 ---
@@ -42,7 +41,7 @@ Create an end-to-end test framework for strand CLI that sets up sample environme
 - Table-driven tests for multiple scenarios
 
 ## Subtasks
-- [ ] (subtask: T2n9w) Implement Sample Environment Setup
+- [x] (subtask: T2n9w) Implement Sample Environment Setup
 - [x] (subtask: T4p7k) Design E2E Test Framework
 - [ ] (subtask: T7h5m) Create Initial E2E Tests for Repair and Next
 - [ ] (subtask: Tml0y) Improve and Expand Task Templates
