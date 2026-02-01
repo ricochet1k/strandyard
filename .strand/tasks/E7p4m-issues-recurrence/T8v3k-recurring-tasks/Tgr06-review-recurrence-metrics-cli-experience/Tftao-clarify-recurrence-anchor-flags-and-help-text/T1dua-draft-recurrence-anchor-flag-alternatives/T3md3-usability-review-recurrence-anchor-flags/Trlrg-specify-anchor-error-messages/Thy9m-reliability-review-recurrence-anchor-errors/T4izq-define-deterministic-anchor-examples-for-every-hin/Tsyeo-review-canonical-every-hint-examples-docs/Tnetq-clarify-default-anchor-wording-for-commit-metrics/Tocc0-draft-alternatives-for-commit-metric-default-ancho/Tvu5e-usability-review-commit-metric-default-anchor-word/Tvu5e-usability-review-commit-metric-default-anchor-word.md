@@ -8,9 +8,9 @@ blockers:
 blocks:
     - Tocc0-draft-alternatives-for-commit-metric-default-ancho
 date_created: 2026-01-29T20:00:34.4364Z
-date_edited: 2026-02-01T05:17:09.124334Z
+date_edited: 2026-02-01T05:24:56.548776Z
 owner_approval: false
-completed: false
+completed: true
 ---
 
 # Usability review: commit-metric default anchor wording

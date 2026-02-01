@@ -8,7 +8,7 @@ blockers:
 blocks:
     - Tnetq-clarify-default-anchor-wording-for-commit-metrics
 date_created: 2026-01-29T19:59:33.996756Z
-date_edited: 2026-02-01T04:21:33.585869Z
+date_edited: 2026-02-01T05:24:56.549892Z
 owner_approval: false
 completed: false
 ---
@@ -43,4 +43,4 @@ Tasks are disposable. Use follow-up tasks for open questions/concerns. Record de
 - [x] (subtask: T6gmx) Reliability review: commit-metric default anchor wording
 - [x] (subtask: Tfxi6) Usability review: commit-metric default anchor wording
 - [x] (subtask: Tio6w) Review alternatives: commit-metric default anchor wording
-- [ ] (subtask: Tvu5e) Usability review: commit-metric default anchor wording
+- [x] (subtask: Tvu5e) Usability review: commit-metric default anchor wording

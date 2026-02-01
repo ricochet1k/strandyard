@@ -22,7 +22,7 @@ Define a `strand search` command for querying tasks by text, metadata, and scope
 - Required reviews completed and blockers cleared.
 
 ## TODOs
-- [ ] (role: {{ .Role }}) Implement the behavior described in Context.
+- [ ] (role: developer) Implement the behavior described in Context.
 - [ ] (role: developer) Add unit and integration tests covering the main flows.
 - [ ] (role: tester) Execute test-suite and report failures.
 - [ ] (role: master-reviewer) Coordinate required reviews: `reviewer-reliability`, `reviewer-security`, `reviewer-usability`.

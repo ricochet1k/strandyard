@@ -22,7 +22,7 @@ Define default external storage (e.g., `~/.config`) and a project index map keye
 - Required reviews completed and blockers cleared.
 
 ## TODOs
-- [ ] (role: {{ .Role }}) Implement the behavior described in Context.
+- [ ] (role: developer) Implement the behavior described in Context.
 - [ ] (role: developer) Add unit and integration tests covering the main flows.
 - [ ] (role: tester) Execute test-suite and report failures.
 - [ ] (role: master-reviewer) Coordinate required reviews: `reviewer-reliability`, `reviewer-security`, `reviewer-usability`.
