@@ -10,7 +10,7 @@ blockers:
 blocks:
     - Tsnkyb7-implement-task-id-resolution-for-tasks-completed-m
 date_created: 2026-02-01T23:34:10.573036Z
-date_edited: 2026-02-01T23:41:37.799013Z
+date_edited: 2026-02-01T23:45:09.85761Z
 owner_approval: false
 completed: true
 description: ""
@@ -31,5 +31,5 @@ Reliability review complete. Concerns identified: 1. Concurrency risk in activit
 - [ ] (subtask: T06n4e8) Description
 - [ ] (subtask: T7yeluu) New Task: Improve error messages for missing task ID anchors
 - [ ] (subtask: T8eric8) Fix concurrency risk in activity log reading
-- [ ] (subtask: Tgsgmm2) New Task: Fix concurrency risk in activity log reading
+- [x] (subtask: Tgsgmm2) New Task: Fix concurrency risk in activity log reading
 - [ ] (subtask: Tkvsqt9) New Task: Optimize GetLatestTaskCompletionTime performance
