@@ -4,14 +4,13 @@ role: master-reviewer
 priority: medium
 parent: T1dua-draft-recurrence-anchor-flag-alternatives
 blockers:
-    - T6c55aa-security-review-recurrence-anchor-flags-alternativ
     - Tb8m7cw-resolve-discrepancy-in-tasks-completed-anchor-form
     - Td6be8o-usability-review-recurrence-anchor-flags-alternati
     - Tzvfila-clarify-after-vs-from-in-recurrence-anchor-grammar
 blocks:
     - T1dua-draft-recurrence-anchor-flag-alternatives
 date_created: 2026-01-29T05:45:07.883264Z
-date_edited: 2026-02-01T22:09:43.783872Z
+date_edited: 2026-02-01T22:13:02.713553Z
 owner_approval: false
 completed: false
 description: ""
