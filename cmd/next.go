@@ -73,16 +73,26 @@ func runNext(w io.Writer, projectName, roleFilter string) error {
 		path string
 	}
 	candidatesParsed := []candidate{}
+	var hasOwnerTasks bool
 	for _, taskID := range parsed.TaskIDs {
 		t, exists := tasks[taskID]
 		if !exists {
 			continue
 		}
 
+		taskRole := t.GetEffectiveRole()
+		if taskRole == "owner" {
+			hasOwnerTasks = true
+		}
+
 		// If role filter specified, check if it matches
 		if roleFilter != "" {
-			taskRole := t.GetEffectiveRole()
 			if taskRole != roleFilter {
+				continue
+			}
+		} else {
+			// Skip owner tasks by default
+			if taskRole == "owner" {
 				continue
 			}
 		}
@@ -96,6 +106,8 @@ func runNext(w io.Writer, projectName, roleFilter string) error {
 	if len(candidatesParsed) == 0 {
 		if roleFilter != "" {
 			fmt.Fprintf(w, "No free tasks found for role: %s\n", roleFilter)
+		} else if hasOwnerTasks {
+			fmt.Fprintln(w, "No free tasks found. There are owner tasks remaining; try `strand next --role owner`.")
 		} else {
 			fmt.Fprintln(w, "No free tasks found")
 		}

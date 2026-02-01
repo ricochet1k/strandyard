@@ -9,9 +9,10 @@ blocks:
     - T4izq-define-deterministic-anchor-examples-for-every-hin
     - Tm6qi-document-canonical-every-hint-examples
 date_created: 2026-01-29T19:24:40.775932Z
-date_edited: 2026-01-31T17:29:31.078557Z
+date_edited: 2026-02-01T09:43:49.512597Z
 owner_approval: false
 completed: true
+description: ""
 ---
 
 # Review canonical --every hint examples (docs)
@@ -45,4 +46,4 @@ Review documentation-facing examples for clarity and consistency with error mess
 - [ ] Check consistency with CLI.md and design docs
 
 ## Subtasks
-- [ ] (subtask: Tnetq) Clarify default anchor wording for commit metrics
+- [x] (subtask: Tnetq) Clarify default anchor wording for commit metrics
