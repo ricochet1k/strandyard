@@ -3,15 +3,13 @@ type: task
 role: designer
 priority: medium
 parent: Tsyeo-review-canonical-every-hint-examples-docs
-blockers:
-    - Tpcaq-add-validation-for-non-ascii-quotes-in-task-bodies
+blockers: []
 blocks:
     - Tsyeo-review-canonical-every-hint-examples-docs
 date_created: 2026-01-29T19:54:15.970672Z
-date_edited: 2026-02-01T09:09:20.595449Z
+date_edited: 2026-02-01T09:31:47.415289Z
 owner_approval: false
 completed: false
-description: ""
 ---
 
 # Clarify default anchor wording for commit metrics
@@ -40,4 +38,3 @@ Tasks are disposable. Use follow-up tasks for open questions/concerns. Record de
 ## Subtasks
 - [x] (subtask: Iy8y6) Flag non-ASCII quotes in task bodies
 - [x] (subtask: Tocc0) Draft alternatives for commit-metric default anchor wording
-- [ ] (subtask: Tpcaq) Add validation for non-ASCII quotes in task bodies
