@@ -9,7 +9,7 @@ This document describes how to use the `strand` command-line tool for managing t
 go build -o strand .
 
 # Or run directly with go run
-go run . <command>
+go run ./cmd/strand <command>
 ```
 
 ## Project storage and selection

@@ -8,7 +8,7 @@ priority: medium
 ## Artifacts
 - design-docs/recurrence-anchor-flags-alternatives.md
 - CLI.md (recurring add section)
-- Task selection output (go run . next):
+- Task selection output (go run ./cmd/strand next):
 ```text
 Your role is reviewer-usability. Here's the description of that role:
 

@@ -9,7 +9,7 @@ priority: medium
 - design-docs/recurrence-anchor-hint-examples.md
 - design-docs/recurrence-anchor-error-messages-alternatives.md
 - CLI.md (recurring add section; contextual reference)
-- Task selection output (go run . next):
+- Task selection output (go run ./cmd/strand next):
 ```text
 Your role is reviewer-usability. Here's the description of that role:
 

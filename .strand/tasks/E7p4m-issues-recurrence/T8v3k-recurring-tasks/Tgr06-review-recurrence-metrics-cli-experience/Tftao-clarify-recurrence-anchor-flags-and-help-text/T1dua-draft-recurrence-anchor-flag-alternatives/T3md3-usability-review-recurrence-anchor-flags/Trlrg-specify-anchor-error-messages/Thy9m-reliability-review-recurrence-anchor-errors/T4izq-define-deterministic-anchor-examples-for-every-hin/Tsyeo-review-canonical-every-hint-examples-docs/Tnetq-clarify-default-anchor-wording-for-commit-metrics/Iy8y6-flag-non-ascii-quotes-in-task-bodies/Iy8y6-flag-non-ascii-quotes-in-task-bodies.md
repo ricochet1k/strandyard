@@ -26,7 +26,7 @@ Manual edit needed to replace a smart quote in a review task body. Consider addi
 3. Manual edit was required to normalize the quote to ASCII.
 
 ## Logs
-- Manual edit after task creation; `go run . repair` succeeded.
+- Manual edit after task creation; `go run ./cmd/strand repair` succeeded.
 
 ## Affected Task IDs
 - Tvu5e-usability-review-commit-metric-default-anchor-word

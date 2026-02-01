@@ -15,6 +15,7 @@ type TaskOpts struct {
 	Role     string
 	Parent   string
 	Blockers []string
+	Blocks   []string
 	Priority string
 }
 
@@ -95,6 +96,21 @@ func (e *TestEnv) AssertFileContains(relPath, expectedContent string) {
 	}
 }
 
+// AssertCommandOutput asserts that the command output contains specific content
+func (e *TestEnv) AssertCommandOutput(output, expectedContent string) {
+	if !strings.Contains(output, expectedContent) {
+		e.t.Fatalf("Command output does not contain expected content:\nExpected: %s\nActual:\n%s",
+			expectedContent, output)
+	}
+}
+
+// AssertCommandError asserts that the command failed
+func (e *TestEnv) AssertCommandError(err error, output string) {
+	if err == nil {
+		e.t.Fatalf("Expected command to fail, but it succeeded.\nOutput: %s", output)
+	}
+}
+
 // generateTaskContent generates task markdown content
 func (e *TestEnv) generateTaskContent(taskID string, opts TaskOpts) string {
 	blockersLine := "blockers: []"
@@ -104,6 +120,15 @@ func (e *TestEnv) generateTaskContent(taskID string, opts TaskOpts) string {
 			blockerList[i] = fmt.Sprintf("  - %s", b)
 		}
 		blockersLine = fmt.Sprintf("blockers:\n%s", strings.Join(blockerList, "\n"))
+	}
+
+	blocksLine := "blocks: []"
+	if len(opts.Blocks) > 0 {
+		blockList := make([]string, len(opts.Blocks))
+		for i, b := range opts.Blocks {
+			blockList[i] = fmt.Sprintf("  - %s", b)
+		}
+		blocksLine = fmt.Sprintf("blocks:\n%s", strings.Join(blockList, "\n"))
 	}
 
 	priority := opts.Priority
@@ -116,8 +141,9 @@ role: %s
 parent: %s
 priority: %s
 %s
-date_created: 2026-01-27
-date_edited: 2026-01-27
+%s
+date_created: 2026-01-27T00:00:00Z
+date_edited: 2026-01-27T00:00:00Z
 ---
 
 # %s
@@ -136,7 +162,7 @@ TODO: Add task summary.
 - Task is complete
 - All requirements met
 `,
-		opts.Role, opts.Parent, priority, blockersLine, taskID)
+		opts.Role, opts.Parent, priority, blockersLine, blocksLine, taskID)
 }
 
 // CreateTaskRaw creates a task with custom content

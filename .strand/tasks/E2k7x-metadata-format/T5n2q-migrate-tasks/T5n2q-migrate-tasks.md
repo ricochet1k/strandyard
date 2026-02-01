@@ -18,7 +18,7 @@ Convert all existing task files from simple field format to YAML frontmatter for
 
 ## Acceptance Criteria
 - All task files use YAML frontmatter
-- `go run . repair` passes with no errors
+- `go run ./cmd/strand repair` passes with no errors
 - No task data lost during migration
 - Dates populated for all tasks
 

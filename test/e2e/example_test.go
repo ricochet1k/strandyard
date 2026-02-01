@@ -135,14 +135,14 @@ func TestNext_NoFreeTasks(t *testing.T) {
 
 	// Create two tasks that block each other (so none are free)
 	env.CreateTask("T5h7w-blocker", TaskOpts{
-		Role:     roleName,
-		Parent:   "",
-		Blockers: []string{"T3k7x-blocked"},
+		Role:   roleName,
+		Parent: "",
+		Blocks: []string{"T3k7x-blocked"},
 	})
 	env.CreateTask("T3k7x-blocked", TaskOpts{
-		Role:     roleName,
-		Parent:   "",
-		Blockers: []string{"T5h7w-blocker"},
+		Role:   roleName,
+		Parent: "",
+		Blocks: []string{"T5h7w-blocker"},
 	})
 	env.CreateRole(roleName)
 

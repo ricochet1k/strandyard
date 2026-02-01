@@ -16,7 +16,7 @@ This review compares the implemented CLI (`cmd/*.go`) against the intended behav
 ?   	github.com/ricochet1k/strandyard	[no test files]
 ?   	github.com/ricochet1k/strandyard/cmd	[no test files]
 
-# go run . repair --path tasks --format text
+# go run ./cmd/strand repair --path tasks --format text
 ERROR: missing role file roles/developer.md for task T000002-setup-infra
 ERROR: missing Role in tasks/D000001-review-design/task.md
 ERROR: missing role file roles/developer.md for task T000001-project-alpha
@@ -262,7 +262,7 @@ One possible priority ordering based on impact and effort analysis:
   - Update [tasks/D000001-review-design/task.md](tasks/D000001-review-design/task.md) to use simple field format
   - Verify `repair` passes for all tasks
 - **Files**: templates/task.md, tasks/D000001-review-design/task.md
-  - **Acceptance**: `go run . repair` succeeds with no errors
+  - **Acceptance**: `go run ./cmd/strand repair` succeeds with no errors
 
 - **Task E1-T2**: Add comprehensive test suite
   - Create `cmd/repair_test.go` with tests for `parseRole`, `parseBlockers`, ID validation

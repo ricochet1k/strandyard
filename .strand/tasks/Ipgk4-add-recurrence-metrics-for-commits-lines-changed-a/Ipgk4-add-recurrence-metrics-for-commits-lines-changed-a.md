@@ -33,7 +33,7 @@ Recurrence configuration only supports time passing; commit, line-change, and ta
 - User can verify the metric selection via the CLI/UI where recurrence is configured.
 
 ## Triage Notes
-- `go run . recurring` returns "unknown command \"recurring\"", so no recurrence configuration is available yet.
+- `go run ./cmd/strand recurring` returns "unknown command \"recurring\"", so no recurrence configuration is available yet.
 - `tasks/E7p4m-issues-recurrence/T8v3k-recurring-tasks/T8v3k-recurring-tasks.md` only specifies time-based units plus `commits`; it does not cover line changes or tasks completed.
 
 ## Next Steps
