@@ -4,7 +4,9 @@ role: developer
 priority: medium
 parent: Tsbpcrs-git-command-security-hardening
 blockers: []
-blocks: []
+blocks:
+    - T29wfxd-review-git-security-hardening
+    - Twxmvkr-security-review-of-git-hardening
 date_created: 2026-02-01T22:13:06.506931Z
 date_edited: 2026-02-01T22:13:06.506931Z
 owner_approval: false

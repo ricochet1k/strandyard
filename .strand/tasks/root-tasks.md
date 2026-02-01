@@ -33,3 +33,4 @@
 - [TaskDB API Design Review](Ti6zj-taskdb-api-design-review/Ti6zj-taskdb-api-design-review.md)
 - [Define error message and recovery hint for ambiguous anchor type](Tiw9in3-define-error-message-and-recovery-hint-for-ambiguo/Tiw9in3-define-error-message-and-recovery-hint-for-ambiguo.md)
 - [Clarify after now vs from now anchor distinction in docs](Tl0wkx6-clarify-after-now-vs-from-now-anchor-distinction-i/Tl0wkx6-clarify-after-now-vs-from-now-anchor-distinction-i.md)
+- [strand edit is missing --blocker flag](Twcp360-strand-edit-is-missing-blocker-flag/Twcp360-strand-edit-is-missing-blocker-flag.md)

@@ -7,7 +7,6 @@
 ## Medium
 
 - [Align exit code conventions for --every failures](E7p4m-issues-recurrence/T8v3k-recurring-tasks/Tgr06-review-recurrence-metrics-cli-experience/Tftao-clarify-recurrence-anchor-flags-and-help-text/T1dua-draft-recurrence-anchor-flag-alternatives/T3md3-usability-review-recurrence-anchor-flags/Trlrg-specify-anchor-error-messages/Thy9m-reliability-review-recurrence-anchor-errors/Tc3zv-align-exit-code-conventions-for-every-failures/Tc3zv-align-exit-code-conventions-for-every-failures.md)
-- [Description](E7p4m-issues-recurrence/T8v3k-recurring-tasks/Tgr06-review-recurrence-metrics-cli-experience/Tftao-clarify-recurrence-anchor-flags-and-help-text/T1dua-draft-recurrence-anchor-flag-alternatives/Tu1pm-review-recurrence-anchor-flags-alternatives/T6c55aa-security-review-recurrence-anchor-flags-alternativ/Tsbpcrs-git-command-security-hardening/T29wfxd-review-git-security-hardening/T29wfxd-review-git-security-hardening.md)
 - [Harden git clone in cmd/init.go](E7p4m-issues-recurrence/T8v3k-recurring-tasks/Tgr06-review-recurrence-metrics-cli-experience/Tftao-clarify-recurrence-anchor-flags-and-help-text/T1dua-draft-recurrence-anchor-flag-alternatives/Tu1pm-review-recurrence-anchor-flags-alternatives/T6c55aa-security-review-recurrence-anchor-flags-alternativ/Tsbpcrs-git-command-security-hardening/To2bn31-harden-git-clone-in-cmd-init-go/To2bn31-harden-git-clone-in-cmd-init-go.md)
 - [Add regression tests for git flag injection in recurrence](E7p4m-issues-recurrence/T8v3k-recurring-tasks/Tgr06-review-recurrence-metrics-cli-experience/Tftao-clarify-recurrence-anchor-flags-and-help-text/T1dua-draft-recurrence-anchor-flag-alternatives/Tu1pm-review-recurrence-anchor-flags-alternatives/T6c55aa-security-review-recurrence-anchor-flags-alternativ/Tsbpcrs-git-command-security-hardening/Tv1ocqo-add-regression-tests-for-git-flag-injection-in-rec/Tv1ocqo-add-regression-tests-for-git-flag-injection-in-rec.md)
 - [Harden git command calls in pkg/task/recurrence.go](E7p4m-issues-recurrence/T8v3k-recurring-tasks/Tgr06-review-recurrence-metrics-cli-experience/Tftao-clarify-recurrence-anchor-flags-and-help-text/T1dua-draft-recurrence-anchor-flag-alternatives/Tu1pm-review-recurrence-anchor-flags-alternatives/T6c55aa-security-review-recurrence-anchor-flags-alternativ/Tsbpcrs-git-command-security-hardening/Tznw4mk-harden-git-command-calls-in-pkg-task-recurrence-go/Tznw4mk-harden-git-command-calls-in-pkg-task-recurrence-go.md)
@@ -57,6 +56,7 @@
 - [Design task creation API (template-based only)](Ti6zj-taskdb-api-design-review/Txvyh-design-task-creation-api-template-based-only/Txvyh-design-task-creation-api-template-based-only.md)
 - [Define error message and recovery hint for ambiguous anchor type](Tiw9in3-define-error-message-and-recovery-hint-for-ambiguo/Tiw9in3-define-error-message-and-recovery-hint-for-ambiguo.md)
 - [New Task: Usability review: anchor help text and examples](Tt3kj2u-usability-review-anchor-help-text-and-examples/Tt3kj2u-usability-review-anchor-help-text-and-examples.md)
+- [strand edit is missing --blocker flag](Twcp360-strand-edit-is-missing-blocker-flag/Twcp360-strand-edit-is-missing-blocker-flag.md)
 
 ## Low
 
