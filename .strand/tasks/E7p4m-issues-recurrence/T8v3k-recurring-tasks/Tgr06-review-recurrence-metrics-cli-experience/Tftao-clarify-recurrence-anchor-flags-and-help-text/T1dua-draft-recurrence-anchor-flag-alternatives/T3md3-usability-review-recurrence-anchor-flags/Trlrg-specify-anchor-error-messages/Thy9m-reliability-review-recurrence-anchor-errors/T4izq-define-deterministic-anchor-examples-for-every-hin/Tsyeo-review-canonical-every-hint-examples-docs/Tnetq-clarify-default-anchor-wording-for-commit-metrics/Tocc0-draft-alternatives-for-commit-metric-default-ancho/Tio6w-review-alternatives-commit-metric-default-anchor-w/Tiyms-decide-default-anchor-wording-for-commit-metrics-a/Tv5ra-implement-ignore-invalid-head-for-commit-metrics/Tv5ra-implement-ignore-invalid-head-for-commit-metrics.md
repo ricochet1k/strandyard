@@ -7,7 +7,7 @@ blockers: []
 blocks:
     - Tiyms-decide-default-anchor-wording-for-commit-metrics-a
 date_created: 2026-01-29T22:32:28.748147Z
-date_edited: 2026-02-01T04:53:29.927735Z
+date_edited: 2026-02-01T05:11:51.83417Z
 owner_approval: false
 completed: false
 ---
@@ -32,5 +32,5 @@ Tasks are disposable. Use follow-up tasks for open questions/concerns. Record de
 - [x] (role: developer) Implement the behavior described in Context.
 - [x] (role: developer) Add unit and integration tests covering the main flows.
 - [x] (role: tester) Execute test-suite and report failures.
-- [ ] (role: reviewer) Coordinate required reviews: `reviewer-reliability`, `reviewer-security`, `reviewer-usability`.
+- [x] (role: reviewer) Coordinate required reviews: `reviewer-reliability`, `reviewer-security`, `reviewer-usability`.
 - [ ] (role: documentation) Update user-facing docs and examples.
