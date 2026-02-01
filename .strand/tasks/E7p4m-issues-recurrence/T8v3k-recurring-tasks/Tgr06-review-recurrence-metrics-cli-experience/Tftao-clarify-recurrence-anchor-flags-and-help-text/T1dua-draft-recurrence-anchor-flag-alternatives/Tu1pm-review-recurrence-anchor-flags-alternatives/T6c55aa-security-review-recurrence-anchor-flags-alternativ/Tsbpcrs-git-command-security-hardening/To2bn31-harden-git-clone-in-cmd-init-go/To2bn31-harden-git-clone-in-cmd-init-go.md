@@ -11,9 +11,9 @@ blocks:
     - T29wfxd-review-git-security-hardening
     - Twxmvkr-security-review-of-git-hardening
 date_created: 2026-02-01T22:13:09.503114Z
-date_edited: 2026-02-01T22:32:16.632744Z
+date_edited: 2026-02-01T22:33:45.505563Z
 owner_approval: false
-completed: false
+completed: true
 description: ""
 ---
 
@@ -39,7 +39,8 @@ Use -- separator in git clone for the preset argument to prevent flag injection.
   Executed 'go test ./...' and verified that TestInitWithMaliciousPreset specifically tests for flag injection. All tests passed.
 - [x] (role: master-reviewer) Coordinate required reviews: `reviewer-reliability`, `reviewer-security`, `reviewer-usability`.
   Delegated specialized reviews to reviewer-reliability (T8qdyx5), reviewer-security (Tm0na28), and reviewer-usability (Tuk75nq).
-- [ ] (role: documentation) Update user-facing docs and examples.
+- [x] (role: documentation) Update user-facing docs and examples.
+  Updated CLI.md to clarify that --preset supports secure cloning of git repositories. Verified hardening manually by confirming that strand init --preset="--help" correctly identifies "--help" as a repository path rather than a flag.
 
 ## Subtasks
 - [x] (subtask: T8qdyx5) Description

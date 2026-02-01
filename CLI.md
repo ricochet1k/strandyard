@@ -16,7 +16,9 @@ go run ./cmd/strand <command>
 
 strand stores `tasks/`, `roles/`, and `templates/` either in a local `.strand/` directory at the git root or in a global project directory under `~/.config/strand/projects/<project_name>` (default).
 
-Initialize storage for the current repository with:
+### `init` - Initialize strand storage
+
+Initialize the strand project storage for the current repository.
 
 ```bash
 strand init [project_name] [--storage global|local] [--preset <dir-or-git-url>]
@@ -24,16 +26,10 @@ strand init [project_name] [--storage global|local] [--preset <dir-or-git-url>]
 
 Flags:
 - `--storage`: choose `global` (default) or `local` (`.strand/` at git root)
-- `--preset`: path to a directory or a git repo containing `tasks/`, `roles/`, and `templates/` to copy into the project
-
-Use `--project <name>` on any command to operate on a specific global project by name:
-
-```bash
-strand list --project my-project
-strand add task "Follow up" --project my-project
-```
+- `--preset`: path to a directory or a git repo containing `tasks/`, `roles/`, and `templates/` to copy into the project. If a git URL is provided, it will be cloned securely.
 
 ## Core Commands
+
 
 ### `add` - Create tasks from templates
 
