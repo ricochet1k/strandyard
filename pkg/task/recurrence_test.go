@@ -152,6 +152,46 @@ func TestEvaluateGitMetric(t *testing.T) {
 		t.Errorf("evaluateGitMetric for lines_changed mismatch (-want +got):\n%s", diff)
 	}
 
+	// Test case 3: Detached HEAD (pointing to a commit)
+	// Create a detached HEAD in repoValid by checking out an old commit
+	detachedRepo, cleanupDetached, err := setupGitRepo(t, true)
+	if err != nil {
+		t.Fatalf("failed to setup detached HEAD repo: %v", err)
+	}
+	defer cleanupDetached()
+
+	addCommit(t, detachedRepo, "fileD1.txt", "contentD1", "detached commit 1")
+	addCommit(t, detachedRepo, "fileD2.txt", "contentD2", "detached commit 2")
+
+	// Get the hash of the first commit (initial commit)
+	initialCommitHash, err := getCommitHash(t, detachedRepo, "HEAD~2")
+	if err != nil {
+		t.Fatalf("failed to get initial commit hash: %v", err)
+	}
+
+	// Detach HEAD to the initial commit
+	cmd := exec.Command("git", "checkout", initialCommitHash)
+	cmd.Dir = detachedRepo
+	if err := cmd.Run(); err != nil {
+		t.Fatalf("failed to detach HEAD: %v", err)
+	}
+
+	// Now evaluate metric with detached HEAD
+	detachedCommits, err := evaluateGitMetric(detachedRepo, "commits", initialCommitHash)
+	if err != nil {
+		t.Errorf("evaluateGitMetric for detached HEAD commits returned an error: %v", err)
+	}
+	if detachedCommits != 0 {
+		t.Errorf("evaluateGitMetric for detached HEAD commits returned %d, expected 0", detachedCommits)
+	}
+	detachedLines, err := evaluateGitMetric(detachedRepo, "lines_changed", initialCommitHash)
+	if err != nil {
+		t.Errorf("evaluateGitMetric for detached HEAD lines_changed returned an error: %v", err)
+	}
+	if detachedLines != 0 {
+		t.Errorf("evaluateGitMetric for detached HEAD lines_changed returned %d, expected 0", detachedLines)
+	}
+
 	// Test with a non-existent anchor (should now return 0, nil)
 	commits, err = evaluateGitMetric(repoValid, "commits", "nonexistenthash")
 	if err != nil {
