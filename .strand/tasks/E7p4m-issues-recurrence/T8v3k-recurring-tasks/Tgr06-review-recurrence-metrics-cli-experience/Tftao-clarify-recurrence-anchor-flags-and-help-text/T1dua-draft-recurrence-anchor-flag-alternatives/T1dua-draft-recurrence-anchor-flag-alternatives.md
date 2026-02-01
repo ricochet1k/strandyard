@@ -5,15 +5,15 @@ priority: medium
 parent: Tftao-clarify-recurrence-anchor-flags-and-help-text
 blockers:
     - Tg96jgm-add-validation-for-anchor-existence-at-recurrence
-    - Tjlzm08-add-graceful-error-handling-for-invalid-anchors-du
     - Tk1cdj4-add-audit-logging-for-default-anchor-values
     - Tonge7b-handle-head-anchor-mutability-in-recurrence-defini
     - Trgquue-ensure-tasks-completed-anchor-requires-completion
     - Tu1pm-review-recurrence-anchor-flags-alternatives
+    - Tzv10sn-ensure-tasks-completed-anchor-requires-completion
 blocks:
     - Tftao-clarify-recurrence-anchor-flags-and-help-text
 date_created: 2026-01-29T05:16:13.851401Z
-date_edited: 2026-02-01T20:27:02.355091Z
+date_edited: 2026-02-01T20:28:13.43337Z
 owner_approval: false
 completed: false
 description: ""
@@ -44,5 +44,6 @@ Draft design alternatives for recurrence anchor flags and help text.
 - [x] (subtask: Tnsrg) Reliability review: recurrence anchor flags
 - [ ] (subtask: Tonge7b) Handle HEAD anchor mutability in recurrence definitions
 - [x] (subtask: Tracyfv) New Task: Add graceful error handling for invalid anchors during materialization
-- [ ] (subtask: Trgquue) New Task: Ensure tasks_completed anchor requires completion timestamp metadata
+- [x] (subtask: Trgquue) New Task: Ensure tasks_completed anchor requires completion timestamp metadata
 - [ ] (subtask: Tu1pm) Review recurrence anchor flags alternatives
+- [ ] (subtask: Tzv10sn) Ensure tasks_completed anchor requires completion timestamp metadata
