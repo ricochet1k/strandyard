@@ -3,12 +3,15 @@ type: implement
 role: developer
 priority: medium
 parent: T1dua-draft-recurrence-anchor-flag-alternatives
-blockers: []
+blockers:
+    - T0ru85x-reliability-review-for-audit-logging
+    - T0w79ah-security-review-for-audit-logging
+    - T7tfnrg-usability-review-for-audit-logging
 blocks: []
 date_created: 2026-02-01T21:27:16.908778Z
-date_edited: 2026-02-01T21:42:06.806179Z
+date_edited: 2026-02-01T21:49:05.676589Z
 owner_approval: false
-completed: false
+completed: true
 description: ""
 ---
 
@@ -35,5 +38,12 @@ Implement audit logging for default anchor values in recurrence rules. When a re
   Added unit tests in pkg/activity/log_test.go and pkg/task/recurrence_test.go covering resolution logging.
 - [x] (role: tester) Execute test-suite and report failures.
   Executed unit and e2e tests. All tests passed, including new tests for recurrence anchor resolution logging (TestRecurrenceAnchorResolutionLogging and TestWriteRecurrenceAnchorResolution).
-- [ ] (role: master-reviewer) Coordinate required reviews: `reviewer-reliability`, `reviewer-security`, `reviewer-usability`.
-- [ ] (role: documentation) Update user-facing docs and examples.
+- [x] (role: master-reviewer) Coordinate required reviews: `reviewer-reliability`, `reviewer-security`, `reviewer-usability`.
+  Delegated reviews to reliability, security, and usability roles via subtasks T0ru85x, T0w79ah, and T7tfnrg.
+- [x] (role: documentation) Update user-facing docs and examples.
+  Updated CLI.md to document the new recurrence audit logging feature. Also updated the recurrence section to match the current implementation (using the 'every' field and flags instead of individual recurrence_* fields).
+
+## Subtasks
+- [x] (subtask: T0ru85x) Description
+- [x] (subtask: T0w79ah) Description
+- [x] (subtask: T7tfnrg) Description

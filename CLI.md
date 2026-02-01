@@ -209,77 +209,45 @@ strand add issue "Add issue command" --priority high
 
 ### `add` - Create recurring task definitions
 
-Creates a recurring task definition that can be materialized into normal tasks.
+Creates a task with a recurrence rule that can be materialized into subsequent tasks.
 
 ```bash
-strand add [title] [flags]
+strand add <type> [title] --every "<interval> <unit> [from <anchor>]"
+```
 
 Flags:
-  -t, --title string           definition title (can also be passed as positional argument)
-  -r, --role string            role responsible for generated tasks (defaults from template)
-  -p, --parent string          parent task ID (creates definition under that directory)
-      --priority string        priority: high, medium, or low (defaults from template)
-      --blocker strings        blocker task ID(s); can be repeated or comma-separated
-      --interval int           recurrence interval (required)
-      --unit string            recurrence unit: days, weeks, months, commits (required)
-      --anchor string          anchor date (ISO 8601) or commit hash (required)
-      --timezone string        IANA time zone for scheduling (optional)
-      --max-instances int      max instances to materialize (optional)
-      --no-repair            skip repair and master list updates
-```
+  - `--every`: Recurrence rule (e.g., "10 days", "50 commits from HEAD", "20 tasks_completed"). Can be repeated for multiple rules.
 
 **Example**:
 ```bash
-strand add "Quarterly docs review" --interval 3 --unit months --anchor 2026-01-01T00:00:00Z --role reviewer
+strand add task "Quarterly docs review" --every "3 months from Jan 1 2026 00:00 UTC" --role reviewer
 ```
 
-**Resulting definition (example)**:
-```markdown
+**Resulting task metadata (example)**:
+```yaml
 ---
-type: recurring
 role: master-reviewer
 priority: medium
 parent:
-blockers: []
-blocks: []
+every:
+  - 3 months from Jan 1 2026 00:00 UTC
 date_created: 2026-01-01T00:00:00Z
 date_edited: 2026-01-01T00:00:00Z
-owner_approval: false
 completed: false
-recurrence_interval: 3
-recurrence_unit: months
-recurrence_anchor: 2026-01-01T00:00:00Z
-recurrence_next_due: 2026-04-01T00:00:00Z
 ---
-
-# Quarterly docs review
 ```
 
-**Definition layout (example)**:
-```
-tasks/
-  <parent-dir>/
-    <RECURRING_ID>/
-      <RECURRING_ID>.md
-```
+### Recurrence Audit Logging
 
-### `recurring materialize` - Materialize due recurring tasks
+When a recurring task is created or materialized using a dynamic anchor (`HEAD`, `now`, or an empty anchor), the system automatically logs the resolved value (the specific commit hash or timestamp) to the activity log for auditability.
 
-Generates concrete task instances for any recurring definitions that are due.
+These entries have the type `recurrence_anchor_resolved` and include:
+- `timestamp`: When the resolution occurred
+- `task_id`: The ID of the task being created or evaluated
+- `metadata.original`: The original anchor string (e.g., "HEAD", "now")
+- `metadata.resolved`: The resolved value (e.g., a 40-char commit hash or a formatted timestamp)
 
-```bash
-strand recurring materialize [flags]
-
-Flags:
-  --as-of string         override the current time (ISO 8601)
-  --dry-run              preview materialization without writing files
-  --limit int            limit number of instances generated
-```
-
-**Example**:
-```bash
-strand recurring materialize --as-of 2026-04-01T00:00:00Z
-```
+The activity log is stored at `.strand/activity.log`.
 
 ### `repair` - Repair task structure
 
@@ -474,29 +442,30 @@ Note: issue tasks (`type: issue`) default to role `triage` and `priority: medium
 - **priority**: Task priority (`high`, `medium`, or `low`; defaults to `medium`)
 - **type**: Task subtype string (e.g., `issue`, `recurring`)
 
-### Recurrence Metadata (for `type: recurring`)
+### Recurrence Metadata
 
-Recurring definitions require additional scheduling fields and are validated by `repair`.
+Tasks can include recurrence rules using the `every` field in the frontmatter.
 
-**Required fields**:
-- `recurrence_interval` (integer > 0)
-- `recurrence_unit` (`days`, `weeks`, `months`, or `commits`)
-- `recurrence_anchor` (ISO 8601 date or commit hash or "HEAD" for current)
+**Example**:
+```yaml
+every:
+  - 10 days
+  - 50 commits from HEAD
+```
 
-**Special considerations for commit-based recurrence**:
-- When `recurrence_unit` is `commits`, an `recurrence_anchor` of `HEAD` indicates the latest commit.
-- Invalid or "unborn" HEAD states for `recurrence_anchor` are treated as a no-op (no tasks are materialized) rather than an error.
+**Supported units**:
+- `days`, `weeks`, `months`
+- `commits`, `lines_changed` (git-based)
+- `tasks_completed` (activity-log-based)
 
+**Anchors**:
+- If no anchor is specified (e.g., `10 days`), the anchor defaults to `now` for time-based rules or `HEAD` for git-based rules.
+- Explicit anchors can be provided using `from <anchor>`.
+- Date anchors should use the format `Jan 2 2006 15:04 MST`.
 
-**Optional fields**:
-- `recurrence_next_due` (ISO 8601 date; computed if omitted)
-- `recurrence_last_run` (ISO 8601 date)
-- `recurrence_timezone` (IANA time zone, e.g., `America/Los_Angeles`)
-- `recurrence_max_instances` (positive integer)
-
-**Validation notes**:
-- Recurring definitions are excluded from `free-tasks.md` and `root-tasks.md` until materialized.
-- Materialized tasks behave like normal tasks and appear in master lists if unblocked.
+**Special considerations for git-based recurrence**:
+- When a rule uses `HEAD` as an anchor, it indicates the latest commit.
+- Invalid or "unborn" HEAD states are treated as a no-op (no tasks are materialized) rather than an error.
 
 ## Task ID Format
 

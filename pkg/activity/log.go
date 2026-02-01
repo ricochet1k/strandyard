@@ -148,7 +148,7 @@ func (l *Log) CountCompletionsSince(since time.Time) (int, error) {
 
 	count := 0
 	for _, entry := range entries {
-		if entry.Type == EventTaskCompleted && entry.Timestamp.After(since) || entry.Timestamp.Equal(since) {
+		if entry.Type == EventTaskCompleted && (entry.Timestamp.After(since) || entry.Timestamp.Equal(since)) {
 			count++
 		}
 	}
