@@ -6,7 +6,7 @@ parent: T1dua-draft-recurrence-anchor-flag-alternatives
 blockers: []
 blocks: []
 date_created: 2026-02-01T20:27:58.689359Z
-date_edited: 2026-02-01T20:49:47.206485Z
+date_edited: 2026-02-01T20:53:43.65179Z
 owner_approval: false
 completed: false
 description: ""
@@ -39,7 +39,13 @@ The `tasks_completed` metric for recurring tasks should be based on an activity 
   Verified activity log writing is implemented in complete.go for both direct completion and last todo completion. Added integration tests TestCompleteWritesToActivityLog and TestCompleteViaLastTodoWritesToActivityLog to verify the functionality.
 - [x] (role: developer) Update recurrence evaluation to query activity log for `tasks_completed` metric
   Implemented evaluateTasksCompletedMetric function in pkg/task/recurrence.go that queries the activity log for task completion counts since a given anchor time. Added test TestEvaluateTasksCompletedMetric covering empty log, some completions, and invalid date format scenarios. All tests pass.
-- [ ] (role: developer) Add unit and integration tests covering the main flows if they don't already exist.
+- [x] (role: developer) Add unit and integration tests covering the main flows if they don't already exist.
+  Added unit and integration tests for activity log main flows:
+  
+  - Added TestReadEntriesHandlesMalformedEntry in pkg/activity/log_test.go to verify resilience against malformed log entries
+  - Added TestActivityLogIntegration in cmd/complete_test.go for end-to-end testing of the complete flow: creates multiple tasks, completes them, verifies activity log records all completions, and tests query functionality (CountCompletionsSince and CountCompletionsForTaskSince)
+  
+  All tests pass (go test ./...) and all builds pass (go build ./...).
 - [ ] (role: tester) Execute test-suite and report failures.
 - [ ] (role: master-reviewer) Coordinate required reviews: `reviewer-reliability`, `reviewer-security`, `reviewer-usability`.
 - [ ] (role: documentation) Update user-facing docs and examples.

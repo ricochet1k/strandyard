@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"os"
 	"path/filepath"
+	"strings"
 	"testing"
 	"time"
 
@@ -436,5 +437,60 @@ func TestCountCompletionsSinceIncludesBoundary(t *testing.T) {
 
 	if count != 1 {
 		t.Errorf("expected boundary entry to be counted, got %d", count)
+	}
+}
+
+func TestReadEntriesHandlesMalformedEntry(t *testing.T) {
+	tmpDir, err := os.MkdirTemp("", "activity-test-")
+	if err != nil {
+		t.Fatalf("failed to create temp dir: %v", err)
+	}
+	defer os.RemoveAll(tmpDir)
+
+	log, err := Open(tmpDir)
+	if err != nil {
+		t.Fatalf("failed to open log: %v", err)
+	}
+
+	entry := Entry{
+		Timestamp: time.Now().UTC(),
+		TaskID:    "T3k7x-valid",
+		Type:      EventTaskCompleted,
+		Report:    "Valid entry",
+	}
+
+	if err := log.WriteEntry(entry); err != nil {
+		t.Fatalf("failed to write entry: %v", err)
+	}
+
+	log.Close()
+
+	activityLogPath := filepath.Join(tmpDir, defaultLogFilename)
+	f, err := os.OpenFile(activityLogPath, os.O_APPEND|os.O_WRONLY, 0o644)
+	if err != nil {
+		t.Fatalf("failed to open log for appending malformed data: %v", err)
+	}
+	defer f.Close()
+
+	if _, err := f.WriteString(`{"invalid": "json", "missing fields"}` + "\n"); err != nil {
+		t.Fatalf("failed to write malformed entry: %v", err)
+	}
+
+	log, err = Open(tmpDir)
+	if err != nil {
+		t.Fatalf("failed to reopen log: %v", err)
+	}
+
+	entries, err := log.ReadEntries()
+	if err == nil {
+		t.Fatalf("expected error for malformed entry, got nil")
+	}
+
+	if len(entries) != 0 {
+		t.Errorf("expected 0 entries due to error, got %d", len(entries))
+	}
+
+	if !strings.Contains(err.Error(), "failed to unmarshal entry") {
+		t.Errorf("expected error message to contain 'failed to unmarshal entry', got %v", err)
 	}
 }
