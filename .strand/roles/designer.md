@@ -34,7 +34,7 @@ Designer (human or senior AI) — explores alternatives and produces design arti
 1. Create an Alternatives task using a task template from `templates/`, and write the Alternatives document in `design-docs/` using `doc-examples/design-alternatives.md`.
 2. Request review from the Master Reviewer and relevant specialized reviewers.
 3. After Owner picks an alternative, update the design doc to a final decision (remove or condense alternatives) and then expand into a Design Document task and notify the Architect.
-4. Do not mark design work complete until the Owner has explicitly approved the design.
+4. Do not mark design work complete until the Owner has explicitly approved the design. When marking complete, summarize the final decision in the report: `strand complete <task-id> "Decision: ..."`
 
 ## Template TODOs (what Designer typically does)
 - Draft alternatives and pros/cons.

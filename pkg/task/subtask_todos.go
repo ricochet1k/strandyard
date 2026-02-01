@@ -5,8 +5,6 @@ import (
 	"slices"
 	"sort"
 	"strings"
-
-	"github.com/google/go-cmp/cmp"
 )
 
 // UpdateParentTodoEntries syncs the parent's ## Subtasks section with its subtasks.
@@ -22,7 +20,7 @@ func UpdateParentTodoEntries(tasks map[string]*Task, parentID string) (bool, err
 		return false, nil
 	}
 
-	fmt.Printf("ParentSubtaskTodoItems diff: %v", cmp.Diff(parent.SubsItems, newSubs))
+	// fmt.Printf("ParentSubtaskTodoItems diff: %v", cmp.Diff(parent.SubsItems, newSubs))
 
 	parent.SubsItems = newSubs
 	parent.MarkDirty()

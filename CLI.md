@@ -361,28 +361,22 @@ $ strand next --role developer
 Marks a task as completed by setting `completed: true` in the frontmatter and updating `date_edited`.
 
 ```bash
-strand complete <task-id>
+strand complete <task-id> [report]
 ```
 
 **What it does**:
 - Finds task by ID (searches entire task tree)
 - Sets `completed: true` in frontmatter
 - Updates `date_edited` to current timestamp
+- Appends the report to the task body if provided
 - Preserves all other metadata
 
 **After completing**: `strand complete` should update master lists and remove the completed task from `free-tasks.md`. If `strand repair` changes anything afterward, treat it as a bug.
 
 **Example**:
 ```bash
-$ strand complete T3m9p-add-frontmatter-dep
+$ strand complete T3m9p-add-frontmatter-dep "Added goldmark-frontmatter and updated go.mod"
 ✓ Task T3m9p-add-frontmatter-dep marked as completed
-
-Optional: run 'strand repair' to verify no changes
-
-$ strand repair
-repair: ok
-Repaired 0 tasks
-Master lists unchanged: tasks/root-tasks.md, tasks/free-tasks.md
 ```
 
 ## Typical Workflows
@@ -398,7 +392,7 @@ Master lists unchanged: tasks/root-tasks.md, tasks/free-tasks.md
 
 3. **Mark task complete**:
    ```bash
-   strand complete <task-id>
+   strand complete <task-id> "report of what was done"
    ```
 
 4. **Optional verification** (should be a no-op):

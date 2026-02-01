@@ -30,21 +30,6 @@ Draft design alternatives for recurrence anchor flags and help text.
 - design-docs/recurrence-anchor-flags-alternatives.md
 - CLI.md (recurring add section)
 
-## Escalation
-Tasks are disposable. Use follow-up tasks for open questions/concerns. Record decisions and final rationale in design docs; do not edit this task to capture outcomes.
-
-## Acceptance Criteria
-- Clear, runnable steps to reproduce locally.
-- Tests covering functionality and passing.
-- Required reviews completed and blockers cleared.
-
-## TODOs
-- [ ] (role: developer) Implement the behavior described in Context.
-- [ ] (role: developer) Add unit and integration tests covering the main flows.
-- [ ] (role: tester) Execute test-suite and report failures.
-- [ ] (role: master-reviewer) Coordinate required reviews: `reviewer-reliability`, `reviewer-security`, `reviewer-usability`.
-- [ ] (role: documentation) Update user-facing docs and examples.
-
 ## Subtasks
 - [x] (subtask: T3md3) Usability review: recurrence anchor flags
 - [ ] (subtask: Tnsrg) Reliability review: recurrence anchor flags

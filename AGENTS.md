@@ -19,7 +19,7 @@ For detailed CLI command documentation, see [CLI.md](CLI.md).
 strand next
 
 # Mark task as completed
-strand complete <task-id>
+strand complete <task-id> "summary of work"
 
 # Repair all tasks and update master lists
 strand repair
@@ -177,7 +177,7 @@ Add the goldmark-frontmatter library to the project...
 - **Interactive handoff timing**: If a user is actively interacting (especially after being asked a question), do not hand off or start a new session until the user explicitly says to do so. Only hand off when the user is not intervening or asking follow-ups.
 - **When asked "work on the next thing"**: Run `strand next` and report a summary of the task. Then perform the role's duties on that task.
 - **Repair after manual edits**: If you manually edit any task markdown files under `tasks/`, run `go run ./cmd/strand repair` immediately afterward to regenerate master lists and confirm consistency. Make sure there's an issue filed to make sure the manual edit can be performed with a command eventually.
-- **Complete tasks via CLI**: When a task is done (including planning-only tasks), run `strand complete <task-id>` rather than editing frontmatter by hand. `strand complete` should update master lists; if `strand repair` changes anything afterward, treat it as a bug and file an issue.
+- **Complete tasks via CLI**: When a task is done (including planning-only tasks), run `strand complete <task-id> "report of what was done"` rather than editing frontmatter by hand. The report should summarize key outcomes, important decisions, and any notable changes. `strand complete` should update master lists; if `strand repair` changes anything afterward, treat it as a bug and file an issue.
 - **File issues for manual edits**: If work requires manual edits or repairs outside the CLI, file an issue with repro steps, logs, and affected task IDs.
 - **Use add for new tasks/issues**: When asked to add tasks/issues, use `strand add` instead of creating task files manually.
 

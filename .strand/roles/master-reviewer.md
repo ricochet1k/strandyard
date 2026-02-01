@@ -16,3 +16,9 @@ Master Reviewer — central review role that coordinates specialized reviewers.
 ## Escalation
 - For obvious concerns, create a new subtask under the current task and assign it to the appropriate reviewer role.
 - For decisions that require maintainer input, create a new `owner-decision` subtask.
+
+## Workflow
+1. Receive review request.
+2. Delegate to specialized reviewers if needed.
+3. Consolidate feedback.
+4. Mark the review task as completed: `strand complete <task-id> "Verdict: ..."`

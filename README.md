@@ -86,7 +86,7 @@ strand add task "Implement user authentication"
 strand next
 
 # When done, mark it complete
-strand complete <task-id>
+strand complete <task-id> "summary of work"
 ```
 
 ### Launch the Dashboards
@@ -127,7 +127,7 @@ Task templates include role-specific TODO lists that guide execution:
 5. [ ] (role: documentation) Update user-facing docs and examples.
 ```
 
-Agents use `strand next` to claim the next appropriate task for their role, follow the embedded instructions, and use `strand complete` when done.
+Agents use `strand next` to claim the next appropriate task for their role, follow the embedded instructions, and use `strand complete <task-id> "report"` when done.
 
 ### Human-Readable Storage
 
@@ -180,7 +180,7 @@ Configure AI agents to use Strand commands in their workflows:
 # AI agent workflow example:
 1. strand next --role developer     # Claim next developer task
 2. # ... implement the feature ...
-3. strand complete <task-id>        # Mark complete
+3. strand complete <task-id> "report"  # Mark complete
 4. strand next                      # Get next available task
 ```
 

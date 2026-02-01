@@ -1,5 +1,5 @@
 ---
-role: reviewer
+role: master-reviewer
 priority: medium
 ---
 
@@ -46,7 +46,7 @@ Your task is Tio6w-review-alternatives-commit-metric-default-anchor-w. Here's th
 
 ---
 type: review
-role: reviewer
+role: master-reviewer
 priority: medium
 parent: Tocc0-draft-alternatives-for-commit-metric-default-ancho
 blockers: []

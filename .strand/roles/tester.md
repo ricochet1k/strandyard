@@ -25,6 +25,7 @@ Tester (human or AI) — verifies implemented tasks, executes test suites, and r
 3. Document any failures or discrepancies.
 4. Report bugs with clear steps to reproduce.
 5. Verify fixes and re-test as necessary.
+6. Mark the task as completed when all tests pass: `strand complete <task-id> "All tests..."`
 
 ## Constraints
 - Adhere to established testing methodologies and tools.

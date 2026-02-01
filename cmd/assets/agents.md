@@ -11,7 +11,7 @@ These instructions define how agents should use strand to manage tasks.
 - Use `strand next` to select work; respect role opt-in or ignore behavior.
 - When asked to work on the next thing, run `strand next`, follow the returned instructions, and report a brief task summary.
 - Treat the role description returned by `strand next` as canonical for how to execute the task.
-- When a task is done (including planning-only), run `strand complete <task-id>`.
+- When a task is done (including planning-only), run `strand complete <task-id> "report of what was done"`.
 - If blocked, record blockers with `strand block`.
 - Use `strand add` for new tasks or issues; avoid ad-hoc task creation outside strand.
 - Get the list of roles and task templates from `strand roles` and `strand templates`, add them to AGENTS.md and keep that part up to date as needed.

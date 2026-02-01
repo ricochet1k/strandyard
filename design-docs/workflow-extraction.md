@@ -241,7 +241,7 @@ Templates already contain `(role: X)` annotations in TODOs. No changes needed, b
 
 ```markdown
 ## TODOs
-Check this off one at a time with `strand complete <task_id> --role <my_given_role> --todo <num>` only if your Role matches the todo's role.
+Check this off one at a time with `strand complete <task_id> --role <my_given_role> --todo <num> "report"` only if your Role matches the todo's role.
 1. [ ] (role: developer) Implement the behavior described in Context.
 2. [ ] (role: developer) Add unit and integration tests covering the main flows.
 3. [ ] (role: tester) Execute test-suite and report failures.

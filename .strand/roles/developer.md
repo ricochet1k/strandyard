@@ -26,7 +26,7 @@ Developer (human or AI) — implements tasks, writes code, and produces working 
 2. Implement the functionality described in the task
 3. Write tests to verify the implementation
 4. Run repair: `go build ./...`, `go test ./...`, `strand repair`
-5. Update task status and mark as completed when done
+5. Update task status and mark as completed when done, including a brief report of what was accomplished: `strand complete <task-id> "Summary of work"`
 
 ## Constraints
 - Follow existing code patterns and conventions in the codebase

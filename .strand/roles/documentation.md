@@ -23,6 +23,7 @@ Documentation — writes and maintains user-facing docs, examples, and guides.
 2. Draft or update documentation
 3. Cross-check against current CLI behavior
 4. Note any mismatches or required code changes
+5. Mark the task as completed: `strand complete <task-id> "Updated docs for ..."`
 
 ## Constraints
 - Do not modify task metadata manually; use CLI commands

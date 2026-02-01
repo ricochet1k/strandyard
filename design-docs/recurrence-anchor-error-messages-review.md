@@ -1,5 +1,5 @@
 ---
-role: reviewer
+role: master-reviewer
 priority: medium
 ---
 
@@ -46,7 +46,7 @@ Your task is Tcsz3-review-alternatives-recurrence-anchor-error-messag. Here's th
 
 ---
 type: review
-role: reviewer
+role: master-reviewer
 priority: medium
 parent: Trlrg-specify-anchor-error-messages
 blockers: []

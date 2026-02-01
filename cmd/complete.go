@@ -171,12 +171,18 @@ func runComplete(w io.Writer, projectName, taskID string, todoNum int, role stri
 			}
 
 			fmt.Fprintf(w, "✓ Todo item %d checked off in task %s (last todo - task marked complete)\n", todoNum, task.ShortID(taskID))
+			if report == "" {
+				fmt.Fprintf(w, "💡 Next time, consider adding a report: strand complete %s --todo %d \"summary of work\"\n", task.ShortID(taskID), todoNum)
+			}
 			fmt.Fprintf(w, "💡 Consider committing your changes: git add -A && git commit -m \"complete: %s\"\n", task.ShortID(taskID))
 			return nil
 		}
 
 		fmt.Fprintf(w, "- [x] %v\n", t.TodoItems[todoIndex].Text)
 		fmt.Fprintf(w, "✓ Todo item %d checked off in task %s\n", todoNum, task.ShortID(taskID))
+		if report == "" {
+			fmt.Fprintf(w, "💡 Next time, consider adding a report: strand complete %s --todo %d \"summary of work\"\n", task.ShortID(taskID), todoNum)
+		}
 		fmt.Fprintf(w, "💡 Consider committing your changes: git add -A && git commit -m \"%v (%v) check off %v\"\n", t.Title(), task.ShortID(taskID), t.TodoItems[todoIndex].Text)
 		return nil
 	}
@@ -219,6 +225,9 @@ func runComplete(w io.Writer, projectName, taskID string, todoNum int, role stri
 	}
 
 	fmt.Fprintf(w, "✓ Task %s marked as completed\n", task.ShortID(taskID))
+	if report == "" {
+		fmt.Fprintf(w, "💡 Next time, consider adding a report: strand complete %s \"summary of work\"\n", task.ShortID(taskID))
+	}
 
 	if strings.TrimSpace(t.Meta.Parent) != "" {
 		if _, err := task.UpdateParentTodoEntries(tasks, t.Meta.Parent); err != nil {
