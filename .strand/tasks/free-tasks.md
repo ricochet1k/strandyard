@@ -33,7 +33,6 @@
 - [Add websocket streaming option for dashboard](Isfkq-add-websocket-streaming-option-for-dashboard/Isfkq-add-websocket-streaming-option-for-dashboard.md)
 - [Merge recurring add into add](Ish6g-merge-recurring-add-into-add/Ish6g-merge-recurring-add-into-add.md)
 - [Support role opt-in filtering for strand next](Ixf4f-support-role-opt-in-filtering-for-memmd-next/Ixf4f-support-role-opt-in-filtering-for-memmd-next.md)
-- [Test todo functionality verification](Ta12n-test-todo-functionality-verification/Ta12n-test-todo-functionality-verification.md)
 - [Review new taskdb.go implementation](Ti6zj-taskdb-api-design-review/T0f98-review-new-taskdb-go-implementation/T0f98-review-new-taskdb-go-implementation.md)
 - [Review blockers.go relationship management](Ti6zj-taskdb-api-design-review/T0q5n-review-blockers-go-relationship-management/T0q5n-review-blockers-go-relationship-management.md)
 - [Review task.go structure and methods](Ti6zj-taskdb-api-design-review/T2lt8-review-task-go-structure-and-methods/T2lt8-review-task-go-structure-and-methods.md)
@@ -66,6 +65,4 @@
 - [Design opencode plugin](T7m5z-opencode-plugin-design/T7m5z-opencode-plugin-design.md)
 - [Design MCP server](T8s2d-mcp-server-design/T8s2d-mcp-server-design.md)
 - [Design recurring code review and cleanup tasks](T9f4w-code-review-cleanup-recurring-design/T9f4w-code-review-cleanup-recurring-design.md)
-- [T5h8w-config-storage](Tbs59-e7n2q-external-storage/Tt13y-t5h8w-config-storage/Tt13y-t5h8w-config-storage.md)
-- [T8k7p-tui-design](Tgyqy-t8k7p-tui-design/Tgyqy-t8k7p-tui-design.md)
 

@@ -146,13 +146,13 @@ func (t *Task) Content() string {
 
 // GetEffectiveRole returns the task's role, checking metadata first, then first TODO
 func (t *Task) GetEffectiveRole() string {
-	if t.Meta.Role != "" {
-		return t.Meta.Role
-	}
 	for _, item := range t.TodoItems {
-		if item.Role != "" {
+		if !item.Checked && item.Role != "" {
 			return item.Role
 		}
+	}
+	if t.Meta.Role != "" {
+		return t.Meta.Role
 	}
 	return ""
 }

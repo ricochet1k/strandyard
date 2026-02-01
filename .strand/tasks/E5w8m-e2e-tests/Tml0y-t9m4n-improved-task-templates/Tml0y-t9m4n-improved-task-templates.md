@@ -2,7 +2,7 @@
 type: ""
 role: architect
 priority: low
-parent: E5w8m-e2e-tests
+parent: ""
 blockers: []
 blocks:
     - E5w8m-e2e-tests

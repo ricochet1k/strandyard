@@ -1,6 +1,7 @@
 # Root tasks
 
 - [Setup E2E Test Framework](E5w8m-e2e-tests/E5w8m-e2e-tests.md)
+- [Improve and Expand Task Templates](E5w8m-e2e-tests/Tml0y-t9m4n-improved-task-templates/Tml0y-t9m4n-improved-task-templates.md)
 - [Add Issue and Recurring Task Support](E7p4m-issues-recurrence/E7p4m-issues-recurrence.md)
 - [Manage parent TODO entries for subtasks](I67vd-manage-parent-todo-entries-for-subtasks/I67vd-manage-parent-todo-entries-for-subtasks.md)
 - [Add tests for stream server APIs](Ibpie-add-tests-for-stream-server-apis/Ibpie-add-tests-for-stream-server-apis.md)
@@ -26,7 +27,4 @@
 - [Design opencode plugin](T7m5z-opencode-plugin-design/T7m5z-opencode-plugin-design.md)
 - [Design MCP server](T8s2d-mcp-server-design/T8s2d-mcp-server-design.md)
 - [Design recurring code review and cleanup tasks](T9f4w-code-review-cleanup-recurring-design/T9f4w-code-review-cleanup-recurring-design.md)
-- [Test todo functionality verification](Ta12n-test-todo-functionality-verification/Ta12n-test-todo-functionality-verification.md)
-- [E7n2q-external-storage](Tbs59-e7n2q-external-storage/Tbs59-e7n2q-external-storage.md)
-- [T8k7p-tui-design](Tgyqy-t8k7p-tui-design/Tgyqy-t8k7p-tui-design.md)
 - [TaskDB API Design Review](Ti6zj-taskdb-api-design-review/Ti6zj-taskdb-api-design-review.md)

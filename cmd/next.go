@@ -137,5 +137,12 @@ func runNext(w io.Writer, projectName, roleFilter string) error {
 	// Print task content
 	fmt.Fprint(w, selectedTask.Content())
 
+	for i, todo := range selectedTask.TodoItems {
+		if !todo.Checked {
+			fmt.Fprintf(w, "\nYou should focus on TODO #%v which is: %v", i+1, todo.Text)
+			break
+		}
+	}
+
 	return nil
 }
