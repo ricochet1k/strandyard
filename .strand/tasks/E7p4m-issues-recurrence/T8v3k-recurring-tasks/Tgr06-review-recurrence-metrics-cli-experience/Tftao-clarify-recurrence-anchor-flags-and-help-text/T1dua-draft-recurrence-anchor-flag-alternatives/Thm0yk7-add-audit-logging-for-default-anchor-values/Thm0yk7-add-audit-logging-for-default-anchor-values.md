@@ -6,7 +6,7 @@ parent: T1dua-draft-recurrence-anchor-flag-alternatives
 blockers: []
 blocks: []
 date_created: 2026-02-01T21:27:16.908778Z
-date_edited: 2026-02-01T21:27:16.908778Z
+date_edited: 2026-02-01T21:37:02.65297Z
 owner_approval: false
 completed: false
 description: ""
@@ -29,8 +29,10 @@ Implement audit logging for default anchor values in recurrence rules. When a re
 - Required reviews completed and blockers cleared.
 
 ## TODOs
-- [ ] (role: developer) Implement the behavior described in Context.
-- [ ] (role: developer) Add unit and integration tests covering the main flows if they don't already exist.
+- [x] (role: developer) Implement the behavior described in Context.
+  Implemented activity log enhancements and recurrence anchor resolution logging in pkg/activity and pkg/task.
+- [x] (role: developer) Add unit and integration tests covering the main flows if they don't already exist.
+  Added unit tests in pkg/activity/log_test.go and pkg/task/recurrence_test.go covering resolution logging.
 - [ ] (role: tester) Execute test-suite and report failures.
 - [ ] (role: master-reviewer) Coordinate required reviews: `reviewer-reliability`, `reviewer-security`, `reviewer-usability`.
 - [ ] (role: documentation) Update user-facing docs and examples.

@@ -181,6 +181,58 @@ func TestWriteTaskCompletion(t *testing.T) {
 	}
 }
 
+func TestWriteRecurrenceAnchorResolution(t *testing.T) {
+	tmpDir, err := os.MkdirTemp("", "activity-test-")
+	if err != nil {
+		t.Fatalf("failed to create temp dir: %v", err)
+	}
+	defer os.RemoveAll(tmpDir)
+
+	log, err := Open(tmpDir)
+	if err != nil {
+		t.Fatalf("failed to open log: %v", err)
+	}
+	defer log.Close()
+
+	taskID := "T3k7x-example"
+	original := "HEAD"
+	resolved := "abc1234567890"
+
+	if err := log.WriteRecurrenceAnchorResolution(taskID, original, resolved); err != nil {
+		t.Fatalf("failed to write recurrence anchor resolution: %v", err)
+	}
+
+	if err := log.Close(); err != nil {
+		t.Fatalf("failed to close log: %v", err)
+	}
+
+	data, err := os.ReadFile(filepath.Join(tmpDir, defaultLogFilename))
+	if err != nil {
+		t.Fatalf("failed to read log file: %v", err)
+	}
+
+	var readEntry Entry
+	if err := json.Unmarshal(data, &readEntry); err != nil {
+		t.Fatalf("failed to unmarshal entry: %v", err)
+	}
+
+	if readEntry.TaskID != taskID {
+		t.Errorf("task_id mismatch: got %s, want %s", readEntry.TaskID, taskID)
+	}
+
+	if readEntry.Type != EventRecurrenceAnchorResolved {
+		t.Errorf("type mismatch: got %s, want %s", readEntry.Type, EventRecurrenceAnchorResolved)
+	}
+
+	if readEntry.Metadata["original"] != original {
+		t.Errorf("original anchor mismatch: got %s, want %s", readEntry.Metadata["original"], original)
+	}
+
+	if readEntry.Metadata["resolved"] != resolved {
+		t.Errorf("resolved anchor mismatch: got %s, want %s", readEntry.Metadata["resolved"], resolved)
+	}
+}
+
 func TestMultipleEntries(t *testing.T) {
 	tmpDir, err := os.MkdirTemp("", "activity-test-")
 	if err != nil {

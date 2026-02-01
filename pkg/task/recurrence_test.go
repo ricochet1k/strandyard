@@ -10,6 +10,7 @@ import (
 	"time"
 
 	"github.com/google/go-cmp/cmp"
+	"github.com/ricochet1k/strandyard/pkg/activity"
 )
 
 // setupGitRepo initializes a git repository in a temporary directory
@@ -49,7 +50,7 @@ func setupGitRepo(t *testing.T, withInitialCommit bool) (string, func(), error) 
 			return "", nil, fmt.Errorf("failed to git add: %w", err)
 		}
 
-		cmd = exec.Command("git", "commit", "-m", "initial commit")
+		cmd = exec.Command("git", "-c", "user.name=Test User", "-c", "user.email=test@example.com", "commit", "-m", "initial commit")
 		cmd.Dir = tmpDir
 		if err := cmd.Run(); err != nil {
 			cleanup()
@@ -96,20 +97,20 @@ func TestEvaluateGitMetric(t *testing.T) {
 	}
 	defer cleanupUnborn()
 
-	commits, err := evaluateGitMetric(repoUnborn, "commits", "HEAD~0")
+	commits, err := EvaluateGitMetric(repoUnborn, "commits", "HEAD~0", "", nil)
 	if err != nil {
-		t.Errorf("evaluateGitMetric for unborn HEAD commits returned an error: %v", err)
+		t.Errorf("EvaluateGitMetric for unborn HEAD commits returned an error: %v", err)
 	}
 	if commits != 0 {
-		t.Errorf("evaluateGitMetric for unborn HEAD commits returned %d, expected 0", commits)
+		t.Errorf("EvaluateGitMetric for unborn HEAD commits returned %d, expected 0", commits)
 	}
 
-	lines, err := evaluateGitMetric(repoUnborn, "lines_changed", "HEAD~0")
+	lines, err := EvaluateGitMetric(repoUnborn, "lines_changed", "HEAD~0", "", nil)
 	if err != nil {
-		t.Errorf("evaluateGitMetric for unborn HEAD lines_changed returned an error: %v", err)
+		t.Errorf("EvaluateGitMetric for unborn HEAD lines_changed returned an error: %v", err)
 	}
 	if lines != 0 {
-		t.Errorf("evaluateGitMetric for unborn HEAD lines_changed returned %d, expected 0", lines)
+		t.Errorf("EvaluateGitMetric for unborn HEAD lines_changed returned %d, expected 0", lines)
 	}
 
 	// Test case 2: Valid HEAD with a few commits
@@ -131,12 +132,12 @@ func TestEvaluateGitMetric(t *testing.T) {
 	}
 
 	// Test commits metric
-	commits, err = evaluateGitMetric(repoValid, "commits", firstCommitHash)
+	commits, err = EvaluateGitMetric(repoValid, "commits", firstCommitHash, "", nil)
 	if err != nil {
-		t.Fatalf("evaluateGitMetric for commits returned an error: %v", err)
+		t.Fatalf("EvaluateGitMetric for commits returned an error: %v", err)
 	}
 	if diff := cmp.Diff(3, commits); diff != "" {
-		t.Errorf("evaluateGitMetric for commits mismatch (-want +got):\n%s", diff)
+		t.Errorf("EvaluateGitMetric for commits mismatch (-want +got):\n%s", diff)
 	}
 
 	// Test lines_changed metric
@@ -145,12 +146,12 @@ func TestEvaluateGitMetric(t *testing.T) {
 	// - third commit: file2.txt (2 additions)
 	// - fourth commit: file3.txt (2 additions)
 	// Total additions: 1 + 2 + 2 = 5 lines
-	lines, err = evaluateGitMetric(repoValid, "lines_changed", firstCommitHash)
+	lines, err = EvaluateGitMetric(repoValid, "lines_changed", firstCommitHash, "", nil)
 	if err != nil {
-		t.Fatalf("evaluateGitMetric for lines_changed returned an error: %v", err)
+		t.Fatalf("EvaluateGitMetric for lines_changed returned an error: %v", err)
 	}
 	if diff := cmp.Diff(5, lines); diff != "" {
-		t.Errorf("evaluateGitMetric for lines_changed mismatch (-want +got):\n%s", diff)
+		t.Errorf("EvaluateGitMetric for lines_changed mismatch (-want +got):\n%s", diff)
 	}
 
 	// Test case 3: Detached HEAD (pointing to a commit)
@@ -178,36 +179,36 @@ func TestEvaluateGitMetric(t *testing.T) {
 	}
 
 	// Now evaluate metric with detached HEAD
-	detachedCommits, err := evaluateGitMetric(detachedRepo, "commits", initialCommitHash)
+	detachedCommits, err := EvaluateGitMetric(detachedRepo, "commits", initialCommitHash, "", nil)
 	if err != nil {
-		t.Errorf("evaluateGitMetric for detached HEAD commits returned an error: %v", err)
+		t.Errorf("EvaluateGitMetric for detached HEAD commits returned an error: %v", err)
 	}
 	if detachedCommits != 0 {
-		t.Errorf("evaluateGitMetric for detached HEAD commits returned %d, expected 0", detachedCommits)
+		t.Errorf("EvaluateGitMetric for detached HEAD commits returned %d, expected 0", detachedCommits)
 	}
-	detachedLines, err := evaluateGitMetric(detachedRepo, "lines_changed", initialCommitHash)
+	detachedLines, err := EvaluateGitMetric(detachedRepo, "lines_changed", initialCommitHash, "", nil)
 	if err != nil {
-		t.Errorf("evaluateGitMetric for detached HEAD lines_changed returned an error: %v", err)
+		t.Errorf("EvaluateGitMetric for detached HEAD lines_changed returned an error: %v", err)
 	}
 	if detachedLines != 0 {
-		t.Errorf("evaluateGitMetric for detached HEAD lines_changed returned %d, expected 0", detachedLines)
+		t.Errorf("EvaluateGitMetric for detached HEAD lines_changed returned %d, expected 0", detachedLines)
 	}
 
 	// Test with a non-existent anchor (should now return 0, nil)
-	commits, err = evaluateGitMetric(repoValid, "commits", "nonexistenthash")
+	commits, err = EvaluateGitMetric(repoValid, "commits", "nonexistenthash", "", nil)
 	if err != nil {
-		t.Errorf("evaluateGitMetric for nonexistent anchor returned an error: %v", err)
+		t.Errorf("EvaluateGitMetric for nonexistent anchor returned an error: %v", err)
 	}
 	if commits != 0 {
-		t.Errorf("evaluateGitMetric for nonexistent anchor returned %d, expected 0", commits)
+		t.Errorf("EvaluateGitMetric for nonexistent anchor returned %d, expected 0", commits)
 	}
 
 	// Test unsupported metric type
-	_, err = evaluateGitMetric(repoValid, "unsupported", "HEAD~1")
+	_, err = EvaluateGitMetric(repoValid, "unsupported", "HEAD~1", "", nil)
 	if err == nil {
-		t.Errorf("evaluateGitMetric for unsupported metric type expected an error, got nil")
+		t.Errorf("EvaluateGitMetric for unsupported metric type expected an error, got nil")
 	} else if !strings.Contains(err.Error(), "unsupported git metric type: unsupported") {
-		t.Errorf("evaluateGitMetric for unsupported metric type returned unexpected error: %v", err)
+		t.Errorf("EvaluateGitMetric for unsupported metric type returned unexpected error: %v", err)
 	}
 }
 
@@ -253,12 +254,12 @@ func TestEvaluateTasksCompletedMetric(t *testing.T) {
 	defer os.RemoveAll(tmpDir)
 
 	// Test case 1: Empty activity log
-	count, err := evaluateTasksCompletedMetric(tmpDir, "Jan 28 2026 09:00 UTC")
+	count, err := EvaluateTasksCompletedMetric(tmpDir, "Jan 28 2026 09:00 UTC", "", nil)
 	if err != nil {
-		t.Errorf("evaluateTasksCompletedMetric for empty log returned an error: %v", err)
+		t.Errorf("EvaluateTasksCompletedMetric for empty log returned an error: %v", err)
 	}
 	if count != 0 {
-		t.Errorf("evaluateTasksCompletedMetric for empty log returned %d, expected 0", count)
+		t.Errorf("EvaluateTasksCompletedMetric for empty log returned %d, expected 0", count)
 	}
 
 	// Test case 2: Some completions
@@ -287,28 +288,95 @@ func TestEvaluateTasksCompletedMetric(t *testing.T) {
 	// Test with anchor 3 hours ago
 	anchorTime := now.Add(-3 * time.Hour)
 	anchorStr := anchorTime.Format("Jan 2 2006 15:04 MST")
-	count, err = evaluateTasksCompletedMetric(tmpDir, anchorStr)
+	count, err = EvaluateTasksCompletedMetric(tmpDir, anchorStr, "", nil)
 	if err != nil {
-		t.Errorf("evaluateTasksCompletedMetric returned an error: %v", err)
+		t.Errorf("EvaluateTasksCompletedMetric returned an error: %v", err)
 	}
 	if count != 1 {
-		t.Errorf("evaluateTasksCompletedMetric returned %d, expected 1", count)
+		t.Errorf("EvaluateTasksCompletedMetric returned %d, expected 1", count)
 	}
 
 	// Test with anchor 49 hours ago (all 3 completions)
 	anchorTime = now.Add(-49 * time.Hour)
 	anchorStr = anchorTime.Format("Jan 2 2006 15:04 MST")
-	count, err = evaluateTasksCompletedMetric(tmpDir, anchorStr)
+	count, err = EvaluateTasksCompletedMetric(tmpDir, anchorStr, "", nil)
 	if err != nil {
-		t.Errorf("evaluateTasksCompletedMetric returned an error: %v", err)
+		t.Errorf("EvaluateTasksCompletedMetric returned an error: %v", err)
 	}
 	if count != 3 {
-		t.Errorf("evaluateTasksCompletedMetric returned %d, expected 3", count)
+		t.Errorf("EvaluateTasksCompletedMetric returned %d, expected 3", count)
 	}
 
 	// Test case 3: Invalid date format
-	_, err = evaluateTasksCompletedMetric(tmpDir, "invalid date")
+	_, err = EvaluateTasksCompletedMetric(tmpDir, "invalid date", "", nil)
 	if err == nil {
-		t.Errorf("evaluateTasksCompletedMetric for invalid date expected an error, got nil")
+		t.Errorf("EvaluateTasksCompletedMetric for invalid date expected an error, got nil")
+	}
+}
+
+func TestRecurrenceAnchorResolutionLogging(t *testing.T) {
+	// Setup git repo
+	repo, cleanup, err := setupGitRepo(t, true)
+	if err != nil {
+		t.Fatalf("failed to setup git repo: %v", err)
+	}
+	defer cleanup()
+
+	// Setup activity log
+	tmpDir, err := os.MkdirTemp("", "activity-log-")
+	if err != nil {
+		t.Fatalf("failed to create temp dir: %v", err)
+	}
+	defer os.RemoveAll(tmpDir)
+
+	log, err := activity.Open(tmpDir)
+	if err != nil {
+		t.Fatalf("failed to open activity log: %v", err)
+	}
+	defer log.Close()
+
+	taskID := "T1234-test"
+
+	// Test git HEAD resolution logging
+	_, err = EvaluateGitMetric(repo, "commits", "HEAD", taskID, log)
+	if err != nil {
+		t.Fatalf("EvaluateGitMetric failed: %v", err)
+	}
+
+	// Test tasks_completed "now" resolution logging
+	_, err = EvaluateTasksCompletedMetric(tmpDir, "now", taskID, log)
+	if err != nil {
+		t.Fatalf("EvaluateTasksCompletedMetric failed: %v", err)
+	}
+
+	// Verify entries in log
+	entries, err := log.ReadEntries()
+	if err != nil {
+		t.Fatalf("failed to read entries: %v", err)
+	}
+
+	var gitResolved, timeResolved bool
+	for _, entry := range entries {
+		if entry.Type == activity.EventRecurrenceAnchorResolved {
+			if entry.Metadata["original"] == "HEAD" {
+				gitResolved = true
+				if len(entry.Metadata["resolved"]) != 40 {
+					t.Errorf("expected 40-char commit hash, got %q", entry.Metadata["resolved"])
+				}
+			}
+			if entry.Metadata["original"] == "now" {
+				timeResolved = true
+				if entry.Metadata["resolved"] == "" {
+					t.Errorf("expected resolved timestamp, got empty string")
+				}
+			}
+		}
+	}
+
+	if !gitResolved {
+		t.Errorf("expected git resolution entry not found")
+	}
+	if !timeResolved {
+		t.Errorf("expected time resolution entry not found")
 	}
 }

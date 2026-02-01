@@ -11,6 +11,7 @@ import (
 	"strings"
 	"time"
 
+	"github.com/ricochet1k/strandyard/pkg/activity"
 	"github.com/ricochet1k/strandyard/pkg/idgen"
 	rPkg "github.com/ricochet1k/strandyard/pkg/role"
 	"github.com/ricochet1k/strandyard/pkg/task"
@@ -308,6 +309,7 @@ func runAdd(w io.Writer, opts addOptions) error {
 		DateEdited:    now,
 		OwnerApproval: false,
 		Completed:     false,
+		Every:         opts.Every,
 	}
 
 	body := renderTemplateBody(tmpl.BodyContent, map[string]string{
@@ -327,6 +329,35 @@ func runAdd(w io.Writer, opts addOptions) error {
 	}
 
 	fmt.Fprintf(w, "✓ Task created: %s\n", id)
+
+	if len(opts.Every) > 0 {
+		activeLog, err := activity.Open(paths.BaseDir)
+		if err == nil {
+			defer activeLog.Close()
+			for _, rule := range opts.Every {
+				parts := strings.Fields(rule)
+				if len(parts) >= 2 {
+					metric := parts[1]
+					anchor := ""
+					if len(parts) >= 4 && parts[2] == "from" {
+						anchor = strings.Join(parts[3:], " ")
+					}
+
+					if metric == "commits" || metric == "lines_changed" {
+						if anchor == "HEAD" || anchor == "" {
+							if resolved, err := task.ResolveGitHash(paths.BaseDir, "HEAD"); err == nil {
+								_ = activeLog.WriteRecurrenceAnchorResolution(id, "HEAD", resolved)
+							}
+						}
+					} else {
+						if anchor == "now" || anchor == "" {
+							_ = activeLog.WriteRecurrenceAnchorResolution(id, "now", now.Format("Jan 2 2006 15:04 MST"))
+						}
+					}
+				}
+			}
+		}
+	}
 
 	if parent != "" {
 		newTask, err := parser.ParseFile(taskFile)

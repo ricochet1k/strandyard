@@ -12,13 +12,20 @@ import (
 	"github.com/ricochet1k/strandyard/pkg/activity"
 )
 
-// evaluateGitMetric evaluates a git-based recurrence metric (commits or lines_changed).
+// EvaluateGitMetric evaluates a git-based recurrence metric (commits or lines_changed).
 // It returns the metric value and an error if one occurs.
 // It treats unborn/invalid HEAD as a no-op (returns 0, nil).
-func evaluateGitMetric(repoPath, metricType, anchor string) (int, error) {
+// If a log and taskID are provided, it logs the resolution of "HEAD" anchors.
+func EvaluateGitMetric(repoPath, metricType, anchor string, taskID string, log *activity.Log) (int, error) {
 	// Check if HEAD is valid
 	if !isHeadValid(repoPath) {
 		return 0, nil // Unborn or invalid HEAD, treat as no-op
+	}
+
+	if anchor == "HEAD" && log != nil && taskID != "" {
+		if resolved, err := ResolveGitHash(repoPath, "HEAD"); err == nil {
+			_ = log.WriteRecurrenceAnchorResolution(taskID, "HEAD", resolved)
+		}
 	}
 
 	var cmd *exec.Cmd
@@ -84,26 +91,48 @@ func evaluateGitMetric(repoPath, metricType, anchor string) (int, error) {
 	return 0, fmt.Errorf("unsupported metric type after execution: %s", metricType)
 }
 
-// evaluateTasksCompletedMetric evaluates a tasks_completed recurrence metric.
+// EvaluateTasksCompletedMetric evaluates a tasks_completed recurrence metric.
 // It queries the activity log to count task completions since the given anchor time.
-func evaluateTasksCompletedMetric(baseDir, anchor string) (int, error) {
-	anchorTime, err := time.Parse("Jan 2 2006 15:04 MST", anchor)
-	if err != nil {
-		return 0, fmt.Errorf("invalid date anchor format: %w", err)
+// If a log and taskID are provided, it logs the resolution of "now" anchors.
+func EvaluateTasksCompletedMetric(baseDir, anchor string, taskID string, log *activity.Log) (int, error) {
+	var anchorTime time.Time
+	var err error
+
+	if anchor == "now" || anchor == "" {
+		anchorTime = time.Now().UTC()
+		if log != nil && taskID != "" {
+			_ = log.WriteRecurrenceAnchorResolution(taskID, anchor, anchorTime.Format("Jan 2 2006 15:04 MST"))
+		}
+	} else {
+		anchorTime, err = time.Parse("Jan 2 2006 15:04 MST", anchor)
+		if err != nil {
+			return 0, fmt.Errorf("invalid date anchor format: %w", err)
+		}
 	}
 
-	log, err := activity.Open(baseDir)
+	activeLog, err := activity.Open(baseDir)
 	if err != nil {
 		return 0, fmt.Errorf("failed to open activity log: %w", err)
 	}
-	defer log.Close()
+	defer activeLog.Close()
 
-	count, err := log.CountCompletionsSince(anchorTime)
+	count, err := activeLog.CountCompletionsSince(anchorTime)
 	if err != nil {
 		return 0, fmt.Errorf("failed to count completions: %w", err)
 	}
 
 	return count, nil
+}
+
+// ResolveGitHash resolves a git reference to a commit hash.
+func ResolveGitHash(repoPath, anchor string) (string, error) {
+	cmd := exec.Command("git", "rev-parse", anchor)
+	cmd.Dir = repoPath
+	out, err := cmd.Output()
+	if err != nil {
+		return "", err
+	}
+	return strings.TrimSpace(string(out)), nil
 }
 
 // isHeadValid checks if the HEAD reference in a git repository is valid.

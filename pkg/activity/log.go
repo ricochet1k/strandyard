@@ -17,15 +17,17 @@ const (
 type EventType string
 
 const (
-	EventTaskCompleted EventType = "task_completed"
+	EventTaskCompleted            EventType = "task_completed"
+	EventRecurrenceAnchorResolved EventType = "recurrence_anchor_resolved"
 )
 
 // Entry represents a single activity log entry
 type Entry struct {
-	Timestamp time.Time `json:"timestamp"`
-	TaskID    string    `json:"task_id"`
-	Type      EventType `json:"type"`
-	Report    string    `json:"report,omitempty"`
+	Timestamp time.Time         `json:"timestamp"`
+	TaskID    string            `json:"task_id"`
+	Type      EventType         `json:"type"`
+	Report    string            `json:"report,omitempty"`
+	Metadata  map[string]string `json:"metadata,omitempty"`
 }
 
 // Log represents the activity log
@@ -84,6 +86,18 @@ func (l *Log) WriteTaskCompletion(taskID, report string) error {
 		TaskID: taskID,
 		Type:   EventTaskCompleted,
 		Report: report,
+	})
+}
+
+// WriteRecurrenceAnchorResolution writes a recurrence anchor resolution event to the activity log
+func (l *Log) WriteRecurrenceAnchorResolution(taskID, original, resolved string) error {
+	return l.WriteEntry(Entry{
+		TaskID: taskID,
+		Type:   EventRecurrenceAnchorResolved,
+		Metadata: map[string]string{
+			"original": original,
+			"resolved": resolved,
+		},
 	})
 }
 
