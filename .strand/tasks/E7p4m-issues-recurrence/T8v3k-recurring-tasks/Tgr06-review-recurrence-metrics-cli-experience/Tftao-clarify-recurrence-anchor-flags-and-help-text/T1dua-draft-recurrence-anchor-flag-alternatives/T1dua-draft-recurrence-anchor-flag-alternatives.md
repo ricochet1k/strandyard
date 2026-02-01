@@ -4,14 +4,13 @@ role: designer
 priority: medium
 parent: Tftao-clarify-recurrence-anchor-flags-and-help-text
 blockers:
-    - Tkiyspp-add-validation-for-anchor-existence-at-recurrence
     - Tonge7b-handle-head-anchor-mutability-in-recurrence-defini
     - Tu1pm-review-recurrence-anchor-flags-alternatives
     - Tzv10sn-ensure-tasks-completed-anchor-requires-completion
 blocks:
     - Tftao-clarify-recurrence-anchor-flags-and-help-text
 date_created: 2026-01-29T05:16:13.851401Z
-date_edited: 2026-02-01T21:51:35.164368Z
+date_edited: 2026-02-01T21:59:20.283305Z
 owner_approval: false
 completed: false
 description: ""
@@ -40,7 +39,7 @@ Draft design alternatives for recurrence anchor flags and help text.
 - [x] (subtask: Thm0yk7) Add audit logging for default anchor values
 - [x] (subtask: Tjlzm08) New Task: Add graceful error handling for invalid anchors during materialization
 - [x] (subtask: Tk1cdj4) New Task: Add audit logging for default anchor values
-- [ ] (subtask: Tkiyspp) Add validation for anchor existence at recurrence creation
+- [x] (subtask: Tkiyspp) Add validation for anchor existence at recurrence creation
 - [x] (subtask: Tnsrg) Reliability review: recurrence anchor flags
 - [ ] (subtask: Tonge7b) Handle HEAD anchor mutability in recurrence definitions
 - [x] (subtask: Tracyfv) New Task: Add graceful error handling for invalid anchors during materialization

@@ -212,6 +212,134 @@ func TestEvaluateGitMetric(t *testing.T) {
 	}
 }
 
+func TestGetCommitAtOffset(t *testing.T) {
+	repo, cleanup, err := setupGitRepo(t, true)
+	if err != nil {
+		t.Fatalf("failed to setup git repo: %v", err)
+	}
+	defer cleanup()
+
+	// Add 5 more commits
+	for i := 1; i <= 5; i++ {
+		addCommit(t, repo, fmt.Sprintf("file%d.txt", i), "content", fmt.Sprintf("commit %d", i))
+	}
+
+	initialHash, err := getCommitHash(t, repo, "HEAD~5")
+	if err != nil {
+		t.Fatalf("failed to get anchor hash: %v", err)
+	}
+
+	// Test offset 3
+	hash3, err := GetCommitAtOffset(repo, initialHash, 3)
+	if err != nil {
+		t.Fatalf("GetCommitAtOffset failed: %v", err)
+	}
+	expectedHash3, _ := getCommitHash(t, repo, "HEAD~2")
+	if hash3 != expectedHash3 {
+		t.Errorf("GetCommitAtOffset(3) = %s, want %s", hash3, expectedHash3)
+	}
+
+	// Test offset 6 (exceeds)
+	_, err = GetCommitAtOffset(repo, initialHash, 6)
+	if err == nil {
+		t.Errorf("GetCommitAtOffset(6) expected error, got nil")
+	}
+}
+
+func TestGetCommitCrossingLinesThreshold(t *testing.T) {
+	repo, cleanup, err := setupGitRepo(t, true)
+	if err != nil {
+		t.Fatalf("failed to setup git repo: %v", err)
+	}
+	defer cleanup()
+
+	// Add commits with known line changes
+	addCommit(t, repo, "f1.txt", "1\n2\n3", "c1") // 3 lines
+	addCommit(t, repo, "f2.txt", "4\n5", "c2")    // 2 lines (total 5)
+	addCommit(t, repo, "f3.txt", "6", "c3")       // 1 line (total 6)
+
+	initialHash, err := getCommitHash(t, repo, "HEAD~3")
+	if err != nil {
+		t.Fatalf("failed to get anchor hash: %v", err)
+	}
+
+	// Test threshold 4 (should be c2)
+	hash, err := GetCommitCrossingLinesThreshold(repo, initialHash, 4)
+	if err != nil {
+		t.Fatalf("GetCommitCrossingLinesThreshold failed: %v", err)
+	}
+	expectedHash, _ := getCommitHash(t, repo, "HEAD~1")
+	if hash != expectedHash {
+		t.Errorf("GetCommitCrossingLinesThreshold(4) = %s, want %s", hash, expectedHash)
+	}
+
+	// Test threshold 10 (not reached)
+	_, err = GetCommitCrossingLinesThreshold(repo, initialHash, 10)
+	if err == nil {
+		t.Errorf("GetCommitCrossingLinesThreshold(10) expected error, got nil")
+	}
+}
+
+func TestUpdateAnchor(t *testing.T) {
+	t.Run("time-based no-drift", func(t *testing.T) {
+		anchor := "2026-01-01T00:00:00Z"
+		interval := 7 // days
+		// Mock time.Now is tricky in Go without libraries, but we can check the logic
+		newAnchor, err := UpdateAnchor("", "", "days", anchor, interval)
+		if err != nil {
+			t.Fatalf("UpdateAnchor failed: %v", err)
+		}
+		// Since 2026-01-01 is far in the past, it should have skipped ahead to now + interval
+		// We just check it's a valid date and later than anchor
+		parsed, err := time.Parse(time.RFC3339, newAnchor)
+		if err != nil {
+			t.Fatalf("failed to parse new anchor: %v", err)
+		}
+		if !parsed.After(time.Date(2026, 1, 1, 0, 0, 0, 0, time.UTC)) {
+			t.Errorf("new anchor %v is not after old anchor", parsed)
+		}
+	})
+
+	t.Run("commits", func(t *testing.T) {
+		repo, cleanup, err := setupGitRepo(t, true)
+		if err != nil {
+			t.Fatalf("failed to setup git repo: %v", err)
+		}
+		defer cleanup()
+
+		for i := 1; i <= 3; i++ {
+			addCommit(t, repo, fmt.Sprintf("f%d.txt", i), "c", "msg")
+		}
+
+		anchor, _ := getCommitHash(t, repo, "HEAD~3")
+		newAnchor, err := UpdateAnchor(repo, "", "commits", anchor, 2)
+		if err != nil {
+			t.Fatalf("UpdateAnchor failed: %v", err)
+		}
+		expected, _ := getCommitHash(t, repo, "HEAD~1")
+		if newAnchor != expected {
+			t.Errorf("UpdateAnchor(commits) = %s, want %s", newAnchor, expected)
+		}
+	})
+
+	t.Run("commits-missing-fallback", func(t *testing.T) {
+		repo, cleanup, err := setupGitRepo(t, true)
+		if err != nil {
+			t.Fatalf("failed to setup git repo: %v", err)
+		}
+		defer cleanup()
+
+		newAnchor, err := UpdateAnchor(repo, "", "commits", "0123456789abcdef0123456789abcdef01234567", 10)
+		if err != nil {
+			t.Fatalf("UpdateAnchor failed: %v", err)
+		}
+		head, _ := getCommitHash(t, repo, "HEAD")
+		if newAnchor != head {
+			t.Errorf("UpdateAnchor(missing) = %s, want HEAD %s", newAnchor, head)
+		}
+	})
+}
+
 // Helper to add a commit to an existing git repository
 func addCommit(t *testing.T, repoPath, fileName, content, commitMsg string) {
 	filePath := filepath.Join(repoPath, fileName)

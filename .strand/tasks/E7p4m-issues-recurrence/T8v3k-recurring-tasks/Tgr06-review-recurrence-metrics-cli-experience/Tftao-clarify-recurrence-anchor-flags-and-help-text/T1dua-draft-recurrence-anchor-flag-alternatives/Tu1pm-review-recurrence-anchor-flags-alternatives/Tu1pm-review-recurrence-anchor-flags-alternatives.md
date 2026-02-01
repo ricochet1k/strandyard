@@ -3,13 +3,18 @@ type: review
 role: master-reviewer
 priority: medium
 parent: T1dua-draft-recurrence-anchor-flag-alternatives
-blockers: []
+blockers:
+    - T6c55aa-security-review-recurrence-anchor-flags-alternativ
+    - Tb8m7cw-resolve-discrepancy-in-tasks-completed-anchor-form
+    - Td6be8o-usability-review-recurrence-anchor-flags-alternati
+    - Tzvfila-clarify-after-vs-from-in-recurrence-anchor-grammar
 blocks:
     - T1dua-draft-recurrence-anchor-flag-alternatives
 date_created: 2026-01-29T05:45:07.883264Z
-date_edited: 2026-01-28T22:45:07.892797-07:00
+date_edited: 2026-02-01T22:09:43.783872Z
 owner_approval: false
 completed: false
+description: ""
 ---
 
 # Review recurrence anchor flags alternatives
@@ -44,3 +49,10 @@ Assess clarity and completeness of alternatives and help text framing.
 - Alignment with project principles
 - Adequacy of pros/cons/risks/effort
 - Decision framing and open questions
+
+## Subtasks
+- [x] (subtask: T4v3cye) Description
+- [x] (subtask: T6c55aa) Description
+- [ ] (subtask: Tb8m7cw) Resolve discrepancy in tasks_completed anchor format documentation
+- [ ] (subtask: Td6be8o) Description
+- [ ] (subtask: Tzvfila) Clarify 'after' vs 'from' in recurrence anchor grammar

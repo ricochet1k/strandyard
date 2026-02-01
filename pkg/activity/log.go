@@ -170,3 +170,22 @@ func (l *Log) CountCompletionsForTaskSince(taskID string, since time.Time) (int,
 	}
 	return count, nil
 }
+
+// GetCompletionTimestampAtOffset returns the timestamp of the 'offset'-th task completion since 'since'.
+func (l *Log) GetCompletionTimestampAtOffset(since time.Time, offset int) (time.Time, error) {
+	entries, err := l.ReadEntries()
+	if err != nil {
+		return time.Time{}, err
+	}
+
+	count := 0
+	for _, entry := range entries {
+		if entry.Type == EventTaskCompleted && (entry.Timestamp.After(since) || entry.Timestamp.Equal(since)) {
+			count++
+			if count == offset {
+				return entry.Timestamp, nil
+			}
+		}
+	}
+	return time.Time{}, fmt.Errorf("offset %d not reached since %v (found %d)", offset, since, count)
+}
