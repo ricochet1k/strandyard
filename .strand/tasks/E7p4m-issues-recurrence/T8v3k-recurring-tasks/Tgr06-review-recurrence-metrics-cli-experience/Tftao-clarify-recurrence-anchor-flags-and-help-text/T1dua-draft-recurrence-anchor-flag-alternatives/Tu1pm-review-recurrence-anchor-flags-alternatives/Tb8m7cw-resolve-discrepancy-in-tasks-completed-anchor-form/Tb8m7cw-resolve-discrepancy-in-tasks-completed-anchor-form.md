@@ -8,7 +8,7 @@ blockers:
     - Tsnkyb7-implement-task-id-resolution-for-tasks-completed-m
 blocks: []
 date_created: 2026-02-01T22:00:36.683234Z
-date_edited: 2026-02-01T23:36:24.402671Z
+date_edited: 2026-02-01T23:38:38.526287Z
 owner_approval: false
 completed: true
 description: ""
@@ -25,9 +25,9 @@ I have created two subtasks:
 1. `T3lpzer`: Review the implementation plan (assigned to `reviewer-reliability`).
 2. `Tsnkyb7`: Implement the changes (assigned to `developer`).
 
-## Subtasks
-- [ ] (subtask: T3lpzer) Review task ID resolution implementation plan
-- [ ] (subtask: Tsnkyb7) Implement task ID resolution for tasks_completed metric
-
 ## Completion Report
 Created implementation plan in design-docs/tasks-completed-anchor-resolution.md and created subtasks for implementation and review.
+
+## Subtasks
+- [x] (subtask: T3lpzer) Review task ID resolution implementation plan
+- [ ] (subtask: Tsnkyb7) Implement task ID resolution for tasks_completed metric
