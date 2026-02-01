@@ -21,7 +21,6 @@ Provide links to relevant design documents, diagrams, and decision records.
 
 ## Description
 
-
 ## Summary
 Choose the default anchor wording for commit-based metrics in docs and hint examples.
 
@@ -45,13 +44,6 @@ Tasks are disposable. Use follow-up tasks for open questions/concerns. Record de
 - Clear, runnable steps to reproduce locally.
 - Tests covering functionality and passing.
 - Required reviews completed and blockers cleared.
-
-## TODOs
-- [ ] (role: developer) Implement the behavior described in Context.
-- [ ] (role: developer) Add unit and integration tests covering the main flows.
-- [ ] (role: tester) Execute test-suite and report failures.
-- [ ] (role: master-reviewer) Coordinate required reviews: `reviewer-reliability`, `reviewer-security`, `reviewer-usability`.
-- [ ] (role: documentation) Update user-facing docs and examples.
 
 ## Subtasks
 - [x] (subtask: Tuu18) Update docs and hints to say from HEAD

@@ -29,8 +29,6 @@ Decisions for recurrence metrics have been approved and recorded in:
 - Tests covering functionality and passing.
 - Required reviews completed and blockers cleared.
 
-## TODOs
-- [x] (role: owner) Implement the behavior described in Context.
   Approved recurrence metrics design: Option B (trigger array) for schema, date_completed for task tracking, repeatable --every flag for CLI, and github.com/olebedev/when for date parsing.
 - [ ] (role: developer) Add unit and integration tests covering the main flows.
 - [ ] (role: tester) Execute test-suite and report failures.

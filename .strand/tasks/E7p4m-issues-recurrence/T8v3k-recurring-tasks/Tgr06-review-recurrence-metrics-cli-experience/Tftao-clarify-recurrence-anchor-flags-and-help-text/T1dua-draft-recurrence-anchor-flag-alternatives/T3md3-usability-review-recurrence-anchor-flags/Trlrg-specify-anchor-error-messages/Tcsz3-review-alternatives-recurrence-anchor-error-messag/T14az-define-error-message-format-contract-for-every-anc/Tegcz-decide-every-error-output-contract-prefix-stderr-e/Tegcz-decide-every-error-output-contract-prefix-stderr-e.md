@@ -19,7 +19,6 @@ Provide links to relevant design documents, diagrams, and decision records.
 
 ## Description
 
-
 ## Summary
 Define the user-visible error output contract for `--every` anchor parsing, including the exact prefix wording, stderr vs stdout behavior, and exit code mapping for parse/validation failures.
 
@@ -36,9 +35,3 @@ If new concerns or decisions arise, create follow-up tasks instead of editing th
 - Tests covering functionality and passing.
 - Required reviews completed and blockers cleared.
 
-## TODOs
-- [ ] (role: developer) Implement the behavior described in Context.
-- [ ] (role: developer) Add unit and integration tests covering the main flows.
-- [ ] (role: tester) Execute test-suite and report failures.
-- [ ] (role: master-reviewer) Coordinate required reviews: `reviewer-reliability`, `reviewer-security`, `reviewer-usability`.
-- [ ] (role: documentation) Update user-facing docs and examples.

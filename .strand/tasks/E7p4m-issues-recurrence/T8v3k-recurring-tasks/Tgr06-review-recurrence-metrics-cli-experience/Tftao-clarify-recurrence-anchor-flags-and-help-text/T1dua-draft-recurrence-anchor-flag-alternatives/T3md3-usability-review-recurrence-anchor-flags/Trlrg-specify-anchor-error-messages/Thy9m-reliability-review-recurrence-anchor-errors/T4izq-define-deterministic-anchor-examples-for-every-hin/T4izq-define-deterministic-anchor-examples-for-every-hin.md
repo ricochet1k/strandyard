@@ -24,7 +24,6 @@ Provide links to relevant design documents, diagrams, and decision records.
 
 ## Description
 
-
 ## Summary
 Define canonical, deterministic anchor examples for each anchor type in `--every` hint lines.
 
@@ -40,13 +39,6 @@ Tasks are disposable. Use follow-up tasks for open questions/concerns. Record de
 - Clear, runnable steps to reproduce locally.
 - Tests covering functionality and passing.
 - Required reviews completed and blockers cleared.
-
-## TODOs
-- [ ] (role: developer) Implement the behavior described in Context.
-- [ ] (role: developer) Add unit and integration tests covering the main flows.
-- [ ] (role: tester) Execute test-suite and report failures.
-- [ ] (role: master-reviewer) Coordinate required reviews: `reviewer-reliability`, `reviewer-security`, `reviewer-usability`.
-- [ ] (role: documentation) Update user-facing docs and examples.
 
 ## Subtasks
 - [x] (subtask: Tm2sq) Review canonical --every hint examples (implementation)

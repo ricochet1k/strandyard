@@ -21,7 +21,6 @@ Provide links to relevant design documents, diagrams, and decision records.
 
 ## Description
 
-
 ## Escalation
 If new concerns or decisions arise, create follow-up tasks instead of editing this task.
 
@@ -29,13 +28,6 @@ If new concerns or decisions arise, create follow-up tasks instead of editing th
 - Clear, runnable steps to reproduce locally.
 - Tests covering functionality and passing.
 - Required reviews completed and blockers cleared.
-
-## TODOs
-- [ ] (role: developer) Implement the behavior described in Context.
-- [ ] (role: developer) Add unit and integration tests covering the main flows.
-- [ ] (role: tester) Execute test-suite and report failures.
-- [ ] (role: master-reviewer) Coordinate required reviews: `reviewer-reliability`, `reviewer-security`, `reviewer-usability`.
-- [ ] (role: documentation) Update user-facing docs and examples.
 
 ## Subtasks
 - [x] (subtask: Tegcz) Decide --every error output contract (prefix, stderr, exit code)

@@ -21,7 +21,6 @@ Provide links to relevant design documents, diagrams, and decision records.
 
 ## Description
 
-
 ## Summary
 Update CLI documentation to reflect the canonical --every hint examples and anchor guidance.
 
@@ -36,11 +35,3 @@ Tasks are disposable. Use follow-up tasks for open questions/concerns. Record de
 - Tests covering functionality and passing.
 - Required reviews completed and blockers cleared.
 
-## TODOs
-- [ ] Update CLI.md or related docs with the canonical examples
-- [ ] Ensure hint examples are consistent with design-docs/recurrence-anchor-hint-examples.md
-- [ ] (role: developer) Implement the behavior described in Context.
-- [ ] (role: developer) Add unit and integration tests covering the main flows.
-- [ ] (role: tester) Execute test-suite and report failures.
-- [ ] (role: master-reviewer) Coordinate required reviews: `reviewer-reliability`, `reviewer-security`, `reviewer-usability`.
-- [ ] (role: documentation) Update user-facing docs and examples.

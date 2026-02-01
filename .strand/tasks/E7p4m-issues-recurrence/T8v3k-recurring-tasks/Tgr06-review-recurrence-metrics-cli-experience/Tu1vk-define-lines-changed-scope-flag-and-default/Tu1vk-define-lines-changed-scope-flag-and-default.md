@@ -25,12 +25,5 @@ Tasks are disposable. Use follow-up tasks for open questions/concerns. Record de
 - Tests covering functionality and passing.
 - Required reviews completed and blockers cleared.
 
-## TODOs
-- [ ] (role: developer) Implement the behavior described in Context.
-- [ ] (role: developer) Add unit and integration tests covering the main flows.
-- [ ] (role: tester) Execute test-suite and report failures.
-- [ ] (role: master-reviewer) Coordinate required reviews: `reviewer-reliability`, `reviewer-security`, `reviewer-usability`.
-- [ ] (role: documentation) Update user-facing docs and examples.
-
 ## Subtasks
 - [ ] (subtask: Tu1vk) short description of subtask
