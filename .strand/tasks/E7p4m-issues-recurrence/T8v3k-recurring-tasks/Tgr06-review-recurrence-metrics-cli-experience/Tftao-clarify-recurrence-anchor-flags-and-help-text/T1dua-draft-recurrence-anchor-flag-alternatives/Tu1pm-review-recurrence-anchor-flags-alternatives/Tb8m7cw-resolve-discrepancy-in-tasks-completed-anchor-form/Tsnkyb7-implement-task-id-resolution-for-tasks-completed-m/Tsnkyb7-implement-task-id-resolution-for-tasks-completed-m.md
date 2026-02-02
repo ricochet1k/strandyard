@@ -9,7 +9,7 @@ blockers:
     - Tyrub91-review-task-id-resolution-implementation-for-usabi
 blocks: []
 date_created: 2026-02-01T23:34:10.537422Z
-date_edited: 2026-02-02T01:20:51.961481Z
+date_edited: 2026-02-02T01:21:53.140175Z
 owner_approval: false
 completed: false
 description: ""
@@ -47,6 +47,6 @@ Implement task ID resolution for the `tasks_completed` recurrence metric as desc
 - [ ] (role: documentation) Update user-facing docs and examples in `design-docs/` as specified in the plan.
 
 ## Subtasks
-- [ ] (subtask: Tocms1d) New Task: Review task ID resolution implementation for security
+- [x] (subtask: Tocms1d) New Task: Review task ID resolution implementation for security
 - [ ] (subtask: Tpiha4x) New Task: Review task ID resolution implementation for reliability
 - [ ] (subtask: Tyrub91) New Task: Review task ID resolution implementation for usability
