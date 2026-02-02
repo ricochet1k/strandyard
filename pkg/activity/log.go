@@ -191,6 +191,58 @@ func (l *Log) ReadEntries() ([]Entry, error) {
 	return entries, nil
 }
 
+// GetLatestTaskCompletionTime returns the timestamp of the most recent completion of the given task.
+func (l *Log) GetLatestTaskCompletionTime(taskID string) (time.Time, error) {
+	l.mu.RLock()
+	// Optimization: if cache is up to date, search it backwards
+	info, err := os.Stat(l.filepath)
+	if err == nil && l.lastSize != -1 && info.Size() == l.lastSize {
+		for i := len(l.entries) - 1; i >= 0; i-- {
+			entry := l.entries[i]
+			if entry.TaskID == taskID && entry.Type == EventTaskCompleted {
+				l.mu.RUnlock()
+				return entry.Timestamp, nil
+			}
+		}
+		l.mu.RUnlock()
+		return time.Time{}, fmt.Errorf("task %s never completed (cached)", taskID)
+	}
+	l.mu.RUnlock()
+
+	// Otherwise, scan the file backwards
+	file, err := os.Open(l.filepath)
+	if err != nil {
+		return time.Time{}, fmt.Errorf("failed to open log for reading: %w", err)
+	}
+	defer file.Close()
+
+	scanner, err := NewReverseScanner(file)
+	if err != nil {
+		return time.Time{}, fmt.Errorf("failed to create reverse scanner: %w", err)
+	}
+
+	for scanner.Scan() {
+		line := scanner.Text()
+		if line == "" {
+			continue
+		}
+		var entry Entry
+		if err := json.Unmarshal([]byte(line), &entry); err != nil {
+			// Skip malformed entries
+			continue
+		}
+		if entry.TaskID == taskID && entry.Type == EventTaskCompleted {
+			return entry.Timestamp, nil
+		}
+	}
+
+	if err := scanner.Err(); err != nil {
+		return time.Time{}, fmt.Errorf("error scanning log backwards: %w", err)
+	}
+
+	return time.Time{}, fmt.Errorf("task %s never completed", taskID)
+}
+
 // CountCompletionsSince counts task completion events since a given time
 func (l *Log) CountCompletionsSince(since time.Time) (int, error) {
 	entries, err := l.ReadEntries()

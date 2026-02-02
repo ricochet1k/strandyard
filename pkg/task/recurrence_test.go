@@ -580,3 +580,159 @@ func TestValidateAnchor(t *testing.T) {
 		})
 	}
 }
+
+func TestEvaluateTasksCompletedMetricWithTaskIDAnchors(t *testing.T) {
+	// Create a temporary directory for the activity log
+	tmpDir, err := os.MkdirTemp("", "activity-test-")
+	if err != nil {
+		t.Fatalf("failed to create temp dir: %v", err)
+	}
+	defer os.RemoveAll(tmpDir)
+
+	// Setup activity log with task completions
+	log, err := activity.Open(tmpDir)
+	if err != nil {
+		t.Fatalf("failed to open activity log: %v", err)
+	}
+
+	now := time.Now().UTC()
+	t1 := now.Add(-3 * time.Hour)
+	t2 := now.Add(-2 * time.Hour)
+	t3 := now.Add(-1 * time.Hour)
+
+	// Write completion entries for specific tasks
+	log.WriteEntry(activity.Entry{Timestamp: t1, TaskID: "T1111-task1", Type: activity.EventTaskCompleted, Report: "first"})
+	log.WriteEntry(activity.Entry{Timestamp: t2, TaskID: "T2222-task2", Type: activity.EventTaskCompleted, Report: "second"})
+	log.WriteEntry(activity.Entry{Timestamp: t3, TaskID: "T3333-task3", Type: activity.EventTaskCompleted, Report: "third"})
+	log.WriteEntry(activity.Entry{Timestamp: now.Add(-30 * time.Minute), TaskID: "T1111-task1", Type: activity.EventTaskCompleted, Report: "task1 again"})
+
+	log.Close()
+
+	// Test 1: Resolve using task ID anchor (T1111-task1)
+	// Should use the latest completion time of T1111-task1 (30 minutes ago)
+	// and count completions since then (inclusive), which should be 1 (itself)
+	count, err := EvaluateTasksCompletedMetric(tmpDir, "T1111-task1", "", nil)
+	if err != nil {
+		t.Errorf("EvaluateTasksCompletedMetric with task ID anchor failed: %v", err)
+	}
+	if count != 1 {
+		t.Errorf("expected 1 completion since T1111-task1 last completion, got %d", count)
+	}
+
+	// Test 2: Resolve using task ID anchor (T2222-task2)
+	// Should use the completion time of T2222-task2 (2 hours ago)
+	// and count completions since then (inclusive), which should be 3:
+	// T2222-task2 (itself), T3333-task3, and T1111-task1 again
+	count, err = EvaluateTasksCompletedMetric(tmpDir, "T2222-task2", "", nil)
+	if err != nil {
+		t.Errorf("EvaluateTasksCompletedMetric with task ID anchor T2222-task2 failed: %v", err)
+	}
+	if count != 3 {
+		t.Errorf("expected 3 completions since T2222-task2 completion, got %d", count)
+	}
+
+	// Test 3: Try with non-existent task ID (should fail)
+	_, err = EvaluateTasksCompletedMetric(tmpDir, "T9999-nonexistent", "", nil)
+	if err == nil {
+		t.Errorf("expected error for non-existent task ID, got nil")
+	}
+
+	// Test 4: Task ID that looks like a date should still resolve as task ID if it exists in log
+	// Create a task ID that starts with T but looks date-ish
+	tmpDir2, err := os.MkdirTemp("", "activity-test-2-")
+	if err != nil {
+		t.Fatalf("failed to create temp dir: %v", err)
+	}
+	defer os.RemoveAll(tmpDir2)
+
+	log2, err := activity.Open(tmpDir2)
+	if err != nil {
+		t.Fatalf("failed to open activity log: %v", err)
+	}
+
+	anchorTime := now.Add(-4 * time.Hour)
+	log2.WriteEntry(activity.Entry{Timestamp: anchorTime, TaskID: "T4444-anchor", Type: activity.EventTaskCompleted})
+	log2.WriteEntry(activity.Entry{Timestamp: now.Add(-2 * time.Hour), TaskID: "T5555-later", Type: activity.EventTaskCompleted})
+	log2.Close()
+
+	count, err = EvaluateTasksCompletedMetric(tmpDir2, "T4444-anchor", "", nil)
+	if err != nil {
+		t.Errorf("failed to resolve task ID anchor: %v", err)
+	}
+	if count != 2 {
+		t.Errorf("expected 2 completions since T4444-anchor (itself + T5555-later), got %d", count)
+	}
+}
+
+func TestUpdateAnchorWithTaskIDAnchors(t *testing.T) {
+	// Create a temporary directory for the activity log
+	tmpDir, err := os.MkdirTemp("", "activity-test-")
+	if err != nil {
+		t.Fatalf("failed to create temp dir: %v", err)
+	}
+	defer os.RemoveAll(tmpDir)
+
+	// Setup activity log with task completions
+	log, err := activity.Open(tmpDir)
+	if err != nil {
+		t.Fatalf("failed to open activity log: %v", err)
+	}
+
+	// Use a fixed base time for deterministic testing
+	baseTime := time.Date(2026, 2, 1, 12, 0, 0, 0, time.UTC)
+	// Write 5 completion entries at 10-minute intervals
+	for i := 0; i < 5; i++ {
+		ts := baseTime.Add(-time.Duration((5-i)*10) * time.Minute)
+		log.WriteEntry(activity.Entry{
+			Timestamp: ts,
+			TaskID:    fmt.Sprintf("T%04d-task%d", 1000+i, i),
+			Type:      activity.EventTaskCompleted,
+		})
+	}
+	log.Close()
+
+	// Test 1: UpdateAnchor with task ID anchor
+	// T1000-task0 completed at baseTime - 50 minutes
+	// We want to find the 2nd completion from there
+	// Completions are at: -50, -40, -30, -20, -10 minutes
+	// So the 2nd completion is at -40 minutes
+	newAnchor, err := UpdateAnchor(tmpDir, tmpDir, "tasks_completed", "T1000-task0", 2)
+	if err != nil {
+		t.Errorf("UpdateAnchor failed: %v", err)
+	}
+
+	// Verify newAnchor is a valid RFC3339 timestamp
+	newTime, err := time.Parse(time.RFC3339, newAnchor)
+	if err != nil {
+		t.Errorf("new anchor is not a valid RFC3339 timestamp: %s (%v)", newAnchor, err)
+	}
+
+	// The 2nd completion from T1000-task0 (at -50) is at -40 minutes
+	expectedTime := baseTime.Add(-40 * time.Minute)
+	timeDiff := newTime.Sub(expectedTime).Abs()
+	if timeDiff > 1*time.Second {
+		t.Errorf("new anchor time %v is not equal to expected %v (diff: %v)", newTime, expectedTime, timeDiff)
+	}
+
+	// Test 2: UpdateAnchor with date anchor (not task ID)
+	// Use the timestamp of T1002-task2 as a date anchor (-30 minutes)
+	anchor2Time := baseTime.Add(-30 * time.Minute)
+	dateAnchor := anchor2Time.Format(time.RFC3339)
+	newAnchor, err = UpdateAnchor(tmpDir, tmpDir, "tasks_completed", dateAnchor, 2)
+	if err != nil {
+		t.Errorf("UpdateAnchor with date anchor failed: %v", err)
+	}
+
+	newTime, err = time.Parse(time.RFC3339, newAnchor)
+	if err != nil {
+		t.Errorf("new anchor is not a valid RFC3339 timestamp: %s (%v)", newAnchor, err)
+	}
+
+	// The 2nd completion from -30 minutes is at -20 minutes
+	// (1st is at -30 itself, 2nd is at -20)
+	expectedTime = baseTime.Add(-20 * time.Minute)
+	timeDiff = newTime.Sub(expectedTime).Abs()
+	if timeDiff > 1*time.Second {
+		t.Errorf("new anchor time %v is not equal to expected %v (diff: %v)", newTime, expectedTime, timeDiff)
+	}
+}

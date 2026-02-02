@@ -610,3 +610,63 @@ func TestReadEntriesConcurrency(t *testing.T) {
 		t.Errorf("expected %d entries, got %d", n, len(entries))
 	}
 }
+
+func TestGetLatestTaskCompletionTime(t *testing.T) {
+	tmpDir, err := os.MkdirTemp("", "latest-time-test-")
+	if err != nil {
+		t.Fatalf("failed to create temp dir: %v", err)
+	}
+	defer os.RemoveAll(tmpDir)
+
+	log, err := Open(tmpDir)
+	if err != nil {
+		t.Fatalf("failed to open log: %v", err)
+	}
+	defer log.Close()
+
+	taskID := "T3k7x-target"
+	t1 := time.Date(2026, 2, 1, 10, 0, 0, 0, time.UTC)
+	t2 := time.Date(2026, 2, 1, 11, 0, 0, 0, time.UTC)
+	t3 := time.Date(2026, 2, 1, 12, 0, 0, 0, time.UTC)
+
+	log.WriteEntry(Entry{Timestamp: t1, TaskID: taskID, Type: EventTaskCompleted})
+	log.WriteEntry(Entry{Timestamp: t2, TaskID: "other", Type: EventTaskCompleted})
+	log.WriteEntry(Entry{Timestamp: t3, TaskID: taskID, Type: EventTaskCompleted})
+
+	// Test 1: Finding latest (last entry)
+	got, err := log.GetLatestTaskCompletionTime(taskID)
+	if err != nil {
+		// Log file content for debugging
+		data, _ := os.ReadFile(filepath.Join(tmpDir, defaultLogFilename))
+		t.Logf("Log content:\n%s", string(data))
+		t.Fatalf("unexpected error: %v", err)
+	}
+	if !got.Equal(t3) {
+		t.Errorf("expected %v, got %v", t3, got)
+	}
+
+	// Test 2: Finding latest when it's not the last entry
+	got, err = log.GetLatestTaskCompletionTime("other")
+	if err != nil {
+		t.Fatalf("unexpected error: %v", err)
+	}
+	if !got.Equal(t2) {
+		t.Errorf("expected %v, got %v", t2, got)
+	}
+
+	// Test 3: Task never completed
+	_, err = log.GetLatestTaskCompletionTime("non-existent")
+	if err == nil {
+		t.Error("expected error for non-existent task, got nil")
+	}
+
+	// Test 4: Verify it works after clearing cache
+	log.lastSize = -1
+	got, err = log.GetLatestTaskCompletionTime(taskID)
+	if err != nil {
+		t.Fatalf("unexpected error after cache clear: %v", err)
+	}
+	if !got.Equal(t3) {
+		t.Errorf("expected %v, got %v", t3, got)
+	}
+}

@@ -97,10 +97,20 @@ func EvaluateGitMetric(repoPath, metricType, anchor string, taskID string, log *
 
 // EvaluateTasksCompletedMetric evaluates a tasks_completed recurrence metric.
 // It queries the activity log to count task completions since the given anchor time.
-// If a log and taskID are provided, it logs the resolution of "now" anchors.
+// Anchors can be "now", a date (Jan 2 2006 15:04 MST format), or a task ID.
+// If a log and taskID are provided, it logs the resolution of anchor resolutions.
 func EvaluateTasksCompletedMetric(baseDir, anchor string, taskID string, log *activity.Log) (int, error) {
 	var anchorTime time.Time
 	var err error
+
+	activeLog := log
+	if activeLog == nil {
+		activeLog, err = activity.Open(baseDir)
+		if err != nil {
+			return 0, fmt.Errorf("failed to open activity log: %w", err)
+		}
+		defer activeLog.Close()
+	}
 
 	if anchor == "now" || anchor == "" {
 		anchorTime = time.Now().UTC()
@@ -108,20 +118,25 @@ func EvaluateTasksCompletedMetric(baseDir, anchor string, taskID string, log *ac
 			_ = log.WriteRecurrenceAnchorResolution(taskID, anchor, anchorTime.Format("Jan 2 2006 15:04 MST"))
 		}
 	} else {
-		anchorTime, err = time.Parse("Jan 2 2006 15:04 MST", anchor)
-		if err != nil {
-			return 0, fmt.Errorf("invalid date anchor format: %w", err)
+		// Try to resolve as a task ID first
+		resolvedTime, err := activeLog.GetLatestTaskCompletionTime(anchor)
+		if err == nil {
+			// Successfully resolved as a task ID
+			anchorTime = resolvedTime
+			if log != nil && taskID != "" {
+				_ = log.WriteRecurrenceAnchorResolution(taskID, anchor, anchorTime.Format("Jan 2 2006 15:04 MST"))
+			}
+		} else {
+			// Try parsing as a date
+			anchorTime, err = time.Parse("Jan 2 2006 15:04 MST", anchor)
+			if err != nil {
+				// Try ISO 8601 format as well
+				anchorTime, err = time.Parse(time.RFC3339, anchor)
+				if err != nil {
+					return 0, fmt.Errorf("invalid anchor format (expected task ID, date, or \"now\"): %w", err)
+				}
+			}
 		}
-	}
-
-	activeLog := log
-	if activeLog == nil {
-		var err error
-		activeLog, err = activity.Open(baseDir)
-		if err != nil {
-			return 0, fmt.Errorf("failed to open activity log: %w", err)
-		}
-		defer activeLog.Close()
 	}
 
 	count, err := activeLog.CountCompletionsSince(anchorTime)
@@ -286,31 +301,42 @@ func UpdateAnchor(repoPath, baseDir, metric, currentAnchor string, interval int)
 	case "tasks_completed":
 		var anchorTime time.Time
 		var err error
-		if currentAnchor == "now" || currentAnchor == "" {
-			anchorTime = time.Now().UTC()
-		} else {
-			// Try task ID first
-			// (Need tasks map for this, but for now we assume it's a date if it's not "now" or "T...")
-			if strings.HasPrefix(currentAnchor, "T") || strings.HasPrefix(currentAnchor, "E") || strings.HasPrefix(currentAnchor, "I") {
-				// TODO: Resolve task ID to completion time.
-				// For now, let's just use date parsing as fallback.
-				return "", fmt.Errorf("task ID anchors not yet supported in UpdateAnchor")
-			}
-
-			anchorTime, err = time.Parse("Jan 2 2006 15:04 MST", currentAnchor)
-			if err != nil {
-				anchorTime, err = time.Parse(time.RFC3339, currentAnchor)
-				if err != nil {
-					return "", fmt.Errorf("invalid date anchor format: %w", err)
-				}
-			}
-		}
 
 		log, err := activity.Open(baseDir)
 		if err != nil {
 			return "", err
 		}
 		defer log.Close()
+
+		if currentAnchor == "now" || currentAnchor == "" {
+			anchorTime = time.Now().UTC()
+		} else {
+			// Try task ID first
+			if strings.HasPrefix(currentAnchor, "T") || strings.HasPrefix(currentAnchor, "E") || strings.HasPrefix(currentAnchor, "I") {
+				resolvedTime, err := log.GetLatestTaskCompletionTime(currentAnchor)
+				if err == nil {
+					anchorTime = resolvedTime
+				} else {
+					// Task ID not found, try as date
+					anchorTime, err = time.Parse("Jan 2 2006 15:04 MST", currentAnchor)
+					if err != nil {
+						anchorTime, err = time.Parse(time.RFC3339, currentAnchor)
+						if err != nil {
+							return "", fmt.Errorf("invalid task ID or date anchor format: %w", err)
+						}
+					}
+				}
+			} else {
+				// Try parsing as date
+				anchorTime, err = time.Parse("Jan 2 2006 15:04 MST", currentAnchor)
+				if err != nil {
+					anchorTime, err = time.Parse(time.RFC3339, currentAnchor)
+					if err != nil {
+						return "", fmt.Errorf("invalid date anchor format: %w", err)
+					}
+				}
+			}
+		}
 
 		nextAnchorTime, err := log.GetCompletionTimestampAtOffset(anchorTime, interval)
 		if err != nil {
