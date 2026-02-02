@@ -3,7 +3,6 @@
 ## High
 
 - [Handle HEAD anchor mutability in recurrence definitions](E7p4m-issues-recurrence/T8v3k-recurring-tasks/Tgr06-review-recurrence-metrics-cli-experience/Tftao-clarify-recurrence-anchor-flags-and-help-text/T1dua-draft-recurrence-anchor-flag-alternatives/Tonge7b-handle-head-anchor-mutability-in-recurrence-defini/Tonge7b-handle-head-anchor-mutability-in-recurrence-defini.md)
-- [New Task: Add IsValidTaskID validation helper function](E7p4m-issues-recurrence/T8v3k-recurring-tasks/Tgr06-review-recurrence-metrics-cli-experience/Tftao-clarify-recurrence-anchor-flags-and-help-text/T1dua-draft-recurrence-anchor-flag-alternatives/Tu1pm-review-recurrence-anchor-flags-alternatives/Tb8m7cw-resolve-discrepancy-in-tasks-completed-anchor-form/Tsnkyb7-implement-task-id-resolution-for-tasks-completed-m/Tdt38ey-add-isvalidtaskid-validation-helper-function/Tdt38ey-add-isvalidtaskid-validation-helper-function.md)
 - [New Task: Add comprehensive error recovery tests for corrupted activity logs](E7p4m-issues-recurrence/T8v3k-recurring-tasks/Tgr06-review-recurrence-metrics-cli-experience/Tftao-clarify-recurrence-anchor-flags-and-help-text/T1dua-draft-recurrence-anchor-flag-alternatives/Tu1pm-review-recurrence-anchor-flags-alternatives/Tb8m7cw-resolve-discrepancy-in-tasks-completed-anchor-form/Tsnkyb7-implement-task-id-resolution-for-tasks-completed-m/Ts852j3-add-comprehensive-error-recovery-tests-for-corrupt/Ts852j3-add-comprehensive-error-recovery-tests-for-corrupt.md)
 
 ## Medium

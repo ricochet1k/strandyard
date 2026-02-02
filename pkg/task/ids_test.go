@@ -59,6 +59,38 @@ func TestResolveTaskID(t *testing.T) {
 	}
 }
 
+func TestIsValidTaskID(t *testing.T) {
+	cases := []struct {
+		name  string
+		input string
+		want  bool
+	}{
+		{name: "valid short id min length", input: "T1a1a", want: true},
+		{name: "valid short id max length", input: "T1a1abc", want: true},
+		{name: "valid full id", input: "T3k7x-example", want: true},
+		{name: "valid full id with numbers", input: "E2k7x-123-test", want: true},
+		{name: "empty string", input: "", want: false},
+		{name: "whitespace only", input: "   ", want: false},
+		{name: "lowercase letter start", input: "t1a1a", want: false},
+		{name: "too short", input: "T1a1", want: false},
+		{name: "too long", input: "T1a1abcd", want: false},
+		{name: "special characters", input: "T1@1a", want: false},
+		{name: "no hyphen in full format", input: "T3k7xexample", want: false},
+		{name: "random text", input: "not-an-id", want: false},
+		{name: "number start", input: "13k7x-example", want: false},
+		{name: "valid with whitespace", input: "  T3k7x-example  ", want: true},
+	}
+
+	for _, tc := range cases {
+		tc := tc
+		t.Run(tc.name, func(t *testing.T) {
+			if got := IsValidTaskID(tc.input); got != tc.want {
+				t.Fatalf("IsValidTaskID(%q) = %v, want %v", tc.input, got, tc.want)
+			}
+		})
+	}
+}
+
 func TestResolveTaskIDAmbiguous(t *testing.T) {
 	tasks := map[string]*Task{
 		"T1a1a-foo": {ID: "T1a1a-foo"},

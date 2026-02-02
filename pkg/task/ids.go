@@ -12,6 +12,15 @@ var (
 	fullIDPattern  = regexp.MustCompile(`^([A-Z][0-9a-z]{4,6})-[a-zA-Z0-9-]+$`)
 )
 
+// IsValidTaskID validates whether a string is a valid task ID (either short or full format).
+func IsValidTaskID(id string) bool {
+	id = strings.TrimSpace(id)
+	if id == "" {
+		return false
+	}
+	return shortIDPattern.MatchString(id) || fullIDPattern.MatchString(id)
+}
+
 // ShortID returns the short form of a task ID (prefix + token).
 func ShortID(id string) string {
 	id = strings.TrimSpace(id)
