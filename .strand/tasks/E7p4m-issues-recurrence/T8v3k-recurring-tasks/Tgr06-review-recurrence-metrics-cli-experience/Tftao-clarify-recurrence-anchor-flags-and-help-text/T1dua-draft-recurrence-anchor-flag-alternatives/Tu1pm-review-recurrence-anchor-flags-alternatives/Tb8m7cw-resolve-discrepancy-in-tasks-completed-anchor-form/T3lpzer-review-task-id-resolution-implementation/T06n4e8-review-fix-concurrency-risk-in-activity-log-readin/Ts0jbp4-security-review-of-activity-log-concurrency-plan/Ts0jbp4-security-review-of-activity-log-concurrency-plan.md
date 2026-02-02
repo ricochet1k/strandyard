@@ -7,7 +7,7 @@ blockers:
     - T5sv1zc-resilient-activity-log-parsing-for-malformed-entri
 blocks: []
 date_created: 2026-02-01T23:45:43.53362Z
-date_edited: 2026-02-02T00:07:44.807465Z
+date_edited: 2026-02-02T00:09:19.111006Z
 owner_approval: false
 completed: true
 description: ""
@@ -19,8 +19,10 @@ Review design-docs/fix-activity-log-concurrency.md for any potential security ri
 
 Delegate concerns to the relevant role via subtasks.
 
-## Subtasks
-- [ ] (subtask: T5sv1zc) New Task: Resilient activity log parsing for malformed entries
+
 
 ## Completion Report
 Security review complete. Identified DoS risk if log is corrupted; captured in subtask T5sv1zc. Design otherwise sound from a security perspective.
+
+## Subtasks
+- [x] (subtask: T5sv1zc) New Task: Resilient activity log parsing for malformed entries

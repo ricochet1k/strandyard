@@ -46,7 +46,13 @@ Under extremely high concurrency, even temporary read handles could hit the OS l
     - We rely on the existing malformed entry detection in `ReadEntries` to skip or report any partial writes that might have occurred during a crash or disk-full event.
     - `Sync()` is called after every write to ensure durability, especially important for a log.
 
-### 7. Integration Points
+### 8. Resilient Parsing
+To prevent a single malformed entry from blocking all log access (a potential DoS vector), `ReadEntries` should be refactored to:
+- Log or skip malformed JSON lines instead of returning an error immediately.
+- Continue parsing the rest of the file to retrieve all valid entries.
+- Maintain a count of skipped malformed entries if necessary for auditing.
+
+### 9. Integration Points
 - `CountCompletionsSince`, `CountCompletionsForTaskSince`, and `GetCompletionTimestampAtOffset` all call `ReadEntries`, so they will benefit from the improved safety.
 
 ## Testing Strategy
