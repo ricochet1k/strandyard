@@ -114,11 +114,15 @@ func EvaluateTasksCompletedMetric(baseDir, anchor string, taskID string, log *ac
 		}
 	}
 
-	activeLog, err := activity.Open(baseDir)
-	if err != nil {
-		return 0, fmt.Errorf("failed to open activity log: %w", err)
+	activeLog := log
+	if activeLog == nil {
+		var err error
+		activeLog, err = activity.Open(baseDir)
+		if err != nil {
+			return 0, fmt.Errorf("failed to open activity log: %w", err)
+		}
+		defer activeLog.Close()
 	}
-	defer activeLog.Close()
 
 	count, err := activeLog.CountCompletionsSince(anchorTime)
 	if err != nil {

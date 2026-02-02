@@ -440,6 +440,26 @@ func TestEvaluateTasksCompletedMetric(t *testing.T) {
 	if err == nil {
 		t.Errorf("EvaluateTasksCompletedMetric for invalid date expected an error, got nil")
 	}
+
+	t.Run("Reuses provided log", func(t *testing.T) {
+		log, err := activity.Open(tmpDir)
+		if err != nil {
+			t.Fatalf("failed to open activity log: %v", err)
+		}
+		// We don't defer log.Close() here because we want to verify it's still open
+
+		_, err = EvaluateTasksCompletedMetric(tmpDir, "now", "T-test", log)
+		if err != nil {
+			t.Errorf("EvaluateTasksCompletedMetric failed: %v", err)
+		}
+
+		// Verify we can still write to the log
+		err = log.WriteRecurrenceAnchorResolution("T-test", "now", "resolved")
+		if err != nil {
+			t.Errorf("log was prematurely closed: %v", err)
+		}
+		log.Close()
+	})
 }
 
 func TestRecurrenceAnchorResolutionLogging(t *testing.T) {
