@@ -3,7 +3,6 @@
 ## High
 
 - [Handle HEAD anchor mutability in recurrence definitions](E7p4m-issues-recurrence/T8v3k-recurring-tasks/Tgr06-review-recurrence-metrics-cli-experience/Tftao-clarify-recurrence-anchor-flags-and-help-text/T1dua-draft-recurrence-anchor-flag-alternatives/Tonge7b-handle-head-anchor-mutability-in-recurrence-defini/Tonge7b-handle-head-anchor-mutability-in-recurrence-defini.md)
-- [Fix concurrency risk in activity log reading](E7p4m-issues-recurrence/T8v3k-recurring-tasks/Tgr06-review-recurrence-metrics-cli-experience/Tftao-clarify-recurrence-anchor-flags-and-help-text/T1dua-draft-recurrence-anchor-flag-alternatives/Tu1pm-review-recurrence-anchor-flags-alternatives/Tb8m7cw-resolve-discrepancy-in-tasks-completed-anchor-form/T3lpzer-review-task-id-resolution-implementation/T8eric8-fix-concurrency-risk-in-activity-log-reading/T8eric8-fix-concurrency-risk-in-activity-log-reading.md)
 
 ## Medium
 

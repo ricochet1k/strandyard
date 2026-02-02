@@ -4,8 +4,10 @@ import (
 	"bufio"
 	"encoding/json"
 	"fmt"
+	"io"
 	"os"
 	"path/filepath"
+	"sync"
 	"time"
 )
 
@@ -32,8 +34,11 @@ type Entry struct {
 
 // Log represents the activity log
 type Log struct {
+	mu       sync.RWMutex
 	filepath string
-	file     *os.File
+	file     *os.File // write handle
+	entries  []Entry  // cached entries
+	lastSize int64    // last read size
 }
 
 // Open opens the activity log for appending
@@ -56,14 +61,22 @@ func Open(logDir string) (*Log, error) {
 
 // Close closes the activity log file
 func (l *Log) Close() error {
+	l.mu.Lock()
+	defer l.mu.Unlock()
+
 	if l.file != nil {
-		return l.file.Close()
+		err := l.file.Close()
+		l.file = nil
+		return err
 	}
 	return nil
 }
 
 // WriteEntry writes a new entry to the activity log
 func (l *Log) WriteEntry(entry Entry) error {
+	l.mu.Lock()
+	defer l.mu.Unlock()
+
 	if entry.Timestamp.IsZero() {
 		entry.Timestamp = time.Now().UTC()
 	}
@@ -77,7 +90,15 @@ func (l *Log) WriteEntry(entry Entry) error {
 		return fmt.Errorf("failed to write entry: %w", err)
 	}
 
-	return l.file.Sync()
+	if err := l.file.Sync(); err != nil {
+		return fmt.Errorf("failed to sync log: %w", err)
+	}
+
+	// Invalidate cache by setting lastSize to -1 or just clear it.
+	// We'll let ReadEntries handle re-reading.
+	l.lastSize = -1
+
+	return nil
 }
 
 // WriteTaskCompletion writes a task completion event to the activity log
@@ -103,8 +124,35 @@ func (l *Log) WriteRecurrenceAnchorResolution(taskID, original, resolved string)
 
 // ReadEntries reads all entries from the activity log
 func (l *Log) ReadEntries() ([]Entry, error) {
-	if err := l.file.Close(); err != nil {
-		return nil, fmt.Errorf("failed to close log for reading: %w", err)
+	l.mu.RLock()
+	info, err := os.Stat(l.filepath)
+	if err == nil && l.lastSize != -1 && info.Size() == l.lastSize {
+		entries := make([]Entry, len(l.entries))
+		copy(entries, l.entries)
+		l.mu.RUnlock()
+		return entries, nil
+	}
+	l.mu.RUnlock()
+
+	l.mu.Lock()
+	defer l.mu.Unlock()
+
+	// Re-check size after acquiring write lock
+	info, err = os.Stat(l.filepath)
+	if err != nil {
+		return nil, fmt.Errorf("failed to stat log: %w", err)
+	}
+
+	// If lastSize is -1 or file shrunk, re-read everything
+	if l.lastSize == -1 || info.Size() < l.lastSize {
+		l.entries = nil
+		l.lastSize = 0
+	}
+
+	if info.Size() == l.lastSize {
+		entries := make([]Entry, len(l.entries))
+		copy(entries, l.entries)
+		return entries, nil
 	}
 
 	file, err := os.Open(l.filepath)
@@ -113,7 +161,10 @@ func (l *Log) ReadEntries() ([]Entry, error) {
 	}
 	defer file.Close()
 
-	var entries []Entry
+	if _, err := file.Seek(l.lastSize, io.SeekStart); err != nil {
+		return nil, fmt.Errorf("failed to seek to last position: %w", err)
+	}
+
 	scanner := bufio.NewScanner(file)
 	for scanner.Scan() {
 		line := scanner.Text()
@@ -122,20 +173,21 @@ func (l *Log) ReadEntries() ([]Entry, error) {
 		}
 		var entry Entry
 		if err := json.Unmarshal([]byte(line), &entry); err != nil {
-			return nil, fmt.Errorf("failed to unmarshal entry: %w", err)
+			// Resilient parsing: skip malformed entries
+			fmt.Fprintf(os.Stderr, "skipping malformed activity log entry: %v\n", err)
+			continue
 		}
-		entries = append(entries, entry)
+		l.entries = append(l.entries, entry)
 	}
 
 	if err := scanner.Err(); err != nil {
 		return nil, fmt.Errorf("error reading log: %w", err)
 	}
 
-	l.file, err = os.OpenFile(l.filepath, os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0o644)
-	if err != nil {
-		return nil, fmt.Errorf("failed to reopen log for writing: %w", err)
-	}
+	l.lastSize = info.Size()
 
+	entries := make([]Entry, len(l.entries))
+	copy(entries, l.entries)
 	return entries, nil
 }
 

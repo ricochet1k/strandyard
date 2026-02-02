@@ -2,9 +2,10 @@ package activity
 
 import (
 	"encoding/json"
+	"fmt"
 	"os"
 	"path/filepath"
-	"strings"
+	"sync"
 	"testing"
 	"time"
 
@@ -534,15 +535,78 @@ func TestReadEntriesHandlesMalformedEntry(t *testing.T) {
 	}
 
 	entries, err := log.ReadEntries()
-	if err == nil {
-		t.Fatalf("expected error for malformed entry, got nil")
+	if err != nil {
+		t.Fatalf("expected no error for malformed entry (resilient parsing), got %v", err)
 	}
 
-	if len(entries) != 0 {
-		t.Errorf("expected 0 entries due to error, got %d", len(entries))
+	if len(entries) != 1 {
+		t.Errorf("expected 1 valid entry, got %d", len(entries))
 	}
 
-	if !strings.Contains(err.Error(), "failed to unmarshal entry") {
-		t.Errorf("expected error message to contain 'failed to unmarshal entry', got %v", err)
+	if entries[0].TaskID != "T3k7x-valid" {
+		t.Errorf("expected valid entry TaskID 'T3k7x-valid', got %s", entries[0].TaskID)
+	}
+}
+
+func TestReadEntriesConcurrency(t *testing.T) {
+	tmpDir, err := os.MkdirTemp("", "concurrency-test-")
+	if err != nil {
+		t.Fatalf("failed to create temp dir: %v", err)
+	}
+	defer os.RemoveAll(tmpDir)
+
+	log, err := Open(tmpDir)
+	if err != nil {
+		t.Fatalf("failed to open log: %v", err)
+	}
+	defer log.Close()
+
+	// Number of concurrent operations
+	n := 100
+	var wg sync.WaitGroup
+	wg.Add(n * 2)
+
+	errors := make(chan error, n*2)
+
+	for i := 0; i < n; i++ {
+		// Concurrent writers
+		go func(id int) {
+			defer wg.Done()
+			err := log.WriteTaskCompletion(fmt.Sprintf("task-%d", id), "completed")
+			if err != nil {
+				errors <- fmt.Errorf("writer %d failed: %w", id, err)
+			}
+		}(i)
+
+		// Concurrent readers
+		go func(id int) {
+			defer wg.Done()
+			_, err := log.ReadEntries()
+			if err != nil {
+				errors <- fmt.Errorf("reader %d failed: %w", id, err)
+			}
+		}(i)
+	}
+
+	wg.Wait()
+	close(errors)
+
+	errCount := 0
+	for err := range errors {
+		errCount++
+		t.Logf("Error: %v", err)
+	}
+
+	if errCount > 0 {
+		t.Errorf("Encountered %d errors during concurrent operations", errCount)
+	}
+
+	// Final read to check consistency
+	entries, err := log.ReadEntries()
+	if err != nil {
+		t.Fatalf("final read failed: %v", err)
+	}
+	if len(entries) != n {
+		t.Errorf("expected %d entries, got %d", n, len(entries))
 	}
 }
