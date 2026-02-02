@@ -4,12 +4,14 @@ role: developer
 priority: medium
 parent: Tb8m7cw-resolve-discrepancy-in-tasks-completed-anchor-form
 blockers:
-    - Tocms1d-review-task-id-resolution-implementation-for-secur
+    - Tdt38ey-add-isvalidtaskid-validation-helper-function
+    - Tgp0g1z-document-activity-log-concurrency-guarantees-and-c
     - Tpiha4x-review-task-id-resolution-implementation-for-relia
+    - Ts852j3-add-comprehensive-error-recovery-tests-for-corrupt
     - Tyrub91-review-task-id-resolution-implementation-for-usabi
 blocks: []
 date_created: 2026-02-01T23:34:10.537422Z
-date_edited: 2026-02-02T01:21:53.140175Z
+date_edited: 2026-02-02T02:09:40.598622Z
 owner_approval: false
 completed: false
 description: ""
@@ -47,6 +49,9 @@ Implement task ID resolution for the `tasks_completed` recurrence metric as desc
 - [ ] (role: documentation) Update user-facing docs and examples in `design-docs/` as specified in the plan.
 
 ## Subtasks
+- [ ] (subtask: Tdt38ey) New Task: Add IsValidTaskID validation helper function
+- [ ] (subtask: Tgp0g1z) New Task: Document activity log concurrency guarantees and consistency model
 - [x] (subtask: Tocms1d) New Task: Review task ID resolution implementation for security
-- [ ] (subtask: Tpiha4x) New Task: Review task ID resolution implementation for reliability
+- [x] (subtask: Tpiha4x) New Task: Review task ID resolution implementation for reliability
+- [ ] (subtask: Ts852j3) New Task: Add comprehensive error recovery tests for corrupted activity logs
 - [ ] (subtask: Tyrub91) New Task: Review task ID resolution implementation for usability
