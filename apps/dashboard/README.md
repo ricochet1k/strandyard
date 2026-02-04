@@ -16,3 +16,9 @@ Set the API base URL if the stream server is not on the default port:
 ```bash
 VITE_API_BASE=http://localhost:8686 npm run dev
 ```
+
+## Tests
+
+```bash
+npm run test:e2e
+```
