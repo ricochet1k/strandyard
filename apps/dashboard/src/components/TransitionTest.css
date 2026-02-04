@@ -1,0 +1,42 @@
+.transition-test {
+  padding: 32px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.transition-test-actions {
+  display: flex;
+  gap: 12px;
+}
+
+.transition-test-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  width: 200px;
+}
+
+.transition-test-item {
+  padding: 12px;
+  border-radius: 8px;
+  background: #1f2937;
+  color: #f9fafb;
+  transition: opacity 0.05s ease, transform 0.05s ease;
+}
+
+.transition-test-enter {
+  opacity: 0;
+}
+
+.transition-test-exit {
+  opacity: 1;
+}
+
+.transition-test-exit-to {
+  opacity: 0;
+}
+
+.transition-test-move {
+  transition: transform 0.05s ease;
+}
