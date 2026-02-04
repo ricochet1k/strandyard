@@ -40,9 +40,7 @@ export default function Sidebar(props: SidebarProps) {
           >
             <For each={props.projects}>
               {(proj) => (
-                <option value={proj.name}>
-                  {proj.name} ({proj.storage})
-                </option>
+                <option value={proj.name}>{proj.name}</option>
               )}
             </For>
           </select>

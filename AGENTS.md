@@ -147,6 +147,7 @@ Add the goldmark-frontmatter library to the project...
 - Deterministic ordering: lists (children, blockers, blocks) must be written in sorted order so diffs are stable.
 - Use relative paths inside task metadata (repo-relative) to reference other tasks.
 - Role names are the lowercase filename (without `.md`) in `roles/`.
+- Web dashboard lists projects by name only; do not show local/global storage labels or duplicate entries.
 
 ## Current repository structure
 

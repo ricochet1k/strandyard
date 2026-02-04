@@ -6,6 +6,7 @@ import (
 	"os"
 	"os/signal"
 	"path/filepath"
+	"sort"
 	"strings"
 
 	"github.com/ricochet1k/strandyard/pkg/web"
@@ -48,7 +49,7 @@ func runWeb() error {
 	if paths, err := resolveProjectPaths(""); err == nil {
 		currentProject = paths.ProjectName
 		if currentProject == "" {
-			currentProject = "local"
+			currentProject = localProjectName(paths.GitRoot)
 		}
 	}
 
@@ -88,8 +89,20 @@ func runWeb() error {
 }
 
 func discoverAllProjects(envRoot, envStorage string) ([]web.ProjectInfo, error) {
-	var projects []web.ProjectInfo
+	projectsByName := make(map[string]web.ProjectInfo)
 	filter := strings.ToLower(strings.TrimSpace(envStorage))
+	addProject := func(project web.ProjectInfo) {
+		if project.Name == "" {
+			return
+		}
+		if existing, ok := projectsByName[project.Name]; ok {
+			if existing.Storage == storageGlobal && project.Storage == storageLocal {
+				projectsByName[project.Name] = project
+			}
+			return
+		}
+		projectsByName[project.Name] = project
+	}
 
 	// Global projects
 	if filter == "" || filter == "global" {
@@ -103,14 +116,14 @@ func discoverAllProjects(envRoot, envStorage string) ([]web.ProjectInfo, error) 
 				baseDir := filepath.Join(dir, name)
 				if hasProjectStructure(baseDir) {
 					gitRoot := findGitRootForProject(name)
-					projects = append(projects, web.ProjectInfo{
+					addProject(web.ProjectInfo{
 						Name:          name,
 						StorageRoot:   baseDir,
 						TasksRoot:     filepath.Join(baseDir, "tasks"),
 						RolesRoot:     filepath.Join(baseDir, "roles"),
 						TemplatesRoot: filepath.Join(baseDir, "templates"),
 						GitRoot:       gitRoot,
-						Storage:       "global",
+						Storage:       storageGlobal,
 					})
 				}
 			}
@@ -128,21 +141,48 @@ func discoverAllProjects(envRoot, envStorage string) ([]web.ProjectInfo, error) 
 			localDir := filepath.Join(gitRoot, ".strand")
 			if info, err := os.Stat(localDir); err == nil && info.IsDir() {
 				if hasProjectStructure(localDir) {
-					projects = append(projects, web.ProjectInfo{
-						Name:          "local",
-						StorageRoot:   localDir,
-						TasksRoot:     filepath.Join(localDir, "tasks"),
-						RolesRoot:     filepath.Join(localDir, "roles"),
-						TemplatesRoot: filepath.Join(localDir, "templates"),
-						GitRoot:       gitRoot,
-						Storage:       "local",
-					})
+						addProject(web.ProjectInfo{
+							Name:          localProjectName(gitRoot),
+							StorageRoot:   localDir,
+							TasksRoot:     filepath.Join(localDir, "tasks"),
+							RolesRoot:     filepath.Join(localDir, "roles"),
+							TemplatesRoot: filepath.Join(localDir, "templates"),
+							GitRoot:       gitRoot,
+							Storage:       storageLocal,
+						})
 				}
 			}
 		}
 	}
 
+	projects := make([]web.ProjectInfo, 0, len(projectsByName))
+	for _, project := range projectsByName {
+		projects = append(projects, project)
+	}
+	sort.Slice(projects, func(i, j int) bool {
+		return projects[i].Name < projects[j].Name
+	})
 	return projects, nil
+}
+
+func localProjectName(gitRoot string) string {
+	if gitRoot == "" {
+		return ""
+	}
+	if cfg, err := loadProjectMap(); err == nil {
+		for name, root := range cfg.LocalPaths {
+			if samePath(root, gitRoot) {
+				return name
+			}
+		}
+	}
+	return filepath.Base(gitRoot)
+}
+
+func samePath(left, right string) bool {
+	left = filepath.Clean(left)
+	right = filepath.Clean(right)
+	return left == right
 }
 
 func hasProjectStructure(dir string) bool {
