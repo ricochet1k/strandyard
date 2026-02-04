@@ -113,21 +113,21 @@ func runInit(w io.Writer, opts initOptions) error {
 		}
 	}
 
+	cfg, err := loadProjectMap()
+	if err != nil {
+		return err
+	}
 	if storage == storageGlobal {
-		cfg, err := loadProjectMap()
-		if err != nil {
-			return err
-		}
 		cfg.Repos[gitRoot] = projectName
-		if err := saveProjectMap(cfg); err != nil {
-			return err
-		}
+	} else {
+		cfg.LocalPaths[projectName] = gitRoot
+	}
+	if err := saveProjectMap(cfg); err != nil {
+		return err
 	}
 
 	fmt.Fprintf(w, "✓ Initialized strand at %s\n", baseDir)
-	if storage == storageGlobal {
-		fmt.Fprintf(w, "✓ Linked %s to project %s\n", gitRoot, projectName)
-	}
+	fmt.Fprintf(w, "✓ Linked %s to project %s\n", gitRoot, projectName)
 	return nil
 }
 

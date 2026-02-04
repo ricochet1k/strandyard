@@ -2,6 +2,7 @@ package task
 
 import (
 	"fmt"
+	"os"
 	"slices"
 	"sort"
 )
@@ -435,4 +436,250 @@ func (db *TaskDB) GetOrCreate(id string) (*Task, error) {
 	task.MarkDirty()
 
 	return task, nil
+}
+
+// LoadAllIfEmpty loads all tasks from disk if the task map is empty.
+// This is a convenience method for commands that need all tasks loaded.
+func (db *TaskDB) LoadAllIfEmpty() error {
+	if len(db.tasks) > 0 {
+		return nil
+	}
+	return db.LoadAll()
+}
+
+// ResolveID resolves a short ID, prefix, or full ID to a canonical task ID.
+// Requires tasks to be loaded (calls LoadAllIfEmpty internally).
+func (db *TaskDB) ResolveID(input string) (string, error) {
+	if err := db.LoadAllIfEmpty(); err != nil {
+		return "", err
+	}
+	return ResolveTaskID(db.tasks, input)
+}
+
+// ResolveIDs resolves a list of task ID inputs, de-duplicates, and sorts them.
+func (db *TaskDB) ResolveIDs(inputs []string) ([]string, error) {
+	if len(inputs) == 0 {
+		return nil, nil
+	}
+	if err := db.LoadAllIfEmpty(); err != nil {
+		return nil, err
+	}
+	seen := make(map[string]struct{})
+	resolved := make([]string, 0, len(inputs))
+	for _, input := range inputs {
+		id, err := ResolveTaskID(db.tasks, input)
+		if err != nil {
+			return nil, err
+		}
+		if _, ok := seen[id]; ok {
+			continue
+		}
+		seen[id] = struct{}{}
+		resolved = append(resolved, id)
+	}
+	sort.Strings(resolved)
+	return resolved, nil
+}
+
+// GetResolved combines ResolveID and Get into a single call.
+// Returns the task, its resolved ID, and any error.
+func (db *TaskDB) GetResolved(input string) (*Task, string, error) {
+	id, err := db.ResolveID(input)
+	if err != nil {
+		return nil, "", err
+	}
+	task, err := db.Get(id)
+	if err != nil {
+		return nil, id, err
+	}
+	return task, id, nil
+}
+
+// Has returns true if a task with the given ID is loaded.
+func (db *TaskDB) Has(id string) bool {
+	_, ok := db.tasks[id]
+	return ok
+}
+
+// ReadRaw reads the raw file contents for a task.
+// Useful for the "show" command which displays the original markdown.
+func (db *TaskDB) ReadRaw(id string) ([]byte, error) {
+	task, err := db.Get(id)
+	if err != nil {
+		return nil, err
+	}
+	return os.ReadFile(task.FilePath)
+}
+
+// CompleteTodoResult contains the result of completing a todo item.
+type CompleteTodoResult struct {
+	TaskCompleted       bool
+	RemainingIncomplete int
+}
+
+// CompleteTodo marks a todo item as complete on a task.
+// todoNum is 1-based. If this was the last incomplete todo, the task is marked complete.
+func (db *TaskDB) CompleteTodo(taskID string, todoNum int, report string) (*CompleteTodoResult, error) {
+	task, err := db.Get(taskID)
+	if err != nil {
+		return nil, fmt.Errorf("task not found: %w", err)
+	}
+
+	if todoNum <= 0 || todoNum > len(task.TodoItems) {
+		return nil, fmt.Errorf("invalid todo number %d, task has %d todo items", todoNum, len(task.TodoItems))
+	}
+
+	todoIndex := todoNum - 1
+	if task.TodoItems[todoIndex].Checked {
+		return &CompleteTodoResult{
+			TaskCompleted:       false,
+			RemainingIncomplete: countIncompleteTodos(task),
+		}, nil
+	}
+
+	task.TodoItems[todoIndex].Checked = true
+	if report != "" {
+		task.TodoItems[todoIndex].Report = report
+	}
+	task.MarkDirty()
+
+	remaining := countIncompleteTodos(task)
+	result := &CompleteTodoResult{
+		TaskCompleted:       remaining == 0,
+		RemainingIncomplete: remaining,
+	}
+
+	if result.TaskCompleted {
+		task.Meta.Completed = true
+		task.MarkDirty()
+	}
+
+	return result, nil
+}
+
+func countIncompleteTodos(task *Task) int {
+	count := 0
+	for _, todo := range task.TodoItems {
+		if !todo.Checked {
+			count++
+		}
+	}
+	return count
+}
+
+// AppendCompletionReport appends a completion report to the task's content.
+func (db *TaskDB) AppendCompletionReport(taskID, report string) error {
+	task, err := db.Get(taskID)
+	if err != nil {
+		return fmt.Errorf("task not found: %w", err)
+	}
+
+	if report != "" {
+		if task.OtherContent != "" {
+			task.OtherContent += "\n\n"
+		}
+		task.OtherContent += "## Completion Report\n" + report
+		task.MarkDirty()
+	}
+
+	return nil
+}
+
+// CompleteTask marks a task as completed and optionally appends a report.
+func (db *TaskDB) CompleteTask(taskID, report string) error {
+	if err := db.SetCompleted(taskID, true); err != nil {
+		return err
+	}
+	return db.AppendCompletionReport(taskID, report)
+}
+
+// GetIncompleteTodos returns the incomplete todo items for a task.
+func (db *TaskDB) GetIncompleteTodos(taskID string) ([]TaskItem, error) {
+	task, err := db.Get(taskID)
+	if err != nil {
+		return nil, fmt.Errorf("task not found: %w", err)
+	}
+
+	var incomplete []TaskItem
+	for _, todo := range task.TodoItems {
+		if !todo.Checked {
+			incomplete = append(incomplete, todo)
+		}
+	}
+	return incomplete, nil
+}
+
+// UpdateParentTodos updates the TODO entries for a parent task based on its children.
+// Returns true if the parent was modified.
+func (db *TaskDB) UpdateParentTodos(parentID string) (bool, error) {
+	return UpdateParentTodoEntries(db.tasks, parentID)
+}
+
+// UpdateParentTodosForChild updates the parent's TODO entries after a child change.
+// If the child has no parent, this is a no-op.
+// Returns true if the parent was modified.
+func (db *TaskDB) UpdateParentTodosForChild(childID string) (bool, error) {
+	task, err := db.Get(childID)
+	if err != nil {
+		return false, fmt.Errorf("task not found: %w", err)
+	}
+	if task.Meta.Parent == "" {
+		return false, nil
+	}
+	return db.UpdateParentTodos(task.Meta.Parent)
+}
+
+// TasksRoot returns the root directory for tasks.
+func (db *TaskDB) TasksRoot() string {
+	return db.tasksRoot
+}
+
+// SetRole sets the role for a task.
+func (db *TaskDB) SetRole(taskID, role string) error {
+	task, err := db.Get(taskID)
+	if err != nil {
+		return fmt.Errorf("task not found: %w", err)
+	}
+	if task.Meta.Role != role {
+		task.Meta.Role = role
+		task.MarkDirty()
+	}
+	return nil
+}
+
+// SetPriority sets the priority for a task.
+func (db *TaskDB) SetPriority(taskID, priority string) error {
+	task, err := db.Get(taskID)
+	if err != nil {
+		return fmt.Errorf("task not found: %w", err)
+	}
+	normalized := NormalizePriority(priority)
+	if !IsValidPriority(normalized) {
+		return fmt.Errorf("invalid priority: %s", priority)
+	}
+	if task.Meta.Priority != normalized {
+		task.Meta.Priority = normalized
+		task.MarkDirty()
+	}
+	return nil
+}
+
+// SetTitle sets the title for a task.
+func (db *TaskDB) SetTitle(taskID, title string) error {
+	task, err := db.Get(taskID)
+	if err != nil {
+		return fmt.Errorf("task not found: %w", err)
+	}
+	task.SetTitle(title)
+	return nil
+}
+
+// SetBody sets the body content for a task.
+func (db *TaskDB) SetBody(taskID, body string) error {
+	task, err := db.Get(taskID)
+	if err != nil {
+		return fmt.Errorf("task not found: %w", err)
+	}
+	task.SetBody(body)
+	return nil
 }

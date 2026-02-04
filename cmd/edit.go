@@ -54,111 +54,99 @@ func init() {
 	editCmd.Flags().StringVar(&editPriority, "priority", "", "priority: high, medium, or low")
 }
 
-func runEdit(cmd *cobra.Command, taskID, newBody string) error {
+func runEdit(cmd *cobra.Command, inputID, newBody string) error {
 	w := cmd.OutOrStdout()
 	paths, err := resolveProjectPaths(projectName)
 	if err != nil {
 		return err
 	}
 
-	// Load all tasks to find the one we want and resolve IDs
-	parser := task.NewParser()
-	tasks, err := parser.LoadTasks(paths.TasksDir)
-	if err != nil {
-		return fmt.Errorf("failed to load tasks: %w", err)
-	}
-
-	resolvedID, err := task.ResolveTaskID(tasks, taskID)
+	db := task.NewTaskDB(paths.TasksDir)
+	t, taskID, err := db.GetResolved(inputID)
 	if err != nil {
 		return err
 	}
-	t, ok := tasks[resolvedID]
-	if !ok {
-		return fmt.Errorf("task not found: %s", resolvedID)
-	}
 
-	// Track if any changes were made
 	changes := false
 
-	// Update flags if they were changed
 	if cmd.Flags().Changed("role") {
 		rName := strings.TrimSpace(editRole)
 		if err := role.ValidateRole(paths.RolesDir, rName); err != nil {
 			return err
 		}
-		t.Meta.Role = rName
-		t.MarkDirty()
+		if err := db.SetRole(taskID, rName); err != nil {
+			return err
+		}
 		changes = true
 	}
 
 	if cmd.Flags().Changed("priority") {
-		priority := task.NormalizePriority(editPriority)
-		if !task.IsValidPriority(priority) {
-			return fmt.Errorf("invalid priority: %s", editPriority)
+		if err := db.SetPriority(taskID, editPriority); err != nil {
+			return err
 		}
-		t.Meta.Priority = priority
-		t.MarkDirty()
 		changes = true
 	}
 
 	if cmd.Flags().Changed("parent") {
 		parent := strings.TrimSpace(editParent)
 		if parent != "" {
-			resolvedParent, err := task.ResolveTaskID(tasks, parent)
+			resolvedParent, err := db.ResolveID(parent)
 			if err != nil {
 				return fmt.Errorf("parent task %s does not exist: %w", parent, err)
 			}
-			t.Meta.Parent = resolvedParent
+			if err := db.SetParent(taskID, resolvedParent); err != nil {
+				return err
+			}
 		} else {
-			t.Meta.Parent = ""
+			if err := db.ClearParent(taskID); err != nil {
+				return err
+			}
 		}
-		t.MarkDirty()
 		changes = true
 	}
 
 	if cmd.Flags().Changed("blocker") {
 		panic("Unimplemented: TODO: Must update blockers AND child blocks list")
-		// blockers, err := resolveTaskIDs(tasks, normalizeTaskIDs(editBlockers))
-		// if err != nil {
-		// 	return err
-		// }
-		// t.Meta.Blockers = blockers
-		// t.MarkDirty()
-		// changes = true
 	}
 
-	// Body from stdin
 	if isStdinRedirected() {
-		t.SetBody(newBody)
-		// If title flag not provided, try extracting from stdin
+		if err := db.SetBody(taskID, newBody); err != nil {
+			return err
+		}
 		if !cmd.Flags().Changed("title") {
 			if title := task.ExtractTitle(newBody); title != "" {
-				t.SetTitle(title)
+				if err := db.SetTitle(taskID, title); err != nil {
+					return err
+				}
 			}
 		}
 		changes = true
 	}
 
-	// Title update (must be done AFTER SetBody if both are used, so title flag wins)
 	if cmd.Flags().Changed("title") {
-		t.SetTitle(editTitle)
+		if err := db.SetTitle(taskID, editTitle); err != nil {
+			return err
+		}
 		changes = true
 	}
 
 	if changes {
-		if err := t.Write(); err != nil {
+		if _, err := db.SaveDirty(); err != nil {
 			return fmt.Errorf("failed to write task file: %w", err)
 		}
-		fmt.Fprintf(w, "✓ Task %s updated\n", task.ShortID(resolvedID))
+		fmt.Fprintf(w, "✓ Task %s updated\n", task.ShortID(taskID))
 
-		// Update parent TODOs if parent changed or if it's a child
+		// Refetch task to get updated parent
+		t, err = db.Get(taskID)
+		if err != nil {
+			return err
+		}
+
 		if cmd.Flags().Changed("parent") || t.Meta.Parent != "" {
-			if t.Meta.Parent != "" {
-				if _, err := task.UpdateParentTodoEntries(tasks, t.Meta.Parent); err != nil {
-					return fmt.Errorf("failed to update parent task TODO entries: %w", err)
-				}
+			if _, err := db.UpdateParentTodosForChild(taskID); err != nil {
+				return fmt.Errorf("failed to update parent task TODO entries: %w", err)
 			}
-			if _, err := task.WriteDirtyTasks(tasks); err != nil {
+			if _, err := db.SaveDirty(); err != nil {
 				return fmt.Errorf("failed to write dirty tasks: %w", err)
 			}
 		}
@@ -168,7 +156,7 @@ func runEdit(cmd *cobra.Command, taskID, newBody string) error {
 			return err
 		}
 	} else {
-		fmt.Fprintf(w, "No changes to task %s\n", task.ShortID(resolvedID))
+		fmt.Fprintf(w, "No changes to task %s\n", task.ShortID(taskID))
 	}
 
 	return nil

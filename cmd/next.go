@@ -41,28 +41,24 @@ func runNext(w io.Writer, projectName, roleFilter string) error {
 		return err
 	}
 
-	// Ensure free-tasks exists; if not, run repair to generate it
 	freePath := paths.FreeTasksFile
 	if _, err := os.Stat(freePath); os.IsNotExist(err) {
-		// Run repair to generate lists
 		if err := runRepair(w, paths.TasksDir, paths.RootTasksFile, freePath, "text"); err != nil {
 			return fmt.Errorf("unable to generate master lists: %w", err)
 		}
 	}
 
-	// Read free tasks list
 	data, err := os.ReadFile(freePath)
 	if err != nil {
 		return fmt.Errorf("unable to read %s: %w", freePath, err)
 	}
 
-	parser := task.NewParser()
-	tasks, err := parser.LoadTasks(paths.TasksDir)
-	if err != nil {
+	db := task.NewTaskDB(paths.TasksDir)
+	if err := db.LoadAllIfEmpty(); err != nil {
 		return fmt.Errorf("failed to load tasks: %w", err)
 	}
 
-	parsed := task.ParseFreeList(string(data), tasks)
+	parsed := task.ParseFreeList(string(data), db.GetAll())
 	if len(parsed.TaskIDs) == 0 {
 		fmt.Fprintln(w, "No free tasks found")
 		return nil
@@ -72,11 +68,12 @@ func runNext(w io.Writer, projectName, roleFilter string) error {
 		task *task.Task
 		path string
 	}
-	candidatesParsed := []candidate{}
+	var candidatesParsed []candidate
 	var hasOwnerTasks bool
+
 	for _, taskID := range parsed.TaskIDs {
-		t, exists := tasks[taskID]
-		if !exists {
+		t, err := db.Get(taskID)
+		if err != nil {
 			continue
 		}
 
@@ -85,16 +82,12 @@ func runNext(w io.Writer, projectName, roleFilter string) error {
 			hasOwnerTasks = true
 		}
 
-		// If role filter specified, check if it matches
 		if roleFilter != "" {
 			if taskRole != roleFilter {
 				continue
 			}
-		} else {
-			// Skip owner tasks by default
-			if taskRole == "owner" {
-				continue
-			}
+		} else if taskRole == "owner" {
+			continue
 		}
 
 		candidatesParsed = append(candidatesParsed, candidate{
@@ -124,8 +117,8 @@ func runNext(w io.Writer, projectName, roleFilter string) error {
 	})
 
 	selectedTask := candidatesParsed[0].task
-
 	role := selectedTask.GetEffectiveRole()
+
 	if role != "" {
 		rolePath := filepath.Join(paths.RolesDir, role+".md")
 		roleData, err := os.ReadFile(rolePath)
@@ -145,8 +138,6 @@ func runNext(w io.Writer, projectName, roleFilter string) error {
 	}
 
 	fmt.Fprintf(w, "\nYour task is %s. Here's the description of that task:\n\n", selectedTask.ID)
-
-	// Print task content
 	fmt.Fprint(w, selectedTask.Content())
 
 	for i, todo := range selectedTask.TodoItems {

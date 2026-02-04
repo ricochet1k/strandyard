@@ -28,7 +28,8 @@ type projectPaths struct {
 }
 
 type projectMap struct {
-	Repos map[string]string `json:"repos"`
+	Repos       map[string]string `json:"repos"`
+	LocalPaths  map[string]string `json:"local_paths,omitempty"`
 }
 
 func resolveProjectPaths(projectName string) (projectPaths, error) {
@@ -58,6 +59,19 @@ func resolveProjectPaths(projectName string) (projectPaths, error) {
 }
 
 func projectPathsForName(projectName string) (projectPaths, error) {
+	// Check if this is a local project registered in projects.json
+	cfg, err := loadProjectMap()
+	if err != nil {
+		return projectPaths{}, err
+	}
+	if gitRoot, ok := cfg.LocalPaths[projectName]; ok {
+		localDir := filepath.Join(gitRoot, ".strand")
+		if info, err := os.Stat(localDir); err == nil && info.IsDir() {
+			return projectPathsFromBase(localDir, projectName, gitRoot, storageLocal)
+		}
+	}
+
+	// Fall back to global projects directory
 	dir, err := projectsDir()
 	if err != nil {
 		return projectPaths{}, err
@@ -144,7 +158,7 @@ func loadProjectMap() (projectMap, error) {
 	data, err := os.ReadFile(path)
 	if err != nil {
 		if os.IsNotExist(err) {
-			return projectMap{Repos: map[string]string{}}, nil
+			return projectMap{Repos: map[string]string{}, LocalPaths: map[string]string{}}, nil
 		}
 		return projectMap{}, fmt.Errorf("failed to read project map: %w", err)
 	}
@@ -154,6 +168,9 @@ func loadProjectMap() (projectMap, error) {
 	}
 	if cfg.Repos == nil {
 		cfg.Repos = map[string]string{}
+	}
+	if cfg.LocalPaths == nil {
+		cfg.LocalPaths = map[string]string{}
 	}
 	return cfg, nil
 }
@@ -165,6 +182,9 @@ func saveProjectMap(cfg projectMap) error {
 	}
 	if cfg.Repos == nil {
 		cfg.Repos = map[string]string{}
+	}
+	if cfg.LocalPaths == nil {
+		cfg.LocalPaths = map[string]string{}
 	}
 	dir := filepath.Dir(path)
 	if err := os.MkdirAll(dir, 0o755); err != nil {

@@ -28,6 +28,36 @@ func TestResolveProjectPaths_LocalMemmd(t *testing.T) {
 	}
 }
 
+func TestResolveProjectPaths_LocalByName(t *testing.T) {
+	// Test that --project <name> works for local projects from anywhere
+	repo, _ := setupTestEnv(t)
+	projectName := filepath.Base(repo)
+
+	if err := runInit(io.Discard, initOptions{StorageMode: storageLocal}); err != nil {
+		t.Fatalf("runInit failed: %v", err)
+	}
+
+	// Resolve by explicit project name (simulating --project flag from outside repo)
+	paths, err := projectPathsForName(projectName)
+	if err != nil {
+		t.Fatalf("projectPathsForName(%q) failed: %v", projectName, err)
+	}
+
+	expectedBase := filepath.Join(repo, ".strand")
+	if paths.BaseDir != expectedBase {
+		t.Fatalf("expected base %s, got %s", expectedBase, paths.BaseDir)
+	}
+	if paths.Storage != storageLocal {
+		t.Fatalf("expected storage %s, got %s", storageLocal, paths.Storage)
+	}
+	if paths.GitRoot != repo {
+		t.Fatalf("expected git root %s, got %s", repo, paths.GitRoot)
+	}
+	if paths.ProjectName != projectName {
+		t.Fatalf("expected project name %s, got %s", projectName, paths.ProjectName)
+	}
+}
+
 func TestResolveProjectPaths_GlobalMapping(t *testing.T) {
 	// Replaces manual setup with shared helper that uses real init
 	_ = setupTestProject(t, initOptions{
@@ -103,11 +133,12 @@ func TestRunInit_LocalStoragePreset(t *testing.T) {
 		t.Fatalf("expected preset role file to be copied: %v", err)
 	}
 
-	mapPath, err := projectMapPath()
+	cfg, err := loadProjectMap()
 	if err != nil {
-		t.Fatalf("projectMapPath failed: %v", err)
+		t.Fatalf("loadProjectMap failed: %v", err)
 	}
-	if _, err := os.Stat(mapPath); !os.IsNotExist(err) {
-		t.Fatalf("expected no project map for local init")
+	projectName := filepath.Base(repo)
+	if cfg.LocalPaths[projectName] != repo {
+		t.Fatalf("expected local project %q to be registered at %q, got %q", projectName, repo, cfg.LocalPaths[projectName])
 	}
 }

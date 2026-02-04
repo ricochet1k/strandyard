@@ -38,59 +38,50 @@ func init() {
 }
 
 func runRepair(w io.Writer, tasksRoot, rootsFile, freeFile, outFormat string) error {
-	// Parse all tasks
-	parser := task.NewParser()
-	tasks, err := parser.LoadTasks(tasksRoot)
-	if err != nil {
+	db := task.NewTaskDB(tasksRoot)
+	if err := db.LoadAllIfEmpty(); err != nil {
 		return fmt.Errorf("failed to load tasks: %w", err)
 	}
 
-	// Update parent blockers from incomplete subtasks
-	if _, err := task.UpdateBlockersFromChildren(tasks); err != nil {
+	if _, err := db.SyncBlockersFromChildren(); err != nil {
 		return fmt.Errorf("failed to update blockers from subtasks: %w", err)
 	}
 
-	// Update parent TODO entries from subtasks
-	if _, err := task.UpdateAllParentTodoEntries(tasks); err != nil {
+	if _, err := task.UpdateAllParentTodoEntries(db.GetAll()); err != nil {
 		return fmt.Errorf("failed to update parent TODO entries: %w", err)
 	}
 
-	// Fix missing references, then validate tasks
 	rolesDir := filepath.Join(filepath.Dir(tasksRoot), "roles")
-	validator := task.NewValidatorWithRoles(tasks, rolesDir)
+	validator := task.NewValidatorWithRoles(db.GetAll(), rolesDir)
 	fixed := validator.FixMissingReferences()
-	errors := validator.ValidateAndRepair()
+	validationErrors := validator.ValidateAndRepair()
 
 	var repairedCount int
+	var err error
 	if repairAll {
-		// Persist repaired tasks at the end of the run
 		fmt.Printf("Writing all tasks...")
-		repairedCount, err = task.WriteAllTasks(tasks)
+		repairedCount, err = db.SaveAll()
 	} else {
-		// Persist repaired tasks at the end of the run
-		repairedCount, err = task.WriteDirtyTasks(tasks)
+		repairedCount, err = db.SaveDirty()
 	}
 	if err != nil {
 		return fmt.Errorf("failed to write repaired tasks: %w", err)
 	}
 
-	// Generate master lists
-	if err := task.GenerateMasterLists(tasks, tasksRoot, rootsFile, freeFile); err != nil {
+	if err := task.GenerateMasterLists(db.GetAll(), tasksRoot, rootsFile, freeFile); err != nil {
 		return fmt.Errorf("failed to generate master lists: %w", err)
 	}
 
-	// Report repairs to missing references
 	if len(fixed) > 0 && outFormat != "json" {
 		for _, e := range fixed {
 			fmt.Fprintln(w, "ERROR:", e.Error())
 		}
 	}
 
-	// Report errors
-	if len(errors) > 0 {
+	if len(validationErrors) > 0 {
 		if outFormat == "json" {
-			errMsgs := make([]string, len(errors))
-			for i, e := range errors {
+			errMsgs := make([]string, len(validationErrors))
+			for i, e := range validationErrors {
 				errMsgs[i] = e.Error()
 			}
 			payload := map[string]interface{}{"errors": errMsgs}
@@ -104,19 +95,16 @@ func runRepair(w io.Writer, tasksRoot, rootsFile, freeFile, outFormat string) er
 			b, _ := json.MarshalIndent(payload, "", "  ")
 			fmt.Fprintln(w, string(b))
 		} else {
-			for _, e := range errors {
+			for _, e := range validationErrors {
 				fmt.Fprintln(w, "ERROR:", e.Error())
 			}
 		}
-		return fmt.Errorf("repair failed: %d error(s)", len(errors))
+		return fmt.Errorf("repair failed: %d error(s)", len(validationErrors))
 	}
 
-	// Success output
 	if outFormat == "json" {
-		// Get lists for output
-		roots := []string{}
-		free := []string{}
-		for id, t := range tasks {
+		var roots, free []string
+		for id, t := range db.GetAll() {
 			if t.Meta.Parent == "" {
 				roots = append(roots, id)
 			}

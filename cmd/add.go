@@ -163,15 +163,13 @@ func runAdd(w io.Writer, opts addOptions) error {
 		return err
 	}
 
-	parser := task.NewParser()
-	tasks, err := parser.LoadTasks(paths.TasksDir)
-	if err != nil {
+	db := task.NewTaskDB(paths.TasksDir)
+	if err := db.LoadAllIfEmpty(); err != nil {
 		return err
 	}
 
-	// Validate --every flag first to provide early hints
-	if err := validateEvery(opts.Every, paths.BaseDir, tasks); err != nil {
-		os.Exit(2) // Exit code 2 for --every parse/validation failures per design
+	if err := validateEvery(opts.Every, paths.BaseDir, db.GetAll()); err != nil {
+		os.Exit(2)
 	}
 
 	tmplName := strings.TrimSpace(opts.TemplateName)
@@ -250,20 +248,18 @@ func runAdd(w io.Writer, opts addOptions) error {
 	parent := strings.TrimSpace(opts.Parent)
 	parentDir := paths.TasksDir
 	if parent != "" {
-		resolvedParent, err := task.ResolveTaskID(tasks, parent)
+		resolvedParent, err := db.ResolveID(parent)
 		if err != nil {
 			return fmt.Errorf("parent task %s does not exist: %w", parent, err)
 		}
 		parent = resolvedParent
-		parentTask, ok := tasks[parent]
-		if !ok {
-			return fmt.Errorf("parent task %s does not exist", parent)
+		parentTask, err := db.Get(parent)
+		if err != nil {
+			return fmt.Errorf("parent task %s does not exist: %w", parent, err)
 		}
 		parentDir = parentTask.Dir
 	}
 
-	// We don't have id_prefix in task.Metadata yet, but it was in templateDefaults.
-	// For now, default to "T" or "E" if the template name suggests it.
 	prefix := "T"
 	if strings.Contains(strings.ToLower(tmplName), "epic") {
 		prefix = "E"
@@ -282,7 +278,7 @@ func runAdd(w io.Writer, opts addOptions) error {
 		return fmt.Errorf("failed to create task directory: %w", err)
 	}
 
-	blockers, err := resolveTaskIDs(tasks, normalizeTaskIDs(opts.Blockers))
+	blockers, err := db.ResolveIDs(normalizeTaskIDs(opts.Blockers))
 	if err != nil {
 		return err
 	}
@@ -349,15 +345,14 @@ func runAdd(w io.Writer, opts addOptions) error {
 	}
 
 	if parent != "" {
-		newTask, err := parser.ParseFile(taskFile)
-		if err != nil {
-			return fmt.Errorf("failed to parse new task: %w", err)
+		// Load the newly created task into the DB
+		if _, err := db.Load(id); err != nil {
+			return fmt.Errorf("failed to load new task: %w", err)
 		}
-		tasks[newTask.ID] = newTask
-		if _, err := task.UpdateParentTodoEntries(tasks, parent); err != nil {
+		if _, err := db.UpdateParentTodos(parent); err != nil {
 			return fmt.Errorf("failed to update parent task TODO entries: %w", err)
 		}
-		if _, err := task.WriteDirtyTasks(tasks); err != nil {
+		if _, err := db.SaveDirty(); err != nil {
 			return fmt.Errorf("failed to write parent task updates: %w", err)
 		}
 	}
@@ -389,30 +384,6 @@ func normalizeTaskIDs(items []string) []string {
 	}
 	sort.Strings(out)
 	return out
-}
-
-func resolveTaskIDs(tasks map[string]*task.Task, inputs []string) ([]string, error) {
-	if len(inputs) == 0 {
-		return nil, nil
-	}
-	if tasks == nil {
-		return nil, fmt.Errorf("failed to resolve task IDs: no tasks loaded")
-	}
-	seen := map[string]struct{}{}
-	resolved := make([]string, 0, len(inputs))
-	for _, input := range inputs {
-		id, err := task.ResolveTaskID(tasks, input)
-		if err != nil {
-			return nil, err
-		}
-		if _, ok := seen[id]; ok {
-			continue
-		}
-		seen[id] = struct{}{}
-		resolved = append(resolved, id)
-	}
-	sort.Strings(resolved)
-	return resolved, nil
 }
 
 func renderTemplateBody(body string, data map[string]string) string {

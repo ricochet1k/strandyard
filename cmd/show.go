@@ -3,7 +3,6 @@ package cmd
 import (
 	"fmt"
 	"io"
-	"os"
 
 	"github.com/ricochet1k/strandyard/pkg/task"
 	"github.com/spf13/cobra"
@@ -32,27 +31,13 @@ func runShow(w io.Writer, projectName, taskID string) error {
 		return err
 	}
 
-	// Load all tasks to find the one we want
-	parser := task.NewParser()
-	tasks, err := parser.LoadTasks(paths.TasksDir)
-	if err != nil {
-		return fmt.Errorf("failed to load tasks: %w", err)
-	}
-
-	resolvedID, err := task.ResolveTaskID(tasks, taskID)
+	db := task.NewTaskDB(paths.TasksDir)
+	id, err := db.ResolveID(taskID)
 	if err != nil {
 		return err
 	}
-	taskID = resolvedID
 
-	// Find the task by ID
-	t, exists := tasks[taskID]
-	if !exists {
-		return fmt.Errorf("task not found: %s", task.ShortID(taskID))
-	}
-
-	// Read and print the full file contents
-	content, err := os.ReadFile(t.FilePath)
+	content, err := db.ReadRaw(id)
 	if err != nil {
 		return fmt.Errorf("failed to read task file: %w", err)
 	}
