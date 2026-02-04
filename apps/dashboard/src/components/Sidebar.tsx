@@ -80,8 +80,9 @@ export default function Sidebar(props: SidebarProps) {
         <div class="sidebar-section">
           <p class="sidebar-section-title">Filters</p>
           <div class="sidebar-filter">
-            <label>Status</label>
+            <label for="filter-status">Status</label>
             <select
+              id="filter-status"
               value={props.filterStatus}
               onChange={(e) => props.onFilterStatusChange(e.currentTarget.value as any)}
             >
@@ -92,8 +93,9 @@ export default function Sidebar(props: SidebarProps) {
           </div>
 
           <div class="sidebar-filter">
-            <label>Role</label>
+            <label for="filter-role">Role</label>
             <select
+              id="filter-role"
               value={props.filterRole}
               onChange={(e) => props.onFilterRoleChange(e.currentTarget.value)}
             >
@@ -105,8 +107,9 @@ export default function Sidebar(props: SidebarProps) {
           </div>
 
           <div class="sidebar-filter">
-            <label>Priority</label>
+            <label for="filter-priority">Priority</label>
             <select
+              id="filter-priority"
               value={props.filterPriority}
               onChange={(e) => props.onFilterPriorityChange(e.currentTarget.value)}
             >

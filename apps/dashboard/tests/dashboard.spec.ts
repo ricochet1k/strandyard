@@ -97,41 +97,50 @@ const setupApiMocks = async (
     onPatch?: (payload: Record<string, unknown>) => void
   } = {},
 ) => {
-  await page.route("**/api/projects", (route) =>
-    route.fulfill({
-      contentType: "application/json",
-      body: JSON.stringify({ projects: [project], current: project.name }),
-    }),
-  )
-
-  await page.route("**/api/tasks**", (route) =>
-    route.fulfill({
-      contentType: "application/json",
-      body: JSON.stringify(tasks),
-    }),
-  )
-
-  await page.route("**/api/task**", async (route) => {
+  await page.route("**/api/**", async (route) => {
     const request = route.request()
-    if (request.method() === "PATCH") {
-      const payload = request.postDataJSON() as Record<string, unknown>
-      options.onPatch?.(payload)
-      const updated = {
-        ...taskDetail,
-        ...payload,
-        date_edited: "2026-01-30T10:00:00Z",
-      }
+    const url = new URL(request.url())
+
+    if (url.pathname === "/api/projects") {
       await route.fulfill({
         contentType: "application/json",
-        body: JSON.stringify(updated),
+        body: JSON.stringify({ projects: [project], current: project.name }),
       })
       return
     }
 
-    await route.fulfill({
-      contentType: "application/json",
-      body: JSON.stringify(taskDetail),
-    })
+    if (url.pathname === "/api/tasks") {
+      await route.fulfill({
+        contentType: "application/json",
+        body: JSON.stringify(tasks),
+      })
+      return
+    }
+
+    if (url.pathname === "/api/task") {
+      if (request.method() === "PATCH") {
+        const payload = request.postDataJSON() as Record<string, unknown>
+        options.onPatch?.(payload)
+        const updated = {
+          ...taskDetail,
+          ...payload,
+          date_edited: "2026-01-30T10:00:00Z",
+        }
+        await route.fulfill({
+          contentType: "application/json",
+          body: JSON.stringify(updated),
+        })
+        return
+      }
+
+      await route.fulfill({
+        contentType: "application/json",
+        body: JSON.stringify(taskDetail),
+      })
+      return
+    }
+
+    await route.fulfill({ status: 404, body: "Not found" })
   })
 }
 

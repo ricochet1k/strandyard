@@ -100,8 +100,9 @@ export default function Editor(props: EditorProps) {
         <div class="editor-container">
           <div class="editor-controls">
             <div class="editor-field">
-              <label>Title</label>
+              <label for="task-title">Title</label>
               <input
+                id="task-title"
                 type="text"
                 class="editor-input"
                 value={task()?.title || ""}
@@ -110,8 +111,9 @@ export default function Editor(props: EditorProps) {
             </div>
 
             <div class="editor-field">
-              <label>Role</label>
+              <label for="task-role">Role</label>
               <input
+                id="task-role"
                 type="text"
                 class="editor-input"
                 value={task()?.role || ""}
@@ -120,8 +122,9 @@ export default function Editor(props: EditorProps) {
             </div>
 
             <div class="editor-field">
-              <label>Priority</label>
+              <label for="task-priority">Priority</label>
               <select
+                id="task-priority"
                 class="editor-input"
                 value={task()?.priority || ""}
                 onChange={(e) => updateTaskField("priority", e.currentTarget.value)}
@@ -134,8 +137,9 @@ export default function Editor(props: EditorProps) {
             </div>
 
             <div class="editor-field">
-              <label>Status</label>
+              <label for="task-status">Status</label>
               <select
+                id="task-status"
                 class="editor-input"
                 value={task()?.completed ? "done" : "active"}
                 onChange={(e) => updateTaskField("completed", e.currentTarget.value === "done")}
