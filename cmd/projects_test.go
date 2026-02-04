@@ -3,6 +3,7 @@ package cmd
 import (
 	"io"
 	"os"
+	"os/exec"
 	"path/filepath"
 	"strings"
 	"testing"
@@ -167,5 +168,52 @@ func TestRunInit_LocalStoragePreset(t *testing.T) {
 	projectName := filepath.Base(repo)
 	if cfg.LocalPaths[projectName] != repo {
 		t.Fatalf("expected local project %q to be registered at %q, got %q", projectName, repo, cfg.LocalPaths[projectName])
+	}
+}
+
+func TestResolveProjectPaths_LocalSiblingByName(t *testing.T) {
+	base := t.TempDir()
+	configDir := filepath.Join(base, "config")
+	t.Setenv("STRAND_CONFIG_DIR", configDir)
+
+	repo := filepath.Join(base, "strandyard")
+	if err := os.MkdirAll(repo, 0o755); err != nil {
+		t.Fatalf("failed to create repo: %v", err)
+	}
+	initGitRepoAt(t, repo)
+	if resolved, err := filepath.EvalSymlinks(repo); err == nil {
+		repo = resolved
+	}
+	if err := ensureProjectDirs(filepath.Join(repo, ".strand")); err != nil {
+		t.Fatalf("ensureProjectDirs failed: %v", err)
+	}
+
+	otherRepo := filepath.Join(base, "other")
+	if err := os.MkdirAll(otherRepo, 0o755); err != nil {
+		t.Fatalf("failed to create other repo: %v", err)
+	}
+	initGitRepoAt(t, otherRepo)
+	chdir(t, otherRepo)
+
+	paths, err := projectPathsForName("strandyard")
+	if err != nil {
+		t.Fatalf("projectPathsForName failed: %v", err)
+	}
+
+	expectedBase := filepath.Join(repo, ".strand")
+	if paths.BaseDir != expectedBase {
+		t.Fatalf("expected base %s, got %s", expectedBase, paths.BaseDir)
+	}
+	if paths.GitRoot != repo {
+		t.Fatalf("expected git root %s, got %s", repo, paths.GitRoot)
+	}
+}
+
+func initGitRepoAt(t *testing.T, repo string) {
+	t.Helper()
+	cmd := exec.Command("git", "init")
+	cmd.Dir = repo
+	if output, err := cmd.CombinedOutput(); err != nil {
+		t.Fatalf("git init failed: %s", string(output))
 	}
 }

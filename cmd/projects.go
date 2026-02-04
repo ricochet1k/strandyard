@@ -98,16 +98,66 @@ func projectPathsForLocalDir(projectName string) (projectPaths, bool, error) {
 	if projectName == "" {
 		return projectPaths{}, false, nil
 	}
+	if filepath.IsAbs(projectName) {
+		return projectPathsForLocalCandidate(projectName, projectName)
+	}
 
-	cwd, err := os.Getwd()
+	searchRoots, err := projectSearchRoots()
 	if err != nil {
 		return projectPaths{}, false, err
 	}
 
-	candidate := projectName
-	if !filepath.IsAbs(candidate) {
-		candidate = filepath.Join(cwd, candidate)
+	useOnlyCwd := strings.ContainsRune(projectName, filepath.Separator)
+	for _, root := range searchRoots {
+		if useOnlyCwd && root.kind != searchRootCwd {
+			continue
+		}
+		candidate := filepath.Join(root.path, projectName)
+		paths, ok, err := projectPathsForLocalCandidate(candidate, projectName)
+		if ok || err != nil {
+			return paths, ok, err
+		}
 	}
+
+	return projectPaths{}, false, nil
+}
+
+type searchRootKind int
+
+const (
+	searchRootCwd searchRootKind = iota
+	searchRootGitRoot
+	searchRootGitParent
+)
+
+type projectSearchRoot struct {
+	path string
+	kind searchRootKind
+}
+
+func projectSearchRoots() ([]projectSearchRoot, error) {
+	cwd, err := os.Getwd()
+	if err != nil {
+		return nil, err
+	}
+	roots := []projectSearchRoot{{path: cwd, kind: searchRootCwd}}
+
+	gitRoot, err := gitRootDir()
+	if err != nil {
+		return roots, nil
+	}
+	if gitRoot != cwd {
+		roots = append(roots, projectSearchRoot{path: gitRoot, kind: searchRootGitRoot})
+	}
+	parent := filepath.Dir(gitRoot)
+	if parent != "" && parent != gitRoot {
+		roots = append(roots, projectSearchRoot{path: parent, kind: searchRootGitParent})
+	}
+
+	return roots, nil
+}
+
+func projectPathsForLocalCandidate(candidate, projectName string) (projectPaths, bool, error) {
 	info, err := os.Stat(candidate)
 	if err != nil || !info.IsDir() {
 		return projectPaths{}, false, nil
