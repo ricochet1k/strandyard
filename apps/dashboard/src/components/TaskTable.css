@@ -1,0 +1,231 @@
+.task-table {
+  width: 100%;
+  border-collapse: collapse;
+  background: transparent;
+}
+
+.task-table thead {
+  background: var(--bg-accent);
+  border-bottom: 1px solid var(--border);
+  position: sticky;
+  top: 0;
+  z-index: 10;
+}
+
+.task-table th {
+  padding: 8px;
+  text-align: left;
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--muted);
+  border: none;
+}
+
+.task-col-header {
+  padding: 0;
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--muted);
+  border: none;
+  background: transparent;
+  text-align: left;
+  cursor: pointer;
+  transition: color 0.2s ease;
+  white-space: nowrap;
+  width: 100%;
+}
+
+.task-col-header:hover {
+  color: var(--accent-strong);
+}
+
+.task-col-header.active {
+  color: var(--accent-strong);
+}
+
+.tree-item {
+  opacity: 1;
+  transition: opacity 0.25s;
+  will-change: transform;
+  transform: translate(0px, 0px);
+}
+
+.tree-item-move,
+.tree-item-exit {
+  transition: transform 0.25s, opacity 0.25s;
+}
+
+.tree-item.tree-item-enter,
+.tree-item-exit-to {
+  opacity: 0;
+  transform: translateX(-30px);
+}
+
+.tree-item.selected {
+  background: rgba(214, 127, 68, 0.15) !important;
+}
+
+.task-table tbody tr {
+  border-bottom: 1px solid var(--border);
+  transition: background 0.2s ease, opacity 0.2s ease;
+}
+
+.task-table tbody tr.done {
+  opacity: 0.5;
+}
+
+.task-table tbody tr.blocked {
+  opacity: 0.7;
+  background: rgba(231, 140, 80, 0.124);
+}
+
+.task-table tbody tr:hover {
+  background: rgba(109, 96, 193, 0.221);
+}
+
+.task-table td {
+  padding: 4px 4px;
+  border: none;
+  text-align: left;
+}
+
+.task-col-title {
+  min-width: 120px;
+  width: 35%;
+  max-width: 400px;
+}
+
+.task-title-cell {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  overflow: hidden;
+}
+
+.task-toggle-spacer {
+  width: 24px;
+  height: 24px;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.tree-toggle {
+  border: none;
+  background: transparent;
+  color: var(--accent);
+  cursor: pointer;
+  padding: 0;
+  font-size: 14px;
+  font-weight: 600;
+  transition: color 0.2s ease;
+  width: 24px;
+  height: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.tree-toggle:hover {
+  color: var(--accent-strong);
+}
+
+.task-link {
+  background: none;
+  border: none;
+  padding: 0;
+  color: var(--text);
+  cursor: pointer;
+  text-align: left;
+  font-family: inherit;
+  font-size: 13px;
+  transition: color 0.2s ease;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  flex: 1;
+  min-width: 0;
+}
+
+.task-link:hover {
+  color: var(--accent);
+}
+
+.task-col-id {
+  width: 70px;
+  white-space: nowrap;
+  font-size: 12px;
+}
+
+.task-col-role {
+  width: 100px;
+  white-space: nowrap;
+  font-size: 12px;
+}
+
+.task-col-status {
+  width: 85px;
+  white-space: nowrap;
+  font-size: 12px;
+}
+
+.task-col-priority {
+  width: 85px;
+  white-space: nowrap;
+  font-size: 12px;
+}
+
+.status-badge {
+  display: inline-block;
+  padding: 4px 10px;
+  border-radius: 999px;
+  font-size: 11px;
+  text-transform: uppercase;
+  font-weight: 600;
+  letter-spacing: 0.05em;
+}
+
+.status-badge.status-active {
+  background: rgba(74, 158, 255, 0.15);
+  color: #2563eb;
+}
+
+.status-badge.status-done {
+  background: rgba(47, 123, 88, 0.15);
+  color: var(--green);
+}
+
+.status-badge.status-blocked {
+  background: rgba(217, 107, 92, 0.15);
+  color: #b63a2f;
+}
+
+.priority {
+  padding: 6px 10px;
+  border-radius: 999px;
+  font-size: 12px;
+  text-transform: uppercase;
+  font-weight: 600;
+  background: var(--accent-soft);
+  color: var(--accent-strong);
+}
+
+.priority.high {
+  background: rgba(217, 107, 92, 0.2);
+  color: #b63a2f;
+}
+
+.priority.medium {
+  background: rgba(214, 127, 68, 0.18);
+  color: #b55b28;
+}
+
+.priority.low {
+  background: rgba(47, 123, 88, 0.18);
+  color: #2f7b58;
+}

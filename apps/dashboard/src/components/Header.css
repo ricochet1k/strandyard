@@ -1,0 +1,73 @@
+.top-bar {
+  margin: 10px 20px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 24px;
+}
+
+.kicker {
+  font-variant: small-caps;
+  /* letter-spacing: 0.22em; */
+  font-weight: 600;
+  font-size: 36px;
+  color: var(--accent-strong);
+  margin: 0;
+}
+
+h1 {
+  font-family: "Space Grotesk", sans-serif;
+  font-size: clamp(32px, 4vw, 44px);
+  margin: 0 0 8px;
+}
+
+.subhead {
+  margin: 0;
+  color: var(--muted);
+  max-width: 520px;
+  line-height: 1.6;
+}
+
+.status-panel {
+  background: var(--panel);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 6px 10px;
+  display: flex;
+  gap: 12px;
+  align-items: center;
+  box-shadow: var(--shadow);
+}
+
+.status-dot {
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  background: #d96b5c;
+  box-shadow: 0 0 0 4px rgba(217, 107, 92, 0.2);
+}
+
+.status-dot.online {
+  background: #2f7b58;
+  box-shadow: 0 0 0 4px rgba(47, 123, 88, 0.2);
+}
+
+.status-title {
+  margin: 0;
+  font-size: 13px;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  color: var(--muted);
+}
+
+.status-detail {
+  margin: 0;
+  font-size: 15px;
+  font-weight: 600;
+}
+
+@media (max-width: 768px) {
+  .top-bar {
+    flex-direction: column;
+  }
+}

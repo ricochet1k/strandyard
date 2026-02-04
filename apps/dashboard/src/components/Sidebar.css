@@ -1,0 +1,109 @@
+.sidebar {
+  grid-area: sidebar;
+  background: var(--panel);
+  border: 1px solid var(--border);
+  box-shadow: var(--shadow);
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  overflow-y: auto;
+}
+
+.sidebar-section {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding-bottom: 12px;
+  border-bottom: 1px solid var(--border);
+}
+
+.sidebar-section:last-child {
+  border-bottom: none;
+  padding-bottom: 0;
+}
+
+.sidebar-section-title {
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--muted);
+  margin: 0;
+}
+
+.sidebar-nav {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.sidebar-nav-item {
+  padding: 8px 10px;
+  border: 1px solid var(--border);
+  background: var(--bg-accent);
+  border-radius: 10px;
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+  text-align: left;
+  transition: all 0.2s ease;
+  color: var(--text);
+}
+
+.sidebar-nav-item:hover {
+  border-color: var(--accent);
+  background: #fff3e8;
+}
+
+.sidebar-nav-item.active {
+  border-color: var(--accent);
+  background: #fff3e8;
+  color: var(--accent-strong);
+  box-shadow: 0 4px 12px rgba(214, 127, 68, 0.15);
+}
+
+.sidebar-filter {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.sidebar-filter label {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--muted);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.sidebar-filter select,
+.sidebar-filter input,
+.search-input {
+  padding: 8px 10px;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  background: var(--bg-accent);
+  font-size: 13px;
+  font-family: inherit;
+  color: var(--text);
+  cursor: pointer;
+  outline: none;
+  transition: border-color 0.2s ease;
+}
+
+.sidebar-filter select:hover,
+.sidebar-filter select:focus,
+.sidebar-filter input:hover,
+.sidebar-filter input:focus,
+.search-input:focus {
+  border-color: var(--accent);
+}
+
+.search-input {
+  width: 100%;
+}
+
+.search-input::placeholder {
+  color: var(--muted);
+}

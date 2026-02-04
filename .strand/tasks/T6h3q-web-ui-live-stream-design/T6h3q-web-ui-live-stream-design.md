@@ -1,16 +1,9 @@
 ---
-type: leaf
 role: architect
 priority: low
+completed: true
 parent: ""
-blockers: []
-blocks: []
-date_created: 2026-01-28T12:00:00Z
-date_edited: 2026-01-28T12:00:00Z
-owner_approval: false
-completed: false
 ---
-
 # Design web server with live streaming updates
 
 ## Context

@@ -1,0 +1,143 @@
+.editor-pane {
+  grid-area: editor;
+  background: var(--panel);
+  /* border-radius: 22px; */
+  border: 1px solid var(--border);
+  /* box-shadow: var(--shadow); */
+  display: flex;
+  flex-direction: column;
+  min-height: 540px;
+}
+
+.pane-header {
+  padding: 14px 16px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-bottom: 1px solid var(--border);
+  gap: 12px;
+}
+
+.pane-header h2 {
+  font-family: "Space Grotesk", sans-serif;
+  margin: 0;
+  font-size: 20px;
+}
+
+.detail {
+  margin: 6px 0 0;
+  font-size: 13px;
+  color: var(--muted);
+}
+
+.editor-actions {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.sync {
+  font-size: 12px;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  color: var(--muted);
+}
+
+.sync.dirty {
+  color: #b63a2f;
+}
+
+.primary {
+  border: none;
+  background: var(--accent);
+  color: white;
+  padding: 8px 16px;
+  border-radius: 999px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.primary:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.primary:not(:disabled):hover {
+  transform: translateY(-1px);
+  box-shadow: 0 10px 20px rgba(214, 127, 68, 0.25);
+}
+
+.editor-container {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  overflow: hidden;
+}
+
+.editor-controls {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 12px;
+  padding: 16px;
+  border-bottom: 1px solid var(--border);
+  background: var(--bg-accent);
+}
+
+.editor-field {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.editor-field label {
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--muted);
+}
+
+.editor-input {
+  padding: 8px 10px;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: var(--panel);
+  font-size: 13px;
+  font-family: inherit;
+  color: var(--text);
+  outline: none;
+  transition: border-color 0.2s ease;
+}
+
+.editor-input:focus {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 2px rgba(214, 127, 68, 0.1);
+}
+
+.editor {
+  flex: 1;
+  border: none;
+  padding: 16px;
+  font-family: "IBM Plex Sans", sans-serif;
+  font-size: 14px;
+  line-height: 1.6;
+  resize: none;
+  background: transparent;
+  outline: none;
+  overflow-y: auto;
+}
+
+.editor-body {
+  padding: 16px;
+}
+
+.footer {
+  border-top: 1px solid var(--border);
+  padding: 12px 20px 16px;
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  font-size: 12px;
+  color: var(--muted);
+}
