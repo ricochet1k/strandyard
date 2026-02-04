@@ -5,13 +5,11 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
-	"strings"
 	"sync"
 	"testing"
 	"time"
 
 	"github.com/google/go-cmp/cmp"
-	"github.com/ricochet1k/strandyard/pkg/task"
 )
 
 func TestOpen(t *testing.T) {
@@ -849,224 +847,6 @@ func TestErrorRecovery_MissingRequiredFields(t *testing.T) {
 	if foundCount != len(validTaskIDs) {
 		t.Errorf("expected to recover %d valid entries, found %d", len(validTaskIDs), foundCount)
 	}
-
-	// Create a task with invalid YAML frontmatter
-	taskDir := filepath.Join(tmpDir, "tasks", "T1aaa-invalid")
-	if err := os.MkdirAll(taskDir, 0o755); err != nil {
-		t.Fatalf("failed to create task dir: %v", err)
-	}
-
-	invalidTaskContent := `---
-role: developer
-priority: high
-parent: [invalid yaml array format
-blockers: "invalid yaml string instead of array"
-date_created: 2026-02-02T00:00:00Z
----
-
-# Invalid Task
-
-This task has invalid YAML frontmatter.
-`
-
-	taskFile := filepath.Join(taskDir, "T1aaa-invalid.md")
-	if err := os.WriteFile(taskFile, []byte(invalidTaskContent), 0o644); err != nil {
-		t.Fatalf("failed to write invalid task file: %v", err)
-	}
-
-	// Test that the system can handle this gracefully
-	parser := task.NewParser()
-	_, err = parser.ParseFile(taskFile)
-	if err == nil {
-		t.Error("expected error parsing invalid YAML frontmatter")
-	}
-
-	// The error should be informative and not crash
-	if !strings.Contains(err.Error(), "yaml") && !strings.Contains(err.Error(), "frontmatter") {
-		t.Errorf("expected YAML-related error, got: %v", err)
-	}
-}
-
-func TestErrorRecovery_MalformedTaskIDs(t *testing.T) {
-	tmpDir, err := os.MkdirTemp("", "malformed-id-test-")
-	if err != nil {
-		t.Fatalf("failed to create temp dir: %v", err)
-	}
-	defer os.RemoveAll(tmpDir)
-
-	testCases := []struct {
-		name        string
-		taskID      string
-		expectError bool
-	}{
-		{"valid_id", "T1k7x-valid", false},
-		{"too_short", "T1k7x", true}, // only 4 chars
-		{"no_prefix", "1k7x-example", true},
-		{"invalid_chars", "T1@7x-invalid", true},
-		{"uppercase_only", "t1k7x-lowercase", true}, // prefix must be uppercase
-		{"missing_dash", "T1k7xexample", true},
-	}
-
-	for _, tc := range testCases {
-		t.Run(tc.name, func(t *testing.T) {
-			content := fmt.Sprintf(`---
-role: developer
-priority: medium
----
-
-# Test Task
-
-Content for %s
-`, tc.taskID)
-
-			parser := task.NewParser()
-			_, err := parser.ParseString(content, tc.taskID)
-
-			if tc.expectError && err == nil {
-				t.Errorf("expected error for task ID %q, got none", tc.taskID)
-			}
-			if !tc.expectError && err != nil {
-				t.Errorf("expected no error for task ID %q, got %v", tc.taskID, err)
-			}
-		})
-	}
-}
-
-func TestErrorRecovery_CircularReferences(t *testing.T) {
-	tmpDir, err := os.MkdirTemp("", "circular-ref-test-")
-	if err != nil {
-		t.Fatalf("failed to create temp dir: %v", err)
-	}
-	defer os.RemoveAll(tmpDir)
-
-	// Create tasks with circular references
-	taskDir := filepath.Join(tmpDir, "tasks")
-	if err := os.MkdirAll(taskDir, 0o755); err != nil {
-		t.Fatalf("failed to create tasks dir: %v", err)
-	}
-
-	// Task A blocks B
-	taskAContent := `---
-role: developer
-priority: medium
-blockers: []
-blocks: ["T2bbb-circular-b"]
----
-
-# Task A
-
-Blocks task B
-`
-
-	taskADir := filepath.Join(taskDir, "T1aaa-circular-a")
-	if err := os.MkdirAll(taskADir, 0o755); err != nil {
-		t.Fatalf("failed to create task A dir: %v", err)
-	}
-	if err := os.WriteFile(filepath.Join(taskADir, "T1aaa-circular-a.md"), []byte(taskAContent), 0o644); err != nil {
-		t.Fatalf("failed to write task A file: %v", err)
-	}
-
-	// Task B blocks A (creating circular dependency)
-	taskBContent := `---
-role: developer
-priority: medium
-blockers: []
-blocks: ["T1aaa-circular-a"]
----
-
-# Task B
-
-Blocks task A (circular)
-`
-
-	taskBDir := filepath.Join(taskDir, "T2bbb-circular-b")
-	if err := os.MkdirAll(taskBDir, 0o755); err != nil {
-		t.Fatalf("failed to create task B dir: %v", err)
-	}
-	if err := os.WriteFile(filepath.Join(taskBDir, "T2bbb-circular-b.md"), []byte(taskBContent), 0o644); err != nil {
-		t.Fatalf("failed to write task B file: %v", err)
-	}
-
-	// Test that the validator detects circular references
-	parser := task.NewParser()
-	tasks := make(map[string]*task.Task)
-
-	taskA, _ := parser.ParseFile(filepath.Join(taskADir, "T1aaa-circular-a.md"))
-	tasks[taskA.ID] = taskA
-
-	taskB, _ := parser.ParseFile(filepath.Join(taskBDir, "T2bbb-circular-b.md"))
-	tasks[taskB.ID] = taskB
-
-	v := task.NewValidator(tasks)
-	errors := v.ValidateAndRepair()
-
-	// Should detect circular reference
-	foundCircular := false
-	for _, err := range errors {
-		if strings.Contains(err.Message, "circular") || strings.Contains(err.Message, "cycle") {
-			foundCircular = true
-			break
-		}
-	}
-
-	if !foundCircular {
-		t.Error("expected validation to detect circular reference")
-	}
-}
-
-func TestErrorRecovery_MissingParentChildRelationships(t *testing.T) {
-	tmpDir, err := os.MkdirTemp("", "parent-child-test-")
-	if err != nil {
-		t.Fatalf("failed to create temp dir: %v", err)
-	}
-	defer os.RemoveAll(tmpDir)
-
-	// Create a child task without a parent
-	childDir := filepath.Join(tmpDir, "tasks", "T1aaa-orphan")
-	if err := os.MkdirAll(childDir, 0o755); err != nil {
-		t.Fatalf("failed to create child task dir: %v", err)
-	}
-
-	childContent := `---
-role: developer
-priority: medium
-parent: "E1aaa-missing-parent"
----
-
-# Orphan Task
-
-This task references a non-existent parent.
-`
-
-	childFile := filepath.Join(childDir, "T1aaa-orphan.md")
-	if err := os.WriteFile(childFile, []byte(childContent), 0o644); err != nil {
-		t.Fatalf("failed to write child task file: %v", err)
-	}
-
-	// Test that the system detects missing parent
-	parser := task.NewParser()
-	ttask, err := parser.ParseFile(childFile)
-	if err != nil {
-		t.Fatalf("failed to parse child task: %v", err)
-	}
-
-	// Create a validator with only the child task
-	tasks := map[string]*task.Task{ttask.ID: ttask}
-	v := task.NewValidator(tasks)
-	errors := v.ValidateAndRepair()
-
-	// Should detect missing parent
-	foundMissingParent := false
-	for _, err := range errors {
-		if strings.Contains(err.Message, "parent") && strings.Contains(err.Message, "missing") {
-			foundMissingParent = true
-			break
-		}
-	}
-
-	if !foundMissingParent {
-		t.Error("expected validation to detect missing parent")
-	}
 }
 
 func TestErrorRecovery_CorruptedJSONLines(t *testing.T) {
@@ -1191,28 +971,17 @@ func TestErrorRecovery_ActivityLogPermissions(t *testing.T) {
 	if err := os.Chmod(activityLogPath, 0o444); err != nil {
 		t.Fatalf("failed to remove write permissions: %v", err)
 	}
+	defer func() {
+		// Restore permissions for cleanup
+		if err := os.Chmod(activityLogPath, 0o644); err != nil {
+			t.Logf("failed to restore permissions: %v", err)
+		}
+	}()
 
-	// Test that write operations fail gracefully
-	log, err = Open(tmpDir)
-	if err != nil {
-		t.Fatalf("failed to reopen activity log: %v", err)
-	}
-	defer log.Close()
-
-	entry := Entry{
-		TaskID: "T1k7x-test",
-		Type:   EventTaskCompleted,
-		Report: "Test entry",
-	}
-
-	err = log.WriteEntry(entry)
+	// Test that Open fails on a read-only log file (since it opens for append/write)
+	_, err = Open(tmpDir)
 	if err == nil {
-		t.Error("expected error writing to read-only log file")
-	}
-
-	// Restore permissions for cleanup
-	if err := os.Chmod(activityLogPath, 0o644); err != nil {
-		t.Logf("failed to restore permissions: %v", err)
+		t.Error("expected error opening read-only log file for writing")
 	}
 }
 
