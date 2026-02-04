@@ -58,6 +58,33 @@ func TestResolveProjectPaths_LocalByName(t *testing.T) {
 	}
 }
 
+func TestResolveProjectPaths_LocalByNameFromCwd(t *testing.T) {
+	repo, _ := setupTestEnv(t)
+	projectName := filepath.Base(repo)
+
+	base := filepath.Join(repo, ".strand")
+	if err := ensureProjectDirs(base); err != nil {
+		t.Fatalf("ensureProjectDirs failed: %v", err)
+	}
+
+	chdir(t, filepath.Dir(repo))
+
+	paths, err := projectPathsForName(projectName)
+	if err != nil {
+		t.Fatalf("projectPathsForName(%q) failed: %v", projectName, err)
+	}
+
+	if paths.BaseDir != base {
+		t.Fatalf("expected base %s, got %s", base, paths.BaseDir)
+	}
+	if paths.Storage != storageLocal {
+		t.Fatalf("expected storage %s, got %s", storageLocal, paths.Storage)
+	}
+	if paths.GitRoot != repo {
+		t.Fatalf("expected git root %s, got %s", repo, paths.GitRoot)
+	}
+}
+
 func TestResolveProjectPaths_GlobalMapping(t *testing.T) {
 	// Replaces manual setup with shared helper that uses real init
 	_ = setupTestProject(t, initOptions{

@@ -71,6 +71,10 @@ func projectPathsForName(projectName string) (projectPaths, error) {
 		}
 	}
 
+	if paths, ok, err := projectPathsForLocalDir(projectName); ok || err != nil {
+		return paths, err
+	}
+
 	// Fall back to global projects directory
 	dir, err := projectsDir()
 	if err != nil {
@@ -88,6 +92,59 @@ func projectPathsForName(projectName string) (projectPaths, error) {
 		return projectPaths{}, fmt.Errorf("project path %s is not a directory", base)
 	}
 	return projectPathsFromBase(base, projectName, "", storageGlobal)
+}
+
+func projectPathsForLocalDir(projectName string) (projectPaths, bool, error) {
+	if projectName == "" {
+		return projectPaths{}, false, nil
+	}
+
+	cwd, err := os.Getwd()
+	if err != nil {
+		return projectPaths{}, false, err
+	}
+
+	candidate := projectName
+	if !filepath.IsAbs(candidate) {
+		candidate = filepath.Join(cwd, candidate)
+	}
+	info, err := os.Stat(candidate)
+	if err != nil || !info.IsDir() {
+		return projectPaths{}, false, nil
+	}
+
+	baseDir := candidate
+	gitRoot := candidate
+	if filepath.Base(candidate) != ".strand" {
+		strandDir := filepath.Join(candidate, ".strand")
+		if info, err := os.Stat(strandDir); err == nil && info.IsDir() {
+			baseDir = strandDir
+		} else if !hasStrandLayout(candidate) {
+			return projectPaths{}, false, nil
+		}
+	} else {
+		gitRoot = filepath.Dir(candidate)
+	}
+
+	if !hasStrandLayout(baseDir) {
+		return projectPaths{}, false, nil
+	}
+
+	paths, err := projectPathsFromBase(baseDir, projectName, gitRoot, storageLocal)
+	if err != nil {
+		return projectPaths{}, false, err
+	}
+	return paths, true, nil
+}
+
+func hasStrandLayout(baseDir string) bool {
+	for _, name := range []string{"tasks", "roles", "templates"} {
+		info, err := os.Stat(filepath.Join(baseDir, name))
+		if err != nil || !info.IsDir() {
+			return false
+		}
+	}
+	return true
 }
 
 func projectPathsFromBase(base, projectName, gitRoot, storage string) (projectPaths, error) {
