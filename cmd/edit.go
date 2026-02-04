@@ -19,6 +19,7 @@ var (
 	editPriority string
 	editParent   string
 	editBlockers []string
+	editBlocks   []string
 )
 
 // editCmd represents the edit command
@@ -52,6 +53,8 @@ func init() {
 	editCmd.Flags().StringVarP(&editRole, "role", "r", "", "role responsible for the task")
 	editCmd.Flags().StringVarP(&editParent, "parent", "p", "", "parent task ID")
 	editCmd.Flags().StringVar(&editPriority, "priority", "", "priority: high, medium, or low")
+	editCmd.Flags().StringSliceVarP(&editBlockers, "blocker", "b", nil, "blocker task ID(s); replaces existing blockers")
+	editCmd.Flags().StringSliceVar(&editBlocks, "blocks", nil, "task ID(s) this task blocks; replaces existing blocks")
 }
 
 func runEdit(cmd *cobra.Command, inputID, newBody string) error {
@@ -106,7 +109,67 @@ func runEdit(cmd *cobra.Command, inputID, newBody string) error {
 	}
 
 	if cmd.Flags().Changed("blocker") {
-		panic("Unimplemented: TODO: Must update blockers AND child blocks list")
+		newBlockers, err := db.ResolveIDs(normalizeTaskIDs(editBlockers))
+		if err != nil {
+			return err
+		}
+
+		currentBlockers := make(map[string]bool)
+		for _, b := range t.Meta.Blockers {
+			currentBlockers[b] = true
+		}
+		newBlockerSet := make(map[string]bool)
+		for _, b := range newBlockers {
+			newBlockerSet[b] = true
+		}
+
+		for _, b := range t.Meta.Blockers {
+			if !newBlockerSet[b] {
+				if err := db.RemoveBlocker(taskID, b); err != nil {
+					return fmt.Errorf("failed to remove blocker %s: %w", b, err)
+				}
+			}
+		}
+		for _, b := range newBlockers {
+			if !currentBlockers[b] {
+				if err := db.AddBlocker(taskID, b); err != nil {
+					return fmt.Errorf("failed to add blocker %s: %w", b, err)
+				}
+			}
+		}
+		changes = true
+	}
+
+	if cmd.Flags().Changed("blocks") {
+		newBlocks, err := db.ResolveIDs(normalizeTaskIDs(editBlocks))
+		if err != nil {
+			return err
+		}
+
+		currentBlocks := make(map[string]bool)
+		for _, b := range t.Meta.Blocks {
+			currentBlocks[b] = true
+		}
+		newBlocksSet := make(map[string]bool)
+		for _, b := range newBlocks {
+			newBlocksSet[b] = true
+		}
+
+		for _, b := range t.Meta.Blocks {
+			if !newBlocksSet[b] {
+				if err := db.RemoveBlocked(taskID, b); err != nil {
+					return fmt.Errorf("failed to remove blocked %s: %w", b, err)
+				}
+			}
+		}
+		for _, b := range newBlocks {
+			if !currentBlocks[b] {
+				if err := db.AddBlocked(taskID, b); err != nil {
+					return fmt.Errorf("failed to add blocked %s: %w", b, err)
+				}
+			}
+		}
+		changes = true
 	}
 
 	if isStdinRedirected() {

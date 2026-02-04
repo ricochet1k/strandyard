@@ -46,6 +46,7 @@ func init() {
 	addCmd.Flags().StringVarP(&addParent, "parent", "p", "", "parent task ID (creates task under that directory)")
 	addCmd.Flags().StringVar(&addPriority, "priority", "medium", "priority: high, medium, or low")
 	addCmd.Flags().StringSliceVar(&addBlockers, "blocker", nil, "blocker task ID(s); can be repeated or comma-separated")
+	addCmd.Flags().StringSliceVar(&addBlocks, "blocks", nil, "task ID(s) this task blocks; can be repeated or comma-separated")
 	addCmd.Flags().StringSliceVar(&addEvery, "every", nil, "recurrence rule (e.g., \"10 days\", \"50 commits from HEAD\")")
 }
 
@@ -55,6 +56,7 @@ var (
 	addPriority string
 	addParent   string
 	addBlockers []string
+	addBlocks   []string
 	addEvery    []string
 )
 
@@ -66,6 +68,7 @@ type addOptions struct {
 	Priority          string
 	Parent            string
 	Blockers          []string
+	Blocks            []string
 	Every             []string
 	RoleSpecified     bool
 	PrioritySpecified bool
@@ -88,6 +91,7 @@ func addOptionsFromFlags(cmd *cobra.Command, args []string, body string) (addOpt
 		Priority:          strings.TrimSpace(addPriority),
 		Parent:            strings.TrimSpace(addParent),
 		Blockers:          addBlockers,
+		Blocks:            addBlocks,
 		Every:             addEvery,
 		RoleSpecified:     cmd.Flags().Changed("role"),
 		PrioritySpecified: cmd.Flags().Changed("priority"),
@@ -282,13 +286,17 @@ func runAdd(w io.Writer, opts addOptions) error {
 	if err != nil {
 		return err
 	}
+	blocks, err := db.ResolveIDs(normalizeTaskIDs(opts.Blocks))
+	if err != nil {
+		return err
+	}
 	now := time.Now().UTC()
 	meta := task.Metadata{
 		Type:          tmplName,
 		Role:          roleName,
 		Priority:      priority,
 		Parent:        parent,
-		Blockers:      blockers,
+		Blockers:      []string{},
 		Blocks:        []string{},
 		DateCreated:   now,
 		DateEdited:    now,
@@ -314,6 +322,26 @@ func runAdd(w io.Writer, opts addOptions) error {
 	}
 
 	fmt.Fprintf(w, "✓ Task created: %s\n", id)
+
+	// Load the new task and set up blocker/blocks relationships via TaskDB
+	if len(blockers) > 0 || len(blocks) > 0 {
+		if _, err := db.Load(id); err != nil {
+			return fmt.Errorf("failed to load new task: %w", err)
+		}
+		for _, blockerID := range blockers {
+			if err := db.AddBlocker(id, blockerID); err != nil {
+				return fmt.Errorf("failed to add blocker %s: %w", blockerID, err)
+			}
+		}
+		for _, blockedID := range blocks {
+			if err := db.AddBlocked(id, blockedID); err != nil {
+				return fmt.Errorf("failed to add blocked %s: %w", blockedID, err)
+			}
+		}
+		if _, err := db.SaveDirty(); err != nil {
+			return fmt.Errorf("failed to write blocker updates: %w", err)
+		}
+	}
 
 	if len(opts.Every) > 0 {
 		activeLog, err := activity.Open(paths.BaseDir)

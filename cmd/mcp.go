@@ -180,13 +180,6 @@ func registerMCPTools(s *server.MCPServer) {
 		mcp.NewTypedToolHandler(handleMCPAssign),
 	)
 
-	s.AddTool(
-		mcp.NewTool("strand_block",
-			mcp.WithDescription("Block or unblock tasks"),
-			mcp.WithInputSchema[struct{}](),
-		),
-		mcp.NewTypedToolHandler(handleMCPBlock),
-	)
 }
 
 func handleMCPAdd(ctx context.Context, request mcp.CallToolRequest, args addArgs) (*mcp.CallToolResult, error) {
@@ -332,12 +325,6 @@ func handleMCPTemplates(ctx context.Context, request mcp.CallToolRequest, args s
 func handleMCPAssign(ctx context.Context, request mcp.CallToolRequest, args struct{}) (*mcp.CallToolResult, error) {
 	return runWithOutput(func(w io.Writer) error {
 		return runAssign(w)
-	})
-}
-
-func handleMCPBlock(ctx context.Context, request mcp.CallToolRequest, args struct{}) (*mcp.CallToolResult, error) {
-	return runWithOutput(func(w io.Writer) error {
-		return runBlock(w)
 	})
 }
 
