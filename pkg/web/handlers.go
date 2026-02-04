@@ -40,6 +40,32 @@ type filePayload struct {
 	Content string `json:"content"`
 }
 
+type taskUpdateRequest struct {
+	Title     *string   `json:"title,omitempty"`
+	Role      *string   `json:"role,omitempty"`
+	Priority  *string   `json:"priority,omitempty"`
+	Completed *bool     `json:"completed,omitempty"`
+	Blockers  *[]string `json:"blockers,omitempty"`
+	Blocks    *[]string `json:"blocks,omitempty"`
+	Body      *string   `json:"body,omitempty"`
+}
+
+type taskDetailResponse struct {
+	ID          string   `json:"id"`
+	ShortID     string   `json:"short_id"`
+	Title       string   `json:"title"`
+	Role        string   `json:"role"`
+	Priority    string   `json:"priority"`
+	Completed   bool     `json:"completed"`
+	Parent      string   `json:"parent"`
+	Blockers    []string `json:"blockers"`
+	Blocks      []string `json:"blocks"`
+	Path        string   `json:"path"`
+	DateCreated string   `json:"date_created"`
+	DateEdited  string   `json:"date_edited"`
+	Body        string   `json:"body"`
+}
+
 type projectResponse struct {
 	Name          string `json:"name"`
 	StorageRoot   string `json:"storage_root"`
@@ -125,6 +151,120 @@ func (s *Server) handleTasks(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	respondJSON(w, http.StatusOK, items)
+}
+
+func (s *Server) handleTask(w http.ResponseWriter, r *http.Request) {
+	proj, err := s.getProject(r)
+	if err != nil {
+		respondError(w, http.StatusBadRequest, err)
+		return
+	}
+
+	taskID := r.URL.Query().Get("id")
+	if taskID == "" {
+		respondError(w, http.StatusBadRequest, fmt.Errorf("missing task id"))
+		return
+	}
+
+	db := task.NewTaskDB(proj.TasksRoot)
+	if err := db.LoadAll(); err != nil {
+		respondError(w, http.StatusInternalServerError, err)
+		return
+	}
+
+	t, err := db.Get(taskID)
+	if err != nil {
+		respondError(w, http.StatusNotFound, err)
+		return
+	}
+
+	switch r.Method {
+	case http.MethodGet:
+		snapshot, err := taskToSnapshot(t, proj.StorageRoot)
+		if err != nil {
+			respondError(w, http.StatusInternalServerError, err)
+			return
+		}
+		respondJSON(w, http.StatusOK, snapshot)
+
+	case http.MethodPatch:
+		if s.config.ReadOnly {
+			respondError(w, http.StatusForbidden, fmt.Errorf("server is in read-only mode"))
+			return
+		}
+
+		body, err := io.ReadAll(r.Body)
+		if err != nil {
+			respondError(w, http.StatusBadRequest, err)
+			return
+		}
+
+		var req taskUpdateRequest
+		if err := json.Unmarshal(body, &req); err != nil {
+			respondError(w, http.StatusBadRequest, err)
+			return
+		}
+
+		if req.Title != nil {
+			t.SetTitle(*req.Title)
+		}
+		if req.Role != nil {
+			t.Meta.Role = *req.Role
+			t.MarkDirty()
+		}
+		if req.Priority != nil {
+			t.Meta.Priority = task.NormalizePriority(*req.Priority)
+			t.MarkDirty()
+		}
+		if req.Completed != nil {
+			t.Meta.Completed = *req.Completed
+			t.MarkDirty()
+		}
+		if req.Blockers != nil {
+			t.Meta.Blockers = *req.Blockers
+			t.MarkDirty()
+		}
+		if req.Blocks != nil {
+			t.Meta.Blocks = *req.Blocks
+			t.MarkDirty()
+		}
+		if req.Body != nil {
+			t.SetBody(*req.Body)
+		}
+
+		if _, err := db.SaveDirty(); err != nil {
+			respondError(w, http.StatusInternalServerError, err)
+			return
+		}
+
+		snapshot, err := taskToSnapshot(t, proj.StorageRoot)
+		if err != nil {
+			respondError(w, http.StatusInternalServerError, err)
+			return
+		}
+		respondJSON(w, http.StatusOK, snapshot)
+
+	default:
+		w.WriteHeader(http.StatusMethodNotAllowed)
+	}
+}
+
+func taskToSnapshot(t *task.Task, storageRoot string) (*taskDetailResponse, error) {
+	return &taskDetailResponse{
+		ID:          t.ID,
+		ShortID:     task.ShortID(t.ID),
+		Title:       t.Title(),
+		Role:        t.GetEffectiveRole(),
+		Priority:    task.NormalizePriority(t.Meta.Priority),
+		Completed:   t.Meta.Completed,
+		Parent:      task.ShortID(t.Meta.Parent),
+		Blockers:    shortenIDs(t.Meta.Blockers),
+		Blocks:      shortenIDs(t.Meta.Blocks),
+		Path:        makeRelative(storageRoot, t.FilePath),
+		DateCreated: t.Meta.DateCreated.Format(time.RFC3339),
+		DateEdited:  t.Meta.DateEdited.Format(time.RFC3339),
+		Body:        t.BodyContent,
+	}, nil
 }
 
 func (s *Server) handleFiles(w http.ResponseWriter, r *http.Request) {

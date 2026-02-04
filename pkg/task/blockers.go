@@ -1,11 +1,8 @@
 package task
 
 import (
-	"fmt"
 	"slices"
 	"sort"
-
-	"github.com/google/go-cmp/cmp"
 )
 
 // UpdateBlockersFromChildren ensures parent tasks are blocked by incomplete children.
@@ -57,9 +54,9 @@ func UpdateBlockersFromChildren(tasks map[string]*Task) (int, error) {
 			continue
 		}
 
-		fmt.Printf("UpdateBlockersFromChildren %v diff: %v", parent.FilePath, cmp.Diff(parent.Meta.Blockers, desired))
-		fmt.Printf("Blockers %#v\n", parent.Meta.Blockers)
-		fmt.Printf("desired %#v\n", desired)
+		// fmt.Printf("UpdateBlockersFromChildren %v diff: %v", parent.FilePath, cmp.Diff(parent.Meta.Blockers, desired))
+		// fmt.Printf("Blockers %#v\n", parent.Meta.Blockers)
+		// fmt.Printf("desired %#v\n", desired)
 
 		parent.Meta.Blockers = desired
 		parent.MarkDirty()
@@ -74,7 +71,7 @@ func UpdateBlockersFromChildren(tasks map[string]*Task) (int, error) {
 		// If task is not in taskBlockers, it should have no blockers
 		if _, hasBlockers := taskBlockers[task.ID]; !hasBlockers {
 			if len(task.Meta.Blockers) > 0 {
-				fmt.Printf("UpdateBlockersFromChildren clearing blockers from %v (had %v)\n", task.FilePath, task.Meta.Blockers)
+				// fmt.Printf("UpdateBlockersFromChildren clearing blockers from %v (had %v)\n", task.FilePath, task.Meta.Blockers)
 				task.Meta.Blockers = []string{}
 				task.MarkDirty()
 				updated++

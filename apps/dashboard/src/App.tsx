@@ -75,66 +75,20 @@ type ProjectsResponse = {
   current: string
 }
 
-type TaskFrontmatter = {
-  title?: string
-  role?: string
-  priority?: string
-  status?: string
-  completed?: boolean
-  blockers?: string[]
-  blocks?: string[]
-  parent?: string
-}
-
-type ParsedTask = {
-  frontmatter: TaskFrontmatter
+type TaskDetail = {
+  id: string
+  short_id: string
+  title: string
+  role: string
+  priority: string
+  completed: boolean
+  parent: string
+  blockers: string[]
+  blocks: string[]
+  path: string
+  date_created: string
+  date_edited: string
   body: string
-}
-
-function parseFrontmatter(content: string): ParsedTask {
-  const lines = content.split("\n")
-  if (lines[0] !== "---") {
-    return { frontmatter: {}, body: content }
-  }
-
-  let endIndex = -1
-  for (let i = 1; i < lines.length; i++) {
-    if (lines[i] === "---") {
-      endIndex = i
-      break
-    }
-  }
-
-  if (endIndex === -1) {
-    return { frontmatter: {}, body: content }
-  }
-
-  const frontmatterLines = lines.slice(1, endIndex)
-  const bodyLines = lines.slice(endIndex + 1).join("\n")
-  const frontmatter: TaskFrontmatter = {}
-
-  for (const line of frontmatterLines) {
-    const colonIndex = line.indexOf(":")
-    if (colonIndex === -1) continue
-    const key = line.substring(0, colonIndex).trim()
-    const value = line.substring(colonIndex + 1).trim()
-
-    if (value === "true") {
-      (frontmatter as any)[key] = true
-    } else if (value === "false") {
-      (frontmatter as any)[key] = false
-    } else if (value.startsWith("[") && value.endsWith("]")) {
-      try {
-        (frontmatter as any)[key] = JSON.parse(value)
-      } catch {
-        (frontmatter as any)[key] = value
-      }
-    } else {
-      (frontmatter as any)[key] = value
-    }
-  }
-
-  return { frontmatter, body: bodyLines.trim() }
 }
 
 async function fetchJSON<T>(path: string, init?: RequestInit): Promise<T> {
@@ -162,8 +116,7 @@ function errorMessage(err: unknown) {
 export default function App() {
   const [tab, setTab] = createSignal<Tab>("tasks")
   const [tasks, setTasks] = createSignal<TaskItem[]>([])
-  const [activePath, setActivePath] = createSignal("")
-  const [content, setContent] = createSignal("")
+  const [activeTaskDetail, setActiveTaskDetail] = createSignal<TaskDetail | null>(null)
   const [dirty, setDirty] = createSignal(false)
   const [status, setStatus] = createSignal("")
   const [connected, setConnected] = createSignal(false)
@@ -178,7 +131,6 @@ export default function App() {
   const [filterPriority, setFilterPriority] = createSignal<string>("all")
   const [sortField, setSortField] = createSignal<SortField>("priority")
   const [sortDirection, setSortDirection] = createSignal<SortDirection>("desc")
-  const [parsedTask, setParsedTask] = createSignal<ParsedTask>({ frontmatter: {}, body: "" })
 
   const apiURL = (path: string) => {
     const project = currentProject()
@@ -213,62 +165,44 @@ export default function App() {
     }
   }
 
-  const loadFile = async (path: string) => {
+  const loadTask = async (taskId: string) => {
     try {
-      const data = await fetchJSON<FilePayload>(apiURL(`/api/file?path=${encodeURIComponent(path)}`))
-      setActivePath(data.path)
-      setContent(data.content)
-      setParsedTask(parseFrontmatter(data.content))
+      const data = await fetchJSON<TaskDetail>(apiURL(`/api/task?id=${encodeURIComponent(taskId)}`))
+      setActiveTaskDetail(data)
       setDirty(false)
-      setStatus(`Loaded ${data.path}`)
+      setStatus(`Loaded ${data.short_id}`)
     } catch (err) {
-      setStatus(`Failed to load file: ${errorMessage(err)}`)
+      setStatus(`Failed to load task: ${errorMessage(err)}`)
     }
   }
 
-  const updateContent = () => {
-    const parsed = parsedTask()
-    let result = "---\n"
-
-    if (parsed.frontmatter.title) result += `title: ${parsed.frontmatter.title}\n`
-    if (parsed.frontmatter.role) result += `role: ${parsed.frontmatter.role}\n`
-    if (parsed.frontmatter.priority) result += `priority: ${parsed.frontmatter.priority}\n`
-    if (parsed.frontmatter.completed !== undefined) {
-      result += `completed: ${parsed.frontmatter.completed ? "true" : "false"}\n`
-    }
-    if (parsed.frontmatter.blockers && parsed.frontmatter.blockers.length > 0) {
-      result += `blockers: ${JSON.stringify(parsed.frontmatter.blockers)}\n`
-    }
-    if (parsed.frontmatter.blocks && parsed.frontmatter.blocks.length > 0) {
-      result += `blocks: ${JSON.stringify(parsed.frontmatter.blocks)}\n`
-    }
-    if (parsed.frontmatter.parent) result += `parent: ${parsed.frontmatter.parent}\n`
-
-    result += "---\n"
-    if (parsed.body) result += parsed.body
-
-    setContent(result)
-  }
-
-  const saveFile = async () => {
-    if (!activePath()) return
+  const saveTask = async () => {
+    const task = activeTaskDetail()
+    if (!task) return
     try {
       setStatus("Saving...")
-      await fetchJSON(apiURL(`/api/file?path=${encodeURIComponent(activePath())}`), {
-        method: "PUT",
-        body: JSON.stringify({ content: content() }),
+      const updated = await fetchJSON<TaskDetail>(apiURL(`/api/task?id=${encodeURIComponent(task.id)}`), {
+        method: "PATCH",
+        body: JSON.stringify({
+          title: task.title,
+          role: task.role,
+          priority: task.priority,
+          completed: task.completed,
+          blockers: task.blockers,
+          blocks: task.blocks,
+          body: task.body,
+        }),
       })
+      setActiveTaskDetail(updated)
       setDirty(false)
-      setStatus(`Saved ${activePath()}`)
+      setStatus(`Saved ${task.short_id}`)
     } catch (err) {
       setStatus(`Save failed: ${errorMessage(err)}`)
     }
   }
 
   const onSelect = (entry: TaskTreeNode) => {
-    const path = entry.task.path
-    if (!path) return
-    void loadFile(path)
+    void loadTask(entry.task.id)
   }
 
   const hasChildren = (node: TaskTreeNode) => (taskChildren.get(node.task.short_id)?.length ?? 0) > 0
@@ -474,21 +408,14 @@ export default function App() {
     }
   }
 
-  const handleParsedTaskChange = (task: ParsedTask) => {
-    setParsedTask(task)
-    updateContent()
-    setDirty(true)
-  }
-
-  const handleContentChange = (newContent: string) => {
-    setContent(newContent)
+  const handleTaskDetailChange = (updated: TaskDetail) => {
+    setActiveTaskDetail(updated)
     setDirty(true)
   }
 
   createEffect(() => {
     const current = tab()
-    setActivePath("")
-    setContent("")
+    setActiveTaskDetail(null)
     setDirty(false)
     setStatus("")
     if (current === "tasks") {
@@ -499,8 +426,7 @@ export default function App() {
   createEffect(() => {
     const project = currentProject()
     if (!project) return
-    setActivePath("")
-    setContent("")
+    setActiveTaskDetail(null)
     setDirty(false)
     if (tab() === "tasks") {
       void loadTasks()
@@ -520,7 +446,15 @@ export default function App() {
         if (update.project !== currentProject()) return
         setLastEvent(`${update.event} • ${update.path}`)
         if (tab() === "tasks") void loadTasks()
-        if (activePath() && update.path === activePath()) void loadFile(activePath())
+        const active = activeTaskDetail()
+        if (active) {
+          const updatedId = update.task?.id
+          if (updatedId && updatedId === active.id) {
+            void loadTask(active.id)
+          } else if (update.path === active.path) {
+            void loadTask(active.id)
+          }
+        }
       } catch (err) {
         setStatus(`Stream error: ${errorMessage(err)}`)
       }
@@ -533,7 +467,7 @@ export default function App() {
     const keyHandler = (event: KeyboardEvent) => {
       if ((event.metaKey || event.ctrlKey) && event.key.toLowerCase() === "s") {
         event.preventDefault()
-        void saveFile()
+        void saveTask()
       }
     }
     window.addEventListener("keydown", keyHandler)
@@ -607,7 +541,7 @@ export default function App() {
           <div class="list">
             <TaskTable
               tasks={taskTreeFlattened()}
-              activePath={activePath()}
+              activePath={activeTaskDetail()?.path ?? ""}
               sortField={sortField()}
               sortDirection={sortDirection()}
               hasChildren={hasChildren}
@@ -620,16 +554,13 @@ export default function App() {
         </div>
 
         <Editor
-          activePath={activePath()}
-          content={content()}
+          task={activeTaskDetail()}
           dirty={dirty()}
           status={status()}
           lastEvent={lastEvent()}
           tab={tab()}
-          parsedTask={parsedTask()}
-          onContentChange={handleContentChange}
-          onParsedTaskChange={handleParsedTaskChange}
-          onSave={saveFile}
+          onTaskChange={handleTaskDetailChange}
+          onSave={saveTask}
         />
       </section>
     </div>

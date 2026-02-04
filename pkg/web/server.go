@@ -51,6 +51,7 @@ func Serve(ctx context.Context, cfg ServerConfig) error {
 	mux.HandleFunc("/api/projects", server.withAuth(server.handleProjects))
 	mux.HandleFunc("/api/state", server.withAuth(server.handleState))
 	mux.HandleFunc("/api/tasks", server.withAuth(server.handleTasks))
+	mux.HandleFunc("/api/task", server.withAuth(server.handleTask))
 	mux.HandleFunc("/api/files", server.withAuth(server.handleFiles))
 	mux.HandleFunc("/api/file", server.withAuth(server.handleFile))
 	mux.HandleFunc("/api/stream", server.withAuth(server.handleStream))

@@ -3,7 +3,6 @@
 ## High
 
 - [Handle HEAD anchor mutability in recurrence definitions](E7p4m-issues-recurrence/T8v3k-recurring-tasks/Tgr06-review-recurrence-metrics-cli-experience/Tftao-clarify-recurrence-anchor-flags-and-help-text/T1dua-draft-recurrence-anchor-flag-alternatives/Tonge7b-handle-head-anchor-mutability-in-recurrence-defini/Tonge7b-handle-head-anchor-mutability-in-recurrence-defini.md)
-- [Add comprehensive error recovery tests for corrupted activity logs](E7p4m-issues-recurrence/T8v3k-recurring-tasks/Tgr06-review-recurrence-metrics-cli-experience/Tftao-clarify-recurrence-anchor-flags-and-help-text/T1dua-draft-recurrence-anchor-flag-alternatives/Tu1pm-review-recurrence-anchor-flags-alternatives/Tb8m7cw-resolve-discrepancy-in-tasks-completed-anchor-form/Tsnkyb7-implement-task-id-resolution-for-tasks-completed-m/T1e90n5-add-comprehensive-error-recovery-tests-for-corrupt/T1e90n5-add-comprehensive-error-recovery-tests-for-corrupt.md)
 
 ## Medium
 
@@ -63,6 +62,7 @@
 - [Improve and Expand Task Templates](E5w8m-e2e-tests/Tml0y-t9m4n-improved-task-templates/Tml0y-t9m4n-improved-task-templates.md)
 - [Add CLI support for updating task decision/question sections](E7p4m-issues-recurrence/T8v3k-recurring-tasks/Tgr06-review-recurrence-metrics-cli-experience/Tftao-clarify-recurrence-anchor-flags-and-help-text/T1dua-draft-recurrence-anchor-flag-alternatives/T3md3-usability-review-recurrence-anchor-flags/Trlrg-specify-anchor-error-messages/Tcsz3-review-alternatives-recurrence-anchor-error-messag/T14az-define-error-message-format-contract-for-every-anc/Th8av-define-canonical-hint-examples-for-every-errors/I3g1d-add-cli-support-for-updating-task-decision-questio/I3g1d-add-cli-support-for-updating-task-decision-questio.md)
 - [New Task: Improve error messages for missing task ID anchors](E7p4m-issues-recurrence/T8v3k-recurring-tasks/Tgr06-review-recurrence-metrics-cli-experience/Tftao-clarify-recurrence-anchor-flags-and-help-text/T1dua-draft-recurrence-anchor-flag-alternatives/Tu1pm-review-recurrence-anchor-flags-alternatives/Tb8m7cw-resolve-discrepancy-in-tasks-completed-anchor-form/T3lpzer-review-task-id-resolution-implementation/T7yeluu-improve-error-messages-for-missing-task-id-anchors/T7yeluu-improve-error-messages-for-missing-task-id-anchors.md)
+- [Add comprehensive error recovery tests for corrupted activity logs](E7p4m-issues-recurrence/T8v3k-recurring-tasks/Tgr06-review-recurrence-metrics-cli-experience/Tftao-clarify-recurrence-anchor-flags-and-help-text/T1dua-draft-recurrence-anchor-flag-alternatives/Tu1pm-review-recurrence-anchor-flags-alternatives/Tb8m7cw-resolve-discrepancy-in-tasks-completed-anchor-form/Tsnkyb7-implement-task-id-resolution-for-tasks-completed-m/T1e90n5-add-comprehensive-error-recovery-tests-for-corrupt/T1e90n5-add-comprehensive-error-recovery-tests-for-corrupt.md)
 - [Design improved task templates](T1j6m-improved-task-templates-design/T1j6m-improved-task-templates-design.md)
 - [File issue reports for blocker validation errors](T2k6s-blocker-validation-issue-reports/T2k6s-blocker-validation-issue-reports.md)
 - [Design PTY-only TUI for incomplete commands](T2r8k-pty-tui-incomplete-commands-design/T2r8k-pty-tui-incomplete-commands-design.md)
@@ -71,7 +71,6 @@
 - [Design near-duplicate search on task add](T4k9s-near-duplicate-search-on-add-design/T4k9s-near-duplicate-search-on-add-design.md)
 - [Design task claiming for sessions and owners](T4v2n-task-claiming-session-owner-design/T4v2n-task-claiming-session-owner-design.md)
 - [Design AI exclusion for human-role tasks](T5b9x-human-role-ai-exclusion-design/T5b9x-human-role-ai-exclusion-design.md)
-- [Design web server with live streaming updates](T6h3q-web-ui-live-stream-design/T6h3q-web-ui-live-stream-design.md)
 - [Design opencode plugin](T7m5z-opencode-plugin-design/T7m5z-opencode-plugin-design.md)
 - [Design recurring code review and cleanup tasks](T9f4w-code-review-cleanup-recurring-design/T9f4w-code-review-cleanup-recurring-design.md)
 - [Clarify after now vs from now anchor distinction in docs](Tl0wkx6-clarify-after-now-vs-from-now-anchor-distinction-i/Tl0wkx6-clarify-after-now-vs-from-now-anchor-distinction-i.md)

@@ -1,36 +1,72 @@
-import { Show } from "solid-js"
+import { Show, For, createSignal } from "solid-js"
 import "./Editor.css"
 
-type ParsedTask = {
-  frontmatter: {
-    title?: string
-    role?: string
-    priority?: string
-    completed?: boolean
-    [key: string]: any
-  }
+type TaskDetail = {
+  id: string
+  short_id: string
+  title: string
+  role: string
+  priority: string
+  completed: boolean
+  parent: string
+  blockers: string[]
+  blocks: string[]
+  path: string
+  date_created: string
+  date_edited: string
   body: string
 }
 
 type EditorProps = {
-  activePath: string
-  content: string
+  task: TaskDetail | null
   dirty: boolean
   status: string
   lastEvent: string
   tab: string
-  parsedTask: ParsedTask
-  onContentChange: (content: string) => void
-  onParsedTaskChange: (task: ParsedTask) => void
+  onTaskChange: (task: TaskDetail) => void
   onSave: () => void
 }
 
 export default function Editor(props: EditorProps) {
-  const updateFrontmatterField = (field: string, value: any) => {
-    const parsed = { ...props.parsedTask }
-    parsed.frontmatter = { ...parsed.frontmatter, [field]: value }
-    props.onParsedTaskChange(parsed)
+  const [newBlocker, setNewBlocker] = createSignal("")
+  const [newBlock, setNewBlock] = createSignal("")
+
+  const updateTaskField = (field: keyof TaskDetail, value: any) => {
+    if (!props.task) return
+    props.onTaskChange({ ...props.task, [field]: value })
   }
+
+  const addBlocker = () => {
+    const value = newBlocker().trim()
+    if (!value) return
+    const current = props.task?.blockers || []
+    if (!current.includes(value)) {
+      updateTaskField("blockers", [...current, value])
+    }
+    setNewBlocker("")
+  }
+
+  const removeBlocker = (id: string) => {
+    const current = props.task?.blockers || []
+    updateTaskField("blockers", current.filter((b) => b !== id))
+  }
+
+  const addBlock = () => {
+    const value = newBlock().trim()
+    if (!value) return
+    const current = props.task?.blocks || []
+    if (!current.includes(value)) {
+      updateTaskField("blocks", [...current, value])
+    }
+    setNewBlock("")
+  }
+
+  const removeBlock = (id: string) => {
+    const current = props.task?.blocks || []
+    updateTaskField("blocks", current.filter((b) => b !== id))
+  }
+
+  const task = () => props.task
 
   return (
     <div class="editor-pane">
@@ -38,26 +74,25 @@ export default function Editor(props: EditorProps) {
         <div>
           <h2>Editor</h2>
           <p class="detail">
-            {props.activePath ? props.activePath : "Select a file to begin."}
+            {task()?.path ? task()?.path : "Select a file to begin."}
           </p>
         </div>
         <div class="editor-actions">
           <span class={`sync ${props.dirty ? "dirty" : ""}`}>
             {props.dirty ? "Unsaved" : "Synced"}
           </span>
-          <button class="primary" disabled={!props.activePath} onClick={() => props.onSave()}>
+          <button class="primary" disabled={!task()} onClick={() => props.onSave()}>
             Save
           </button>
         </div>
       </div>
 
       <Show
-        when={props.tab === "tasks" && props.activePath}
+        when={props.tab === "tasks" && task()}
         fallback={
           <textarea
             class="editor"
-            value={props.content}
-            onInput={(event) => props.onContentChange(event.currentTarget.value)}
+            value=""
             placeholder="Select a task, role, or template file to edit."
           />
         }
@@ -69,8 +104,8 @@ export default function Editor(props: EditorProps) {
               <input
                 type="text"
                 class="editor-input"
-                value={props.parsedTask.frontmatter.title || ""}
-                onInput={(e) => updateFrontmatterField("title", e.currentTarget.value)}
+                value={task()?.title || ""}
+                onInput={(e) => updateTaskField("title", e.currentTarget.value)}
               />
             </div>
 
@@ -79,8 +114,8 @@ export default function Editor(props: EditorProps) {
               <input
                 type="text"
                 class="editor-input"
-                value={props.parsedTask.frontmatter.role || ""}
-                onInput={(e) => updateFrontmatterField("role", e.currentTarget.value)}
+                value={task()?.role || ""}
+                onInput={(e) => updateTaskField("role", e.currentTarget.value)}
               />
             </div>
 
@@ -88,8 +123,8 @@ export default function Editor(props: EditorProps) {
               <label>Priority</label>
               <select
                 class="editor-input"
-                value={props.parsedTask.frontmatter.priority || ""}
-                onChange={(e) => updateFrontmatterField("priority", e.currentTarget.value)}
+                value={task()?.priority || ""}
+                onChange={(e) => updateTaskField("priority", e.currentTarget.value)}
               >
                 <option value="">None</option>
                 <option value="low">Low</option>
@@ -102,22 +137,71 @@ export default function Editor(props: EditorProps) {
               <label>Status</label>
               <select
                 class="editor-input"
-                value={props.parsedTask.frontmatter.completed ? "done" : "active"}
-                onChange={(e) => updateFrontmatterField("completed", e.currentTarget.value === "done")}
+                value={task()?.completed ? "done" : "active"}
+                onChange={(e) => updateTaskField("completed", e.currentTarget.value === "done")}
               >
                 <option value="active">Active</option>
                 <option value="done">Done</option>
               </select>
             </div>
+
+            <div class="editor-field">
+              <label>Blockers (blocked by)</label>
+              <div class="tag-list">
+                <For each={task()?.blockers || []}>
+                  {(blocker) => (
+                    <span class="tag">
+                      {blocker}
+                      <button class="tag-remove" onClick={() => removeBlocker(blocker)}>×</button>
+                    </span>
+                  )}
+                </For>
+              </div>
+              <div class="tag-input-row">
+                <input
+                  type="text"
+                  class="editor-input"
+                  placeholder="Task ID..."
+                  value={newBlocker()}
+                  onInput={(e) => setNewBlocker(e.currentTarget.value)}
+                  onKeyDown={(e) => e.key === "Enter" && addBlocker()}
+                />
+                <button class="add-btn" onClick={addBlocker}>Add</button>
+              </div>
+            </div>
+
+            <div class="editor-field">
+              <label>Blocks (blocking)</label>
+              <div class="tag-list">
+                <For each={task()?.blocks || []}>
+                  {(block) => (
+                    <span class="tag">
+                      {block}
+                      <button class="tag-remove" onClick={() => removeBlock(block)}>×</button>
+                    </span>
+                  )}
+                </For>
+              </div>
+              <div class="tag-input-row">
+                <input
+                  type="text"
+                  class="editor-input"
+                  placeholder="Task ID..."
+                  value={newBlock()}
+                  onInput={(e) => setNewBlock(e.currentTarget.value)}
+                  onKeyDown={(e) => e.key === "Enter" && addBlock()}
+                />
+                <button class="add-btn" onClick={addBlock}>Add</button>
+              </div>
+            </div>
           </div>
 
           <textarea
             class="editor editor-body"
-            value={props.parsedTask.body}
+            value={task()?.body || ""}
             onInput={(event) => {
-              const parsed = { ...props.parsedTask }
-              parsed.body = event.currentTarget.value
-              props.onParsedTaskChange(parsed)
+              if (!task()) return
+              props.onTaskChange({ ...task()!, body: event.currentTarget.value })
             }}
             placeholder="Task description and notes..."
           />
