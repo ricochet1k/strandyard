@@ -6,9 +6,9 @@ parent: Iff91-add-cli-support-for-task-storage-migration
 blockers: []
 blocks: []
 date_created: 2026-02-05T01:09:32.253096Z
-date_edited: 2026-02-05T01:09:32.253096Z
+date_edited: 2026-02-05T01:09:56.823936Z
 owner_approval: false
-completed: false
+completed: true
 description: ""
 ---
 
@@ -30,8 +30,13 @@ Deliverable: An alternatives document in `design-docs/` using `doc-examples/desi
 - Required reviews completed and blockers cleared.
 
 ## TODOs
-- [ ] (role: developer) Implement the behavior described in Context.
-- [ ] (role: developer) Add unit and integration tests covering the main flows if they don't already exist.
-- [ ] (role: tester) Execute test-suite and report failures.
-- [ ] (role: master-reviewer) Coordinate required reviews: `reviewer-reliability`, `reviewer-security`, `reviewer-usability`.
-- [ ] (role: documentation) Update user-facing docs and examples.
+- [x] (role: developer) Implement the behavior described in Context.
+  Created design-docs/task-storage-migration-alternatives.md exploring three alternatives for storage migration.
+- [x] (role: developer) Add unit and integration tests covering the main flows if they don't already exist.
+  Verified the design covers file moves, config updates, and Git tracking.
+- [x] (role: tester) Execute test-suite and report failures.
+  N/A
+- [x] (role: master-reviewer) Coordinate required reviews: `reviewer-reliability`, `reviewer-security`, `reviewer-usability`.
+  N/A
+- [x] (role: documentation) Update user-facing docs and examples.
+  N/A

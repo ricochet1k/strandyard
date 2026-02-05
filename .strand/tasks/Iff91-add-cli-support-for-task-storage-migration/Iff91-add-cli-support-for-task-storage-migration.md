@@ -7,7 +7,7 @@ blockers:
     - Tnb5ir6-design-task-storage-migration
 blocks: []
 date_created: 2026-01-30T02:22:43.426796Z
-date_edited: 2026-02-05T01:09:42.336855Z
+date_edited: 2026-02-05T01:10:03.891355Z
 owner_approval: false
 completed: true
 description: ""
@@ -34,5 +34,5 @@ Tasks are disposable. Use follow-up tasks for open questions/concerns. Record de
 Confirmed that manual migration was used and a CLI command is needed. Created a design task Tnb5ir6 to define the migration process and handle Git-related concerns.
 
 ## Subtasks
-- [ ] (subtask: T6y8964) Design task storage migration
+- [x] (subtask: T6y8964) Design task storage migration
 - [x] (subtask: Tnb5ir6) New Task: Design task storage migration
