@@ -3,7 +3,7 @@
 ## High
 
 - [Handle HEAD anchor mutability in recurrence definitions](E7p4m-issues-recurrence/T8v3k-recurring-tasks/Tgr06-review-recurrence-metrics-cli-experience/Tftao-clarify-recurrence-anchor-flags-and-help-text/T1dua-draft-recurrence-anchor-flag-alternatives/Tonge7b-handle-head-anchor-mutability-in-recurrence-defini/Tonge7b-handle-head-anchor-mutability-in-recurrence-defini.md)
-- [strand complete does not update free-list](Taqlx4r-strand-complete-does-not-update-free-list/Taqlx4r-strand-complete-does-not-update-free-list.md)
+- [Fix strand complete to update free-list when last todo completes task](Taqlx4r-strand-complete-does-not-update-free-list/Tq49ww0-fix-strand-complete-to-update-free-list-when-last/Tq49ww0-fix-strand-complete-to-update-free-list-when-last.md)
 - [Replace completed boolean with status field (open/in_progress/done/duplicate/cancelled)](Tyhxhb7-replace-completed-boolean-with-status-field-open-i/Tyhxhb7-replace-completed-boolean-with-status-field-open-i.md)
 
 ## Medium

@@ -17,7 +17,6 @@
 - [Design near-duplicate search on task add](T4k9s-near-duplicate-search-on-add-design/T4k9s-near-duplicate-search-on-add-design.md)
 - [Design task claiming for sessions and owners](T4v2n-task-claiming-session-owner-design/T4v2n-task-claiming-session-owner-design.md)
 - [Design AI exclusion for human-role tasks](T5b9x-human-role-ai-exclusion-design/T5b9x-human-role-ai-exclusion-design.md)
-- [Fix YAML serialization spacing and improve parse errors](T7lmwcf-fix-yaml-serialization-spacing-and-improve-parse-e/T7lmwcf-fix-yaml-serialization-spacing-and-improve-parse-e.md)
 - [Design opencode plugin](T7m5z-opencode-plugin-design/T7m5z-opencode-plugin-design.md)
 - [Clarify anchor flag inconsistency in CLI.md and design doc](T8xy3ry-clarify-anchor-flag-inconsistency-in-cli-md-and-de/T8xy3ry-clarify-anchor-flag-inconsistency-in-cli-md-and-de.md)
 - [Design recurring code review and cleanup tasks](T9f4w-code-review-cleanup-recurring-design/T9f4w-code-review-cleanup-recurring-design.md)
