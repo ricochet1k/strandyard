@@ -47,7 +47,9 @@ func init() {
 	addCmd.Flags().StringVar(&addPriority, "priority", "medium", "priority: high, medium, or low")
 	addCmd.Flags().StringSliceVar(&addBlockers, "blocker", nil, "blocker task ID(s); can be repeated or comma-separated")
 	addCmd.Flags().StringSliceVar(&addBlocks, "blocks", nil, "task ID(s) this task blocks; can be repeated or comma-separated")
-	addCmd.Flags().StringSliceVar(&addEvery, "every", nil, "recurrence rule (e.g., \"10 days\", \"50 commits from HEAD\")")
+	addCmd.Flags().StringSliceVar(&addEvery, "every", nil, `recurrence rule: "<amount> <metric> [from <anchor>]" (repeatable)
+metrics: days, weeks, months, commits, lines_changed, tasks_completed
+examples: "10 days", "50 commits from HEAD", "20 tasks_completed from T1a1a"`)
 }
 
 var (

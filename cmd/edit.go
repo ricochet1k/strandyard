@@ -56,7 +56,9 @@ func init() {
 	editCmd.Flags().StringVar(&editPriority, "priority", "", "priority: high, medium, or low")
 	editCmd.Flags().StringSliceVarP(&editBlockers, "blocker", "b", nil, "blocker task ID(s); replaces existing blockers")
 	editCmd.Flags().StringSliceVar(&editBlocks, "blocks", nil, "task ID(s) this task blocks; replaces existing blocks")
-	editCmd.Flags().StringSliceVar(&editEvery, "every", nil, "recurrence rule (e.g., \"10 days\", \"50 commits from HEAD\")")
+	editCmd.Flags().StringSliceVar(&editEvery, "every", nil, `recurrence rule: "<amount> <metric> [from <anchor>]" (repeatable)
+metrics: days, weeks, months, commits, lines_changed, tasks_completed
+examples: "10 days", "50 commits from HEAD", "20 tasks_completed from T1a1a"`)
 }
 
 func runEdit(cmd *cobra.Command, inputID, newBody string) error {
