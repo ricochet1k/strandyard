@@ -7,9 +7,10 @@ blockers: []
 blocks:
     - Tftao-clarify-recurrence-anchor-flags-and-help-text
 date_created: 2026-01-29T05:19:58.866092Z
-date_edited: 2026-01-28T22:19:58.875005-07:00
+date_edited: 2026-02-05T00:56:32.165995Z
 owner_approval: false
-completed: false
+completed: true
+description: ""
 ---
 
 # Usability review: recurrence anchor flags
@@ -61,3 +62,6 @@ Create new tasks for concerns or open questions instead of editing this task. Re
 - Help text readability and concision
 - Examples that reduce user error
 - Consistency with other CLI flag patterns
+
+## Completion Report
+Usability review complete. Verdict: Approved. All identified concerns for recurrence anchor flags have been addressed: (1) Added support for short task ID resolution. (2) Clarified 'after' vs 'from' semantics. (3) Updated help text with scannable examples. (4) Resolved discrepancies in documentation. The user experience for defining recurrence triggers is now clear and robust.
