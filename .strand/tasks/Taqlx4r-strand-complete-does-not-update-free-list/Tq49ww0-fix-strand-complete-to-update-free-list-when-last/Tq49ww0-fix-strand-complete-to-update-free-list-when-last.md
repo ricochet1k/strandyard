@@ -4,11 +4,15 @@ role: developer
 priority: high
 parent: Taqlx4r-strand-complete-does-not-update-free-list
 blockers:
-    - Tq85w01-review-security-of-free-list-update-implementation
+    - T2sghsg-improve-error-handling-in-blocker-updates-avoid-si
+    - Tbztorv-enforce-restrictive-file-permissions-on-activity-l
+    - Th7ziu5-race-condition-in-incremental-free-list-update-cal
+    - Titna0q-add-validation-and-limits-for-task-completion-repo
+    - Tsnb73f-verify-task-id-resolution-prevents-path-traversal
     - Txxvu2j-review-reliability-of-free-list-update-implementat
 blocks: []
 date_created: 2026-02-05T12:01:17.376997Z
-date_edited: 2026-02-05T12:10:19.930756Z
+date_edited: 2026-02-05T12:14:21.355655Z
 owner_approval: false
 completed: false
 description: ""
@@ -36,6 +40,11 @@ description: ""
 - [ ] (role: documentation) Update user-facing docs and examples.
 
 ## Subtasks
+- [ ] (subtask: T2sghsg) Improve error handling in blocker updates - avoid silent failures
+- [ ] (subtask: Tbztorv) Enforce restrictive file permissions on activity logs
+- [ ] (subtask: Th7ziu5) Race condition in incremental free-list update calculation
+- [ ] (subtask: Titna0q) Add validation and limits for task completion reports
 - [x] (subtask: Tj9pcpb) Description
-- [ ] (subtask: Tq85w01) Description
+- [x] (subtask: Tq85w01) Description
+- [ ] (subtask: Tsnb73f) Verify task ID resolution prevents path traversal attacks
 - [ ] (subtask: Txxvu2j) Description
