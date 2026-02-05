@@ -4,7 +4,6 @@ role: reviewer-reliability
 priority: high
 parent: Twqo3xp-status-field-migration-epic
 blockers:
-    - T4lskfn-reliability-status-field-completeness-in-free-list
     - T8ka869-reliability-completetodo-must-set-status-field-not
     - T8q1mh9-reliability-ensure-comprehensive-status-transition
     - Tq62581-reliability-blocker-logic-must-handle-all-non-acti
@@ -13,7 +12,7 @@ blockers:
 blocks:
     - Ta3bynh-update-taskdb-operations-for-status-field
 date_created: 2026-02-05T22:02:59.314428Z
-date_edited: 2026-02-05T22:04:34.267775Z
+date_edited: 2026-02-05T22:06:10.757375Z
 owner_approval: false
 completed: true
 description: ""
@@ -38,13 +37,7 @@ Review the TaskDB changes for status field support.
 
 Delegate concerns to the relevant role via subtasks.
 
-## Subtasks
-- [ ] (subtask: T4lskfn) New Task: Reliability: Status field completeness in free-list calculation
-- [ ] (subtask: T8ka869) New Task: Reliability: CompleteTodo must set status field, not just completed bool
-- [ ] (subtask: T8q1mh9) New Task: Reliability: Ensure comprehensive status transition validation
-- [ ] (subtask: Tq62581) New Task: Reliability: Blocker logic must handle all non-active statuses
-- [ ] (subtask: Tswhf9b) New Task: Reliability: Address status field initialization and defaults
-- [ ] (subtask: Tvc5v0r) New Task: Reliability: Test all status transitions and edge cases
+
 
 ## Completion Report
 Reliability review complete. Critical concerns identified and delegated:
@@ -62,3 +55,12 @@ Reliability review complete. Critical concerns identified and delegated:
 6. TEST COVERAGE (Tvc5v0r): Comprehensive tests needed for all status transitions, interaction with blocker logic, and edge cases in migration scenarios.
 
 Recommendation: Implement in order: 1→2→3→5→4→6. All concerns are high reliability risk and must be addressed before merge.
+
+## Subtasks
+- [x] (subtask: T4lskfn) New Task: Reliability: Status field completeness in free-list calculation
+- [ ] (subtask: T8ka869) New Task: Reliability: CompleteTodo must set status field, not just completed bool
+- [ ] (subtask: T8q1mh9) New Task: Reliability: Ensure comprehensive status transition validation
+- [ ] (subtask: Ta92amw) New Task: Reliability: Status field completeness in free-list calculation
+- [ ] (subtask: Tq62581) New Task: Reliability: Blocker logic must handle all non-active statuses
+- [ ] (subtask: Tswhf9b) New Task: Reliability: Address status field initialization and defaults
+- [ ] (subtask: Tvc5v0r) New Task: Reliability: Test all status transitions and edge cases
