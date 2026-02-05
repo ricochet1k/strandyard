@@ -208,15 +208,15 @@ strand add issue "Add issue command" --priority high
 Creates a task with a recurrence rule that can be materialized into subsequent tasks.
 
 ```bash
-strand add <type> [title] --every "<interval> <unit> [from <anchor>]"
+strand add <type> [title] --every "<interval> <unit> [from|after <anchor>]"
 ```
 
 Flags:
-  - `--every`: Recurrence rule (e.g., "10 days", "50 commits from HEAD", "20 tasks_completed"). Can be repeated for multiple rules.
+  - `--every`: Recurrence rule (e.g., "10 days", "50 commits from HEAD", "20 tasks_completed"). Can be repeated for multiple rules. Supports `from <anchor>` (start at anchor) or `after <anchor>` (start one interval after anchor).
 
 **Example**:
 ```bash
-strand add task "Quarterly docs review" --every "3 months from Jan 1 2026 00:00 UTC" --role reviewer
+strand add task "Quarterly docs review" --every "3 months after Jan 1 2026 00:00 UTC" --role reviewer
 ```
 
 **Resulting task metadata (example)**:
@@ -456,9 +456,9 @@ every:
 
 **Anchors**:
 - If no anchor is specified (e.g., `10 days`), the anchor defaults to `now` for time-based rules or `HEAD` for git-based rules.
-- Explicit anchors can be provided using `from <anchor>`.
+- Explicit anchors can be provided using `from <anchor>` (start at anchor) or `after <anchor>` (start one interval after anchor).
 - Date anchors support ISO 8601 (e.g., `2026-01-28T09:00:00Z`) and the human-friendly format `Jan 2 2006 15:04 MST`.
-- `tasks_completed` anchors can be a task ID or a date/time.
+- `tasks_completed` anchors can be a task ID (short or full) or a date/time.
 
 **Special considerations for git-based recurrence**:
 - When a rule uses `HEAD` as an anchor, it indicates the latest commit.
@@ -545,13 +545,14 @@ Default anchor examples:
 - `--every "500 lines_changed from HEAD"`
 - `--every "20 tasks_completed"`
 
-Explicit anchor examples (use sparingly):
+Explicit anchor examples:
 - `--every "10 days from Jan 28 2026 09:00 UTC"`
+- `--every "1 month after Jan 1 2026 00:00 UTC"`
 
 Anchor guidance:
 - Use the human-friendly date anchor above for explicit date/time examples.
 - Use `HEAD` for commit-based defaults and explicit commit anchors.
-- Task ID anchors can be used for `tasks_completed` (e.g., `from T1234-example`).
+- Task ID anchors (short or full) can be used for `tasks_completed` (e.g., `from T1a1a`).
 - ISO 8601 anchors are fully supported (for example, `2026-01-28T09:00:00Z`).
 
 ## Tips

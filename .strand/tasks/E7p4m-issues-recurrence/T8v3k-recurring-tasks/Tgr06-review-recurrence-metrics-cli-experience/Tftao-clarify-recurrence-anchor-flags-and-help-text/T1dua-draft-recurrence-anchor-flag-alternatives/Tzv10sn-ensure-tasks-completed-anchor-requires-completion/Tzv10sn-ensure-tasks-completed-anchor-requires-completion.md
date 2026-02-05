@@ -6,9 +6,9 @@ parent: T1dua-draft-recurrence-anchor-flag-alternatives
 blockers: []
 blocks: []
 date_created: 2026-02-01T20:27:58.689359Z
-date_edited: 2026-02-05T00:55:19.218093Z
+date_edited: 2026-02-05T00:56:16.851978Z
 owner_approval: false
-completed: false
+completed: true
 description: ""
 ---
 
@@ -49,7 +49,8 @@ The `tasks_completed` metric for recurring tasks should be based on an activity 
   All test suites pass (90 tests). Activity log integration tests confirm completion events are recorded and queried correctly for recurrence scheduling.
 - [x] (role: master-reviewer) Coordinate required reviews: `reviewer-reliability`, `reviewer-security`, `reviewer-usability`.
   Delegated reviews to specialized reviewers: Tzsq4gq (reliability), T5e82fn (security), Tgp9tiq (usability). Activity log implementation is ready for review.
-- [ ] (role: documentation) Update user-facing docs and examples.
+- [x] (role: documentation) Update user-facing docs and examples.
+  Updated CLI.md, design-docs/recurrence-metrics.md, design-docs/recurrence-anchor-error-messages.md, and anchor-help-text-and-examples-alternatives.md to reflect the activity log implementation, short task ID resolution, and after/from grammar.
 
 ## Subtasks
 - [x] (subtask: T5e82fn) Description

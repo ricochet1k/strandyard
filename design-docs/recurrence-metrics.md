@@ -46,13 +46,14 @@ Add a `recurrence_triggers` list with metric definitions that can be combined.
 - **Cons**: More schema surface area and migration work.
 
 ## Decision
-The project adopts **Option B (Metric Triggers Array)** to support combining multiple triggers (e.g., time + commits). Tasks-completed tracking will use **Option A (date_completed metadata)** supplemented by a project-level change log (audit trail) to ensure long-term auditability even after tasks are archived.
+The project adopts **Option B (Metric Triggers Array)** to support combining multiple triggers (e.g., time + commits). Tasks-completed tracking uses a dedicated **Activity Log** (`.strand/activity.log`) to ensure long-term auditability even after tasks are archived or deleted. The CLI supports a structured grammar for triggers: `<interval> <unit> [from|after <anchor>]`.
 
 ## Validation Rules
-- Require positive `recurrence_interval` for all triggers.
-- Validate `recurrence_unit` (Option A) or `recurrence_triggers[].type` (Option B).
-- Enforce presence of `recurrence_anchor` for git-based metrics.
-- For tasks-completed metrics, require `date_completed` or equivalent anchor fields based on the chosen storage strategy.
+- Require positive `interval` for all triggers.
+- Supported units: `days`, `weeks`, `months`, `commits`, `lines_changed`, `tasks_completed`.
+- Anchors for `tasks_completed` can be a date or a task ID (short or full).
+- `after <anchor>` is automatically resolved to the first theoretical due date at creation time.
+- Task ID anchors are resolved to full canonical IDs during validation.
 
 ## CLI/Template Impacts
 - Add flags for metric selection to `add` with recurrence.
