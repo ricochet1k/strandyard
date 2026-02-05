@@ -34,6 +34,7 @@ type EditorProps = {
   onRoleChange: (role: RoleDetail) => void
   onTemplateChange: (template: TemplateDetail) => void
   onSave: () => void
+  onAddSubtask?: () => void
 }
 
 export default function Editor(props: EditorProps) {
@@ -241,6 +242,11 @@ export default function Editor(props: EditorProps) {
           <p class="detail">{displayPath()}</p>
         </div>
         <div class="editor-actions">
+          <Show when={props.tab === "tasks" && task() && props.onAddSubtask}>
+            <button class="primary" onClick={() => props.onAddSubtask?.()}>
+              + Add Subtask
+            </button>
+          </Show>
           <span class={`sync ${props.dirty ? "dirty" : ""}`}>
             {props.dirty ? "Unsaved" : "Synced"}
           </span>

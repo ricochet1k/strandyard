@@ -1,10 +1,13 @@
 package web
 
 import (
+	"bytes"
 	"context"
 	"encoding/json"
 	"net/http"
 	"net/http/httptest"
+	"os"
+	"path/filepath"
 	"strings"
 	"testing"
 	"time"
@@ -184,5 +187,132 @@ func TestWithAuth(t *testing.T) {
 	handler.ServeHTTP(rr, req)
 	if rr.Code != http.StatusUnauthorized {
 		t.Errorf("expected 401 with wrong token, got %v", rr.Code)
+	}
+}
+
+func TestHandleTaskCreate(t *testing.T) {
+	// Create a temporary directory for the test
+	tmpDir := t.TempDir()
+	tasksDir := filepath.Join(tmpDir, "tasks")
+	rolesDir := filepath.Join(tmpDir, "roles")
+	templatesDir := filepath.Join(tmpDir, "templates")
+
+	if err := os.MkdirAll(tasksDir, 0o755); err != nil {
+		t.Fatal(err)
+	}
+	if err := os.MkdirAll(rolesDir, 0o755); err != nil {
+		t.Fatal(err)
+	}
+	if err := os.MkdirAll(templatesDir, 0o755); err != nil {
+		t.Fatal(err)
+	}
+
+	// Create a test role
+	roleContent := `---
+description: Test role for testing
+---
+Test role body
+`
+	if err := os.WriteFile(filepath.Join(rolesDir, "developer.md"), []byte(roleContent), 0o644); err != nil {
+		t.Fatal(err)
+	}
+
+	// Create a test template
+	templateContent := `---
+role: developer
+priority: medium
+description: Test template
+id_prefix: T
+---
+# {{ .Title }}
+
+## Summary
+{{ .Body }}
+`
+	if err := os.WriteFile(filepath.Join(templatesDir, "task.md"), []byte(templateContent), 0o644); err != nil {
+		t.Fatal(err)
+	}
+
+	proj := &ProjectInfo{
+		Name:          "test",
+		StorageRoot:   tmpDir,
+		TasksRoot:     tasksDir,
+		RolesRoot:     rolesDir,
+		TemplatesRoot: templatesDir,
+	}
+
+	server := &Server{
+		config: ServerConfig{
+			ReadOnly: false,
+		},
+		projects: map[string]*ProjectInfo{
+			"test": proj,
+		},
+	}
+
+	reqBody := taskCreateRequest{
+		TemplateName: "task",
+		Title:        "Test Task",
+		Body:         "This is a test task",
+	}
+
+	bodyBytes, err := json.Marshal(reqBody)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	req, err := http.NewRequest("POST", "/api/task?project=test", bytes.NewReader(bodyBytes))
+	if err != nil {
+		t.Fatal(err)
+	}
+	req.Header.Set("Content-Type", "application/json")
+
+	rr := httptest.NewRecorder()
+	handler := http.HandlerFunc(server.handleTask)
+
+	handler.ServeHTTP(rr, req)
+
+	if status := rr.Code; status != http.StatusCreated {
+		t.Errorf("handler returned wrong status code: got %v want %v, body: %s", status, http.StatusCreated, rr.Body.String())
+	}
+
+	// Verify response
+	var response map[string]string
+	if err := json.Unmarshal(rr.Body.Bytes(), &response); err != nil {
+		t.Fatal(err)
+	}
+
+	if response["status"] != "created" {
+		t.Errorf("expected status created, got %v", response["status"])
+	}
+
+	// Verify task was created on filesystem
+	entries, err := os.ReadDir(tasksDir)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	if len(entries) == 0 {
+		t.Error("expected at least one task directory, got none")
+	}
+
+	// Check that the task directory contains a markdown file
+	for _, entry := range entries {
+		if entry.IsDir() {
+			taskFiles, err := os.ReadDir(filepath.Join(tasksDir, entry.Name()))
+			if err != nil {
+				t.Fatal(err)
+			}
+			hasMarkdown := false
+			for _, f := range taskFiles {
+				if strings.HasSuffix(f.Name(), ".md") {
+					hasMarkdown = true
+					break
+				}
+			}
+			if !hasMarkdown {
+				t.Errorf("task directory %s has no markdown file", entry.Name())
+			}
+		}
 	}
 }

@@ -3,3 +3,4 @@ apps/dashboard/dist/
 strandyard
 strand
 node_modules/
+apps/dashboard/test-results

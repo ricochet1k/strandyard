@@ -126,6 +126,7 @@ const setupApiMocks = async (
   options: {
     onPatch?: (payload: Record<string, unknown>) => void
     onFilePut?: (path: string, content: string) => void
+    onTaskCreate?: (payload: Record<string, unknown>) => void
   } = {},
 ) => {
   await page.route("**/api/**", async (route) => {
@@ -149,6 +150,17 @@ const setupApiMocks = async (
     }
 
     if (url.pathname === "/api/task") {
+      if (request.method() === "POST") {
+        const payload = request.postDataJSON() as Record<string, unknown>
+        options.onTaskCreate?.(payload)
+        await route.fulfill({
+          contentType: "application/json",
+          status: 201,
+          body: JSON.stringify({ status: "created", message: "✓ Task created: T3ef-new-task\n" }),
+        })
+        return
+      }
+
       if (request.method() === "PATCH") {
         const payload = request.postDataJSON() as Record<string, unknown>
         options.onPatch?.(payload)
@@ -371,4 +383,144 @@ test("saves edits to a role file", async ({ page }) => {
   expect(savedPath).toBe(roleContent.path)
   expect(savedContent).toContain("description: Updated description")
   expect(savedContent).toContain("# Updated Developer Role")
+})
+
+test("opens add task modal and templates populate", async ({ page }) => {
+  await installEventSourceMock(page)
+  
+  let createdTask: Record<string, unknown> | undefined
+  await setupApiMocks(page, {
+    onTaskCreate: (payload) => {
+      createdTask = payload
+    },
+  })
+
+  await page.goto("/")
+  await page.getByLabel("Status").selectOption("all")
+  
+  // Wait for initial load
+  await page.waitForTimeout(500)
+  
+  // Click the Add Task button
+  await page.getByRole("button", { name: "+ Add Task" }).click()
+  
+  // Modal should be visible
+  await expect(page.getByRole("heading", { name: "Add New Task" })).toBeVisible()
+  
+  // Template dropdown should be visible and populated
+  const templateSelect = page.locator("select#template")
+  await expect(templateSelect).toBeVisible()
+  
+  // Check that template options are populated (check count rather than visibility)
+  const templateOptions = await templateSelect.locator("option").count()
+  expect(templateOptions).toBeGreaterThan(2) // At least 2 templates + placeholder
+  
+  // Select a template
+  await templateSelect.selectOption("task")
+  
+  // Fill in the title
+  await page.locator("input#title").fill("New test task")
+  
+  // Fill in description
+  await page.locator("textarea#body").fill("This is a test task description")
+  
+  // Submit the form
+  await page.getByRole("button", { name: "Create Task" }).click()
+  
+  // Wait for modal to close
+  await expect(page.getByRole("heading", { name: "Add New Task" })).not.toBeVisible()
+  
+  // Verify the task was created with correct data
+  expect(createdTask).toMatchObject({
+    template_name: "task",
+    title: "New test task",
+    body: "This is a test task description",
+    role: "developer", // from template default
+    priority: "medium", // from template default
+  })
+})
+
+test("add task modal allows selecting parent task", async ({ page }) => {
+  await installEventSourceMock(page)
+  
+  let createdTask: Record<string, unknown> | undefined
+  await setupApiMocks(page, {
+    onTaskCreate: (payload) => {
+      createdTask = payload
+    },
+  })
+
+  await page.goto("/")
+  await page.getByLabel("Status").selectOption("all")
+  await page.waitForTimeout(500)
+  
+  // Open add task modal
+  await page.getByRole("button", { name: "+ Add Task" }).click()
+  
+  // Select template
+  await page.locator("select#template").selectOption("task")
+  
+  // Fill in title
+  await page.locator("input#title").fill("Subtask example")
+  
+  // Select parent task
+  const parentSelect = page.locator("select#parent")
+  await expect(parentSelect).toBeVisible()
+  
+  // Check that parent task options are populated
+  const parentOptions = await parentSelect.locator("option").count()
+  expect(parentOptions).toBeGreaterThan(1) // At least 1 task + "No parent" option
+  
+  // Select the parent
+  await parentSelect.selectOption(tasks[0].id)
+  
+  // Submit
+  await page.getByRole("button", { name: "Create Task" }).click()
+  
+  // Verify parent was included
+  expect(createdTask).toMatchObject({
+    parent: tasks[0].id,
+  })
+})
+
+test("add subtask button opens modal with parent pre-filled", async ({ page }) => {
+  await installEventSourceMock(page)
+  
+  let createdTask: Record<string, unknown> | undefined
+  await setupApiMocks(page, {
+    onTaskCreate: (payload) => {
+      createdTask = payload
+    },
+  })
+
+  await page.goto("/")
+  await page.getByLabel("Status").selectOption("all")
+  await page.waitForTimeout(500)
+  
+  // Open a task
+  await page.getByRole("button", { name: tasks[0].title }).click()
+  await page.waitForTimeout(500)
+  
+  // Click Add Subtask button
+  await page.getByRole("button", { name: "+ Add Subtask" }).click()
+  
+  // Modal should be visible
+  await expect(page.getByRole("heading", { name: "Add New Task" })).toBeVisible()
+  
+  // Parent should be pre-selected
+  const parentSelect = page.locator("select#parent")
+  await expect(parentSelect).toHaveValue(tasks[0].id)
+  
+  // Fill in the form
+  await page.locator("select#template").selectOption("task")
+  await page.locator("input#title").fill("Subtask of first task")
+  
+  // Submit
+  await page.getByRole("button", { name: "Create Task" }).click()
+  
+  // Verify the task was created with the correct parent
+  expect(createdTask).toMatchObject({
+    parent: tasks[0].id,
+    title: "Subtask of first task",
+  })
 })

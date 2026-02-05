@@ -5,6 +5,7 @@ import TaskTable from "./components/TaskTable"
 import RolesTable from "./components/RolesTable"
 import TemplatesTable from "./components/TemplatesTable"
 import Editor from "./components/Editor"
+import AddTaskModal from "./components/AddTaskModal"
 import "./App.css"
 import { keyArray } from "@solid-primitives/keyed"
 import { ReactiveMap } from "@solid-primitives/map"
@@ -153,6 +154,7 @@ export default function App() {
   const [lastEvent, setLastEvent] = createSignal("")
   const [projects, setProjects] = createSignal<ProjectInfo[]>([])
   const [currentProject, setCurrentProject] = createSignal("")
+  const [showAddTaskModal, setShowAddTaskModal] = createSignal(false)
 
   // Task filtering, sorting, and search
   const [searchQuery, setSearchQuery] = createSignal("")
@@ -381,6 +383,37 @@ export default function App() {
   const handleTemplateDetailChange = (updated: TemplateDetail) => {
     setActiveTemplateDetail(updated)
     setDirty(true)
+  }
+
+  const handleAddTask = async (data: {
+    template_name: string
+    title: string
+    role: string
+    priority: string
+    parent: string
+    body: string
+  }) => {
+    try {
+      setStatus("Creating task...")
+      await fetchJSON(apiURL("/api/task"), {
+        method: "POST",
+        body: JSON.stringify(data),
+      })
+      setStatus("Task created successfully")
+      // Reload tasks to show the new task
+      await loadTasks()
+    } catch (err) {
+      setStatus(`Failed to create task: ${errorMessage(err)}`)
+      throw err
+    }
+  }
+
+  const handleAddSubtask = () => {
+    const currentTask = activeTaskDetail()
+    if (!currentTask) return
+    
+    // Open the add task modal with the current task as parent
+    setShowAddTaskModal(true)
   }
 
   const hasChildren = (node: TaskTreeNode) => (taskChildren.get(node.task.short_id)?.length ?? 0) > 0
@@ -627,6 +660,8 @@ export default function App() {
   onMount(() => {
     void loadProjects()
     void loadTasks()
+    void loadRoles()
+    void loadTemplates()
 
     const source = new EventSource("/api/stream")
     const onOpen = () => setConnected(true)
@@ -728,7 +763,12 @@ export default function App() {
           <Show when={tab() === "tasks"}>
             <div class="pane-header">
               <h2>Tasks Library</h2>
-              <span class="pill">{filteredTasks().length} items</span>
+              <div style={{ display: "flex", gap: "0.5rem", "align-items": "center" }}>
+                <span class="pill">{filteredTasks().length} items</span>
+                <button class="button button-primary" onClick={() => setShowAddTaskModal(true)}>
+                  + Add Task
+                </button>
+              </div>
             </div>
             <div class="list">
               <TaskTable
@@ -786,8 +826,20 @@ export default function App() {
           onRoleChange={handleRoleDetailChange}
           onTemplateChange={handleTemplateDetailChange}
           onSave={tab() === "tasks" ? saveTask : tab() === "roles" ? saveRole : saveTemplate}
+          onAddSubtask={handleAddSubtask}
         />
       </section>
+
+      <Show when={showAddTaskModal()}>
+        <AddTaskModal
+          templates={templates()}
+          roles={roles()}
+          tasks={tasks()}
+          defaultParent={activeTaskDetail()?.id || ""}
+          onClose={() => setShowAddTaskModal(false)}
+          onSubmit={handleAddTask}
+        />
+      </Show>
     </div>
   )
 }

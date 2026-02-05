@@ -1,6 +1,7 @@
 package web
 
 import (
+	"bytes"
 	"encoding/json"
 	"fmt"
 	"io"
@@ -11,7 +12,11 @@ import (
 	"strings"
 	"time"
 
+	"github.com/ricochet1k/strandyard/pkg/idgen"
+	rPkg "github.com/ricochet1k/strandyard/pkg/role"
 	"github.com/ricochet1k/strandyard/pkg/task"
+	"github.com/ricochet1k/strandyard/pkg/template"
+	"gopkg.in/yaml.v3"
 )
 
 type fileEntry struct {
@@ -48,6 +53,17 @@ type taskUpdateRequest struct {
 	Blockers  *[]string `json:"blockers,omitempty"`
 	Blocks    *[]string `json:"blocks,omitempty"`
 	Body      *string   `json:"body,omitempty"`
+}
+
+type taskCreateRequest struct {
+	TemplateName string   `json:"template_name"`
+	Title        string   `json:"title"`
+	Role         string   `json:"role,omitempty"`
+	Priority     string   `json:"priority,omitempty"`
+	Parent       string   `json:"parent,omitempty"`
+	Blockers     []string `json:"blockers,omitempty"`
+	Blocks       []string `json:"blocks,omitempty"`
+	Body         string   `json:"body,omitempty"`
 }
 
 type taskDetailResponse struct {
@@ -160,6 +176,17 @@ func (s *Server) handleTask(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	switch r.Method {
+	case http.MethodPost:
+		s.handleTaskCreate(w, r, proj)
+	case http.MethodGet, http.MethodPatch:
+		s.handleTaskGetOrUpdate(w, r, proj)
+	default:
+		w.WriteHeader(http.StatusMethodNotAllowed)
+	}
+}
+
+func (s *Server) handleTaskGetOrUpdate(w http.ResponseWriter, r *http.Request, proj *ProjectInfo) {
 	taskID := r.URL.Query().Get("id")
 	if taskID == "" {
 		respondError(w, http.StatusBadRequest, fmt.Errorf("missing task id"))
@@ -243,10 +270,71 @@ func (s *Server) handleTask(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 		respondJSON(w, http.StatusOK, snapshot)
-
-	default:
-		w.WriteHeader(http.StatusMethodNotAllowed)
 	}
+}
+
+func (s *Server) handleTaskCreate(w http.ResponseWriter, r *http.Request, proj *ProjectInfo) {
+	if s.config.ReadOnly {
+		respondError(w, http.StatusForbidden, fmt.Errorf("server is in read-only mode"))
+		return
+	}
+
+	body, err := io.ReadAll(r.Body)
+	if err != nil {
+		respondError(w, http.StatusBadRequest, err)
+		return
+	}
+
+	var req taskCreateRequest
+	if err := json.Unmarshal(body, &req); err != nil {
+		respondError(w, http.StatusBadRequest, err)
+		return
+	}
+
+	// Create a bytes buffer to capture output
+	var output strings.Builder
+
+	// Build addOptions from the request
+	opts := struct {
+		ProjectName       string
+		TemplateName      string
+		Title             string
+		Role              string
+		Priority          string
+		Parent            string
+		Blockers          []string
+		Blocks            []string
+		Every             []string
+		RoleSpecified     bool
+		PrioritySpecified bool
+		Body              string
+	}{
+		ProjectName:       proj.Name,
+		TemplateName:      req.TemplateName,
+		Title:             req.Title,
+		Role:              req.Role,
+		Priority:          req.Priority,
+		Parent:            req.Parent,
+		Blockers:          req.Blockers,
+		Blocks:            req.Blocks,
+		Every:             []string{},
+		RoleSpecified:     req.Role != "",
+		PrioritySpecified: req.Priority != "",
+		Body:              req.Body,
+	}
+
+	// We need to use the internal task creation logic
+	// For now, we'll shell out to the add command logic
+	// This is a simplified version - in production you'd refactor the add logic into a shared function
+	if err := s.createTask(&output, opts, proj); err != nil {
+		respondError(w, http.StatusBadRequest, fmt.Errorf("%s: %w", output.String(), err))
+		return
+	}
+
+	respondJSON(w, http.StatusCreated, map[string]string{
+		"status":  "created",
+		"message": output.String(),
+	})
 }
 
 func taskToSnapshot(t *task.Task, storageRoot string) (*taskDetailResponse, error) {
@@ -526,4 +614,236 @@ func writeSSE(w http.ResponseWriter, event string, payload any) {
 	}
 	fmt.Fprintf(w, "event: %s\n", event)
 	fmt.Fprintf(w, "data: %s\n\n", data)
+}
+
+func (s *Server) createTask(w io.Writer, opts struct {
+	ProjectName       string
+	TemplateName      string
+	Title             string
+	Role              string
+	Priority          string
+	Parent            string
+	Blockers          []string
+	Blocks            []string
+	Every             []string
+	RoleSpecified     bool
+	PrioritySpecified bool
+	Body              string
+}, proj *ProjectInfo) error {
+	db := task.NewTaskDB(proj.TasksRoot)
+	if err := db.LoadAllIfEmpty(); err != nil {
+		return err
+	}
+
+	tmplName := strings.TrimSpace(opts.TemplateName)
+	if tmplName == "" {
+		return fmt.Errorf("template name is required")
+	}
+
+	templates, err := template.LoadTemplates(proj.TemplatesRoot)
+	if err != nil {
+		return err
+	}
+
+	tmpl, ok := templates[tmplName]
+	if !ok {
+		return fmt.Errorf("unknown template %q", tmplName)
+	}
+
+	title := strings.TrimSpace(opts.Title)
+	if title == "" {
+		return fmt.Errorf("title is required")
+	}
+
+	// Reject placeholder titles
+	invalidTitles := []string{"description", "task title", "new task", "title", "summary", "todo"}
+	lowerTitle := strings.ToLower(title)
+	for _, invalid := range invalidTitles {
+		if lowerTitle == invalid {
+			return fmt.Errorf("title %q looks like a placeholder; please provide a descriptive title", title)
+		}
+	}
+
+	roleName := strings.TrimSpace(opts.Role)
+	if !opts.RoleSpecified {
+		roleName = strings.TrimSpace(tmpl.Meta.Role)
+	}
+	if roleName == "" {
+		return fmt.Errorf("role is required")
+	}
+
+	roles, err := rPkg.LoadRoles(proj.RolesRoot)
+	if err != nil {
+		return err
+	}
+
+	if _, ok := roles[roleName]; !ok {
+		return fmt.Errorf("invalid role %q", roleName)
+	}
+
+	priority := task.NormalizePriority(opts.Priority)
+	if !opts.PrioritySpecified {
+		if pStr, ok := tmpl.Meta.Priority.(string); ok && pStr != "" {
+			priority = task.NormalizePriority(pStr)
+		}
+	}
+	if !task.IsValidPriority(priority) {
+		return fmt.Errorf("invalid priority: %s", priority)
+	}
+
+	parent := strings.TrimSpace(opts.Parent)
+	parentDir := proj.TasksRoot
+	if parent != "" {
+		resolvedParent, err := db.ResolveID(parent)
+		if err != nil {
+			return fmt.Errorf("parent task %s does not exist: %w", parent, err)
+		}
+		parent = resolvedParent
+		parentTask, err := db.Get(parent)
+		if err != nil {
+			return fmt.Errorf("parent task %s does not exist: %w", parent, err)
+		}
+		parentDir = parentTask.Dir
+	}
+
+	prefix := "T"
+	if strings.Contains(strings.ToLower(tmplName), "epic") {
+		prefix = "E"
+	}
+
+	id, err := idgen.GenerateID(prefix, title)
+	if err != nil {
+		return err
+	}
+
+	taskDir := filepath.Join(parentDir, id)
+	if _, err := os.Stat(taskDir); err == nil {
+		return fmt.Errorf("task directory already exists: %s", taskDir)
+	}
+	if err := os.MkdirAll(taskDir, 0o755); err != nil {
+		return fmt.Errorf("failed to create task directory: %w", err)
+	}
+
+	blockers, err := db.ResolveIDs(normalizeTaskIDsWeb(opts.Blockers))
+	if err != nil {
+		return err
+	}
+	blocks, err := db.ResolveIDs(normalizeTaskIDsWeb(opts.Blocks))
+	if err != nil {
+		return err
+	}
+	now := time.Now().UTC()
+	meta := task.Metadata{
+		Type:          tmplName,
+		Role:          roleName,
+		Priority:      priority,
+		Parent:        parent,
+		Blockers:      []string{},
+		Blocks:        []string{},
+		DateCreated:   now,
+		DateEdited:    now,
+		OwnerApproval: false,
+		Completed:     false,
+		Every:         opts.Every,
+	}
+
+	body := renderTemplateBodyWeb(tmpl.BodyContent, map[string]string{
+		"Title":               title,
+		"SuggestedSubtaskDir": fmt.Sprintf("%s-subtask", id),
+		"Body":                opts.Body,
+	})
+	if opts.Body != "" && !strings.Contains(tmpl.BodyContent, "{{ .Body }}") {
+		if strings.TrimSpace(body) != "" {
+			body += "\n\n"
+		}
+		body += opts.Body
+	}
+	taskFile := filepath.Join(taskDir, id+".md")
+	if err := writeTaskFileWeb(taskFile, meta, body); err != nil {
+		return err
+	}
+
+	fmt.Fprintf(w, "✓ Task created: %s\n", id)
+
+	// Load the new task and set up blocker/blocks relationships via TaskDB
+	if len(blockers) > 0 || len(blocks) > 0 {
+		if _, err := db.Load(id); err != nil {
+			return fmt.Errorf("failed to load new task: %w", err)
+		}
+		for _, blockerID := range blockers {
+			if err := db.AddBlocker(id, blockerID); err != nil {
+				return fmt.Errorf("failed to add blocker %s: %w", blockerID, err)
+			}
+		}
+		for _, blockedID := range blocks {
+			if err := db.AddBlocked(id, blockedID); err != nil {
+				return fmt.Errorf("failed to add blocked %s: %w", blockedID, err)
+			}
+		}
+		if _, err := db.SaveDirty(); err != nil {
+			return fmt.Errorf("failed to write blocker updates: %w", err)
+		}
+	}
+
+	if parent != "" {
+		if _, err := db.Load(id); err != nil {
+			return fmt.Errorf("failed to load new task: %w", err)
+		}
+		if _, err := db.UpdateParentTodos(parent); err != nil {
+			return fmt.Errorf("failed to update parent task TODO entries: %w", err)
+		}
+		if _, err := db.SaveDirty(); err != nil {
+			return fmt.Errorf("failed to write parent task updates: %w", err)
+		}
+	}
+
+	return nil
+}
+
+func normalizeTaskIDsWeb(items []string) []string {
+	seen := map[string]struct{}{}
+	var out []string
+	for _, item := range items {
+		parts := strings.Split(item, ",")
+		for _, part := range parts {
+			trimmed := strings.TrimSpace(part)
+			if trimmed == "" {
+				continue
+			}
+			if _, ok := seen[trimmed]; ok {
+				continue
+			}
+			seen[trimmed] = struct{}{}
+			out = append(out, trimmed)
+		}
+	}
+	sort.Strings(out)
+	return out
+}
+
+func renderTemplateBodyWeb(body string, data map[string]string) string {
+	out := body
+	for key, value := range data {
+		out = strings.ReplaceAll(out, "{{ ."+key+" }}", value)
+	}
+	return out
+}
+
+func writeTaskFileWeb(path string, meta task.Metadata, body string) error {
+	frontmatterBytes, err := yaml.Marshal(&meta)
+	if err != nil {
+		return fmt.Errorf("failed to marshal frontmatter: %w", err)
+	}
+	frontmatterBytes = bytes.TrimSpace(frontmatterBytes)
+
+	var sb strings.Builder
+	sb.WriteString("---\n")
+	sb.Write(frontmatterBytes)
+	sb.WriteString("\n---\n\n")
+	sb.WriteString(body)
+	if !strings.HasSuffix(body, "\n") {
+		sb.WriteString("\n")
+	}
+
+	return os.WriteFile(path, []byte(sb.String()), 0o644)
 }
