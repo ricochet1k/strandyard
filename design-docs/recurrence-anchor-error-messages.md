@@ -64,6 +64,14 @@ hint: --every "10 days from Jan 28 2026 09:00 UTC"
 
 **Notes**: Use human-friendly canonical date in hint; specific parse error in reason.
 
+### Malformed Task ID Anchor
+
+**Error**:
+```
+strand: error: invalid task ID anchor 'T1a-bad': must be a short or full task ID
+hint: --every "20 tasks_completed from T1a1a"
+```
+
 ### Malformed Commit Anchor
 
 **Error**:
@@ -90,15 +98,15 @@ strand: error: metric 'commits' expects a commit anchor, got date '2026-01-28'
 hint: --every "50 commits from HEAD"
 ```
 
-### Ambiguous Anchor Type
+### Ambiguous Anchor Type (metric with multiple anchor types)
 
 **Error**:
 ```
-strand: error: metric 'tasks_completed' requires a date anchor
+strand: error: metric 'tasks_completed' requires a date or task ID anchor, got commit hash '0123456789abcdef'
 hint: --every "20 tasks_completed from Jan 28 2026 09:00 UTC"
 ```
 
-**Notes**: `tasks_completed` uses completion time (date anchor) not commit count.
+**Notes**: `tasks_completed` uses completion time, not commit count. Supported anchors are date or task ID.
 
 ### Invalid Metric
 
@@ -143,7 +151,7 @@ Use these stable examples in hint lines (from `recurrence-anchor-hint-examples.m
 | `months` | date | now (implicit) |
 | `commits` | commit | HEAD |
 | `lines_changed` | commit | HEAD |
-| `tasks_completed` | date | now (implicit) |
+| `tasks_completed` | date or task ID | now (implicit) |
 
 ## Implementation Notes
 

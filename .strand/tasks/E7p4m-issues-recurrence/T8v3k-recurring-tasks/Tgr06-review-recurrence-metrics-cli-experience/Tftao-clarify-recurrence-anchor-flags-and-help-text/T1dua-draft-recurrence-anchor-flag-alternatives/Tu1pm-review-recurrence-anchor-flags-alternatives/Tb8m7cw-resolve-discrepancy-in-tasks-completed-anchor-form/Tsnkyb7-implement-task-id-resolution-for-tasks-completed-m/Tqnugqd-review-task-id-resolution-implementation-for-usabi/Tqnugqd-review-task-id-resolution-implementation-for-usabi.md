@@ -11,7 +11,7 @@ blockers:
     - Tsnyb3q-add-tasks-completed-hint-to-every-flag-validation
 blocks: []
 date_created: 2026-02-05T00:22:50.461374Z
-date_edited: 2026-02-05T00:38:36.471769Z
+date_edited: 2026-02-05T00:40:46.919214Z
 owner_approval: false
 completed: true
 description: ""
@@ -30,7 +30,7 @@ Usability review complete. Concerns identified: (1) design-docs/recurrence-ancho
 
 ## Subtasks
 - [x] (subtask: T8ficaa) New Task: Support short task ID resolution in GetLatestTaskCompletionTime
-- [ ] (subtask: Tefkvy2) Update design docs to include task ID anchors for tasks_completed
+- [x] (subtask: Tefkvy2) Update design docs to include task ID anchors for tasks_completed
 - [x] (subtask: Thi6rb5) New Task: Fix strand add failure when creating subtasks
 - [x] (subtask: Tjs0ulo) New Task: Update design docs to include task ID anchors for tasks_completed
 - [ ] (subtask: Tm0vg3a) Support short task ID resolution in GetLatestTaskCompletionTime

@@ -24,7 +24,7 @@ Propose concise `--help` text and CLI.md documentation for `strand add --every`,
 | `months` | date | now (implicit) | ISO 8601 or human-friendly date | `--every "3 months from Jan 28 2026 09:00 UTC"` |
 | `commits` | commit | HEAD | 40-char hex or `HEAD` | `--every "50 commits from HEAD"` |
 | `lines_changed` | commit | HEAD | 40-char hex or `HEAD` | `--every "500 lines_changed from HEAD"` |
-| `tasks_completed` | date | now (implicit) | ISO 8601 or human-friendly date | `--every "20 tasks_completed from Jan 28 2026 09:00 UTC"` |
+| `tasks_completed` | date or task ID | now (implicit) | ISO 8601, human date, or task ID | `--every "20 tasks_completed from T1a1a"` |
 
 **Notes**:
 - Date anchors accept ISO 8601 (`2026-01-28T09:00:00Z`) or human-friendly formats parsed by `when` library (e.g., `Jan 28 2026 09:00 UTC`).
@@ -40,7 +40,7 @@ Propose concise `--help` text and CLI.md documentation for `strand add --every`,
 ```
 --every strings   recurrence rule: "<amount> <metric> [from <anchor>]" (repeatable)
                   metrics: days, weeks, months, commits, lines_changed, tasks_completed
-                  examples: "10 days", "50 commits from HEAD", "20 tasks_completed from Jan 28 2026 09:00 UTC"
+                  examples: "10 days", "50 commits from HEAD", "20 tasks_completed from T1a1a"
 ```
 
 **CLI.md section**:
@@ -62,7 +62,7 @@ strand add [title] --every "<amount> <metric> [from <anchor>]" [flags]
 | `months` | date | now (implicit) | `--every "3 months"` |
 | `commits` | commit | HEAD | `--every "50 commits from HEAD"` |
 | `lines_changed` | commit | HEAD | `--every "500 lines_changed"` |
-| `tasks_completed` | date | now (implicit) | `--every "20 tasks_completed"` |
+| `tasks_completed` | date or task ID | now (implicit) | `--every "20 tasks_completed from T1a1a"` |
 
 **Multiple metrics**: repeat `--every` to combine triggers (when implemented).
 
@@ -124,7 +124,7 @@ recurrence_triggers:
 - `days`: date anchor, default `now`
 - `weeks`: date anchor, default `now`
 - `months`: date anchor, default `now`
-- `tasks_completed`: date anchor, default `now`
+- `tasks_completed`: date or task ID anchor, default `now`
 
 **Git-based metrics**:
 - `commits`: commit anchor (hash or `HEAD`), default `HEAD`
