@@ -6,15 +6,17 @@ parent: Td6be8o-usability-review-recurrence-anchor-flags-alternati
 blockers: []
 blocks: []
 date_created: 2026-02-05T00:26:19.627442Z
-date_edited: 2026-02-05T00:26:19.627442Z
+date_edited: 2026-02-05T00:49:55.584011Z
 owner_approval: false
-completed: false
+completed: true
 description: ""
 ---
 
 # New Task: Specify error recovery hints for --every grammar
 
 ## Description
+
+
 ## Summary
 User-facing error messages for the `--every` structured string must include the correct grammar and a relevant example based on the partial input.
 
@@ -23,3 +25,6 @@ User-facing error messages for the `--every` structured string must include the 
 - Each error message should provide a "Did you mean?" or "Example:" hint.
 
 Decide which task template would best fit this task and re-add it with that template and the same parent.
+
+## Completion Report
+Triage complete. Re-added as designer task T8x05w7 under the same parent.

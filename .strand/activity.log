@@ -55,3 +55,4 @@
 {"timestamp":"2026-02-05T00:48:17.919347Z","task_id":"Tsnyb3q-add-tasks-completed-hint-to-every-flag-validation","type":"task_completed","report":"Triage complete. Re-added as developer task T3zfkvy under the same parent."}
 {"timestamp":"2026-02-05T00:48:56.340478Z","task_id":"T3zfkvy-add-tasks-completed-hint-to-every-flag-validation","type":"task_completed","report":"N/A"}
 {"timestamp":"2026-02-05T00:49:34.19117Z","task_id":"Tb1arug-clarify-after-vs-from-parsing-logic","type":"task_completed","report":"Triage complete. Re-added as architect task Tmkq8c4 under the same parent."}
+{"timestamp":"2026-02-05T00:49:55.584423Z","task_id":"Tgmzib2-specify-error-recovery-hints-for-every-grammar","type":"task_completed","report":"Triage complete. Re-added as designer task T8x05w7 under the same parent."}
