@@ -3,7 +3,10 @@
 ## High
 
 - [Handle HEAD anchor mutability in recurrence definitions](E7p4m-issues-recurrence/T8v3k-recurring-tasks/Tgr06-review-recurrence-metrics-cli-experience/Tftao-clarify-recurrence-anchor-flags-and-help-text/T1dua-draft-recurrence-anchor-flag-alternatives/Tonge7b-handle-head-anchor-mutability-in-recurrence-defini/Tonge7b-handle-head-anchor-mutability-in-recurrence-defini.md)
-- [Replace completed boolean with status field (open/in_progress/done/duplicate/cancelled)](Tyhxhb7-replace-completed-boolean-with-status-field-open-i/Tyhxhb7-replace-completed-boolean-with-status-field-open-i.md)
+- [Description](Twqo3xp-status-field-migration-epic/T06q0r4-review-taskdb-operations-for-status-field/T06q0r4-review-taskdb-operations-for-status-field.md)
+- [Description](Twqo3xp-status-field-migration-epic/Tccehse-review-update-metadata-struct-for-status-field/Tccehse-review-update-metadata-struct-for-status-field.md)
+- [Description](Twqo3xp-status-field-migration-epic/Tqa5qvs-review-cli-commands-for-status-field/Tqa5qvs-review-cli-commands-for-status-field.md)
+- [Description](Twqo3xp-status-field-migration-epic/Tuowxgx-review-migration-and-testing-for-status-field/Tuowxgx-review-migration-and-testing-for-status-field.md)
 
 ## Medium
 

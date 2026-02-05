@@ -31,6 +31,7 @@
 - [Clarify after now vs from now anchor distinction in docs](Tl0wkx6-clarify-after-now-vs-from-now-anchor-distinction-i/Tl0wkx6-clarify-after-now-vs-from-now-anchor-distinction-i.md)
 - [Dashboard needs to have project name and task being edited in the route.](To55tad-dashboard-needs-to-have-project-name-and-task-bein/To55tad-dashboard-needs-to-have-project-name-and-task-bein.md)
 - [strand edit is missing --blocker flag](Twcp360-strand-edit-is-missing-blocker-flag/Twcp360-strand-edit-is-missing-blocker-flag.md)
+- [New Task: Status Field Migration Epic](Twqo3xp-status-field-migration-epic/Twqo3xp-status-field-migration-epic.md)
 - [Move task directory when parent changes](Tx2fpci-move-task-directory-when-parent-changes/Tx2fpci-move-task-directory-when-parent-changes.md)
 - [Normalize short IDs to full IDs in relationships](Tydoy3v-normalize-short-ids-to-full-ids-in-relationships/Tydoy3v-normalize-short-ids-to-full-ids-in-relationships.md)
 - [Replace completed boolean with status field (open/in_progress/done/duplicate/cancelled)](Tyhxhb7-replace-completed-boolean-with-status-field-open-i/Tyhxhb7-replace-completed-boolean-with-status-field-open-i.md)
