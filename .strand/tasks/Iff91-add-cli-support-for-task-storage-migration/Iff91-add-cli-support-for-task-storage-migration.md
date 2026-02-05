@@ -3,12 +3,14 @@ type: issue
 role: triage
 priority: medium
 parent: ""
-blockers: []
+blockers:
+    - Tnb5ir6-design-task-storage-migration
 blocks: []
 date_created: 2026-01-30T02:22:43.426796Z
-date_edited: 2026-01-30T02:22:43.426796Z
+date_edited: 2026-02-05T01:09:02.069874Z
 owner_approval: false
-completed: false
+completed: true
+description: ""
 ---
 
 # Add CLI support for task storage migration
@@ -27,3 +29,9 @@ Describe severity and who/what is affected.
 
 ## Escalation
 Tasks are disposable. Use follow-up tasks for open questions/concerns. Record decisions and final rationale in design docs; do not edit this task to capture outcomes.
+
+## Subtasks
+- [ ] (subtask: Tnb5ir6) New Task: Design task storage migration
+
+## Completion Report
+Confirmed that manual migration was used and a CLI command is needed. Created a design task Tnb5ir6 to define the migration process and handle Git-related concerns.

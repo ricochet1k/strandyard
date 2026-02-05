@@ -9,7 +9,7 @@
 - [Align exit code conventions for --every failures](E7p4m-issues-recurrence/T8v3k-recurring-tasks/Tgr06-review-recurrence-metrics-cli-experience/Tftao-clarify-recurrence-anchor-flags-and-help-text/T1dua-draft-recurrence-anchor-flag-alternatives/T3md3-usability-review-recurrence-anchor-flags/Trlrg-specify-anchor-error-messages/Thy9m-reliability-review-recurrence-anchor-errors/Tc3zv-align-exit-code-conventions-for-every-failures/Tc3zv-align-exit-code-conventions-for-every-failures.md)
 - [Decide recurrence schema option (A vs B)](E7p4m-issues-recurrence/T8v3k-recurring-tasks/Tgr06-review-recurrence-metrics-cli-experience/Twvju-decide-recurrence-schema-option-a-vs-b/Twvju-decide-recurrence-schema-option-a-vs-b.md)
 - [Approve recurrence metrics design](E7p4m-issues-recurrence/T8v3k-recurring-tasks/Tl4cn-approve-recurrence-metrics-design/Tl4cn-approve-recurrence-metrics-design.md)
-- [Add CLI support for task storage migration](Iff91-add-cli-support-for-task-storage-migration/Iff91-add-cli-support-for-task-storage-migration.md)
+- [New Task: Design task storage migration](Iff91-add-cli-support-for-task-storage-migration/Tnb5ir6-design-task-storage-migration/Tnb5ir6-design-task-storage-migration.md)
 - [Track repair delta and verify complete no-op](Igghk-track-repair-delta-and-verify-complete-no-op/Igghk-track-repair-delta-and-verify-complete-no-op.md)
 - [Investigate date_edited churn on no-op repair](Ihv0n-investigate-date-edited-churn-on-no-op-repair/Ihv0n-investigate-date-edited-churn-on-no-op-repair.md)
 - [Add --parent flag to list command to list only commits that are descendants of a given parent](Iquzx-add-parent-flag-to-list-command-to-list-only-commi/Iquzx-add-parent-flag-to-list-command-to-list-only-commi.md)
