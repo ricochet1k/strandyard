@@ -7,7 +7,6 @@
 ## Medium
 
 - [Align exit code conventions for --every failures](E7p4m-issues-recurrence/T8v3k-recurring-tasks/Tgr06-review-recurrence-metrics-cli-experience/Tftao-clarify-recurrence-anchor-flags-and-help-text/T1dua-draft-recurrence-anchor-flag-alternatives/T3md3-usability-review-recurrence-anchor-flags/Trlrg-specify-anchor-error-messages/Thy9m-reliability-review-recurrence-anchor-errors/Tc3zv-align-exit-code-conventions-for-every-failures/Tc3zv-align-exit-code-conventions-for-every-failures.md)
-- [Reliability review: recurrence anchor flags](E7p4m-issues-recurrence/T8v3k-recurring-tasks/Tgr06-review-recurrence-metrics-cli-experience/Tftao-clarify-recurrence-anchor-flags-and-help-text/Tpgq2-reliability-review-recurrence-anchor-flags/Tpgq2-reliability-review-recurrence-anchor-flags.md)
 - [Define lines-changed scope flag and default](E7p4m-issues-recurrence/T8v3k-recurring-tasks/Tgr06-review-recurrence-metrics-cli-experience/Tu1vk-define-lines-changed-scope-flag-and-default/Tu1vk-define-lines-changed-scope-flag-and-default.md)
 - [Define recurrence CLI shape for discoverability](E7p4m-issues-recurrence/T8v3k-recurring-tasks/Tgr06-review-recurrence-metrics-cli-experience/Tw6ga-define-recurrence-cli-shape-for-discoverability/Tw6ga-define-recurrence-cli-shape-for-discoverability.md)
 - [Decide recurrence schema option (A vs B)](E7p4m-issues-recurrence/T8v3k-recurring-tasks/Tgr06-review-recurrence-metrics-cli-experience/Twvju-decide-recurrence-schema-option-a-vs-b/Twvju-decide-recurrence-schema-option-a-vs-b.md)
