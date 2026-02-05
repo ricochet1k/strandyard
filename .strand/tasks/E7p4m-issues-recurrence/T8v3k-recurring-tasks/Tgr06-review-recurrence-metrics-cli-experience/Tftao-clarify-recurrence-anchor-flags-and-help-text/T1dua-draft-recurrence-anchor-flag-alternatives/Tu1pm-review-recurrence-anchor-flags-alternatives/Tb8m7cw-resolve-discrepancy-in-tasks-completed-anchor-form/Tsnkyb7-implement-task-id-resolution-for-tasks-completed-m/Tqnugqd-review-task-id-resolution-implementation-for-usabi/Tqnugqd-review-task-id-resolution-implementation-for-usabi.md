@@ -11,7 +11,7 @@ blockers:
     - Tsnyb3q-add-tasks-completed-hint-to-every-flag-validation
 blocks: []
 date_created: 2026-02-05T00:22:50.461374Z
-date_edited: 2026-02-05T00:43:40.875699Z
+date_edited: 2026-02-05T00:45:14.552871Z
 owner_approval: false
 completed: true
 description: ""
@@ -34,6 +34,6 @@ Usability review complete. Concerns identified: (1) design-docs/recurrence-ancho
 - [x] (subtask: Thi6rb5) New Task: Fix strand add failure when creating subtasks
 - [x] (subtask: Tjs0ulo) New Task: Update design docs to include task ID anchors for tasks_completed
 - [x] (subtask: Tm0vg3a) Support short task ID resolution in GetLatestTaskCompletionTime
-- [ ] (subtask: Tm555wi) Fix strand add failure when creating subtasks
+- [x] (subtask: Tm555wi) Fix strand add failure when creating subtasks
 - [ ] (subtask: Tqfbr5g) New Task: Resolve task ID anchors to full IDs during recurrence validation
 - [ ] (subtask: Tsnyb3q) New Task: Add tasks_completed hint to --every flag validation in cmd/add.go

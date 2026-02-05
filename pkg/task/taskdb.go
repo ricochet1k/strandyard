@@ -33,29 +33,17 @@ func (db *TaskDB) Get(id string) (*Task, error) {
 	return db.Load(id)
 }
 
-// Load forces a reload of a task from disk.
+// Load forces a reload of all tasks from disk and returns the requested task.
 func (db *TaskDB) Load(id string) (*Task, error) {
-	// Try to find the task file for this ID
-	// Priority: <id>/<id>.md, then <id>/task.md
-	candidates := []string{
-		fmt.Sprintf("%s/%s/%s.md", db.tasksRoot, id, id),
-		fmt.Sprintf("%s/%s/task.md", db.tasksRoot, id),
+	if err := db.LoadAll(); err != nil {
+		return nil, err
 	}
 
-	var task *Task
-	var err error
-	for _, path := range candidates {
-		task, err = db.parser.ParseFile(path)
-		if err == nil {
-			break
-		}
+	task, ok := db.tasks[id]
+	if !ok {
+		return nil, fmt.Errorf("failed to load task %s: not found", id)
 	}
 
-	if err != nil {
-		return nil, fmt.Errorf("failed to load task %s: %w", id, err)
-	}
-
-	db.tasks[id] = task
 	return task, nil
 }
 
