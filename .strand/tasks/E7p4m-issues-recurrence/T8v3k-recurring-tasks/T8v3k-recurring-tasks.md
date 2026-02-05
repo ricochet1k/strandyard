@@ -5,16 +5,16 @@ priority: low
 parent: E7p4m-issues-recurrence
 blockers:
     - Tcb90-document-recurrence-metrics-options
-    - Thnhh-review-recurrence-metrics-schema
     - Tl4cn-approve-recurrence-metrics-design
     - Tyvdv-extend-recurrence-schema-and-validation-for-new-me
 blocks:
     - E7p4m-issues-recurrence
     - Iquw5-create-recurring-review-task-plan
 date_created: 2026-01-27T00:00:00Z
-date_edited: 2026-02-01T04:21:33.585947Z
+date_edited: 2026-02-05T00:59:54.130375Z
 owner_approval: false
 completed: false
+description: ""
 ---
 
 # Add Recurring Task Support
@@ -86,6 +86,6 @@ Model recurrence as a first-class task definition that can generate concrete tas
 - [x] (subtask: T968i) Design recurrence metrics for commits, lines changed, and tasks completed
 - [ ] (subtask: Tcb90) Document recurrence metrics options
 - [x] (subtask: Tgr06) Review recurrence metrics CLI experience
-- [ ] (subtask: Thnhh) Review recurrence metrics schema
+- [x] (subtask: Thnhh) Review recurrence metrics schema
 - [ ] (subtask: Tl4cn) Approve recurrence metrics design
 - [ ] (subtask: Tyvdv) Extend recurrence schema and validation for new metrics

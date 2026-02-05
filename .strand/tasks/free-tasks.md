@@ -8,7 +8,6 @@
 
 - [Align exit code conventions for --every failures](E7p4m-issues-recurrence/T8v3k-recurring-tasks/Tgr06-review-recurrence-metrics-cli-experience/Tftao-clarify-recurrence-anchor-flags-and-help-text/T1dua-draft-recurrence-anchor-flag-alternatives/T3md3-usability-review-recurrence-anchor-flags/Trlrg-specify-anchor-error-messages/Thy9m-reliability-review-recurrence-anchor-errors/Tc3zv-align-exit-code-conventions-for-every-failures/Tc3zv-align-exit-code-conventions-for-every-failures.md)
 - [Decide recurrence schema option (A vs B)](E7p4m-issues-recurrence/T8v3k-recurring-tasks/Tgr06-review-recurrence-metrics-cli-experience/Twvju-decide-recurrence-schema-option-a-vs-b/Twvju-decide-recurrence-schema-option-a-vs-b.md)
-- [Review recurrence metrics schema](E7p4m-issues-recurrence/T8v3k-recurring-tasks/Thnhh-review-recurrence-metrics-schema/Thnhh-review-recurrence-metrics-schema.md)
 - [Approve recurrence metrics design](E7p4m-issues-recurrence/T8v3k-recurring-tasks/Tl4cn-approve-recurrence-metrics-design/Tl4cn-approve-recurrence-metrics-design.md)
 - [Manage parent TODO entries for subtasks](I67vd-manage-parent-todo-entries-for-subtasks/I67vd-manage-parent-todo-entries-for-subtasks.md)
 - [Add tests for stream server APIs](Ibpie-add-tests-for-stream-server-apis/Ibpie-add-tests-for-stream-server-apis.md)
