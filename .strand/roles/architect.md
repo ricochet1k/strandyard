@@ -54,5 +54,5 @@ Architect (human or senior AI) — breaks accepted designs into implementable ep
    - Testing approach
    - Decision rationale and any remaining trade-offs
 6. **Create child tasks before completing the architect task.** Do not mark the architect task complete until the child tasks exist.
-7. Ensure there is a review task for each implementation task, and block implementation tasks on that review task.
+7. Create review tasks only for high-risk changes: security-sensitive code, API surface changes, or complex cross-cutting implementations. Most bug fixes and small features do not need formal review tasks.
 8. **Mark the task as completed** using `strand complete <task-id> "report"`, summarizing the plan and linking to any new design docs or child tasks.

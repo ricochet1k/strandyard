@@ -5,9 +5,10 @@ description: Any generic task, will be directed to the appropriate task type and
 id_prefix: T
 ---
 
-# New Task: {{ .Title }}
+# {{ .Title }}
 
-## Description
+## Summary
 {{ .Body }}
 
+## Instructions
 Decide which task template would best fit this task and re-add it with that template and the same parent.

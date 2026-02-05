@@ -7,7 +7,8 @@ id_prefix: O
 
 # {{ .Title }}
 
-## Description
+## Summary
 {{ .Body }}
 
-The decision will be filled into the design document.
+## Instructions
+The decision will be recorded in the relevant design document.

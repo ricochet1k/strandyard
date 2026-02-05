@@ -7,7 +7,8 @@ id_prefix: R
 
 # {{ .Title }}
 
-# Description
+## Summary
 {{ .Body }}
 
-Delegate concerns to the relevant role via subtasks.
+## Instructions
+Delegate concerns to the relevant role via subtasks. Mark complete when review is finished.

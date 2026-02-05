@@ -231,6 +231,15 @@ func runAdd(w io.Writer, opts addOptions) error {
 		return fmt.Errorf("title is required (use --title or provide it as an argument)")
 	}
 
+	// Reject placeholder titles that indicate the template wasn't properly filled in
+	invalidTitles := []string{"description", "task title", "new task", "title", "summary", "todo"}
+	lowerTitle := strings.ToLower(title)
+	for _, invalid := range invalidTitles {
+		if lowerTitle == invalid {
+			return fmt.Errorf("title %q looks like a placeholder; please provide a descriptive title", title)
+		}
+	}
+
 	roleName := strings.TrimSpace(opts.Role)
 	if !opts.RoleSpecified {
 		roleName = strings.TrimSpace(tmpl.Meta.Role)
