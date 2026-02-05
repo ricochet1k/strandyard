@@ -328,12 +328,12 @@ func GenerateMasterLists(tasks map[string]*Task, tasksRoot, rootsFile, freeFile 
 		}
 
 		// Root tasks have no parent and are not completed
-		if task.Meta.Parent == "" && !task.Meta.Completed {
+		if task.Meta.Parent == "" && !task.Meta.Completed && IsActiveStatus(task.Meta.Status) {
 			roots = append(roots, listEntry{Path: rel, Label: title})
 		}
 
 		// Free tasks have no blockers and are not completed
-		if len(task.Meta.Blockers) == 0 && !task.Meta.Completed {
+		if len(task.Meta.Blockers) == 0 && !task.Meta.Completed && IsActiveStatus(task.Meta.Status) {
 			switch NormalizePriority(task.Meta.Priority) {
 			case PriorityHigh:
 				freeByPriority[PriorityHigh] = append(freeByPriority[PriorityHigh], listEntry{Path: rel, Label: title})
@@ -477,7 +477,7 @@ func UpdateFreeListIncrementally(tasks map[string]*Task, freeFile string, update
 			continue
 		}
 		task, exists := tasks[taskID]
-		if !exists || task.Meta.Completed {
+		if !exists || task.Meta.Completed || !IsActiveStatus(task.Meta.Status) {
 			continue
 		}
 		kept[taskID] = true
@@ -485,7 +485,7 @@ func UpdateFreeListIncrementally(tasks map[string]*Task, freeFile string, update
 
 	// Add newly unblocked tasks
 	for _, task := range update.AddTasks {
-		if task.Meta.Completed {
+		if task.Meta.Completed || !IsActiveStatus(task.Meta.Status) {
 			continue
 		}
 		kept[task.ID] = true
@@ -550,8 +550,8 @@ func CalculateIncrementalFreeListUpdate(tasks map[string]*Task, completedTaskID 
 
 	// Find tasks that were blocked by the completed task
 	for _, task := range tasks {
-		if task.Meta.Completed {
-			continue // Skip completed tasks
+		if task.Meta.Completed || !IsActiveStatus(task.Meta.Status) {
+			continue // Skip completed tasks or inactive tasks
 		}
 
 		// Check if this task was blocked by the completed task
@@ -571,7 +571,7 @@ func CalculateIncrementalFreeListUpdate(tasks map[string]*Task, completedTaskID 
 					continue // This is the task we're completing
 				}
 				blockerTask, blockerExists := tasks[blocker]
-				if !blockerExists || !blockerTask.Meta.Completed {
+				if !blockerExists || !blockerTask.Meta.Completed || !IsActiveStatus(blockerTask.Meta.Status) {
 					allBlockersCompleted = false
 					break
 				}

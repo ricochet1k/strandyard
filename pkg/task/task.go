@@ -21,6 +21,7 @@ type Metadata struct {
 	DateEdited    time.Time `yaml:"date_edited"`
 	OwnerApproval bool      `yaml:"owner_approval"`
 	Completed     bool      `yaml:"completed"`
+	Status        string    `yaml:"status"`
 	Every         []string  `yaml:"every,omitempty"`
 	Description   string    `yaml:"description"`
 }
