@@ -13,9 +13,10 @@ blockers:
 blocks:
     - T8v3k-recurring-tasks
 date_created: 2026-01-28T17:32:22.794929Z
-date_edited: 2026-01-31T17:29:31.078603Z
+date_edited: 2026-02-05T00:58:52.139665Z
 owner_approval: false
 completed: true
+description: ""
 ---
 
 # Review recurrence metrics CLI experience
@@ -45,6 +46,6 @@ completed: true
 - [x] (subtask: T3ebv) Define tasks-completed scope and anchor semantics
 - [ ] (subtask: Tftao) Clarify recurrence anchor flags and help text
 - [x] (subtask: Tpedm) Decide tasks-completed storage strategy
-- [ ] (subtask: Tu1vk) Define lines-changed scope flag and default
+- [x] (subtask: Tu1vk) Define lines-changed scope flag and default
 - [ ] (subtask: Tw6ga) Define recurrence CLI shape for discoverability
 - [ ] (subtask: Twvju) Decide recurrence schema option (A vs B)
