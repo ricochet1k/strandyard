@@ -106,6 +106,10 @@ func runComplete(w io.Writer, projectName, inputID string, todoNum int, role str
 		return err
 	}
 
+	if err := db.UpdateBlockersAfterCompletion(taskID); err != nil {
+		return fmt.Errorf("failed to update blockers after completion: %w", err)
+	}
+
 	if _, err := db.SaveDirty(); err != nil {
 		return fmt.Errorf("failed to write task file: %w", err)
 	}

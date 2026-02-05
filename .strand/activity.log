@@ -82,3 +82,6 @@
 {"timestamp":"2026-02-05T01:09:02.070181Z","task_id":"Iff91-add-cli-support-for-task-storage-migration","type":"task_completed","report":"Confirmed that manual migration was used and a CLI command is needed. Created a design task Tnb5ir6 to define the migration process and handle Git-related concerns."}
 {"timestamp":"2026-02-05T01:09:42.332406Z","task_id":"Tnb5ir6-design-task-storage-migration","type":"task_completed","report":"Triage complete. Re-added as designer task T6y8964 under the same parent."}
 {"timestamp":"2026-02-05T01:09:56.824153Z","task_id":"T6y8964-design-task-storage-migration","type":"task_completed","report":"N/A"}
+{"timestamp":"2026-02-05T01:10:39.906711Z","task_id":"Tglm9u1-repair-no-op-child","type":"task_completed","report":"Done"}
+{"timestamp":"2026-02-05T01:11:06.155067Z","task_id":"T2q0dtl-child-2","type":"task_completed","report":"Done"}
+{"timestamp":"2026-02-05T01:11:21.907268Z","task_id":"Igghk-track-repair-delta-and-verify-complete-no-op","type":"task_completed","report":"Verified that 'strand complete' was not making 'strand repair' a no-op because it failed to remove completed tasks from the blockers lists of other tasks. Fixed by adding a call to db.UpdateBlockersAfterCompletion(taskID) in runComplete. Verified that 'strand repair' now reports 0 repaired tasks after completing a subtask."}
