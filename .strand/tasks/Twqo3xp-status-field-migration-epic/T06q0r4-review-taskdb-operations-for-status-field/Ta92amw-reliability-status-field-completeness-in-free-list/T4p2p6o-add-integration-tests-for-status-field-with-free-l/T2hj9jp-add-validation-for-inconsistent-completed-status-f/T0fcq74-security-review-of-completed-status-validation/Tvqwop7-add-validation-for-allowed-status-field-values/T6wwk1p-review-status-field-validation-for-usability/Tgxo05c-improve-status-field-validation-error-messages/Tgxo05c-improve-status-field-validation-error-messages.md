@@ -6,7 +6,7 @@ parent: T6wwk1p-review-status-field-validation-for-usability
 blockers: []
 blocks: []
 date_created: 2026-02-05T22:25:40.992166Z
-date_edited: 2026-02-05T22:25:40.992166Z
+date_edited: 2026-02-05T22:27:37.625731Z
 owner_approval: false
 completed: false
 status: ""
@@ -33,8 +33,10 @@ See design-docs/status-field-validation-error-messages.md for detailed specifica
 - Required reviews completed and blockers cleared.
 
 ## TODOs
-- [ ] (role: developer) Implement the behavior described in Context.
-- [ ] (role: developer) Add unit and integration tests covering the main flows if they don't already exist.
+- [x] (role: developer) Implement the behavior described in Context.
+  Implemented user-friendly error message formatting and hints. Created FormatStatusListForUser() and FormatStatusErrorMessage() functions with hints for common mistakes like completed->done, pending->open/in_progress, failed/wontfix->cancelled, blocked->use blockers field.
+- [x] (role: developer) Add unit and integration tests covering the main flows if they don't already exist.
+  Added comprehensive unit tests for FormatStatusListForUser() and FormatStatusErrorMessage() covering all hint scenarios. Added integration tests in repair_test.go for invalid status validation. Updated existing test expectations for new error message format. All 100+ tests pass.
 - [ ] (role: tester) Execute test-suite and report failures.
 - [ ] (role: master-reviewer) Coordinate required reviews: `reviewer-reliability`, `reviewer-security`, `reviewer-usability`.
 - [ ] (role: documentation) Update user-facing docs and examples.
