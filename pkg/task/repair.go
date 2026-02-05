@@ -73,6 +73,12 @@ func (v *Validator) ValidateAndRepair() []ValidationError {
 
 	v.fixSubtaskTextTitles()
 
+	if _, err := UpdateAllParentTodoEntries(v.tasks); err != nil {
+		v.errors = append(v.errors, ValidationError{
+			Message: fmt.Sprintf("failed to update parent TODO entries: %v", err),
+		})
+	}
+
 	return v.errors
 }
 

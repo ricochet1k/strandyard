@@ -3,7 +3,6 @@
 - [Setup E2E Test Framework](E5w8m-e2e-tests/E5w8m-e2e-tests.md)
 - [Improve and Expand Task Templates](E5w8m-e2e-tests/Tml0y-t9m4n-improved-task-templates/Tml0y-t9m4n-improved-task-templates.md)
 - [Add Issue and Recurring Task Support](E7p4m-issues-recurrence/E7p4m-issues-recurrence.md)
-- [Manage parent TODO entries for subtasks](I67vd-manage-parent-todo-entries-for-subtasks/I67vd-manage-parent-todo-entries-for-subtasks.md)
 - [Add tests for stream server APIs](Ibpie-add-tests-for-stream-server-apis/Ibpie-add-tests-for-stream-server-apis.md)
 - [Create delete task command](Ibv0j-create-delete-task-command/Ibv0j-create-delete-task-command.md)
 - [Add CLI support for editing task summary/body](Icl4z-add-cli-support-for-editing-task-summary-body/Icl4z-add-cli-support-for-editing-task-summary-body.md)
@@ -38,3 +37,4 @@
 - [Clarify after now vs from now anchor distinction in docs](Tl0wkx6-clarify-after-now-vs-from-now-anchor-distinction-i/Tl0wkx6-clarify-after-now-vs-from-now-anchor-distinction-i.md)
 - [Dashboard needs to have project name and task being edited in the route.](To55tad-dashboard-needs-to-have-project-name-and-task-bein/To55tad-dashboard-needs-to-have-project-name-and-task-bein.md)
 - [strand edit is missing --blocker flag](Twcp360-strand-edit-is-missing-blocker-flag/Twcp360-strand-edit-is-missing-blocker-flag.md)
+- [New Task: Parent task](Twwpeaj-parent-task/Twwpeaj-parent-task.md)
