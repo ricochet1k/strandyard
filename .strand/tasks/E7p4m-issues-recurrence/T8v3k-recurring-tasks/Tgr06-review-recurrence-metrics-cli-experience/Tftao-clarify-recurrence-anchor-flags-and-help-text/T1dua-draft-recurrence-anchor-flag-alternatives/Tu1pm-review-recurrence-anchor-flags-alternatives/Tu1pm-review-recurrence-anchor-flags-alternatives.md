@@ -4,12 +4,11 @@ role: master-reviewer
 priority: medium
 parent: T1dua-draft-recurrence-anchor-flag-alternatives
 blockers:
-    - Td6be8o-usability-review-recurrence-anchor-flags-alternati
     - Tzvfila-clarify-after-vs-from-in-recurrence-anchor-grammar
 blocks:
     - T1dua-draft-recurrence-anchor-flag-alternatives
 date_created: 2026-01-29T05:45:07.883264Z
-date_edited: 2026-02-05T00:26:39.28905Z
+date_edited: 2026-02-05T00:32:01.219135Z
 owner_approval: false
 completed: false
 description: ""
