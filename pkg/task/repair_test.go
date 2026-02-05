@@ -500,3 +500,142 @@ This is a test task.
 		})
 	}
 }
+
+func TestVerifyStatusField(t *testing.T) {
+	parser := NewParser()
+
+	// Create mock role files for testing
+	tmpDir := t.TempDir()
+	roleDir := filepath.Join(tmpDir, "roles")
+	if err := os.MkdirAll(roleDir, 0755); err != nil {
+		t.Fatalf("failed to create role dir: %v", err)
+	}
+
+	roleName := testRoleName(t, "test")
+	roleContent := fmt.Sprintf("# %s\n\nTest role.", strings.Title(roleName))
+	if err := os.WriteFile(filepath.Join(roleDir, roleName+".md"), []byte(roleContent), 0o644); err != nil {
+		t.Fatalf("failed to create role file: %v", err)
+	}
+
+	// Change working directory temporarily for role validation
+	origWd, err := os.Getwd()
+	if err != nil {
+		t.Fatalf("failed to get working directory: %v", err)
+	}
+	defer os.Chdir(origWd)
+
+	if err := os.Chdir(tmpDir); err != nil {
+		t.Fatalf("failed to change working directory: %v", err)
+	}
+
+	tests := []struct {
+		name            string
+		taskID          string
+		status          string
+		expectError     bool
+		expectedMessage string
+	}{
+		{
+			name:        "Valid: open",
+			taskID:      "T1bbb-valid1",
+			status:      "open",
+			expectError: false,
+		},
+		{
+			name:        "Valid: in_progress",
+			taskID:      "T2bbb-valid2",
+			status:      "in_progress",
+			expectError: false,
+		},
+		{
+			name:        "Valid: done",
+			taskID:      "T3bbb-valid3",
+			status:      "done",
+			expectError: false,
+		},
+		{
+			name:        "Valid: cancelled",
+			taskID:      "T4bbb-valid4",
+			status:      "cancelled",
+			expectError: false,
+		},
+		{
+			name:        "Valid: duplicate",
+			taskID:      "T5bbb-valid5",
+			status:      "duplicate",
+			expectError: false,
+		},
+		{
+			name:        "Valid: empty status",
+			taskID:      "T6bbb-valid6",
+			status:      "",
+			expectError: false,
+		},
+		{
+			name:            "Invalid: invalid_status",
+			taskID:          "T7bbb-invalid1",
+			status:          "invalid_status",
+			expectError:     true,
+			expectedMessage: `invalid status "invalid_status": must be one of [open in_progress done cancelled duplicate] or empty`,
+		},
+		{
+			name:            "Invalid: completed",
+			taskID:          "T8bbb-invalid2",
+			status:          "completed",
+			expectError:     true,
+			expectedMessage: `invalid status "completed": must be one of [open in_progress done cancelled duplicate] or empty`,
+		},
+		{
+			name:            "Invalid: pending",
+			taskID:          "T9bbb-invalid3",
+			status:          "pending",
+			expectError:     true,
+			expectedMessage: `invalid status "pending": must be one of [open in_progress done cancelled duplicate] or empty`,
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			taskContent := fmt.Sprintf(`---
+role: %s
+status: %q
+---
+
+# Test Task
+
+This is a test task.
+`, roleName, tt.status)
+
+			task, _ := parser.ParseString(taskContent, tt.taskID)
+			task.FilePath = filepath.Join("tasks", tt.taskID, tt.taskID+".md")
+			tasks := map[string]*Task{tt.taskID: task}
+
+			v := NewValidator(tasks)
+			errors := v.ValidateAndRepair()
+
+			// Filter errors to only those about status field
+			var statusErrors []ValidationError
+			for _, err := range errors {
+				if strings.Contains(err.Message, "invalid status") {
+					statusErrors = append(statusErrors, err)
+				}
+			}
+
+			if tt.expectError && len(statusErrors) == 0 {
+				t.Errorf("expected validation error but got none")
+			}
+			if !tt.expectError && len(statusErrors) > 0 {
+				t.Errorf("unexpected validation error: %v", statusErrors[0].Message)
+			}
+
+			if tt.expectError && len(statusErrors) > 0 {
+				if statusErrors[0].Message != tt.expectedMessage {
+					t.Errorf("expected message %q, got %q", tt.expectedMessage, statusErrors[0].Message)
+				}
+				if statusErrors[0].TaskID != tt.taskID {
+					t.Errorf("expected task ID %q, got %q", tt.taskID, statusErrors[0].TaskID)
+				}
+			}
+		})
+	}
+}

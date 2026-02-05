@@ -67,6 +67,7 @@ func (v *Validator) ValidateAndRepair() []ValidationError {
 		v.verifyID(id, task)
 		v.verifyRole(id, task)
 		v.verifyPriority(id, task)
+		v.verifyStatusField(id, task)
 		v.verifyParent(id, task)
 		v.verifyTaskLinks(id, task)
 		v.verifyCompletedStatusConsistency(id, task)
@@ -201,6 +202,19 @@ func (v *Validator) verifyPriority(id string, task *Task) {
 		TaskID:  id,
 		File:    task.FilePath,
 		Message: fmt.Sprintf("invalid priority %q: must be high, medium, or low", task.Meta.Priority),
+	})
+}
+
+// verifyStatusField checks if the status field contains only allowed values (or empty).
+func (v *Validator) verifyStatusField(id string, task *Task) {
+	if IsValidStatus(task.Meta.Status) {
+		return
+	}
+
+	v.errors = append(v.errors, ValidationError{
+		TaskID:  id,
+		File:    task.FilePath,
+		Message: fmt.Sprintf("invalid status %q: must be one of %v or empty", task.Meta.Status, AllowedStatusValues()),
 	})
 }
 
