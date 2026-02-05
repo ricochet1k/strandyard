@@ -20,7 +20,6 @@
 - [Design opencode plugin](T7m5z-opencode-plugin-design/T7m5z-opencode-plugin-design.md)
 - [Clarify anchor flag inconsistency in CLI.md and design doc](T8xy3ry-clarify-anchor-flag-inconsistency-in-cli-md-and-de/T8xy3ry-clarify-anchor-flag-inconsistency-in-cli-md-and-de.md)
 - [Design recurring code review and cleanup tasks](T9f4w-code-review-cleanup-recurring-design/T9f4w-code-review-cleanup-recurring-design.md)
-- [strand complete does not update free-list](Taqlx4r-strand-complete-does-not-update-free-list/Taqlx4r-strand-complete-does-not-update-free-list.md)
 - [Add --blocks flag to edit command](Teto6v3-add-blocks-flag-to-edit-command/Teto6v3-add-blocks-flag-to-edit-command.md)
 - [Complete command should also insert report into parent's subtasks after the relevant checkbox entry](Tfe1ssq-complete-command-should-also-insert-report-into-pa/Tfe1ssq-complete-command-should-also-insert-report-into-pa.md)
 - [Add strand todo command to manage task checklist items](Tfznrfv-add-strand-todo-command-to-manage-task-checklist-i/Tfznrfv-add-strand-todo-command-to-manage-task-checklist-i.md)

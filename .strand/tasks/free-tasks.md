@@ -3,7 +3,9 @@
 ## High
 
 - [Handle HEAD anchor mutability in recurrence definitions](E7p4m-issues-recurrence/T8v3k-recurring-tasks/Tgr06-review-recurrence-metrics-cli-experience/Tftao-clarify-recurrence-anchor-flags-and-help-text/T1dua-draft-recurrence-anchor-flag-alternatives/Tonge7b-handle-head-anchor-mutability-in-recurrence-defini/Tonge7b-handle-head-anchor-mutability-in-recurrence-defini.md)
-- [Fix strand complete to update free-list when last todo completes task](Taqlx4r-strand-complete-does-not-update-free-list/Tq49ww0-fix-strand-complete-to-update-free-list-when-last/Tq49ww0-fix-strand-complete-to-update-free-list-when-last.md)
+- [Description](Taqlx4r-strand-complete-does-not-update-free-list/Tq49ww0-fix-strand-complete-to-update-free-list-when-last/Tj9pcpb-review-usability-of-free-list-update-implementatio/Tj9pcpb-review-usability-of-free-list-update-implementatio.md)
+- [Description](Taqlx4r-strand-complete-does-not-update-free-list/Tq49ww0-fix-strand-complete-to-update-free-list-when-last/Tq85w01-review-security-of-free-list-update-implementation/Tq85w01-review-security-of-free-list-update-implementation.md)
+- [Description](Taqlx4r-strand-complete-does-not-update-free-list/Tq49ww0-fix-strand-complete-to-update-free-list-when-last/Txxvu2j-review-reliability-of-free-list-update-implementat/Txxvu2j-review-reliability-of-free-list-update-implementat.md)
 - [Replace completed boolean with status field (open/in_progress/done/duplicate/cancelled)](Tyhxhb7-replace-completed-boolean-with-status-field-open-i/Tyhxhb7-replace-completed-boolean-with-status-field-open-i.md)
 
 ## Medium
