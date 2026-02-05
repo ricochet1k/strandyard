@@ -4,11 +4,10 @@ role: developer
 priority: high
 parent: T1dua-draft-recurrence-anchor-flag-alternatives
 blockers:
-    - Tgp9tiq-review-activity-log-implementation-for-usability-c
     - Tzsq4gq-review-activity-log-implementation-for-reliability
 blocks: []
 date_created: 2026-02-01T20:27:58.689359Z
-date_edited: 2026-02-05T00:54:43.931271Z
+date_edited: 2026-02-05T00:55:02.808181Z
 owner_approval: false
 completed: false
 description: ""
@@ -55,5 +54,5 @@ The `tasks_completed` metric for recurring tasks should be based on an activity 
 
 ## Subtasks
 - [x] (subtask: T5e82fn) Description
-- [ ] (subtask: Tgp9tiq) Description
+- [x] (subtask: Tgp9tiq) Description
 - [ ] (subtask: Tzsq4gq) Description
