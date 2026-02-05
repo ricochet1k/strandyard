@@ -3,12 +3,11 @@ type: review
 role: master-reviewer
 priority: medium
 parent: T1dua-draft-recurrence-anchor-flag-alternatives
-blockers:
-    - Tzvfila-clarify-after-vs-from-in-recurrence-anchor-grammar
+blockers: []
 blocks:
     - T1dua-draft-recurrence-anchor-flag-alternatives
 date_created: 2026-01-29T05:45:07.883264Z
-date_edited: 2026-02-05T00:32:01.219135Z
+date_edited: 2026-02-05T00:53:00.106849Z
 owner_approval: false
 completed: false
 description: ""
@@ -52,4 +51,4 @@ Assess clarity and completeness of alternatives and help text framing.
 - [x] (subtask: T6c55aa) Description
 - [x] (subtask: Tb8m7cw) Resolve discrepancy in tasks_completed anchor format documentation
 - [x] (subtask: Td6be8o) Description
-- [ ] (subtask: Tzvfila) Clarify 'after' vs 'from' in recurrence anchor grammar
+- [x] (subtask: Tzvfila) Clarify 'after' vs 'from' in recurrence anchor grammar
