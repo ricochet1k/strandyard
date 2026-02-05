@@ -284,6 +284,10 @@ func (db *TaskDB) SetCompleted(taskID string, completed bool) error {
 
 	if task.Meta.Completed != completed {
 		task.Meta.Completed = completed
+		// When marking a task as completed, set status to "done"
+		if completed && task.Meta.Status != "done" {
+			task.Meta.Status = "done"
+		}
 		task.MarkDirty()
 	}
 

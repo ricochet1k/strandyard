@@ -455,7 +455,6 @@ A test task with a todo item to verify free-list updates.
 	}
 }
 
-
 // TestAtomicityOfFreeListCalculation tests that CalculateIncrementalFreeListUpdate
 // correctly identifies newly-unblocked tasks. This is a unit test that doesn't
 // require complex setup.
@@ -468,7 +467,7 @@ func TestAtomicityOfFreeListCalculation(t *testing.T) {
 			Blockers:  []string{},
 		},
 	}
-	
+
 	blocked := &task.Task{
 		ID: "T2blocked",
 		Meta: task.Metadata{
@@ -476,7 +475,7 @@ func TestAtomicityOfFreeListCalculation(t *testing.T) {
 			Blockers:  []string{"T1blocker"}, // This task was blocked
 		},
 	}
-	
+
 	alsoBlocked := &task.Task{
 		ID: "T3alsoBlocked",
 		Meta: task.Metadata{
@@ -484,7 +483,7 @@ func TestAtomicityOfFreeListCalculation(t *testing.T) {
 			Blockers:  []string{"T1blocker", "T4other"}, // This task has multiple blockers
 		},
 	}
-	
+
 	otherBlocker := &task.Task{
 		ID: "T4other",
 		Meta: task.Metadata{
@@ -492,37 +491,504 @@ func TestAtomicityOfFreeListCalculation(t *testing.T) {
 			Blockers:  []string{},
 		},
 	}
-	
+
 	tasks := map[string]*task.Task{
-		"T1blocker":      blocker,
-		"T2blocked":      blocked,
-		"T3alsoBlocked":  alsoBlocked,
-		"T4other":        otherBlocker,
+		"T1blocker":     blocker,
+		"T2blocked":     blocked,
+		"T3alsoBlocked": alsoBlocked,
+		"T4other":       otherBlocker,
 	}
-	
+
 	// Calculate what should be added to free-list when T1blocker is completed
 	update, err := task.CalculateIncrementalFreeListUpdate(tasks, "T1blocker")
 	if err != nil {
 		t.Fatalf("CalculateIncrementalFreeListUpdate failed: %v", err)
 	}
-	
+
 	// Verify T1blocker is removed
 	if len(update.RemoveTaskIDs) != 1 || update.RemoveTaskIDs[0] != "T1blocker" {
 		t.Errorf("expected T1blocker in RemoveTaskIDs, got %v", update.RemoveTaskIDs)
 	}
-	
+
 	// Verify T2blocked is added (now unblocked)
 	addedIDs := make(map[string]bool)
 	for _, t := range update.AddTasks {
 		addedIDs[t.ID] = true
 	}
-	
+
 	if !addedIDs["T2blocked"] {
 		t.Errorf("T2blocked should be added (all blockers completed)")
 	}
-	
+
 	// Verify T3alsoBlocked is NOT added (T4other still blocks it)
 	if addedIDs["T3alsoBlocked"] {
 		t.Errorf("T3alsoBlocked should NOT be added (still has blocker T4other)")
+	}
+}
+
+// TestCompleteTaskUpdatesStatusField tests that strand complete sets the status field to "done"
+func TestCompleteTaskUpdatesStatusField(t *testing.T) {
+	repo, _ := setupTestEnv(t)
+	if err := runInit(io.Discard, initOptions{ProjectName: "", StorageMode: storageLocal}); err != nil {
+		t.Fatalf("runInit failed: %v", err)
+	}
+
+	// Create a developer role file
+	roleFile := filepath.Join(repo, ".strand", "roles", "developer.md")
+	roleContent := `# Developer
+
+## Role
+Developer (human or AI) — implements tasks, writes code, and produces working software.
+
+## Responsibilities
+- Implement tasks assigned by the Architect
+- Write clean, maintainable code following project conventions
+- Add tests for new functionality
+- Document code and update relevant documentation
+- Fix bugs and address issues
+- Ensure code passes validation and tests before marking tasks complete
+`
+	if err := os.WriteFile(roleFile, []byte(roleContent), 0o644); err != nil {
+		t.Fatalf("failed to create role file: %v", err)
+	}
+
+	// Create a test task with status: open
+	taskID := "T" + testToken(t.Name()) + "-status-update"
+	taskDir := filepath.Join(repo, ".strand", "tasks", taskID)
+
+	if err := os.MkdirAll(taskDir, 0o755); err != nil {
+		t.Fatalf("failed to create task dir: %v", err)
+	}
+
+	taskFile := filepath.Join(taskDir, taskID+".md")
+	taskContent := `---
+type: implement
+role: developer
+priority: high
+parent: ""
+blockers: []
+blocks: []
+date_created: 2026-01-27T00:00:00Z
+date_edited: 2026-01-27T13:43:58Z
+owner_approval: false
+completed: false
+status: open
+---
+
+# Status Update Test Task
+
+## Summary
+A test task to verify status field is set to "done" on completion.
+
+## Acceptance Criteria
+- Task completes successfully
+- Status field is updated to "done"
+`
+
+	if err := os.WriteFile(taskFile, []byte(taskContent), 0o644); err != nil {
+		t.Fatalf("failed to write task file: %v", err)
+	}
+
+	// Complete the task
+	if err := runComplete(io.Discard, "", taskID, 0, "developer", "Task completed"); err != nil {
+		t.Fatalf("runComplete failed: %v", err)
+	}
+
+	// Verify the status field is now "done"
+	db := task.NewTaskDB(filepath.Join(repo, ".strand"))
+
+	completedTask, err := db.Load(taskID)
+	if err != nil {
+		t.Fatalf("failed to load task: %v", err)
+	}
+
+	if completedTask.Meta.Status != "done" {
+		t.Errorf("expected status 'done', got '%s'", completedTask.Meta.Status)
+	}
+
+	if !completedTask.Meta.Completed {
+		t.Error("completed field should be true")
+	}
+}
+
+// TestStrandNextFiltersInactiveStatuses tests that strand next does not show tasks with cancelled/duplicate status
+func TestStrandNextFiltersInactiveStatuses(t *testing.T) {
+	repo, _ := setupTestEnv(t)
+	if err := runInit(io.Discard, initOptions{ProjectName: "", StorageMode: storageLocal}); err != nil {
+		t.Fatalf("runInit failed: %v", err)
+	}
+
+	// Create a developer role file
+	roleFile := filepath.Join(repo, ".strand", "roles", "developer.md")
+	roleContent := `# Developer
+
+## Role
+Developer (human or AI) — implements tasks, writes code, and produces working software.
+
+## Responsibilities
+- Implement tasks assigned by the Architect
+- Write clean, maintainable code following project conventions
+- Add tests for new functionality
+- Document code and update relevant documentation
+- Fix bugs and address issues
+- Ensure code passes validation and tests before marking tasks complete
+`
+	if err := os.WriteFile(roleFile, []byte(roleContent), 0o644); err != nil {
+		t.Fatalf("failed to create role file: %v", err)
+	}
+
+	// Create tasks with different statuses
+	taskSpecs := []struct {
+		id     string
+		status string
+		title  string
+	}{
+		{"1a2b", "open", "Open Task"},
+		{"2c3d", "in_progress", "In Progress Task"},
+		{"3e4f", "done", "Done Task"},
+		{"4g5h", "cancelled", "Cancelled Task"},
+		{"5i6j", "duplicate", "Duplicate Task"},
+	}
+
+	for _, spec := range taskSpecs {
+		taskID := "T" + spec.id + "-status-test"
+		taskDir := filepath.Join(repo, ".strand", "tasks", taskID)
+
+		if err := os.MkdirAll(taskDir, 0o755); err != nil {
+			t.Fatalf("failed to create task dir: %v", err)
+		}
+
+		taskFile := filepath.Join(taskDir, taskID+".md")
+		taskContent := fmt.Sprintf(`---
+type: implement
+role: developer
+priority: high
+parent: ""
+blockers: []
+blocks: []
+date_created: 2026-01-27T00:00:00Z
+date_edited: 2026-01-27T13:43:58Z
+owner_approval: false
+completed: false
+status: %s
+---
+
+# %s
+
+## Summary
+A test task with status %s.
+`, spec.status, spec.title, spec.status)
+
+		if err := os.WriteFile(taskFile, []byte(taskContent), 0o644); err != nil {
+			t.Fatalf("failed to write task file: %v", err)
+		}
+	}
+
+	// Get project paths and regenerate master lists
+	paths, err := resolveProjectPaths("")
+	if err != nil {
+		t.Fatalf("failed to resolve project paths: %v", err)
+	}
+
+	var repairOut bytes.Buffer
+	if err := runRepair(&repairOut, paths.TasksDir, paths.RootTasksFile, paths.FreeTasksFile, "text"); err != nil {
+		t.Logf("Repair output:\n%s", repairOut.String())
+		t.Fatalf("runRepair failed: %v", err)
+	}
+
+	// Read the free-list
+	freeListContent, err := os.ReadFile(paths.FreeTasksFile)
+	if err != nil {
+		t.Fatalf("failed to read free-list: %v", err)
+	}
+
+	// Verify that only open and in_progress tasks are in free-list
+	openTaskID := "T1a2b-status-test"
+	inProgressTaskID := "T2c3d-status-test"
+	doneTaskID := "T3e4f-status-test"
+	cancelledTaskID := "T4g5h-status-test"
+	duplicateTaskID := "T5i6j-status-test"
+
+	tests := []struct {
+		taskID      string
+		shouldExist bool
+	}{
+		{openTaskID, true},
+		{inProgressTaskID, true},
+		{doneTaskID, false},
+		{cancelledTaskID, false},
+		{duplicateTaskID, false},
+	}
+
+	for _, tt := range tests {
+		inList := bytes.Contains(freeListContent, []byte(tt.taskID))
+		if inList != tt.shouldExist {
+			t.Errorf("Task %s: expected in free-list = %v, got %v", tt.taskID, tt.shouldExist, inList)
+		}
+	}
+
+	for _, tt := range tests {
+		inList := bytes.Contains(freeListContent, []byte(tt.taskID))
+		if inList != tt.shouldExist {
+			t.Errorf("Task %s: expected in free-list = %v, got %v", tt.taskID, tt.shouldExist, inList)
+		}
+	}
+}
+
+// TestBackwardCompatibilityCompletedFieldWithFreeList tests that tasks with completed: true are excluded from free-list
+func TestBackwardCompatibilityCompletedFieldWithFreeList(t *testing.T) {
+	repo, _ := setupTestEnv(t)
+	if err := runInit(io.Discard, initOptions{ProjectName: "", StorageMode: storageLocal}); err != nil {
+		t.Fatalf("runInit failed: %v", err)
+	}
+
+	// Create a developer role file
+	roleFile := filepath.Join(repo, ".strand", "roles", "developer.md")
+	roleContent := `# Developer
+
+## Role
+Developer (human or AI) — implements tasks, writes code, and produces working software.
+
+## Responsibilities
+- Implement tasks assigned by the Architect
+- Write clean, maintainable code following project conventions
+- Add tests for new functionality
+- Document code and update relevant documentation
+- Fix bugs and address issues
+- Ensure code passes validation and tests before marking tasks complete
+`
+	if err := os.WriteFile(roleFile, []byte(roleContent), 0o644); err != nil {
+		t.Fatalf("failed to create role file: %v", err)
+	}
+
+	// Create tasks with completed field (legacy format)
+	taskSpecs := []struct {
+		id        string
+		completed bool
+		title     string
+	}{
+		{"1a2b", true, "Legacy Completed Task"},
+		{"2c3d", false, "Legacy Active Task"},
+	}
+
+	for _, spec := range taskSpecs {
+		taskID := "T" + spec.id + "-legacy-test"
+		taskDir := filepath.Join(repo, ".strand", "tasks", taskID)
+
+		if err := os.MkdirAll(taskDir, 0o755); err != nil {
+			t.Fatalf("failed to create task dir: %v", err)
+		}
+
+		taskFile := filepath.Join(taskDir, taskID+".md")
+		taskContent := fmt.Sprintf(`---
+type: implement
+role: developer
+priority: high
+parent: ""
+blockers: []
+blocks: []
+date_created: 2026-01-27T00:00:00Z
+date_edited: 2026-01-27T13:43:58Z
+owner_approval: false
+completed: %v
+---
+
+# %s
+
+## Summary
+A test task with completed field set to %v.
+`, spec.completed, spec.title, spec.completed)
+
+		if err := os.WriteFile(taskFile, []byte(taskContent), 0o644); err != nil {
+			t.Fatalf("failed to write task file: %v", err)
+		}
+	}
+
+	// Get project paths and regenerate master lists
+	paths, err := resolveProjectPaths("")
+	if err != nil {
+		t.Fatalf("failed to resolve project paths: %v", err)
+	}
+
+	var repairOut2 bytes.Buffer
+	if err := runRepair(&repairOut2, paths.TasksDir, paths.RootTasksFile, paths.FreeTasksFile, "text"); err != nil {
+		t.Logf("Repair output:\n%s", repairOut2.String())
+		t.Fatalf("runRepair failed: %v", err)
+	}
+
+	// Read the free-list
+	freeListContent, err := os.ReadFile(paths.FreeTasksFile)
+	if err != nil {
+		t.Fatalf("failed to read free-list: %v", err)
+	}
+
+	// Verify that completed: true task is excluded
+	completedTaskID := "T1a2b-legacy-test"
+	activeTaskID := "T2c3d-legacy-test"
+
+	if bytes.Contains(freeListContent, []byte(completedTaskID)) {
+		t.Errorf("Task with completed: true should not be in free-list")
+	}
+
+	if !bytes.Contains(freeListContent, []byte(activeTaskID)) {
+		t.Errorf("Task with completed: false should be in free-list")
+	}
+}
+
+// TestFreeListRegenerationAfterStatusChange tests that free-list is regenerated correctly after status changes
+func TestFreeListRegenerationAfterStatusChange(t *testing.T) {
+	repo, _ := setupTestEnv(t)
+	if err := runInit(io.Discard, initOptions{ProjectName: "", StorageMode: storageLocal}); err != nil {
+		t.Fatalf("runInit failed: %v", err)
+	}
+
+	// Create a developer role file
+	roleFile := filepath.Join(repo, ".strand", "roles", "developer.md")
+	roleContent := `# Developer
+
+## Role
+Developer (human or AI) — implements tasks, writes code, and produces working software.
+
+## Responsibilities
+- Implement tasks assigned by the Architect
+- Write clean, maintainable code following project conventions
+- Add tests for new functionality
+- Document code and update relevant documentation
+- Fix bugs and address issues
+- Ensure code passes validation and tests before marking tasks complete
+`
+	if err := os.WriteFile(roleFile, []byte(roleContent), 0o644); err != nil {
+		t.Fatalf("failed to create role file: %v", err)
+	}
+
+	// Create a test task
+	taskID := "T" + testToken(t.Name()) + "-regen"
+	taskDir := filepath.Join(repo, ".strand", "tasks", taskID)
+
+	if err := os.MkdirAll(taskDir, 0o755); err != nil {
+		t.Fatalf("failed to create task dir: %v", err)
+	}
+
+	taskFile := filepath.Join(taskDir, taskID+".md")
+	taskContent := `---
+type: implement
+role: developer
+priority: high
+parent: ""
+blockers: []
+blocks: []
+date_created: 2026-01-27T00:00:00Z
+date_edited: 2026-01-27T13:43:58Z
+owner_approval: false
+completed: false
+status: open
+---
+
+# Task for Regeneration
+
+## Summary
+A test task to verify free-list regeneration.
+`
+
+	if err := os.WriteFile(taskFile, []byte(taskContent), 0o644); err != nil {
+		t.Fatalf("failed to write task file: %v", err)
+	}
+
+	// Get project paths
+	paths, err := resolveProjectPaths("")
+	if err != nil {
+		t.Fatalf("failed to resolve project paths: %v", err)
+	}
+
+	// Initial repair - task should be in free-list
+	if err := runRepair(io.Discard, paths.TasksDir, paths.RootTasksFile, paths.FreeTasksFile, "text"); err != nil {
+		t.Fatalf("initial runRepair failed: %v", err)
+	}
+
+	contentBefore, err := os.ReadFile(paths.FreeTasksFile)
+	if err != nil {
+		t.Fatalf("failed to read free-list before: %v", err)
+	}
+
+	if !bytes.Contains(contentBefore, []byte(taskID)) {
+		t.Errorf("task should be in free-list initially")
+	}
+
+	// Update task status to "done" directly
+	updatedContent := `---
+type: implement
+role: developer
+priority: high
+parent: ""
+blockers: []
+blocks: []
+date_created: 2026-01-27T00:00:00Z
+date_edited: 2026-01-27T13:43:58Z
+owner_approval: false
+completed: true
+status: done
+---
+
+# Task for Regeneration
+
+## Summary
+A test task to verify free-list regeneration.
+`
+
+	if err := os.WriteFile(taskFile, []byte(updatedContent), 0o644); err != nil {
+		t.Fatalf("failed to update task file: %v", err)
+	}
+
+	// Repair again - task should no longer be in free-list
+	if err := runRepair(io.Discard, paths.TasksDir, paths.RootTasksFile, paths.FreeTasksFile, "text"); err != nil {
+		t.Fatalf("second runRepair failed: %v", err)
+	}
+
+	contentAfter, err := os.ReadFile(paths.FreeTasksFile)
+	if err != nil {
+		t.Fatalf("failed to read free-list after: %v", err)
+	}
+
+	if bytes.Contains(contentAfter, []byte(taskID)) {
+		t.Errorf("task should not be in free-list after status change to done")
+	}
+
+	// Update task status to "in_progress"
+	updatedContent2 := `---
+type: implement
+role: developer
+priority: high
+parent: ""
+blockers: []
+blocks: []
+date_created: 2026-01-27T00:00:00Z
+date_edited: 2026-01-27T13:43:58Z
+owner_approval: false
+completed: false
+status: in_progress
+---
+
+# Task for Regeneration
+
+## Summary
+A test task to verify free-list regeneration.
+`
+
+	if err := os.WriteFile(taskFile, []byte(updatedContent2), 0o644); err != nil {
+		t.Fatalf("failed to update task file again: %v", err)
+	}
+
+	// Repair again - task should be back in free-list
+	if err := runRepair(io.Discard, paths.TasksDir, paths.RootTasksFile, paths.FreeTasksFile, "text"); err != nil {
+		t.Fatalf("third runRepair failed: %v", err)
+	}
+
+	contentFinal, err := os.ReadFile(paths.FreeTasksFile)
+	if err != nil {
+		t.Fatalf("failed to read free-list final: %v", err)
+	}
+
+	if !bytes.Contains(contentFinal, []byte(taskID)) {
+		t.Errorf("task should be back in free-list after status change to in_progress")
 	}
 }
