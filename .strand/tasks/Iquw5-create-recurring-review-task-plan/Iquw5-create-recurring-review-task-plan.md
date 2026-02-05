@@ -3,13 +3,13 @@ type: issue
 role: triage
 priority: low
 parent: ""
-blockers:
-    - T8v3k-recurring-tasks
+blockers: []
 blocks: []
 date_created: 2026-01-28T11:32:38.582356Z
-date_edited: 2026-01-28T11:32:38.582356Z
+date_edited: 2026-02-05T04:07:06.148739Z
 owner_approval: false
-completed: false
+completed: true
+description: ""
 ---
 
 # Create recurring review task plan

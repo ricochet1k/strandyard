@@ -9,7 +9,7 @@ blockers:
 blocks:
     - T3md3-usability-review-recurrence-anchor-flags
 date_created: 2026-01-29T05:46:54.494094Z
-date_edited: 2026-02-01T20:21:11.970741Z
+date_edited: 2026-02-05T04:07:06.305348Z
 owner_approval: false
 completed: false
 description: ""
@@ -44,5 +44,5 @@ Tasks are disposable. Use follow-up tasks for open questions/concerns. Record de
 - [ ] Awaiting review feedback and owner decision
 
 ## Subtasks
-- [ ] (subtask: Tcc9bjk) Description
+- [ ] (subtask: Tcc9bjk) Review Anchor Help Text Alternatives
 - [ ] (subtask: Tt3kj2u) New Task: Usability review: anchor help text and examples

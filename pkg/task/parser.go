@@ -6,28 +6,20 @@ import (
 	"io/fs"
 	"os"
 	"path/filepath"
+	"strconv"
 	"strings"
 
-	"github.com/yuin/goldmark"
-	"github.com/yuin/goldmark/parser"
-	"github.com/yuin/goldmark/text"
-	"go.abhg.dev/goldmark/frontmatter"
 	"golang.org/x/sync/errgroup"
+	"gopkg.in/yaml.v3"
 )
 
-// Parser handles parsing task files using goldmark
+// Parser handles parsing task files.
 type Parser struct {
-	md goldmark.Markdown
 }
 
 // NewParser creates a new task parser
 func NewParser() *Parser {
-	md := goldmark.New(
-		goldmark.WithExtensions(
-			&frontmatter.Extender{},
-		),
-	)
-	return &Parser{md: md}
+	return &Parser{}
 }
 
 // ParseFile parses a task file and returns a Task
@@ -42,6 +34,16 @@ func (p *Parser) ParseFile(filePath string) (*Task, error) {
 
 	t, err := p.ParseString(string(data), id)
 	if err != nil {
+		var fmErr *InvalidFrontmatterError
+		if errors.As(err, &fmErr) && fmErr.Path == "" {
+			fmErr.Path = filePath
+			return nil, fmErr
+		}
+		// Add file path to FrontmatterParseError if needed
+		var parseErr *FrontmatterParseError
+		if errors.As(err, &parseErr) && parseErr.Path == "" {
+			parseErr.Path = filePath
+		}
 		return nil, err
 	}
 	t.FilePath = filePath
@@ -61,6 +63,16 @@ func (p *Parser) ParseStandaloneFile(filePath string) (*Task, error) {
 
 	t, err := p.ParseString(string(data), id)
 	if err != nil {
+		var fmErr *InvalidFrontmatterError
+		if errors.As(err, &fmErr) && fmErr.Path == "" {
+			fmErr.Path = filePath
+			return nil, fmErr
+		}
+		// Add file path to FrontmatterParseError if needed
+		var parseErr *FrontmatterParseError
+		if errors.As(err, &parseErr) && parseErr.Path == "" {
+			parseErr.Path = filePath
+		}
 		return nil, err
 	}
 	t.FilePath = filePath
@@ -70,16 +82,19 @@ func (p *Parser) ParseStandaloneFile(filePath string) (*Task, error) {
 
 // ParseString parses a string into a Task
 func (p *Parser) ParseString(content string, id string) (*Task, error) {
-	// Parse the markdown with frontmatter
 	var meta Metadata
-	ctx := parser.NewContext()
-	_ = p.md.Parser().Parse(text.NewReader([]byte(content)), parser.WithContext(ctx))
-
-	// Extract frontmatter
-	fm := frontmatter.Get(ctx)
-	if fm != nil {
-		if err := fm.Decode(&meta); err != nil {
-			return nil, fmt.Errorf("failed to decode frontmatter: %w", err)
+	frontmatterText, body, hasFrontmatter, err := splitFrontmatter(content)
+	if err != nil {
+		return nil, err
+	}
+	if hasFrontmatter {
+		if err := yaml.Unmarshal([]byte(frontmatterText), &meta); err != nil {
+			// Extract line number from YAML error message if available
+			lineNum := extractLineNumberFromYAMLError(err)
+			return nil, &FrontmatterParseError{
+				LineNumber: lineNum,
+				YAMLError:  err.Error(),
+			}
 		}
 	}
 
@@ -108,14 +123,6 @@ func (p *Parser) ParseString(content string, id string) (*Task, error) {
 	// panic("todo")
 
 	// Split content into sections
-	body := ""
-	parts := strings.SplitN(content, "---", 3)
-	if len(parts) >= 3 {
-		body = strings.TrimSpace(parts[2])
-	} else {
-		body = strings.TrimSpace(content)
-	}
-
 	sections := SplitByHeadings(body)
 
 	for _, section := range sections {
@@ -151,6 +158,75 @@ func (p *Parser) ParseString(content string, id string) (*Task, error) {
 	t.BodyContent = strings.TrimSpace(t.BodyContent)
 
 	return t, nil
+}
+
+func splitFrontmatter(content string) (string, string, bool, error) {
+	lines := strings.Split(content, "\n")
+	if len(lines) == 0 {
+		return "", "", false, nil
+	}
+	if !isFrontmatterDelimiter(lines[0]) {
+		return "", strings.TrimSpace(content), false, nil
+	}
+
+	end := -1
+	for i := 1; i < len(lines); i++ {
+		if isFrontmatterDelimiter(lines[i]) {
+			end = i
+			break
+		}
+	}
+	if end == -1 {
+		return "", "", true, &InvalidFrontmatterError{Path: ""}
+	}
+
+	frontmatterLines := make([]string, 0, end-1)
+	for i := 1; i < end; i++ {
+		frontmatterLines = append(frontmatterLines, strings.TrimSuffix(lines[i], "\r"))
+	}
+	bodyLines := make([]string, 0, len(lines)-end-1)
+	for i := end + 1; i < len(lines); i++ {
+		bodyLines = append(bodyLines, strings.TrimSuffix(lines[i], "\r"))
+	}
+
+	frontmatterText := strings.Join(frontmatterLines, "\n")
+	body := strings.TrimSpace(strings.Join(bodyLines, "\n"))
+	return frontmatterText, body, true, nil
+}
+
+func isFrontmatterDelimiter(line string) bool {
+	trimmed := strings.TrimSuffix(line, "\r")
+	if len(trimmed) < 3 {
+		return false
+	}
+	for _, ch := range trimmed {
+		if ch != '-' {
+			return false
+		}
+	}
+	return true
+}
+
+// extractLineNumberFromYAMLError extracts the line number from a YAML error message.
+// YAML error format: "yaml: line N: <error message>"
+func extractLineNumberFromYAMLError(err error) int {
+	errMsg := err.Error()
+	// Look for "line N:" pattern in the error message
+	// Example: "yaml: line 2: could not find expected ':'"
+	parts := strings.Split(errMsg, "line ")
+	if len(parts) > 1 {
+		// Extract the number after "line "
+		rest := parts[1]
+		colonIdx := strings.Index(rest, ":")
+		if colonIdx > 0 {
+			numStr := rest[:colonIdx]
+			// Try to parse as integer
+			if n, err := strconv.Atoi(strings.TrimSpace(numStr)); err == nil {
+				return n
+			}
+		}
+	}
+	return 0 // Return 0 if we can't extract the line number
 }
 
 // Section represents a markdown section.

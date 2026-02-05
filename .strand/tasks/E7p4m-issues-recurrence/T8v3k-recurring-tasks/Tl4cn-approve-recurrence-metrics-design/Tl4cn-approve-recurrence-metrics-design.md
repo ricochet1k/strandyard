@@ -9,7 +9,7 @@ blocks:
     - Tcb90-document-recurrence-metrics-options
     - Tyvdv-extend-recurrence-schema-and-validation-for-new-me
 date_created: 2026-01-28T17:32:15.028035Z
-date_edited: 2026-02-01T09:27:56.970136Z
+date_edited: 2026-02-05T04:08:16.085823Z
 owner_approval: false
 completed: false
 description: ""
@@ -30,10 +30,3 @@ Decisions for recurrence metrics have been approved and recorded in:
 - Required reviews completed and blockers cleared.
 
   Approved recurrence metrics design: Option B (trigger array) for schema, date_completed for task tracking, repeatable --every flag for CLI, and github.com/olebedev/when for date parsing.
-- [ ] (role: developer) Add unit and integration tests covering the main flows.
-- [ ] (role: tester) Execute test-suite and report failures.
-- [ ] (role: master-reviewer) Coordinate required reviews: `reviewer-reliability`, `reviewer-security`, `reviewer-usability`.
-- [ ] (role: documentation) Update user-facing docs and examples.
-
-## Subtasks
-- [ ] (subtask: Tl4cn) short description of subtask

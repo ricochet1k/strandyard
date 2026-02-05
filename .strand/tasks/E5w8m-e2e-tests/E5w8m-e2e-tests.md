@@ -1,16 +1,17 @@
 ---
 type: ""
 role: architect
-priority: low
+priority: medium
 parent: ""
 blockers:
     - T7h5m-initial-e2e-tests
     - Tml0y-t9m4n-improved-task-templates
 blocks: []
 date_created: 2026-01-27T00:00:00Z
-date_edited: 2026-02-01T04:51:43.391715Z
+date_edited: 2026-02-05T04:07:06.815079Z
 owner_approval: false
 completed: false
+description: ""
 ---
 
 # Setup E2E Test Framework

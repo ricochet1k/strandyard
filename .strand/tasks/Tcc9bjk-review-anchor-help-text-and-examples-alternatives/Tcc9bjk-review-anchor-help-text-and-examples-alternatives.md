@@ -6,13 +6,13 @@ parent: Tusef-define-anchor-help-text-and-examples
 blockers: []
 blocks: []
 date_created: 2026-02-01T20:20:24.066079Z
-date_edited: 2026-02-01T20:21:11.582802Z
+date_edited: 2026-02-05T04:07:06.304887Z
 owner_approval: false
 completed: false
 description: ""
 ---
 
-# Description
+# Review Anchor Help Text Alternatives
 
 ## Summary
 Review the design alternatives for `strand add --every` help text and CLI.md documentation in `design-docs/anchor-help-text-and-examples-alternatives.md`.

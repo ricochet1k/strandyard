@@ -1,7 +1,7 @@
 ---
 type: ""
 role: developer
-priority: low
+priority: medium
 parent: E7p4m-issues-recurrence
 blockers:
     - Tcb90-document-recurrence-metrics-options
@@ -11,7 +11,7 @@ blocks:
     - E7p4m-issues-recurrence
     - Iquw5-create-recurring-review-task-plan
 date_created: 2026-01-27T00:00:00Z
-date_edited: 2026-02-05T00:59:54.130375Z
+date_edited: 2026-02-05T04:07:06.632711Z
 owner_approval: false
 completed: false
 description: ""

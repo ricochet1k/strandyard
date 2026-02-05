@@ -7,13 +7,10 @@ blockers:
     - Tl4cn-approve-recurrence-metrics-design
 blocks: []
 date_created: 0001-01-01T00:00:00Z
-date_edited: 2026-02-05T00:59:54.130374Z
+date_edited: 2026-02-05T04:08:16.084791Z
 owner_approval: false
 completed: false
 description: ""
 ---
 
 # Extend recurrence schema and validation for new metrics
-
-## Context
-Provide links to relevant design documents, diagrams, and decision records.

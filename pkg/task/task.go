@@ -199,3 +199,20 @@ type InvalidFrontmatterError struct {
 func (e *InvalidFrontmatterError) Error() string {
 	return "invalid task file format: missing frontmatter delimiters in " + e.Path
 }
+
+// FrontmatterParseError indicates an error parsing YAML frontmatter with line number info.
+type FrontmatterParseError struct {
+	Path       string
+	LineNumber int
+	YAMLError  string
+}
+
+func (e *FrontmatterParseError) Error() string {
+	if e.Path != "" && e.LineNumber > 0 {
+		return fmt.Sprintf("invalid YAML in %s at line %d: %s", e.Path, e.LineNumber, e.YAMLError)
+	}
+	if e.Path != "" {
+		return fmt.Sprintf("invalid YAML in %s: %s", e.Path, e.YAMLError)
+	}
+	return fmt.Sprintf("invalid YAML: %s", e.YAMLError)
+}

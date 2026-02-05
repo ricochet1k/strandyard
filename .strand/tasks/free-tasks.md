@@ -3,6 +3,9 @@
 ## High
 
 - [Handle HEAD anchor mutability in recurrence definitions](E7p4m-issues-recurrence/T8v3k-recurring-tasks/Tgr06-review-recurrence-metrics-cli-experience/Tftao-clarify-recurrence-anchor-flags-and-help-text/T1dua-draft-recurrence-anchor-flag-alternatives/Tonge7b-handle-head-anchor-mutability-in-recurrence-defini/Tonge7b-handle-head-anchor-mutability-in-recurrence-defini.md)
+- [Fix YAML serialization spacing and improve parse errors](T7lmwcf-fix-yaml-serialization-spacing-and-improve-parse-e/T7lmwcf-fix-yaml-serialization-spacing-and-improve-parse-e.md)
+- [strand complete does not update free-list](Taqlx4r-strand-complete-does-not-update-free-list/Taqlx4r-strand-complete-does-not-update-free-list.md)
+- [Replace completed boolean with status field (open/in_progress/done/duplicate/cancelled)](Tyhxhb7-replace-completed-boolean-with-status-field-open-i/Tyhxhb7-replace-completed-boolean-with-status-field-open-i.md)
 
 ## Medium
 
@@ -14,14 +17,14 @@
 - [Merge recurring add into add](Ish6g-merge-recurring-add-into-add/Ish6g-merge-recurring-add-into-add.md)
 - [Support role opt-in filtering for strand next](Ixf4f-support-role-opt-in-filtering-for-memmd-next/Ixf4f-support-role-opt-in-filtering-for-memmd-next.md)
 - [Dashboard: switching projects between projects that have issues doesn't correctly update the list of tasks](T39o95t-dashboard-switching-projects-between-projects-that/T39o95t-dashboard-switching-projects-between-projects-that.md)
-- [New Task: Test](T3u4ruk-test/T3u4ruk-test.md)
 - [Clarify missing anchor default behavior in recurrence](T3xpql7-clarify-missing-anchor-default-behavior-in-recurre/T3xpql7-clarify-missing-anchor-default-behavior-in-recurre.md)
 - [Clarify anchor flag inconsistency in CLI.md and design doc](T8xy3ry-clarify-anchor-flag-inconsistency-in-cli-md-and-de/T8xy3ry-clarify-anchor-flag-inconsistency-in-cli-md-and-de.md)
-- [Technical Details](Taqlx4r-strand-complete-does-not-update-free-list/Taqlx4r-strand-complete-does-not-update-free-list.md)
-- [Description](Tcc9bjk-review-anchor-help-text-and-examples-alternatives/Tcc9bjk-review-anchor-help-text-and-examples-alternatives.md)
-- [is still running repair though that should not be necessary (TaskDB should handle incremental updates of other tasks/lists), and it should report more human friendly info (short name, title, priority, etc.) rather than just the long id](Tdq74ju-is-still-running-repair-though-that-should-not-be/Tdq74ju-is-still-running-repair-though-that-should-not-be.md)
+- [Review Anchor Help Text Alternatives](Tcc9bjk-review-anchor-help-text-and-examples-alternatives/Tcc9bjk-review-anchor-help-text-and-examples-alternatives.md)
+- [Add --blocks flag to edit command](Teto6v3-add-blocks-flag-to-edit-command/Teto6v3-add-blocks-flag-to-edit-command.md)
 - [Complete command should also insert report into parent's subtasks after the relevant checkbox entry](Tfe1ssq-complete-command-should-also-insert-report-into-pa/Tfe1ssq-complete-command-should-also-insert-report-into-pa.md)
-- [`strand add` is still running repair though that should not be necessary (TaskDB should handle incremental updates of other tasks/lists), and it should report more human friendly info (short name, title, priority, etc.) rather than just the long id](Ti1ugbe-strand-add-is-still-running-repair-though-that-sho/Ti1ugbe-strand-add-is-still-running-repair-though-that-sho.md)
+- [Add strand todo command to manage task checklist items](Tfznrfv-add-strand-todo-command-to-manage-task-checklist-i/Tfznrfv-add-strand-todo-command-to-manage-task-checklist-i.md)
+- [Simplify with status states: no separate reopen needed](Tgm7msa-add-reopen-command-or-flag-for-completed-tasks/Tgm7msa-add-reopen-command-or-flag-for-completed-tasks.md)
+- [Improve strand add performance and output](Ti1ugbe-strand-add-is-still-running-repair-though-that-sho/Ti1ugbe-strand-add-is-still-running-repair-though-that-sho.md)
 - [Review new taskdb.go implementation](Ti6zj-taskdb-api-design-review/T0f98-review-new-taskdb-go-implementation/T0f98-review-new-taskdb-go-implementation.md)
 - [Review blockers.go relationship management](Ti6zj-taskdb-api-design-review/T0q5n-review-blockers-go-relationship-management/T0q5n-review-blockers-go-relationship-management.md)
 - [Review task.go structure and methods](Ti6zj-taskdb-api-design-review/T2lt8-review-task-go-structure-and-methods/T2lt8-review-task-go-structure-and-methods.md)
@@ -37,9 +40,12 @@
 - [Design relationship management API](Ti6zj-taskdb-api-design-review/Tx4jn-design-relationship-management-api/Tx4jn-design-relationship-management-api.md)
 - [Design task creation API (template-based only)](Ti6zj-taskdb-api-design-review/Txvyh-design-task-creation-api-template-based-only/Txvyh-design-task-creation-api-template-based-only.md)
 - [Define error message and recovery hint for ambiguous anchor type](Tiw9in3-define-error-message-and-recovery-hint-for-ambiguo/Tiw9in3-define-error-message-and-recovery-hint-for-ambiguo.md)
+- [Consider: Remove delete command, use status states instead](Tj8om9e-add-delete-command-to-remove-tasks/Tj8om9e-add-delete-command-to-remove-tasks.md)
 - [Dashboard needs to have project name and task being edited in the route.](To55tad-dashboard-needs-to-have-project-name-and-task-bein/To55tad-dashboard-needs-to-have-project-name-and-task-bein.md)
 - [New Task: Usability review: anchor help text and examples](Tt3kj2u-usability-review-anchor-help-text-and-examples/Tt3kj2u-usability-review-anchor-help-text-and-examples.md)
 - [strand edit is missing --blocker flag](Twcp360-strand-edit-is-missing-blocker-flag/Twcp360-strand-edit-is-missing-blocker-flag.md)
+- [Move task directory when parent changes](Tx2fpci-move-task-directory-when-parent-changes/Tx2fpci-move-task-directory-when-parent-changes.md)
+- [Normalize short IDs to full IDs in relationships](Tydoy3v-normalize-short-ids-to-full-ids-in-relationships/Tydoy3v-normalize-short-ids-to-full-ids-in-relationships.md)
 
 ## Low
 
@@ -51,6 +57,7 @@
 - [Design improved task templates](T1j6m-improved-task-templates-design/T1j6m-improved-task-templates-design.md)
 - [File issue reports for blocker validation errors](T2k6s-blocker-validation-issue-reports/T2k6s-blocker-validation-issue-reports.md)
 - [Design PTY-only TUI for incomplete commands](T2r8k-pty-tui-incomplete-commands-design/T2r8k-pty-tui-incomplete-commands-design.md)
+- [Rename task directory when title changes](T3c1yfi-rename-task-directory-when-title-changes/T3c1yfi-rename-task-directory-when-title-changes.md)
 - [Design history and edit log](T3c7p-history-edit-log-design/T3c7p-history-edit-log-design.md)
 - [Design task search command](T3n7p-task-search-command-design/T3n7p-task-search-command-design.md)
 - [Design near-duplicate search on task add](T4k9s-near-duplicate-search-on-add-design/T4k9s-near-duplicate-search-on-add-design.md)
