@@ -145,7 +145,8 @@ func validateEvery(every []string, repoPath string, tasks map[string]*task.Task)
 		}
 
 		// Validate anchor if present
-		if len(parts) >= 4 && parts[2] == "from" {
+		if len(parts) >= 4 && (parts[2] == "from" || parts[2] == "after") {
+			keyword := parts[2]
 			anchor := strings.Join(parts[3:], " ")
 			resolved, err := task.ValidateAnchor(metric, anchor, repoPath, tasks)
 			if err != nil {
@@ -159,6 +160,16 @@ func validateEvery(every []string, repoPath string, tasks map[string]*task.Task)
 				}
 				return nil, err
 			}
+
+			// If keyword is 'after', resolve to one interval later
+			if keyword == "after" {
+				amountInt, _ := strconv.Atoi(amount)
+				resolved, err = task.UpdateAnchor(repoPath, repoPath, metric, resolved, amountInt)
+				if err != nil {
+					return nil, fmt.Errorf("failed to calculate 'after' anchor: %w", err)
+				}
+			}
+
 			// Update rule with resolved anchor
 			value = fmt.Sprintf("%s %s from %s", amount, metric, resolved)
 		}

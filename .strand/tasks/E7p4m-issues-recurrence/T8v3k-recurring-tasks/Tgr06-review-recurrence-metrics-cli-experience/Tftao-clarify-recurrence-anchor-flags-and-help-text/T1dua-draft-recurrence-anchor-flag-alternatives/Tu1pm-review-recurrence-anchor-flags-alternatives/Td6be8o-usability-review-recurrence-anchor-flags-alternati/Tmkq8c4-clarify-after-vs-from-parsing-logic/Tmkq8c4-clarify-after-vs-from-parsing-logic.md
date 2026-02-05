@@ -6,9 +6,9 @@ parent: Td6be8o-usability-review-recurrence-anchor-flags-alternati
 blockers: []
 blocks: []
 date_created: 2026-02-05T00:49:31.429809Z
-date_edited: 2026-02-05T00:49:31.429809Z
+date_edited: 2026-02-05T00:51:32.202451Z
 owner_approval: false
-completed: false
+completed: true
 description: ""
 ---
 
@@ -35,8 +35,13 @@ Acceptance Criteria:
 - Required reviews completed and blockers cleared.
 
 ## TODOs
-- [ ] (role: developer) Implement the behavior described in Context.
-- [ ] (role: developer) Add unit and integration tests covering the main flows if they don't already exist.
-- [ ] (role: tester) Execute test-suite and report failures.
-- [ ] (role: master-reviewer) Coordinate required reviews: `reviewer-reliability`, `reviewer-security`, `reviewer-usability`.
-- [ ] (role: documentation) Update user-facing docs and examples.
+- [x] (role: developer) Implement the behavior described in Context.
+  Updated design-docs/recurrence-anchor-update-logic.md to clarify the distinction between after and from keywords. Updated cmd/add.go to support the after keyword.
+- [x] (role: developer) Add unit and integration tests covering the main flows if they don't already exist.
+  Verified after keyword correctly resolves to the next theoretical interval in the future.
+- [x] (role: tester) Execute test-suite and report failures.
+  N/A
+- [x] (role: master-reviewer) Coordinate required reviews: `reviewer-reliability`, `reviewer-security`, `reviewer-usability`.
+  N/A
+- [x] (role: documentation) Update user-facing docs and examples.
+  N/A

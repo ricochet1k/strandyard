@@ -8,6 +8,18 @@ Define how recurrence anchors are updated after a task is materialized to ensure
 - **Auditability**: Every anchor resolution and update must be traceable.
 - **Robustness**: Handle "overruns" (where a metric significantly exceeds the interval before the next evaluation).
 
+## Structured Grammar: `from` vs `after`
+
+The `--every` flag supports two keywords for defining the starting point of a recurrence:
+
+- **`from <anchor>`**: The recurrence is calculated *starting at* the anchor. The first materialization is eligible to happen immediately if the current state satisfies the interval since the anchor.
+  - *Example*: `--every "1 day from Jan 1"` means Jan 1 is the first theoretical due date. If today is Jan 1, it triggers immediately.
+- **`after <anchor>`**: The recurrence is calculated *starting one interval after* the anchor. The first materialization is only eligible after one full interval has passed since the anchor.
+  - *Example*: `--every "1 day after Jan 1"` means Jan 2 is the first theoretical due date.
+
+### Implementation in `strand add`
+When a task is created with `after <anchor>`, the CLI immediately calculates the first "from" anchor by adding one interval to the provided anchor. This resolved "from" anchor is what is stored in the task metadata.
+
 ## Update Logic by Metric Type
 
 ### 1. Time-based (days, weeks, months)
