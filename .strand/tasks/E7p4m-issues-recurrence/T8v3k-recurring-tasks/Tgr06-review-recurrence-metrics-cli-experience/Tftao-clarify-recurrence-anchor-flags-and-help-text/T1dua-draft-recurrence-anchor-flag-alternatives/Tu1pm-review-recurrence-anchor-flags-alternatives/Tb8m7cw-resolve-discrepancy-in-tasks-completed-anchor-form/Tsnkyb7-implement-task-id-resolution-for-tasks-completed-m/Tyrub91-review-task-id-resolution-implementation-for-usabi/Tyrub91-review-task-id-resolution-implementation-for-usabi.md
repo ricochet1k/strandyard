@@ -6,9 +6,9 @@ parent: Tsnkyb7-implement-task-id-resolution-for-tasks-completed-m
 blockers: []
 blocks: []
 date_created: 2026-02-02T01:20:51.951734Z
-date_edited: 2026-02-02T01:20:51.951734Z
+date_edited: 2026-02-05T00:23:40.789425Z
 owner_approval: false
-completed: false
+completed: true
 description: ""
 ---
 
@@ -18,3 +18,6 @@ description: ""
 Review the task ID resolution implementation for usability concerns. Examine user-facing documentation, examples, error messages, and help text. Verify that users can easily understand how to use task ID anchors in recurrence metrics.
 
 Decide which task template would best fit this task and re-add it with that template and the same parent.
+
+## Completion Report
+Usability review complete. Re-added task as Tqnugqd using the 'review' template. Found several usability issues: 1) design-docs/recurrence-anchor-error-messages.md and anchor-help-text-and-examples-alternatives.md are outdated regarding tasks_completed anchors. 2) cmd/add.go lacks a hint for tasks_completed validation failures. 3) Error messages for tasks_completed can be confusing (claims invalid task ID for malformed dates).
