@@ -107,3 +107,33 @@
 .search-input::placeholder {
   color: var(--muted);
 }
+
+.file-list {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.file-item {
+  padding: 8px 10px;
+  border: 1px solid var(--border);
+  background: var(--bg-accent);
+  border-radius: 8px;
+  font-size: 13px;
+  cursor: pointer;
+  text-align: left;
+  transition: all 0.2s ease;
+  color: var(--text);
+}
+
+.file-item:hover {
+  border-color: var(--accent);
+  background: #fff3e8;
+}
+
+.file-item.active {
+  border-color: var(--accent);
+  background: #fff3e8;
+  color: var(--accent-strong);
+  font-weight: 500;
+}

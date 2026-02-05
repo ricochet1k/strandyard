@@ -3,7 +3,7 @@
 ## High
 
 - [Handle HEAD anchor mutability in recurrence definitions](E7p4m-issues-recurrence/T8v3k-recurring-tasks/Tgr06-review-recurrence-metrics-cli-experience/Tftao-clarify-recurrence-anchor-flags-and-help-text/T1dua-draft-recurrence-anchor-flag-alternatives/Tonge7b-handle-head-anchor-mutability-in-recurrence-defini/Tonge7b-handle-head-anchor-mutability-in-recurrence-defini.md)
-- [Description](Taqlx4r-strand-complete-does-not-update-free-list/Tq49ww0-fix-strand-complete-to-update-free-list-when-last/Txxvu2j-review-reliability-of-free-list-update-implementat/Txxvu2j-review-reliability-of-free-list-update-implementat.md)
+- [Fix atomicity issue in free-list update](Taqlx4r-strand-complete-does-not-update-free-list/Tq49ww0-fix-strand-complete-to-update-free-list-when-last/Tnawrsq-fix-atomicity-issue-in-free-list-update/Tnawrsq-fix-atomicity-issue-in-free-list-update.md)
 - [Replace completed boolean with status field (open/in_progress/done/duplicate/cancelled)](Tyhxhb7-replace-completed-boolean-with-status-field-open-i/Tyhxhb7-replace-completed-boolean-with-status-field-open-i.md)
 
 ## Medium
@@ -22,6 +22,7 @@
 - [New Task: Clarify UX for free-list incremental update failures](Taqlx4r-strand-complete-does-not-update-free-list/Tq49ww0-fix-strand-complete-to-update-free-list-when-last/Tj9pcpb-review-usability-of-free-list-update-implementatio/Te392g0-clarify-ux-for-free-list-incremental-update-failur/Te392g0-clarify-ux-for-free-list-incremental-update-failur.md)
 - [New Task: Consider user mental model of free-list update sequencing](Taqlx4r-strand-complete-does-not-update-free-list/Tq49ww0-fix-strand-complete-to-update-free-list-when-last/Tj9pcpb-review-usability-of-free-list-update-implementatio/Th7svb4-consider-user-mental-model-of-free-list-update-seq/Th7svb4-consider-user-mental-model-of-free-list-update-seq.md)
 - [New Task: Review commit message guidance in complete command](Taqlx4r-strand-complete-does-not-update-free-list/Tq49ww0-fix-strand-complete-to-update-free-list-when-last/Tj9pcpb-review-usability-of-free-list-update-implementatio/Tisjcvs-review-commit-message-guidance-in-complete-command/Tisjcvs-review-commit-message-guidance-in-complete-command.md)
+- [Add monitoring/telemetry for incremental free-list update fallbacks](Taqlx4r-strand-complete-does-not-update-free-list/Tq49ww0-fix-strand-complete-to-update-free-list-when-last/Tte8mvx-add-monitoring-telemetry-for-incremental-free-list/Tte8mvx-add-monitoring-telemetry-for-incremental-free-list.md)
 - [Review Anchor Help Text Alternatives](Tcc9bjk-review-anchor-help-text-and-examples-alternatives/Tcc9bjk-review-anchor-help-text-and-examples-alternatives.md)
 - [Add --blocks flag to edit command](Teto6v3-add-blocks-flag-to-edit-command/Teto6v3-add-blocks-flag-to-edit-command.md)
 - [Complete command should also insert report into parent's subtasks after the relevant checkbox entry](Tfe1ssq-complete-command-should-also-insert-report-into-pa/Tfe1ssq-complete-command-should-also-insert-report-into-pa.md)

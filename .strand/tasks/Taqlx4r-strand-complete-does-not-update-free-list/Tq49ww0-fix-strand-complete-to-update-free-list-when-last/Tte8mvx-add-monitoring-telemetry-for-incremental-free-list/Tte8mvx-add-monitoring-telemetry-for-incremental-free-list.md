@@ -1,14 +1,21 @@
 ---
-role: developer
+type: implement
+role: designer
 priority: medium
-description: Implement a new feature or fix a bug.
-id_prefix: C
+parent: Tq49ww0-fix-strand-complete-to-update-free-list-when-last
+blockers: []
+blocks: []
+date_created: 2026-02-05T21:46:19.502717Z
+date_edited: 2026-02-05T21:46:19.502717Z
+owner_approval: false
+completed: false
+description: ""
 ---
 
-# {{ .Title }}
+# Add monitoring/telemetry for incremental free-list update fallbacks
 
 ## Summary
-{{ .Body }}
+
 
 ## Acceptance Criteria
 - Clear, runnable steps to reproduce locally.

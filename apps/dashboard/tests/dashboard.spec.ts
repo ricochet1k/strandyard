@@ -65,6 +65,36 @@ const taskDetail: TaskDetail = {
   body: "## Summary\nAdd coverage for the dashboard.",
 }
 
+const roles = [
+  { name: "developer", path: ".strand/roles/developer.md", kind: "roles" },
+  { name: "reviewer", path: ".strand/roles/reviewer.md", kind: "roles" },
+]
+
+const templates = [
+  { name: "task", path: "templates/task.md", kind: "templates" },
+  { name: "epic", path: "templates/epic.md", kind: "templates" },
+]
+
+const roleContent = {
+  path: ".strand/roles/developer.md",
+  content: "---\ndescription: Implements tasks\n---\n\n# Developer Role\n\nResponsibilities:\n- Write code\n- Fix bugs",
+}
+
+const reviewerRoleContent = {
+  path: ".strand/roles/reviewer.md",
+  content: "---\ndescription: Reviews code\n---\n\n# Reviewer Role\n\nResponsibilities:\n- Review PRs",
+}
+
+const templateContent = {
+  path: "templates/task.md",
+  content: "---\nrole: developer\npriority: medium\ndescription: Basic task\nid_prefix: T\n---\n\n# Task Title",
+}
+
+const epicTemplateContent = {
+  path: "templates/epic.md",
+  content: "---\nrole: architect\npriority: high\ndescription: Epic template\nid_prefix: E\n---\n\n# Epic Title",
+}
+
 const installEventSourceMock = async (page: Page) => {
   await page.addInitScript(() => {
     class MockEventSource {
@@ -95,6 +125,7 @@ const setupApiMocks = async (
   page: Page,
   options: {
     onPatch?: (payload: Record<string, unknown>) => void
+    onFilePut?: (path: string, content: string) => void
   } = {},
 ) => {
   await page.route("**/api/**", async (route) => {
@@ -140,6 +171,74 @@ const setupApiMocks = async (
       return
     }
 
+    if (url.pathname === "/api/files") {
+      const kind = url.searchParams.get("kind")
+      if (kind === "roles") {
+        await route.fulfill({
+          contentType: "application/json",
+          body: JSON.stringify(roles),
+        })
+        return
+      }
+      if (kind === "templates") {
+        await route.fulfill({
+          contentType: "application/json",
+          body: JSON.stringify(templates),
+        })
+        return
+      }
+    }
+
+    if (url.pathname === "/api/file") {
+      const path = url.searchParams.get("path")
+      
+      if (request.method() === "PUT") {
+        const payload = request.postDataJSON() as { content: string }
+        if (path) {
+          options.onFilePut?.(path, payload.content)
+        }
+        await route.fulfill({
+          contentType: "application/json",
+          body: JSON.stringify({}),
+        })
+        return
+      }
+
+      // Role files
+      if (path === roleContent.path) {
+        await route.fulfill({
+          contentType: "application/json",
+          body: JSON.stringify(roleContent),
+        })
+        return
+      }
+
+      if (path === reviewerRoleContent.path) {
+        await route.fulfill({
+          contentType: "application/json",
+          body: JSON.stringify(reviewerRoleContent),
+        })
+        return
+      }
+
+      // Template files
+      if (path === templateContent.path) {
+        await route.fulfill({
+          contentType: "application/json",
+          body: JSON.stringify(templateContent),
+        })
+        return
+      }
+
+      if (path === epicTemplateContent.path) {
+        await route.fulfill({
+          contentType: "application/json",
+          body: JSON.stringify(epicTemplateContent),
+        })
+        return
+      }
+    }
+
     await route.fulfill({ status: 404, body: "Not found" })
   })
 }
@@ -179,4 +278,97 @@ test("saves edits to a task", async ({ page }) => {
   expect(patchPayload).toMatchObject({
     title: "Ship the dashboard tests",
   })
+})
+
+test("switches to roles tab and loads role files", async ({ page }) => {
+  await installEventSourceMock(page)
+  await setupApiMocks(page)
+
+  await page.goto("/")
+  
+  // Switch to Roles tab
+  await page.getByRole("button", { name: "Roles" }).click()
+  
+  // Wait for roles to load
+  await page.waitForTimeout(500)
+  
+  // Check that roles are listed in table
+  await expect(page.locator(".task-table")).toBeVisible()
+  await expect(page.getByRole("button", { name: "developer" })).toBeVisible()
+  await expect(page.getByRole("button", { name: "reviewer" })).toBeVisible()
+  
+  // Click on a role to load it
+  await page.getByRole("button", { name: "developer" }).click()
+  
+  // Check that role content is displayed in editor
+  await expect(page.locator(".pane-header .detail", { hasText: roleContent.path })).toBeVisible()
+  await expect(page.locator("textarea.editor-body")).toHaveValue(/Developer Role/)
+  
+  // Check that frontmatter controls are visible
+  await expect(page.getByLabel("Description")).toHaveValue("Implements tasks")
+})
+
+test("switches to templates tab and loads template files", async ({ page }) => {
+  await installEventSourceMock(page)
+  await setupApiMocks(page)
+
+  await page.goto("/")
+  
+  // Switch to Templates tab
+  await page.getByRole("button", { name: "Templates" }).click()
+  
+  // Wait for templates to load
+  await page.waitForTimeout(500)
+  
+  // Check that templates are listed in table
+  await expect(page.locator(".task-table")).toBeVisible()
+  await expect(page.locator(".task-table .task-link", { hasText: "task" })).toBeVisible()
+  await expect(page.locator(".task-table .task-link", { hasText: "epic" })).toBeVisible()
+  
+  // Click on a template to load it
+  await page.locator(".task-table .task-link", { hasText: "task" }).click()
+  
+  // Check that template content is displayed in editor
+  await expect(page.locator(".pane-header .detail", { hasText: templateContent.path })).toBeVisible()
+  await expect(page.locator("textarea.editor-body")).toHaveValue(/Task Title/)
+  
+  // Check that frontmatter controls are visible
+  await expect(page.getByLabel("Role")).toHaveValue("developer")
+  await expect(page.getByLabel("Priority")).toHaveValue("medium")
+  await expect(page.getByLabel("Description")).toHaveValue("Basic task")
+  await expect(page.getByLabel("ID Prefix")).toHaveValue("T")
+})
+
+test("saves edits to a role file", async ({ page }) => {
+  await installEventSourceMock(page)
+
+  let savedPath: string | undefined
+  let savedContent: string | undefined
+  await setupApiMocks(page, {
+    onFilePut: (path, content) => {
+      savedPath = path
+      savedContent = content
+    },
+  })
+
+  await page.goto("/")
+  
+  // Switch to Roles tab and open a role
+  await page.getByRole("button", { name: "Roles" }).click()
+  await page.waitForTimeout(500)
+  await page.getByRole("button", { name: "developer" }).click()
+  
+  // Edit the role description
+  await page.getByLabel("Description").fill("Updated description")
+  
+  // Edit the role body
+  await page.locator("textarea.editor-body").fill("# Updated Developer Role\n\nNew content")
+  
+  await page.getByRole("button", { name: "Save" }).click()
+  
+  // Check that save was called with correct data
+  await expect(page.getByText(`Saved ${roleContent.path}`)).toBeVisible()
+  expect(savedPath).toBe(roleContent.path)
+  expect(savedContent).toContain("description: Updated description")
+  expect(savedContent).toContain("# Updated Developer Role")
 })

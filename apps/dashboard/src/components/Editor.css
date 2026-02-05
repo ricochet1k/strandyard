@@ -84,6 +84,12 @@
   background: var(--bg-accent);
 }
 
+@media (max-width: 768px) {
+  .editor-controls {
+    grid-template-columns: 1fr;
+  }
+}
+
 .editor-field {
   display: flex;
   flex-direction: column;
@@ -207,4 +213,24 @@
 .add-btn:hover {
   background: var(--bg-accent);
   border-color: var(--accent);
+}
+
+.codemirror-container {
+  flex: 1;
+  overflow: auto;
+  padding: 0;
+}
+
+.codemirror-container .cm-editor {
+  height: 100%;
+  font-family: "IBM Plex Mono", "Courier New", monospace;
+  font-size: 14px;
+}
+
+.codemirror-container .cm-scroller {
+  overflow: auto;
+}
+
+.codemirror-container .cm-content {
+  padding: 16px;
 }

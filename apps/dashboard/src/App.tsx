@@ -2,6 +2,8 @@ import { createEffect, createSignal, onCleanup, onMount, createMemo, untrack, Sh
 import Header from "./components/Header"
 import Sidebar from "./components/Sidebar"
 import TaskTable from "./components/TaskTable"
+import RolesTable from "./components/RolesTable"
+import TemplatesTable from "./components/TemplatesTable"
 import Editor from "./components/Editor"
 import "./App.css"
 import { keyArray } from "@solid-primitives/keyed"
@@ -10,6 +12,7 @@ import { sortedIndex, sortedIndexCmp, sortedInsert, sortedRemove } from "./lib"
 import { createMutable, createStore } from "solid-js/store"
 import { MyTransitionGroup } from "./components/MyTransitionGroup"
 import "./components/TaskTable.css"
+import { parseFrontmatter, serializeFrontmatter, RoleMeta, TemplateMeta } from "./frontmatter"
 
 type Tab = "tasks" | "roles" | "templates"
 
@@ -47,6 +50,29 @@ type FileEntry = {
 type FilePayload = {
   path: string
   content: string
+}
+
+export type RoleItem = {
+  name: string
+  path: string
+  description: string
+}
+
+export type RoleDetail = RoleItem & {
+  body: string
+}
+
+export type TemplateItem = {
+  name: string
+  path: string
+  role: string
+  priority: string
+  description: string
+  id_prefix: string
+}
+
+export type TemplateDetail = TemplateItem & {
+  body: string
 }
 
 type StreamUpdate = {
@@ -116,7 +142,11 @@ function errorMessage(err: unknown) {
 export default function App() {
   const [tab, setTab] = createSignal<Tab>("tasks")
   const [tasks, setTasks] = createSignal<TaskItem[]>([])
+  const [roles, setRoles] = createSignal<RoleItem[]>([])
+  const [templates, setTemplates] = createSignal<TemplateItem[]>([])
   const [activeTaskDetail, setActiveTaskDetail] = createSignal<TaskDetail | null>(null)
+  const [activeRoleDetail, setActiveRoleDetail] = createSignal<RoleDetail | null>(null)
+  const [activeTemplateDetail, setActiveTemplateDetail] = createSignal<TemplateDetail | null>(null)
   const [dirty, setDirty] = createSignal(false)
   const [status, setStatus] = createSignal("")
   const [connected, setConnected] = createSignal(false)
@@ -165,6 +195,136 @@ export default function App() {
     }
   }
 
+  const loadRoles = async () => {
+    try {
+      const files = await fetchJSON<FileEntry[]>(apiURL("/api/files?kind=roles"))
+      const roleItems: RoleItem[] = []
+      
+      for (const file of files) {
+        const data = await fetchJSON<FilePayload>(apiURL(`/api/file?path=${encodeURIComponent(file.path)}`))
+        const parsed = parseFrontmatter<RoleMeta>(data.content)
+        roleItems.push({
+          name: file.name,
+          path: file.path,
+          description: parsed.frontmatter.description || "",
+        })
+      }
+      
+      setRoles(roleItems)
+    } catch (err) {
+      setStatus(`Failed to load roles: ${errorMessage(err)}`)
+    }
+  }
+
+  const loadTemplates = async () => {
+    try {
+      const files = await fetchJSON<FileEntry[]>(apiURL("/api/files?kind=templates"))
+      const templateItems: TemplateItem[] = []
+      
+      for (const file of files) {
+        const data = await fetchJSON<FilePayload>(apiURL(`/api/file?path=${encodeURIComponent(file.path)}`))
+        const parsed = parseFrontmatter<TemplateMeta>(data.content)
+        templateItems.push({
+          name: file.name,
+          path: file.path,
+          role: parsed.frontmatter.role || "",
+          priority: parsed.frontmatter.priority || "",
+          description: parsed.frontmatter.description || "",
+          id_prefix: parsed.frontmatter.id_prefix || "",
+        })
+      }
+      
+      setTemplates(templateItems)
+    } catch (err) {
+      setStatus(`Failed to load templates: ${errorMessage(err)}`)
+    }
+  }
+
+  const loadRole = async (path: string) => {
+    try {
+      const data = await fetchJSON<FilePayload>(apiURL(`/api/file?path=${encodeURIComponent(path)}`))
+      const parsed = parseFrontmatter<RoleMeta>(data.content)
+      const role = roles().find(r => r.path === path)
+      if (role) {
+        setActiveRoleDetail({
+          ...role,
+          body: parsed.body,
+        })
+      }
+      setDirty(false)
+      setStatus(`Loaded ${path}`)
+    } catch (err) {
+      setStatus(`Failed to load role: ${errorMessage(err)}`)
+    }
+  }
+
+  const loadTemplate = async (path: string) => {
+    try {
+      const data = await fetchJSON<FilePayload>(apiURL(`/api/file?path=${encodeURIComponent(path)}`))
+      const parsed = parseFrontmatter<TemplateMeta>(data.content)
+      const template = templates().find(t => t.path === path)
+      if (template) {
+        setActiveTemplateDetail({
+          ...template,
+          body: parsed.body,
+        })
+      }
+      setDirty(false)
+      setStatus(`Loaded ${path}`)
+    } catch (err) {
+      setStatus(`Failed to load template: ${errorMessage(err)}`)
+    }
+  }
+
+  const saveRole = async () => {
+    const role = activeRoleDetail()
+    if (!role) return
+    try {
+      setStatus("Saving...")
+      const content = serializeFrontmatter<RoleMeta>(
+        { description: role.description },
+        role.body
+      )
+      await fetchJSON(apiURL(`/api/file?path=${encodeURIComponent(role.path)}`), {
+        method: "PUT",
+        body: JSON.stringify({ content }),
+      })
+      setDirty(false)
+      setStatus(`Saved ${role.path}`)
+      // Reload roles to update the list
+      await loadRoles()
+    } catch (err) {
+      setStatus(`Save failed: ${errorMessage(err)}`)
+    }
+  }
+
+  const saveTemplate = async () => {
+    const template = activeTemplateDetail()
+    if (!template) return
+    try {
+      setStatus("Saving...")
+      const content = serializeFrontmatter<TemplateMeta>(
+        {
+          role: template.role,
+          priority: template.priority,
+          description: template.description,
+          id_prefix: template.id_prefix,
+        },
+        template.body
+      )
+      await fetchJSON(apiURL(`/api/file?path=${encodeURIComponent(template.path)}`), {
+        method: "PUT",
+        body: JSON.stringify({ content }),
+      })
+      setDirty(false)
+      setStatus(`Saved ${template.path}`)
+      // Reload templates to update the list
+      await loadTemplates()
+    } catch (err) {
+      setStatus(`Save failed: ${errorMessage(err)}`)
+    }
+  }
+
   const loadTask = async (taskId: string) => {
     try {
       const data = await fetchJSON<TaskDetail>(apiURL(`/api/task?id=${encodeURIComponent(taskId)}`))
@@ -203,6 +363,24 @@ export default function App() {
 
   const onSelect = (entry: TaskTreeNode) => {
     void loadTask(entry.task.id)
+  }
+
+  const onSelectRole = (role: RoleItem) => {
+    void loadRole(role.path)
+  }
+
+  const onSelectTemplate = (template: TemplateItem) => {
+    void loadTemplate(template.path)
+  }
+
+  const handleRoleDetailChange = (updated: RoleDetail) => {
+    setActiveRoleDetail(updated)
+    setDirty(true)
+  }
+
+  const handleTemplateDetailChange = (updated: TemplateDetail) => {
+    setActiveTemplateDetail(updated)
+    setDirty(true)
   }
 
   const hasChildren = (node: TaskTreeNode) => (taskChildren.get(node.task.short_id)?.length ?? 0) > 0
@@ -416,10 +594,16 @@ export default function App() {
   createEffect(() => {
     const current = tab()
     setActiveTaskDetail(null)
+    setActiveRoleDetail(null)
+    setActiveTemplateDetail(null)
     setDirty(false)
     setStatus("")
     if (current === "tasks") {
       void loadTasks()
+    } else if (current === "roles") {
+      void loadRoles()
+    } else if (current === "templates") {
+      void loadTemplates()
     }
   })
 
@@ -427,9 +611,16 @@ export default function App() {
     const project = currentProject()
     if (!project) return
     setActiveTaskDetail(null)
+    setActiveRoleDetail(null)
+    setActiveTemplateDetail(null)
     setDirty(false)
-    if (tab() === "tasks") {
+    const current = tab()
+    if (current === "tasks") {
       void loadTasks()
+    } else if (current === "roles") {
+      void loadRoles()
+    } else if (current === "templates") {
+      void loadTemplates()
     }
   })
 
@@ -534,33 +725,67 @@ export default function App() {
         />
 
         <div class="list-pane">
-          <div class="pane-header">
-            <h2>Tasks Library</h2>
-            <span class="pill">{filteredTasks().length} items</span>
-          </div>
-          <div class="list">
-            <TaskTable
-              tasks={taskTreeFlattened()}
-              activePath={activeTaskDetail()?.path ?? ""}
-              sortField={sortField()}
-              sortDirection={sortDirection()}
-              hasChildren={hasChildren}
-              isExpanded={isExpanded}
-              onSelect={onSelect}
-              onToggleNode={toggleNode}
-              onSortChange={handleSortChange}
-            />
-          </div>
+          <Show when={tab() === "tasks"}>
+            <div class="pane-header">
+              <h2>Tasks Library</h2>
+              <span class="pill">{filteredTasks().length} items</span>
+            </div>
+            <div class="list">
+              <TaskTable
+                tasks={taskTreeFlattened()}
+                activePath={activeTaskDetail()?.path ?? ""}
+                sortField={sortField()}
+                sortDirection={sortDirection()}
+                hasChildren={hasChildren}
+                isExpanded={isExpanded}
+                onSelect={onSelect}
+                onToggleNode={toggleNode}
+                onSortChange={handleSortChange}
+              />
+            </div>
+          </Show>
+          
+          <Show when={tab() === "roles"}>
+            <div class="pane-header">
+              <h2>Roles</h2>
+              <span class="pill">{roles().length} items</span>
+            </div>
+            <div class="list">
+              <RolesTable
+                roles={roles()}
+                activePath={activeRoleDetail()?.path ?? ""}
+                onSelect={onSelectRole}
+              />
+            </div>
+          </Show>
+          
+          <Show when={tab() === "templates"}>
+            <div class="pane-header">
+              <h2>Templates</h2>
+              <span class="pill">{templates().length} items</span>
+            </div>
+            <div class="list">
+              <TemplatesTable
+                templates={templates()}
+                activePath={activeTemplateDetail()?.path ?? ""}
+                onSelect={onSelectTemplate}
+              />
+            </div>
+          </Show>
         </div>
 
         <Editor
           task={activeTaskDetail()}
+          role={activeRoleDetail()}
+          template={activeTemplateDetail()}
           dirty={dirty()}
           status={status()}
           lastEvent={lastEvent()}
           tab={tab()}
           onTaskChange={handleTaskDetailChange}
-          onSave={saveTask}
+          onRoleChange={handleRoleDetailChange}
+          onTemplateChange={handleTemplateDetailChange}
+          onSave={tab() === "tasks" ? saveTask : tab() === "roles" ? saveRole : saveTemplate}
         />
       </section>
     </div>

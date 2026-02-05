@@ -1,14 +1,21 @@
 ---
-role: developer
-priority: medium
-description: Implement a new feature or fix a bug.
-id_prefix: C
+type: implement
+role: architect
+priority: high
+parent: Tq49ww0-fix-strand-complete-to-update-free-list-when-last
+blockers: []
+blocks: []
+date_created: 2026-02-05T21:45:59.620259Z
+date_edited: 2026-02-05T21:45:59.620259Z
+owner_approval: false
+completed: false
+description: ""
 ---
 
-# {{ .Title }}
+# Fix atomicity issue in free-list update
 
 ## Summary
-{{ .Body }}
+
 
 ## Acceptance Criteria
 - Clear, runnable steps to reproduce locally.

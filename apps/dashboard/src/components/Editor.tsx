@@ -1,4 +1,9 @@
-import { Show, For, createSignal } from "solid-js"
+import { Show, For, createSignal, onCleanup, createEffect } from "solid-js"
+import type { RoleDetail, TemplateDetail } from "../App"
+import { EditorView, basicSetup } from "codemirror"
+import { markdown } from "@codemirror/lang-markdown"
+import { oneDark } from "@codemirror/theme-one-dark"
+import { EditorState } from "@codemirror/state"
 import "./Editor.css"
 
 type TaskDetail = {
@@ -19,17 +24,29 @@ type TaskDetail = {
 
 type EditorProps = {
   task: TaskDetail | null
+  role: RoleDetail | null
+  template: TemplateDetail | null
   dirty: boolean
   status: string
   lastEvent: string
   tab: string
   onTaskChange: (task: TaskDetail) => void
+  onRoleChange: (role: RoleDetail) => void
+  onTemplateChange: (template: TemplateDetail) => void
   onSave: () => void
 }
 
 export default function Editor(props: EditorProps) {
   const [newBlocker, setNewBlocker] = createSignal("")
   const [newBlock, setNewBlock] = createSignal("")
+  
+  let taskEditorContainer: HTMLDivElement | undefined
+  let roleEditorContainer: HTMLDivElement | undefined
+  let templateEditorContainer: HTMLDivElement | undefined
+  
+  let taskEditorView: EditorView | undefined
+  let roleEditorView: EditorView | undefined
+  let templateEditorView: EditorView | undefined
 
   const updateTaskField = (field: keyof TaskDetail, value: any) => {
     if (!props.task) return
@@ -67,36 +84,173 @@ export default function Editor(props: EditorProps) {
   }
 
   const task = () => props.task
+  const role = () => props.role
+  const template = () => props.template
+
+  const displayPath = () => {
+    if (props.tab === "tasks") {
+      return task()?.path || "Select a file to begin."
+    } else if (props.tab === "roles") {
+      return role()?.path || "Select a file to begin."
+    } else if (props.tab === "templates") {
+      return template()?.path || "Select a file to begin."
+    }
+    return "Select a file to begin."
+  }
+
+  const canSave = () => {
+    if (props.tab === "tasks") return !!task()
+    if (props.tab === "roles") return !!role()
+    if (props.tab === "templates") return !!template()
+    return false
+  }
+
+  const updateRoleField = (field: keyof RoleDetail, value: any) => {
+    if (!role()) return
+    props.onRoleChange({ ...role()!, [field]: value })
+  }
+
+  const updateTemplateField = (field: keyof TemplateDetail, value: any) => {
+    if (!template()) return
+    props.onTemplateChange({ ...template()!, [field]: value })
+  }
+
+  // Setup CodeMirror for task editor
+  createEffect(() => {
+    if (props.tab === "tasks" && task() && taskEditorContainer) {
+      if (!taskEditorView) {
+        const state = EditorState.create({
+          doc: task()?.body || "",
+          extensions: [
+            basicSetup,
+            markdown(),
+            oneDark,
+            EditorView.updateListener.of((update) => {
+              if (update.docChanged && task()) {
+                const newContent = update.state.doc.toString()
+                props.onTaskChange({ ...task()!, body: newContent })
+              }
+            })
+          ]
+        })
+        taskEditorView = new EditorView({
+          state,
+          parent: taskEditorContainer
+        })
+      } else {
+        // Update editor content if task changed
+        const currentContent = taskEditorView.state.doc.toString()
+        const newContent = task()?.body || ""
+        if (currentContent !== newContent) {
+          taskEditorView.dispatch({
+            changes: { from: 0, to: currentContent.length, insert: newContent }
+          })
+        }
+      }
+    } else if (taskEditorView && (!task() || props.tab !== "tasks")) {
+      taskEditorView.destroy()
+      taskEditorView = undefined
+    }
+  })
+
+  // Setup CodeMirror for role editor
+  createEffect(() => {
+    if (props.tab === "roles" && role() && roleEditorContainer) {
+      if (!roleEditorView) {
+        const state = EditorState.create({
+          doc: role()?.body || "",
+          extensions: [
+            basicSetup,
+            markdown(),
+            oneDark,
+            EditorView.updateListener.of((update) => {
+              if (update.docChanged && role()) {
+                const newContent = update.state.doc.toString()
+                props.onRoleChange({ ...role()!, body: newContent })
+              }
+            })
+          ]
+        })
+        roleEditorView = new EditorView({
+          state,
+          parent: roleEditorContainer
+        })
+      } else {
+        const currentContent = roleEditorView.state.doc.toString()
+        const newContent = role()?.body || ""
+        if (currentContent !== newContent) {
+          roleEditorView.dispatch({
+            changes: { from: 0, to: currentContent.length, insert: newContent }
+          })
+        }
+      }
+    } else if (roleEditorView && (!role() || props.tab !== "roles")) {
+      roleEditorView.destroy()
+      roleEditorView = undefined
+    }
+  })
+
+  // Setup CodeMirror for template editor
+  createEffect(() => {
+    if (props.tab === "templates" && template() && templateEditorContainer) {
+      if (!templateEditorView) {
+        const state = EditorState.create({
+          doc: template()?.body || "",
+          extensions: [
+            basicSetup,
+            markdown(),
+            oneDark,
+            EditorView.updateListener.of((update) => {
+              if (update.docChanged && template()) {
+                const newContent = update.state.doc.toString()
+                props.onTemplateChange({ ...template()!, body: newContent })
+              }
+            })
+          ]
+        })
+        templateEditorView = new EditorView({
+          state,
+          parent: templateEditorContainer
+        })
+      } else {
+        const currentContent = templateEditorView.state.doc.toString()
+        const newContent = template()?.body || ""
+        if (currentContent !== newContent) {
+          templateEditorView.dispatch({
+            changes: { from: 0, to: currentContent.length, insert: newContent }
+          })
+        }
+      }
+    } else if (templateEditorView && (!template() || props.tab !== "templates")) {
+      templateEditorView.destroy()
+      templateEditorView = undefined
+    }
+  })
+
+  onCleanup(() => {
+    if (taskEditorView) taskEditorView.destroy()
+    if (roleEditorView) roleEditorView.destroy()
+    if (templateEditorView) templateEditorView.destroy()
+  })
 
   return (
     <div class="editor-pane">
       <div class="pane-header">
         <div>
           <h2>Editor</h2>
-          <p class="detail">
-            {task()?.path ? task()?.path : "Select a file to begin."}
-          </p>
+          <p class="detail">{displayPath()}</p>
         </div>
         <div class="editor-actions">
           <span class={`sync ${props.dirty ? "dirty" : ""}`}>
             {props.dirty ? "Unsaved" : "Synced"}
           </span>
-          <button class="primary" disabled={!task()} onClick={() => props.onSave()}>
+          <button class="primary" disabled={!canSave()} onClick={() => props.onSave()}>
             Save
           </button>
         </div>
       </div>
 
-      <Show
-        when={props.tab === "tasks" && task()}
-        fallback={
-          <textarea
-            class="editor"
-            value=""
-            placeholder="Select a task, role, or template file to edit."
-          />
-        }
-      >
+      <Show when={props.tab === "tasks" && task()}>
         <div class="editor-container">
           <div class="editor-controls">
             <div class="editor-field">
@@ -200,16 +354,92 @@ export default function Editor(props: EditorProps) {
             </div>
           </div>
 
-          <textarea
-            class="editor editor-body"
-            value={task()?.body || ""}
-            onInput={(event) => {
-              if (!task()) return
-              props.onTaskChange({ ...task()!, body: event.currentTarget.value })
-            }}
-            placeholder="Task description and notes..."
-          />
+          <div class="editor-body codemirror-container" ref={taskEditorContainer} />
         </div>
+      </Show>
+
+      <Show when={props.tab === "roles" && role()}>
+        <div class="editor-container">
+          <div class="editor-controls">
+            <div class="editor-field">
+              <label for="role-description">Description</label>
+              <input
+                id="role-description"
+                type="text"
+                class="editor-input"
+                value={role()?.description || ""}
+                onInput={(e) => updateRoleField("description", e.currentTarget.value)}
+              />
+            </div>
+          </div>
+
+          <div class="editor-body codemirror-container" ref={roleEditorContainer} />
+        </div>
+      </Show>
+
+      <Show when={props.tab === "templates" && template()}>
+        <div class="editor-container">
+          <div class="editor-controls">
+            <div class="editor-field">
+              <label for="template-role">Role</label>
+              <input
+                id="template-role"
+                type="text"
+                class="editor-input"
+                value={template()?.role || ""}
+                onInput={(e) => updateTemplateField("role", e.currentTarget.value)}
+              />
+            </div>
+
+            <div class="editor-field">
+              <label for="template-priority">Priority</label>
+              <select
+                id="template-priority"
+                class="editor-input"
+                value={template()?.priority || ""}
+                onChange={(e) => updateTemplateField("priority", e.currentTarget.value)}
+              >
+                <option value="">None</option>
+                <option value="low">Low</option>
+                <option value="medium">Medium</option>
+                <option value="high">High</option>
+              </select>
+            </div>
+
+            <div class="editor-field">
+              <label for="template-description">Description</label>
+              <input
+                id="template-description"
+                type="text"
+                class="editor-input"
+                value={template()?.description || ""}
+                onInput={(e) => updateTemplateField("description", e.currentTarget.value)}
+              />
+            </div>
+
+            <div class="editor-field">
+              <label for="template-id-prefix">ID Prefix</label>
+              <input
+                id="template-id-prefix"
+                type="text"
+                class="editor-input"
+                value={template()?.id_prefix || ""}
+                onInput={(e) => updateTemplateField("id_prefix", e.currentTarget.value)}
+              />
+            </div>
+          </div>
+
+          <div class="editor-body codemirror-container" ref={templateEditorContainer} />
+        </div>
+      </Show>
+
+      <Show when={!task() && !role() && !template()}>
+        <textarea
+          class="editor"
+          value=""
+          placeholder="Select a task, role, or template to edit."
+          disabled
+        />
       </Show>
 
       <div class="footer">

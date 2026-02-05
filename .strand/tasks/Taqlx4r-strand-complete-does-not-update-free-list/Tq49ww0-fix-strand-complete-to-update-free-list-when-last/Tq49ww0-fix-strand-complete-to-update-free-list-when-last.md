@@ -4,10 +4,11 @@ role: developer
 priority: high
 parent: Taqlx4r-strand-complete-does-not-update-free-list
 blockers:
-    - Txxvu2j-review-reliability-of-free-list-update-implementat
+    - Tnawrsq-fix-atomicity-issue-in-free-list-update
+    - Tte8mvx-add-monitoring-telemetry-for-incremental-free-list
 blocks: []
 date_created: 2026-02-05T12:01:17.376997Z
-date_edited: 2026-02-05T16:36:59.321929Z
+date_edited: 2026-02-05T21:46:26.709667Z
 owner_approval: false
 completed: false
 description: ""
@@ -36,5 +37,7 @@ description: ""
 
 ## Subtasks
 - [x] (subtask: Tj9pcpb) Description
+- [ ] (subtask: Tnawrsq) Fix atomicity issue in free-list update
 - [x] (subtask: Tq85w01) Description
-- [ ] (subtask: Txxvu2j) Description
+- [ ] (subtask: Tte8mvx) Add monitoring/telemetry for incremental free-list update fallbacks
+- [x] (subtask: Txxvu2j) Description

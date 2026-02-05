@@ -1,6 +1,7 @@
 ---
 role: owner
-description: "Ask owner to make important decisions. Provide links to relevant design documents and tasks."
+priority: medium
+description: Ask owner to make important decisions. Provide links to relevant design documents and tasks.
 id_prefix: O
 ---
 
