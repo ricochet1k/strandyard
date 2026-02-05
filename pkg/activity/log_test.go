@@ -654,6 +654,27 @@ func TestGetLatestTaskCompletionTime(t *testing.T) {
 		t.Errorf("expected %v, got %v", t2, got)
 	}
 
+	// Test 2.5: Finding by short ID
+	got, err = log.GetLatestTaskCompletionTime("T3k7x")
+	if err != nil {
+		t.Fatalf("unexpected error for short ID: %v", err)
+	}
+	if !got.Equal(t3) {
+		t.Errorf("expected %v for short ID, got %v", t3, got)
+	}
+
+	// Test 2.6: Finding by short ID using cache
+	if _, err := log.ReadEntries(); err != nil {
+		t.Fatalf("failed to read entries: %v", err)
+	}
+	got, err = log.GetLatestTaskCompletionTime("T3k7x")
+	if err != nil {
+		t.Fatalf("unexpected error for short ID (cached): %v", err)
+	}
+	if !got.Equal(t3) {
+		t.Errorf("expected %v for short ID (cached), got %v", t3, got)
+	}
+
 	// Test 3: Task never completed
 	_, err = log.GetLatestTaskCompletionTime("non-existent")
 	if err == nil {

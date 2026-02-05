@@ -7,6 +7,7 @@ import (
 	"io"
 	"os"
 	"path/filepath"
+	"strings"
 	"sync"
 	"time"
 )
@@ -199,7 +200,7 @@ func (l *Log) GetLatestTaskCompletionTime(taskID string) (time.Time, error) {
 	if err == nil && l.lastSize != -1 && info.Size() == l.lastSize {
 		for i := len(l.entries) - 1; i >= 0; i-- {
 			entry := l.entries[i]
-			if entry.TaskID == taskID && entry.Type == EventTaskCompleted {
+			if (entry.TaskID == taskID || strings.HasPrefix(entry.TaskID, taskID+"-")) && entry.Type == EventTaskCompleted {
 				l.mu.RUnlock()
 				return entry.Timestamp, nil
 			}
@@ -231,7 +232,7 @@ func (l *Log) GetLatestTaskCompletionTime(taskID string) (time.Time, error) {
 			// Skip malformed entries
 			continue
 		}
-		if entry.TaskID == taskID && entry.Type == EventTaskCompleted {
+		if (entry.TaskID == taskID || strings.HasPrefix(entry.TaskID, taskID+"-")) && entry.Type == EventTaskCompleted {
 			return entry.Timestamp, nil
 		}
 	}
