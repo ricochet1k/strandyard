@@ -9,7 +9,7 @@ blockers:
     - Thuf13c-include-unit-list-and-examples-in-every-help-text
 blocks: []
 date_created: 2026-02-01T22:00:27.158909Z
-date_edited: 2026-02-05T00:50:27.321726Z
+date_edited: 2026-02-05T00:50:46.308375Z
 owner_approval: false
 completed: true
 description: ""
@@ -31,5 +31,6 @@ Usability review complete. Concerns:
 - [x] (subtask: T8x05w7) Specify error recovery hints for --every grammar
 - [x] (subtask: Tb1arug) New Task: Clarify after vs from parsing logic
 - [x] (subtask: Tgmzib2) New Task: Specify error recovery hints for --every grammar
-- [ ] (subtask: Thuf13c) New Task: Include unit list and examples in --every help text
+- [x] (subtask: Thuf13c) New Task: Include unit list and examples in --every help text
 - [ ] (subtask: Tmkq8c4) Clarify after vs from parsing logic
+- [ ] (subtask: Tspahpe) Include unit list and examples in --every help text
