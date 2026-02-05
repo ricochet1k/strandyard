@@ -46,7 +46,6 @@
 - [Dashboard needs to have project name and task being edited in the route.](To55tad-dashboard-needs-to-have-project-name-and-task-bein/To55tad-dashboard-needs-to-have-project-name-and-task-bein.md)
 - [New Task: Usability review: anchor help text and examples](Tt3kj2u-usability-review-anchor-help-text-and-examples/Tt3kj2u-usability-review-anchor-help-text-and-examples.md)
 - [strand edit is missing --blocker flag](Twcp360-strand-edit-is-missing-blocker-flag/Twcp360-strand-edit-is-missing-blocker-flag.md)
-- [New Task: Parent task](Twwpeaj-parent-task/Twwpeaj-parent-task.md)
 
 ## Low
 
