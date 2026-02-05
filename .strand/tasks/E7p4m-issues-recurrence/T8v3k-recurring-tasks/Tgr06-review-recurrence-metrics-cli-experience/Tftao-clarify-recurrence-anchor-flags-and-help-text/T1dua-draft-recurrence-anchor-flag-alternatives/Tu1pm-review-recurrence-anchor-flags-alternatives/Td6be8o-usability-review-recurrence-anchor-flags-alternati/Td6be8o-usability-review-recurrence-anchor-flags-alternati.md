@@ -9,7 +9,7 @@ blockers:
     - Thuf13c-include-unit-list-and-examples-in-every-help-text
 blocks: []
 date_created: 2026-02-01T22:00:27.158909Z
-date_edited: 2026-02-05T00:26:39.281829Z
+date_edited: 2026-02-05T00:49:34.200192Z
 owner_approval: false
 completed: true
 description: ""
@@ -19,13 +19,16 @@ description: ""
 
 Delegate concerns to the relevant role via subtasks.
 
-## Subtasks
-- [ ] (subtask: Tb1arug) New Task: Clarify after vs from parsing logic
-- [ ] (subtask: Tgmzib2) New Task: Specify error recovery hints for --every grammar
-- [ ] (subtask: Thuf13c) New Task: Include unit list and examples in --every help text
+
 
 ## Completion Report
 Usability review complete. Concerns:
 - Error recovery hints for --every grammar (Tgmzib2)
 - Unit list and examples in help text (Thuf13c)
 - Clarification of 'after' vs 'from' parsing (Tb1arug)
+
+## Subtasks
+- [x] (subtask: Tb1arug) New Task: Clarify after vs from parsing logic
+- [ ] (subtask: Tgmzib2) New Task: Specify error recovery hints for --every grammar
+- [ ] (subtask: Thuf13c) New Task: Include unit list and examples in --every help text
+- [ ] (subtask: Tmkq8c4) Clarify after vs from parsing logic
