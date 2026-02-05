@@ -196,6 +196,12 @@ func validateRole(t *task.Task, todoNum int, role string, incompleteTodos []task
 }
 
 func runCompleteTodo(w io.Writer, db *task.TaskDB, paths projectPaths, t *task.Task, taskID string, todoNum int, report string) error {
+	// Calculate incremental update before completing the TODO
+	update, err := task.CalculateIncrementalFreeListUpdate(db.GetAll(), taskID)
+	if err != nil {
+		return fmt.Errorf("failed to calculate incremental update: %w", err)
+	}
+
 	result, err := db.CompleteTodo(taskID, todoNum, report)
 	if err != nil {
 		return err
@@ -228,6 +234,39 @@ func runCompleteTodo(w io.Writer, db *task.TaskDB, paths projectPaths, t *task.T
 
 		if err := activityLog.WriteTaskCompletion(taskID, report); err != nil {
 			return fmt.Errorf("failed to write activity log: %w", err)
+		}
+
+		if err := db.UpdateBlockersAfterCompletion(taskID); err != nil {
+			return fmt.Errorf("failed to update blockers after completion: %w", err)
+		}
+
+		if _, err := db.UpdateParentTodosForChild(taskID); err != nil {
+			return fmt.Errorf("failed to update parent task TODO entries: %w", err)
+		}
+		if _, err := db.SaveDirty(); err != nil {
+			return fmt.Errorf("failed to write task file: %w", err)
+		}
+
+		// Try incremental update first, fall back to full validation
+		if err := task.UpdateFreeListIncrementally(db.GetAll(), paths.FreeTasksFile, update); err != nil {
+			fmt.Fprintf(w, "⚠️  Incremental update failed, falling back to full repair: %v\n", err)
+			if err := runRepair(w, paths.TasksDir, paths.RootTasksFile, paths.FreeTasksFile, "text"); err != nil {
+				return err
+			}
+		} else {
+			fmt.Fprintf(w, "✓ Incrementally updated free-tasks.md\n")
+			validator := task.NewValidatorWithRoles(db.GetAll(), paths.RolesDir)
+			validationErrors := validator.ValidateAndRepair()
+			if _, err := db.SaveDirty(); err != nil {
+				return fmt.Errorf("failed to write repaired tasks: %w", err)
+			}
+			if len(validationErrors) > 0 {
+				fmt.Fprintf(w, "⚠️  Repair errors found:\n")
+				for _, e := range validationErrors {
+					fmt.Fprintf(w, "ERROR: %s\n", e.Error())
+				}
+				return fmt.Errorf("repair failed: %d error(s)", len(validationErrors))
+			}
 		}
 
 		fmt.Fprintf(w, "✓ Todo item %d checked off in task %s (last todo - task marked complete)\n", todoNum, task.ShortID(taskID))
