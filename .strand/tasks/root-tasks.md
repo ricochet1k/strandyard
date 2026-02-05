@@ -3,7 +3,6 @@
 - [Setup E2E Test Framework](E5w8m-e2e-tests/E5w8m-e2e-tests.md)
 - [Improve and Expand Task Templates](E5w8m-e2e-tests/Tml0y-t9m4n-improved-task-templates/Tml0y-t9m4n-improved-task-templates.md)
 - [Add Issue and Recurring Task Support](E7p4m-issues-recurrence/E7p4m-issues-recurrence.md)
-- [Investigate date_edited churn on no-op repair](Ihv0n-investigate-date-edited-churn-on-no-op-repair/Ihv0n-investigate-date-edited-churn-on-no-op-repair.md)
 - [Create recurring review task plan](Iquw5-create-recurring-review-task-plan/Iquw5-create-recurring-review-task-plan.md)
 - [Add --parent flag to list command to list only commits that are descendants of a given parent](Iquzx-add-parent-flag-to-list-command-to-list-only-commi/Iquzx-add-parent-flag-to-list-command-to-list-only-commi.md)
 - [Add websocket streaming option for dashboard](Isfkq-add-websocket-streaming-option-for-dashboard/Isfkq-add-websocket-streaming-option-for-dashboard.md)

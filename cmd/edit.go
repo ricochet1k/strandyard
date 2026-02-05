@@ -74,8 +74,6 @@ func runEdit(cmd *cobra.Command, inputID, newBody string) error {
 		return err
 	}
 
-	changes := false
-
 	if cmd.Flags().Changed("role") {
 		rName := strings.TrimSpace(editRole)
 		if err := role.ValidateRole(paths.RolesDir, rName); err != nil {
@@ -84,14 +82,12 @@ func runEdit(cmd *cobra.Command, inputID, newBody string) error {
 		if err := db.SetRole(taskID, rName); err != nil {
 			return err
 		}
-		changes = true
 	}
 
 	if cmd.Flags().Changed("priority") {
 		if err := db.SetPriority(taskID, editPriority); err != nil {
 			return err
 		}
-		changes = true
 	}
 
 	if cmd.Flags().Changed("parent") {
@@ -109,7 +105,6 @@ func runEdit(cmd *cobra.Command, inputID, newBody string) error {
 				return err
 			}
 		}
-		changes = true
 	}
 
 	if cmd.Flags().Changed("blocker") {
@@ -141,7 +136,6 @@ func runEdit(cmd *cobra.Command, inputID, newBody string) error {
 				}
 			}
 		}
-		changes = true
 	}
 
 	if cmd.Flags().Changed("blocks") {
@@ -173,7 +167,6 @@ func runEdit(cmd *cobra.Command, inputID, newBody string) error {
 				}
 			}
 		}
-		changes = true
 	}
 
 	if cmd.Flags().Changed("every") {
@@ -183,7 +176,6 @@ func runEdit(cmd *cobra.Command, inputID, newBody string) error {
 		}
 		t.Meta.Every = resolvedEvery
 		t.MarkDirty()
-		changes = true
 	}
 
 	if isStdinRedirected() {
@@ -197,17 +189,15 @@ func runEdit(cmd *cobra.Command, inputID, newBody string) error {
 				}
 			}
 		}
-		changes = true
 	}
 
 	if cmd.Flags().Changed("title") {
 		if err := db.SetTitle(taskID, editTitle); err != nil {
 			return err
 		}
-		changes = true
 	}
 
-	if changes {
+	if t.Dirty {
 		if _, err := db.SaveDirty(); err != nil {
 			return fmt.Errorf("failed to write task file: %w", err)
 		}

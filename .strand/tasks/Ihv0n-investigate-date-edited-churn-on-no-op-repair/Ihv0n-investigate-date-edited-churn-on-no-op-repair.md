@@ -6,9 +6,10 @@ parent: ""
 blockers: []
 blocks: []
 date_created: 2026-01-29T22:19:20.346242Z
-date_edited: 2026-01-29T22:19:20.346242Z
+date_edited: 2026-02-05T01:13:35.597115Z
 owner_approval: false
-completed: false
+completed: true
+description: ""
 ---
 
 # Investigate date_edited churn on no-op repair
@@ -27,3 +28,6 @@ Describe severity and who/what is affected.
 
 ## Escalation
 Tasks are disposable. Use follow-up tasks for open questions/concerns. Record decisions and final rationale in design docs; do not edit this task to capture outcomes.
+
+## Completion Report
+Identified that SetBody was calling MarkDirty() without checking if the body actually changed. Fixed SetBody in pkg/task/task.go to only mark dirty if content changed. Also updated cmd/edit.go to only report an update and save if the task was actually modified.

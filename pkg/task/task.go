@@ -68,7 +68,11 @@ func (t *Task) SetBody(newBody string) {
 		cleanBody.WriteString(s.Content)
 		cleanBody.WriteString("\n\n")
 	}
-	t.BodyContent = strings.TrimSpace(cleanBody.String())
+	newBodyContent := strings.TrimSpace(cleanBody.String())
+	if t.BodyContent == newBodyContent {
+		return
+	}
+	t.BodyContent = newBodyContent
 	t.MarkDirty()
 }
 
