@@ -3,10 +3,13 @@ type: implement
 role: architect
 priority: high
 parent: T4p2p6o-add-integration-tests-for-status-field-with-free-l
-blockers: []
+blockers:
+    - T0fcq74-security-review-of-completed-status-validation
+    - Tbnbs6q-usability-review-of-completed-status-validation
+    - Tuq6ql6-reliability-review-of-completed-status-validation
 blocks: []
 date_created: 2026-02-05T22:15:27.452666Z
-date_edited: 2026-02-05T22:19:31.349158Z
+date_edited: 2026-02-05T22:19:49.297614Z
 owner_approval: false
 completed: false
 status: ""
@@ -53,5 +56,11 @@ The validation logic already exists in `pkg/task/repair.go`:
   Tests already exist in TestCompletedStatusConsistency in repair_test.go covering: Completed=true/Status=done (consistent), Completed=false/Status=open and in_progress (consistent), Completed=true with Status=open and in_progress (inconsistent), and Completed=false with Status=done (inconsistent).
 - [x] (role: tester) Execute test-suite and report failures.
   All validation tests pass: 9/9 test cases executed successfully including 3 consistent state combinations (Completed=true/Status=done, Completed=false/Status=open, Completed=false/Status=in_progress) and 3 inconsistent state combinations (Completed=true with Status=open, Completed=true with Status=in_progress, Completed=false with Status=done). Error messages are correct and clear. Full test suite also passes.
-- [ ] (role: master-reviewer) Coordinate required reviews: `reviewer-reliability`, `reviewer-security`, `reviewer-usability`.
+- [x] (role: master-reviewer) Coordinate required reviews: `reviewer-reliability`, `reviewer-security`, `reviewer-usability`.
+  Delegated validation review to 3 specialized reviewers: Reliability (Tuq6ql6), Security (T0fcq74), Usability (Tbnbs6q).
 - [ ] (role: documentation) Update user-facing docs and examples.
+
+## Subtasks
+- [ ] (subtask: T0fcq74) Description
+- [ ] (subtask: Tbnbs6q) Description
+- [ ] (subtask: Tuq6ql6) Description
