@@ -350,3 +350,153 @@ func extractSection(content, sectionName string) string {
 	}
 	return content[start : start+end]
 }
+
+func TestVerifyCompletedStatusConsistency(t *testing.T) {
+	parser := NewParser()
+
+	// Create mock role files for testing
+	tmpDir := t.TempDir()
+	roleDir := filepath.Join(tmpDir, "roles")
+	if err := os.MkdirAll(roleDir, 0755); err != nil {
+		t.Fatalf("failed to create role dir: %v", err)
+	}
+
+	roleName := testRoleName(t, "test")
+	roleContent := fmt.Sprintf("# %s\n\nTest role.", strings.Title(roleName))
+	if err := os.WriteFile(filepath.Join(roleDir, roleName+".md"), []byte(roleContent), 0o644); err != nil {
+		t.Fatalf("failed to create role file: %v", err)
+	}
+
+	// Change working directory temporarily for role validation
+	origWd, err := os.Getwd()
+	if err != nil {
+		t.Fatalf("failed to get working directory: %v", err)
+	}
+	defer os.Chdir(origWd)
+
+	if err := os.Chdir(tmpDir); err != nil {
+		t.Fatalf("failed to change working directory: %v", err)
+	}
+
+	tests := []struct {
+		name            string
+		taskID          string
+		completed       bool
+		status          string
+		expectError     bool
+		expectedMessage string
+	}{
+		{
+			name:        "Consistent: Completed=true, Status=done",
+			taskID:      "T1aaa-consistent1",
+			completed:   true,
+			status:      "done",
+			expectError: false,
+		},
+		{
+			name:        "Consistent: Completed=false, Status=open",
+			taskID:      "T2aaa-consistent2",
+			completed:   false,
+			status:      "open",
+			expectError: false,
+		},
+		{
+			name:        "Consistent: Completed=false, Status=in_progress",
+			taskID:      "T3aaa-consistent3",
+			completed:   false,
+			status:      "in_progress",
+			expectError: false,
+		},
+		{
+			name:        "Consistent: Completed=true, Status=empty (defaults to open)",
+			taskID:      "T4aaa-consistent4",
+			completed:   true,
+			status:      "",
+			expectError: false,
+		},
+		{
+			name:            "Inconsistent: Completed=true, Status=open",
+			taskID:          "T5aaa-inconsistent1",
+			completed:       true,
+			status:          "open",
+			expectError:     true,
+			expectedMessage: `inconsistent state: Completed=true but Status="open" (should be 'done')`,
+		},
+		{
+			name:            "Inconsistent: Completed=true, Status=in_progress",
+			taskID:          "T6aaa-inconsistent2",
+			completed:       true,
+			status:          "in_progress",
+			expectError:     true,
+			expectedMessage: `inconsistent state: Completed=true but Status="in_progress" (should be 'done')`,
+		},
+		{
+			name:            "Inconsistent: Completed=false, Status=done",
+			taskID:          "T7aaa-inconsistent3",
+			completed:       false,
+			status:          "done",
+			expectError:     true,
+			expectedMessage: `inconsistent state: Completed=false but Status=done (should be 'open', 'in_progress', 'cancelled', or 'duplicate')`,
+		},
+		{
+			name:        "Consistent: Completed=false, Status=cancelled",
+			taskID:      "T8aaa-consistent5",
+			completed:   false,
+			status:      "cancelled",
+			expectError: false,
+		},
+		{
+			name:        "Consistent: Completed=false, Status=duplicate",
+			taskID:      "T9aaa-consistent6",
+			completed:   false,
+			status:      "duplicate",
+			expectError: false,
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			taskContent := fmt.Sprintf(`---
+role: %s
+completed: %v
+status: %q
+---
+
+# Test Task
+
+This is a test task.
+`, roleName, tt.completed, tt.status)
+
+			task, _ := parser.ParseString(taskContent, tt.taskID)
+			task.FilePath = filepath.Join("tasks", tt.taskID, tt.taskID+".md")
+			tasks := map[string]*Task{tt.taskID: task}
+
+			v := NewValidator(tasks)
+			errors := v.ValidateAndRepair()
+
+			// Filter errors to only those about status consistency
+			var statusErrors []ValidationError
+			for _, err := range errors {
+				if strings.Contains(err.Message, "inconsistent state") {
+					statusErrors = append(statusErrors, err)
+				}
+			}
+
+			if tt.expectError && len(statusErrors) == 0 {
+				t.Errorf("expected validation error but got none")
+			}
+			if !tt.expectError && len(statusErrors) > 0 {
+				t.Errorf("unexpected validation error: %v", statusErrors[0].Message)
+			}
+
+			if tt.expectError && len(statusErrors) > 0 {
+				if statusErrors[0].Message != tt.expectedMessage {
+					t.Errorf("expected message %q, got %q", tt.expectedMessage, statusErrors[0].Message)
+				}
+				if statusErrors[0].TaskID != tt.taskID {
+					t.Errorf("expected task ID %q, got %q", tt.taskID, statusErrors[0].TaskID)
+				}
+			}
+		})
+	}
+}

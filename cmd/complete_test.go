@@ -639,15 +639,16 @@ Developer (human or AI) — implements tasks, writes code, and produces working 
 
 	// Create tasks with different statuses
 	taskSpecs := []struct {
-		id     string
-		status string
-		title  string
+		id        string
+		status    string
+		completed bool
+		title     string
 	}{
-		{"1a2b", "open", "Open Task"},
-		{"2c3d", "in_progress", "In Progress Task"},
-		{"3e4f", "done", "Done Task"},
-		{"4g5h", "cancelled", "Cancelled Task"},
-		{"5i6j", "duplicate", "Duplicate Task"},
+		{"1a2b", "open", false, "Open Task"},
+		{"2c3d", "in_progress", false, "In Progress Task"},
+		{"3e4f", "done", true, "Done Task"},
+		{"4g5h", "cancelled", false, "Cancelled Task"},
+		{"5i6j", "duplicate", false, "Duplicate Task"},
 	}
 
 	for _, spec := range taskSpecs {
@@ -669,7 +670,7 @@ blocks: []
 date_created: 2026-01-27T00:00:00Z
 date_edited: 2026-01-27T13:43:58Z
 owner_approval: false
-completed: false
+completed: %v
 status: %s
 ---
 
@@ -677,7 +678,7 @@ status: %s
 
 ## Summary
 A test task with status %s.
-`, spec.status, spec.title, spec.status)
+`, spec.completed, spec.status, spec.title, spec.status)
 
 		if err := os.WriteFile(taskFile, []byte(taskContent), 0o644); err != nil {
 			t.Fatalf("failed to write task file: %v", err)

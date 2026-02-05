@@ -69,6 +69,7 @@ func (v *Validator) ValidateAndRepair() []ValidationError {
 		v.verifyPriority(id, task)
 		v.verifyParent(id, task)
 		v.verifyTaskLinks(id, task)
+		v.verifyCompletedStatusConsistency(id, task)
 	}
 
 	v.fixSubtaskTextTitles()
@@ -241,6 +242,33 @@ func (v *Validator) verifyTaskLinks(id string, task *Task) {
 					Message: fmt.Sprintf("broken link: task %s does not exist", targetID),
 				})
 			}
+		}
+	}
+}
+
+// verifyCompletedStatusConsistency checks for conflicts between Completed bool and Status field.
+// During migration, tasks may have both fields. This validation catches inconsistent states:
+// - Completed: true with Status: open/in_progress (should be "done")
+// - Completed: false with Status: done (conflict - should be "open" or "in_progress")
+// - Completed: true with empty Status (should be "done")
+func (v *Validator) verifyCompletedStatusConsistency(id string, task *Task) {
+	if task.Meta.Completed {
+		// When Completed=true, Status should be "done"
+		if task.Meta.Status != "" && task.Meta.Status != "done" {
+			v.errors = append(v.errors, ValidationError{
+				TaskID:  id,
+				File:    task.FilePath,
+				Message: fmt.Sprintf("inconsistent state: Completed=true but Status=%q (should be 'done')", task.Meta.Status),
+			})
+		}
+	} else {
+		// When Completed=false, Status should not be "done"
+		if task.Meta.Status == "done" {
+			v.errors = append(v.errors, ValidationError{
+				TaskID:  id,
+				File:    task.FilePath,
+				Message: fmt.Sprintf("inconsistent state: Completed=false but Status=done (should be 'open', 'in_progress', 'cancelled', or 'duplicate')"),
+			})
 		}
 	}
 }
