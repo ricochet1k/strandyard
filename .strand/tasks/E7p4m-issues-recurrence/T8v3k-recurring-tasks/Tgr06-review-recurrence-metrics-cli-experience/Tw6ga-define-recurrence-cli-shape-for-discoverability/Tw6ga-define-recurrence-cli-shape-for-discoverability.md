@@ -7,9 +7,10 @@ blockers: []
 blocks:
     - Tgr06-review-recurrence-metrics-cli-experience
 date_created: 2026-01-28T19:01:01.684537Z
-date_edited: 2026-01-28T12:01:01.690256-07:00
+date_edited: 2026-02-05T00:59:16.172779Z
 owner_approval: false
-completed: false
+completed: true
+description: ""
 ---
 
 # Define recurrence CLI shape for discoverability
@@ -27,3 +28,6 @@ Tasks are disposable. Use follow-up tasks for open questions/concerns. Record de
 
 ## Subtasks
 - [ ] (subtask: Tw6ga) short description of subtask
+
+## Completion Report
+Decision: Adopted Alternative D (--every flag with structured string parsing). This provides a single, discoverable entry point for all recurrence triggers while maintaining a clean CLI surface. Implemented in cmd/add.go and cmd/edit.go with scannable help text and examples.

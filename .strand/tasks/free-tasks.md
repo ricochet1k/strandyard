@@ -7,7 +7,6 @@
 ## Medium
 
 - [Align exit code conventions for --every failures](E7p4m-issues-recurrence/T8v3k-recurring-tasks/Tgr06-review-recurrence-metrics-cli-experience/Tftao-clarify-recurrence-anchor-flags-and-help-text/T1dua-draft-recurrence-anchor-flag-alternatives/T3md3-usability-review-recurrence-anchor-flags/Trlrg-specify-anchor-error-messages/Thy9m-reliability-review-recurrence-anchor-errors/Tc3zv-align-exit-code-conventions-for-every-failures/Tc3zv-align-exit-code-conventions-for-every-failures.md)
-- [Define recurrence CLI shape for discoverability](E7p4m-issues-recurrence/T8v3k-recurring-tasks/Tgr06-review-recurrence-metrics-cli-experience/Tw6ga-define-recurrence-cli-shape-for-discoverability/Tw6ga-define-recurrence-cli-shape-for-discoverability.md)
 - [Decide recurrence schema option (A vs B)](E7p4m-issues-recurrence/T8v3k-recurring-tasks/Tgr06-review-recurrence-metrics-cli-experience/Twvju-decide-recurrence-schema-option-a-vs-b/Twvju-decide-recurrence-schema-option-a-vs-b.md)
 - [Review recurrence metrics schema](E7p4m-issues-recurrence/T8v3k-recurring-tasks/Thnhh-review-recurrence-metrics-schema/Thnhh-review-recurrence-metrics-schema.md)
 - [Approve recurrence metrics design](E7p4m-issues-recurrence/T8v3k-recurring-tasks/Tl4cn-approve-recurrence-metrics-design/Tl4cn-approve-recurrence-metrics-design.md)
