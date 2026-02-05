@@ -6,9 +6,9 @@ parent: Ibv0j-create-delete-task-command
 blockers: []
 blocks: []
 date_created: 2026-02-05T01:06:24.961814Z
-date_edited: 2026-02-05T01:06:24.961814Z
+date_edited: 2026-02-05T01:07:44.61865Z
 owner_approval: false
-completed: false
+completed: true
 description: ""
 ---
 
@@ -25,3 +25,6 @@ Design a CLI command to safely delete tasks. Deletion should handle:
 Deliverable: A design document in `design-docs/` outlining the command syntax, behavior, and safety considerations.
 
 Decide which task template would best fit this task and re-add it with that template and the same parent.
+
+## Completion Report
+Triage complete. Re-added as designer task Tkoz0da under the same parent.
