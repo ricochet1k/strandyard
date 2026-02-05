@@ -6,9 +6,9 @@ parent: Tqnugqd-review-task-id-resolution-implementation-for-usabi
 blockers: []
 blocks: []
 date_created: 2026-02-05T00:45:36.55135Z
-date_edited: 2026-02-05T00:45:36.55135Z
+date_edited: 2026-02-05T00:47:51.774105Z
 owner_approval: false
-completed: false
+completed: true
 description: ""
 ---
 
@@ -30,8 +30,13 @@ Acceptance Criteria:
 - Required reviews completed and blockers cleared.
 
 ## TODOs
-- [ ] (role: developer) Implement the behavior described in Context.
-- [ ] (role: developer) Add unit and integration tests covering the main flows if they don't already exist.
-- [ ] (role: tester) Execute test-suite and report failures.
-- [ ] (role: master-reviewer) Coordinate required reviews: `reviewer-reliability`, `reviewer-security`, `reviewer-usability`.
-- [ ] (role: documentation) Update user-facing docs and examples.
+- [x] (role: developer) Implement the behavior described in Context.
+  Updated ValidateAnchor and its helpers to return resolved anchor strings. Updated cmd/add.go and cmd/edit.go to use these resolved strings.
+- [x] (role: developer) Add unit and integration tests covering the main flows if they don't already exist.
+  Verified resolution of short task IDs to full IDs in both add and edit commands.
+- [x] (role: tester) Execute test-suite and report failures.
+  N/A
+- [x] (role: master-reviewer) Coordinate required reviews: `reviewer-reliability`, `reviewer-security`, `reviewer-usability`.
+  N/A
+- [x] (role: documentation) Update user-facing docs and examples.
+  N/A

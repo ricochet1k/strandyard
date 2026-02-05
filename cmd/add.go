@@ -99,12 +99,13 @@ func addOptionsFromFlags(cmd *cobra.Command, args []string, body string) (addOpt
 	}, nil
 }
 
-// validateEvery validates --every flag values and provides deterministic hint examples
-func validateEvery(every []string, repoPath string, tasks map[string]*task.Task) error {
+// validateEvery validates --every flag values and returns resolved recurrence rules
+func validateEvery(every []string, repoPath string, tasks map[string]*task.Task) ([]string, error) {
 	if len(every) == 0 {
-		return nil // --every is optional
+		return nil, nil // --every is optional
 	}
 
+	resolvedEvery := make([]string, 0, len(every))
 	for _, value := range every {
 		value = strings.TrimSpace(value)
 		if value == "" {
@@ -116,7 +117,7 @@ func validateEvery(every []string, repoPath string, tasks map[string]*task.Task)
 		if len(parts) < 2 {
 			fmt.Fprintf(os.Stderr, "strand: error: invalid --every value: expected format \"<amount> <metric> [from <anchor>]\"\n")
 			fmt.Fprintf(os.Stderr, "hint: --every \"10 days\"\n")
-			return fmt.Errorf("invalid --every format")
+			return nil, fmt.Errorf("invalid --every format")
 		}
 
 		// Validate amount (must be integer)
@@ -124,7 +125,7 @@ func validateEvery(every []string, repoPath string, tasks map[string]*task.Task)
 		if _, err := strconv.Atoi(amount); err != nil {
 			fmt.Fprintf(os.Stderr, "strand: error: invalid --every value: amount must be an integer\n")
 			fmt.Fprintf(os.Stderr, "hint: --every \"10 days\"\n")
-			return fmt.Errorf("invalid --every amount")
+			return nil, fmt.Errorf("invalid --every amount")
 		}
 
 		// Validate metric
@@ -140,25 +141,29 @@ func validateEvery(every []string, repoPath string, tasks map[string]*task.Task)
 		if !validMetrics[metric] {
 			fmt.Fprintf(os.Stderr, "strand: error: invalid --every value: unsupported metric \"%s\"\n", metric)
 			fmt.Fprintf(os.Stderr, "hint: --every \"10 days\"\n")
-			return fmt.Errorf("invalid --every metric")
+			return nil, fmt.Errorf("invalid --every metric")
 		}
 
 		// Validate anchor if present
 		if len(parts) >= 4 && parts[2] == "from" {
 			anchor := strings.Join(parts[3:], " ")
-			if err := task.ValidateAnchor(metric, anchor, repoPath, tasks); err != nil {
+			resolved, err := task.ValidateAnchor(metric, anchor, repoPath, tasks)
+			if err != nil {
 				fmt.Fprintf(os.Stderr, "strand: error: invalid --every value: %v\n", err)
 				if metric == "commits" || metric == "lines_changed" {
 					fmt.Fprintf(os.Stderr, "hint: --every \"50 commits from HEAD\"\n")
 				} else if metric == "days" || metric == "weeks" || metric == "months" {
 					fmt.Fprintf(os.Stderr, "hint: --every \"10 days from Jan 28 2026 09:00 UTC\"\n")
 				}
-				return err
+				return nil, err
 			}
+			// Update rule with resolved anchor
+			value = fmt.Sprintf("%s %s from %s", amount, metric, resolved)
 		}
+		resolvedEvery = append(resolvedEvery, value)
 	}
 
-	return nil // Validation passed
+	return resolvedEvery, nil // Validation passed
 }
 
 func runAdd(w io.Writer, opts addOptions) error {
@@ -172,9 +177,11 @@ func runAdd(w io.Writer, opts addOptions) error {
 		return err
 	}
 
-	if err := validateEvery(opts.Every, paths.BaseDir, db.GetAll()); err != nil {
+	resolvedEvery, err := validateEvery(opts.Every, paths.BaseDir, db.GetAll())
+	if err != nil {
 		os.Exit(2)
 	}
+	opts.Every = resolvedEvery
 
 	tmplName := strings.TrimSpace(opts.TemplateName)
 	if tmplName == "" {

@@ -158,32 +158,32 @@ func ResolveGitHash(repoPath, anchor string) (string, error) {
 	return strings.TrimSpace(string(out)), nil
 }
 
-// ValidateAnchor validates a recurrence anchor for a given metric.
-func ValidateAnchor(metric, anchor, repoPath string, tasks map[string]*Task) error {
+// ValidateAnchor validates a recurrence anchor for a given metric and returns the resolved anchor.
+func ValidateAnchor(metric, anchor, repoPath string, tasks map[string]*Task) (string, error) {
 	if anchor == "" {
-		return nil
+		return "", nil
 	}
 
 	switch metric {
 	case "days", "weeks", "months":
-		return ValidateDateAnchor(anchor)
+		return anchor, ValidateDateAnchor(anchor)
 	case "commits", "lines_changed":
 		if anchor == "HEAD" {
-			return nil
+			return "HEAD", nil
 		}
 		return ValidateCommitAnchor(repoPath, anchor)
 	case "tasks_completed":
 		if anchor == "now" {
-			return nil
+			return "now", nil
 		}
 		// If it's a date, validate as date
 		if err := ValidateDateAnchor(anchor); err == nil {
-			return nil
+			return anchor, nil
 		}
 		// Otherwise validate as task ID
 		return ValidateTaskAnchor(tasks, anchor)
 	default:
-		return fmt.Errorf("unsupported metric: %s", metric)
+		return "", fmt.Errorf("unsupported metric: %s", metric)
 	}
 }
 
@@ -203,28 +203,28 @@ func ValidateDateAnchor(anchor string) error {
 	return fmt.Errorf("invalid date format: %s (expected ISO 8601 or \"Jan 2 2006 15:04 MST\")", anchor)
 }
 
-// ValidateCommitAnchor checks if the anchor exists in the git repository.
-func ValidateCommitAnchor(repoPath, anchor string) error {
+// ValidateCommitAnchor checks if the anchor exists in the git repository and returns the resolved hash.
+func ValidateCommitAnchor(repoPath, anchor string) (string, error) {
 	if anchor == "HEAD" {
-		return nil
+		return "HEAD", nil
 	}
-	_, err := ResolveGitHash(repoPath, anchor)
+	resolved, err := ResolveGitHash(repoPath, anchor)
 	if err != nil {
-		return fmt.Errorf("invalid commit anchor: %s (not found in repository)", anchor)
+		return "", fmt.Errorf("invalid commit anchor: %s (not found in repository)", anchor)
 	}
-	return nil
+	return resolved, nil
 }
 
-// ValidateTaskAnchor checks if the anchor is a valid task ID in the project.
-func ValidateTaskAnchor(tasks map[string]*Task, anchor string) error {
+// ValidateTaskAnchor checks if the anchor is a valid task ID in the project and returns the full ID.
+func ValidateTaskAnchor(tasks map[string]*Task, anchor string) (string, error) {
 	if tasks == nil {
-		return nil // Can't validate if tasks are not loaded
+		return anchor, nil // Can't validate if tasks are not loaded
 	}
-	_, err := ResolveTaskID(tasks, anchor)
+	resolved, err := ResolveTaskID(tasks, anchor)
 	if err != nil {
-		return fmt.Errorf("invalid task anchor: %s (task not found)", anchor)
+		return "", fmt.Errorf("invalid task anchor: %s (task not found)", anchor)
 	}
-	return nil
+	return resolved, nil
 }
 
 // UpdateAnchor calculates the next anchor for a given metric and interval.

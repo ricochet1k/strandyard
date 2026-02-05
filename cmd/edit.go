@@ -20,6 +20,7 @@ var (
 	editParent   string
 	editBlockers []string
 	editBlocks   []string
+	editEvery    []string
 )
 
 // editCmd represents the edit command
@@ -55,6 +56,7 @@ func init() {
 	editCmd.Flags().StringVar(&editPriority, "priority", "", "priority: high, medium, or low")
 	editCmd.Flags().StringSliceVarP(&editBlockers, "blocker", "b", nil, "blocker task ID(s); replaces existing blockers")
 	editCmd.Flags().StringSliceVar(&editBlocks, "blocks", nil, "task ID(s) this task blocks; replaces existing blocks")
+	editCmd.Flags().StringSliceVar(&editEvery, "every", nil, "recurrence rule (e.g., \"10 days\", \"50 commits from HEAD\")")
 }
 
 func runEdit(cmd *cobra.Command, inputID, newBody string) error {
@@ -169,6 +171,16 @@ func runEdit(cmd *cobra.Command, inputID, newBody string) error {
 				}
 			}
 		}
+		changes = true
+	}
+
+	if cmd.Flags().Changed("every") {
+		resolvedEvery, err := validateEvery(editEvery, paths.BaseDir, db.GetAll())
+		if err != nil {
+			os.Exit(2)
+		}
+		t.Meta.Every = resolvedEvery
+		t.MarkDirty()
 		changes = true
 	}
 
