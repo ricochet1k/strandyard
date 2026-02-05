@@ -3,10 +3,13 @@ type: implement
 role: tester
 priority: high
 parent: Ta92amw-reliability-status-field-completeness-in-free-list
-blockers: []
+blockers:
+    - T6kjazs-reliability-review-status-field-integration-tests
+    - Tu59d34-usability-review-status-field-integration-tests
+    - Tvasp6s-security-review-status-field-integration-tests
 blocks: []
 date_created: 2026-02-05T22:06:25.683949Z
-date_edited: 2026-02-05T22:14:09.390908Z
+date_edited: 2026-02-05T22:14:26.728316Z
 owner_approval: false
 completed: false
 status: ""
@@ -42,5 +45,11 @@ Create comprehensive integration tests for the free-list behavior with the new s
   Added comprehensive integration tests for status field with free-list behavior: strand complete updating status to done, strand next filtering inactive statuses, free-list regeneration on status changes, and backward compatibility with completed bool field. Implemented SetCompleted to set status to 'done' when task is marked complete. All tests passing.
 - [x] (role: tester) Execute test-suite and report failures.
   Executed full test suite with 'go test ./... -v'. All 86 tests passing including integration tests for status field with free-list. Tests verify: strand next filtering (open/in_progress shown, done/cancelled/duplicate hidden), strand complete setting status to done, free-list regeneration on status changes, and backward compatibility with completed bool field.
-- [ ] (role: master-reviewer) Coordinate required reviews: `reviewer-reliability`, `reviewer-security`, `reviewer-usability`.
+- [x] (role: master-reviewer) Coordinate required reviews: `reviewer-reliability`, `reviewer-security`, `reviewer-usability`.
+  Delegated reviews to specialized reviewers: created T6kjazs (reliability review), Tvasp6s (security review), Tu59d34 (usability review). All set to high priority and will consolidate feedback once reviews are completed.
 - [ ] (role: documentation) Update user-facing docs and examples.
+
+## Subtasks
+- [ ] (subtask: T6kjazs) Description
+- [ ] (subtask: Tu59d34) Description
+- [ ] (subtask: Tvasp6s) Description
