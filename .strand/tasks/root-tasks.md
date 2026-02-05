@@ -4,7 +4,6 @@
 - [Improve and Expand Task Templates](E5w8m-e2e-tests/Tml0y-t9m4n-improved-task-templates/Tml0y-t9m4n-improved-task-templates.md)
 - [Add Issue and Recurring Task Support](E7p4m-issues-recurrence/E7p4m-issues-recurrence.md)
 - [Create recurring review task plan](Iquw5-create-recurring-review-task-plan/Iquw5-create-recurring-review-task-plan.md)
-- [Add --parent flag to list command to list only commits that are descendants of a given parent](Iquzx-add-parent-flag-to-list-command-to-list-only-commi/Iquzx-add-parent-flag-to-list-command-to-list-only-commi.md)
 - [Add websocket streaming option for dashboard](Isfkq-add-websocket-streaming-option-for-dashboard/Isfkq-add-websocket-streaming-option-for-dashboard.md)
 - [Merge recurring add into add](Ish6g-merge-recurring-add-into-add/Ish6g-merge-recurring-add-into-add.md)
 - [Support role opt-in filtering for strand next](Ixf4f-support-role-opt-in-filtering-for-memmd-next/Ixf4f-support-role-opt-in-filtering-for-memmd-next.md)
