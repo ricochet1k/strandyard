@@ -6,9 +6,10 @@ parent: Ta92amw-reliability-status-field-completeness-in-free-list
 blockers: []
 blocks: []
 date_created: 2026-02-05T22:06:25.683949Z
-date_edited: 2026-02-05T22:06:25.683949Z
+date_edited: 2026-02-05T22:10:36.915373Z
 owner_approval: false
 completed: false
+status: ""
 description: ""
 ---
 
@@ -35,7 +36,8 @@ Create comprehensive integration tests for the free-list behavior with the new s
 - Required reviews completed and blockers cleared.
 
 ## TODOs
-- [ ] (role: developer) Implement the behavior described in Context.
+- [x] (role: developer) Implement the behavior described in Context.
+  Implemented status field in Task struct and created 11 comprehensive integration tests for free-list behavior with status field. Tests cover: active status filtering (open/in_progress), exclusion of non-active statuses (done/cancelled/duplicate), incremental updates, blocked tasks, backward compatibility with completed bool field, priority grouping, and timing of regeneration. All tests passing.
 - [ ] (role: developer) Add unit and integration tests covering the main flows if they don't already exist.
 - [ ] (role: tester) Execute test-suite and report failures.
 - [ ] (role: master-reviewer) Coordinate required reviews: `reviewer-reliability`, `reviewer-security`, `reviewer-usability`.
