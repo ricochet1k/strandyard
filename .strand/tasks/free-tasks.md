@@ -3,7 +3,11 @@
 ## High
 
 - [Handle HEAD anchor mutability in recurrence definitions](E7p4m-issues-recurrence/T8v3k-recurring-tasks/Tgr06-review-recurrence-metrics-cli-experience/Tftao-clarify-recurrence-anchor-flags-and-help-text/T1dua-draft-recurrence-anchor-flag-alternatives/Tonge7b-handle-head-anchor-mutability-in-recurrence-defini/Tonge7b-handle-head-anchor-mutability-in-recurrence-defini.md)
-- [Description](Twqo3xp-status-field-migration-epic/T06q0r4-review-taskdb-operations-for-status-field/T06q0r4-review-taskdb-operations-for-status-field.md)
+- [New Task: Reliability: Status field completeness in free-list calculation](Twqo3xp-status-field-migration-epic/T06q0r4-review-taskdb-operations-for-status-field/T4lskfn-reliability-status-field-completeness-in-free-list/T4lskfn-reliability-status-field-completeness-in-free-list.md)
+- [New Task: Reliability: CompleteTodo must set status field, not just completed bool](Twqo3xp-status-field-migration-epic/T06q0r4-review-taskdb-operations-for-status-field/T8ka869-reliability-completetodo-must-set-status-field-not/T8ka869-reliability-completetodo-must-set-status-field-not.md)
+- [New Task: Reliability: Blocker logic must handle all non-active statuses](Twqo3xp-status-field-migration-epic/T06q0r4-review-taskdb-operations-for-status-field/Tq62581-reliability-blocker-logic-must-handle-all-non-acti/Tq62581-reliability-blocker-logic-must-handle-all-non-acti.md)
+- [New Task: Reliability: Address status field initialization and defaults](Twqo3xp-status-field-migration-epic/T06q0r4-review-taskdb-operations-for-status-field/Tswhf9b-reliability-address-status-field-initialization-an/Tswhf9b-reliability-address-status-field-initialization-an.md)
+- [New Task: Reliability: Test all status transitions and edge cases](Twqo3xp-status-field-migration-epic/T06q0r4-review-taskdb-operations-for-status-field/Tvc5v0r-reliability-test-all-status-transitions-and-edge-c/Tvc5v0r-reliability-test-all-status-transitions-and-edge-c.md)
 - [Description](Twqo3xp-status-field-migration-epic/Tccehse-review-update-metadata-struct-for-status-field/Tccehse-review-update-metadata-struct-for-status-field.md)
 - [Description](Twqo3xp-status-field-migration-epic/Tqa5qvs-review-cli-commands-for-status-field/Tqa5qvs-review-cli-commands-for-status-field.md)
 - [Description](Twqo3xp-status-field-migration-epic/Tuowxgx-review-migration-and-testing-for-status-field/Tuowxgx-review-migration-and-testing-for-status-field.md)
@@ -53,6 +57,7 @@
 - [Dashboard needs to have project name and task being edited in the route.](To55tad-dashboard-needs-to-have-project-name-and-task-bein/To55tad-dashboard-needs-to-have-project-name-and-task-bein.md)
 - [New Task: Usability review: anchor help text and examples](Tt3kj2u-usability-review-anchor-help-text-and-examples/Tt3kj2u-usability-review-anchor-help-text-and-examples.md)
 - [strand edit is missing --blocker flag](Twcp360-strand-edit-is-missing-blocker-flag/Twcp360-strand-edit-is-missing-blocker-flag.md)
+- [New Task: Reliability: Ensure comprehensive status transition validation](Twqo3xp-status-field-migration-epic/T06q0r4-review-taskdb-operations-for-status-field/T8q1mh9-reliability-ensure-comprehensive-status-transition/T8q1mh9-reliability-ensure-comprehensive-status-transition.md)
 - [Move task directory when parent changes](Tx2fpci-move-task-directory-when-parent-changes/Tx2fpci-move-task-directory-when-parent-changes.md)
 - [Normalize short IDs to full IDs in relationships](Tydoy3v-normalize-short-ids-to-full-ids-in-relationships/Tydoy3v-normalize-short-ids-to-full-ids-in-relationships.md)
 

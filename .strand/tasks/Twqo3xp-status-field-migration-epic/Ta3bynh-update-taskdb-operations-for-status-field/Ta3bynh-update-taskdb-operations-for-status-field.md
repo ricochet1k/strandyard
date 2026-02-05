@@ -4,12 +4,11 @@ role: developer
 priority: high
 parent: Twqo3xp-status-field-migration-epic
 blockers:
-    - T06q0r4-review-taskdb-operations-for-status-field
     - Tzk35d7-update-metadata-struct-and-add-status-helpers
 blocks:
     - Tjqppdw-update-and-add-cli-commands-for-status-field
 date_created: 2026-02-05T22:02:36.862406Z
-date_edited: 2026-02-05T22:02:59.328302Z
+date_edited: 2026-02-05T22:04:34.267776Z
 owner_approval: false
 completed: false
 description: ""

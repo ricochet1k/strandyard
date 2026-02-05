@@ -34,4 +34,3 @@
 - [New Task: Status Field Migration Epic](Twqo3xp-status-field-migration-epic/Twqo3xp-status-field-migration-epic.md)
 - [Move task directory when parent changes](Tx2fpci-move-task-directory-when-parent-changes/Tx2fpci-move-task-directory-when-parent-changes.md)
 - [Normalize short IDs to full IDs in relationships](Tydoy3v-normalize-short-ids-to-full-ids-in-relationships/Tydoy3v-normalize-short-ids-to-full-ids-in-relationships.md)
-- [Replace completed boolean with status field (open/in_progress/done/duplicate/cancelled)](Tyhxhb7-replace-completed-boolean-with-status-field-open-i/Tyhxhb7-replace-completed-boolean-with-status-field-open-i.md)

@@ -4,7 +4,6 @@ role: architect
 priority: high
 parent: ""
 blockers:
-    - T06q0r4-review-taskdb-operations-for-status-field
     - Ta3bynh-update-taskdb-operations-for-status-field
     - Tccehse-review-update-metadata-struct-for-status-field
     - Tg05aq8-migration-and-comprehensive-testing-for-status-fie
@@ -14,7 +13,7 @@ blockers:
     - Tzk35d7-update-metadata-struct-and-add-status-helpers
 blocks: []
 date_created: 2026-02-05T22:02:27.275344Z
-date_edited: 2026-02-05T22:03:05.951458Z
+date_edited: 2026-02-05T22:04:34.281435Z
 owner_approval: false
 completed: false
 description: ""
@@ -38,7 +37,7 @@ This epic breaks down the migration of the task data model from using a boolean 
 Decide which task template would best fit this task and re-add it with that template and the same parent.
 
 ## Subtasks
-- [ ] (subtask: T06q0r4) Description
+- [x] (subtask: T06q0r4) Description
 - [ ] (subtask: Ta3bynh) Update TaskDB operations for status field
 - [ ] (subtask: Tccehse) Description
 - [ ] (subtask: Tg05aq8) Migration and comprehensive testing for status field
