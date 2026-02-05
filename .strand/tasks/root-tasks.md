@@ -3,7 +3,6 @@
 - [Setup E2E Test Framework](E5w8m-e2e-tests/E5w8m-e2e-tests.md)
 - [Improve and Expand Task Templates](E5w8m-e2e-tests/Tml0y-t9m4n-improved-task-templates/Tml0y-t9m4n-improved-task-templates.md)
 - [Add Issue and Recurring Task Support](E7p4m-issues-recurrence/E7p4m-issues-recurrence.md)
-- [Add tests for stream server APIs](Ibpie-add-tests-for-stream-server-apis/Ibpie-add-tests-for-stream-server-apis.md)
 - [Create delete task command](Ibv0j-create-delete-task-command/Ibv0j-create-delete-task-command.md)
 - [Add CLI support for editing task summary/body](Icl4z-add-cli-support-for-editing-task-summary-body/Icl4z-add-cli-support-for-editing-task-summary-body.md)
 - [Add CLI support for task storage migration](Iff91-add-cli-support-for-task-storage-migration/Iff91-add-cli-support-for-task-storage-migration.md)

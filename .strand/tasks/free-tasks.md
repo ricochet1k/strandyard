@@ -9,7 +9,6 @@
 - [Align exit code conventions for --every failures](E7p4m-issues-recurrence/T8v3k-recurring-tasks/Tgr06-review-recurrence-metrics-cli-experience/Tftao-clarify-recurrence-anchor-flags-and-help-text/T1dua-draft-recurrence-anchor-flag-alternatives/T3md3-usability-review-recurrence-anchor-flags/Trlrg-specify-anchor-error-messages/Thy9m-reliability-review-recurrence-anchor-errors/Tc3zv-align-exit-code-conventions-for-every-failures/Tc3zv-align-exit-code-conventions-for-every-failures.md)
 - [Decide recurrence schema option (A vs B)](E7p4m-issues-recurrence/T8v3k-recurring-tasks/Tgr06-review-recurrence-metrics-cli-experience/Twvju-decide-recurrence-schema-option-a-vs-b/Twvju-decide-recurrence-schema-option-a-vs-b.md)
 - [Approve recurrence metrics design](E7p4m-issues-recurrence/T8v3k-recurring-tasks/Tl4cn-approve-recurrence-metrics-design/Tl4cn-approve-recurrence-metrics-design.md)
-- [Add tests for stream server APIs](Ibpie-add-tests-for-stream-server-apis/Ibpie-add-tests-for-stream-server-apis.md)
 - [Create delete task command](Ibv0j-create-delete-task-command/Ibv0j-create-delete-task-command.md)
 - [Add CLI support for editing task summary/body](Icl4z-add-cli-support-for-editing-task-summary-body/Icl4z-add-cli-support-for-editing-task-summary-body.md)
 - [Add CLI support for task storage migration](Iff91-add-cli-support-for-task-storage-migration/Iff91-add-cli-support-for-task-storage-migration.md)
