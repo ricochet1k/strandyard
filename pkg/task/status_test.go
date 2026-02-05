@@ -159,3 +159,90 @@ func TestAllowedStatusValues(t *testing.T) {
 		}
 	}
 }
+
+func TestFormatStatusListForUser(t *testing.T) {
+	expected := "open, in_progress, done, cancelled, or duplicate"
+	result := FormatStatusListForUser()
+	if result != expected {
+		t.Errorf("FormatStatusListForUser() = %q, want %q", result, expected)
+	}
+}
+
+func TestFormatStatusErrorMessage(t *testing.T) {
+	tests := []struct {
+		name    string
+		status  string
+		contain []string // strings that should be in the error message
+	}{
+		{
+			name:   "invalid status without hint",
+			status: "invalid_status",
+			contain: []string{
+				`invalid status "invalid_status"`,
+				"open, in_progress, done, cancelled, or duplicate",
+			},
+		},
+		{
+			name:   "completed - should provide hint",
+			status: "completed",
+			contain: []string{
+				`invalid status "completed"`,
+				"Did you mean 'done'?",
+				"mark a task as completed",
+			},
+		},
+		{
+			name:   "pending - should provide hint",
+			status: "pending",
+			contain: []string{
+				`invalid status "pending"`,
+				"Did you mean 'open' or 'in_progress'?",
+			},
+		},
+		{
+			name:   "blocked - should provide hint",
+			status: "blocked",
+			contain: []string{
+				`invalid status "blocked"`,
+				"blockers",
+			},
+		},
+		{
+			name:   "failed - should suggest cancelled",
+			status: "failed",
+			contain: []string{
+				`invalid status "failed"`,
+				"Did you mean 'cancelled'?",
+			},
+		},
+		{
+			name:   "wontfix - should suggest cancelled",
+			status: "wontfix",
+			contain: []string{
+				`invalid status "wontfix"`,
+				"Did you mean 'cancelled'?",
+			},
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			msg := FormatStatusErrorMessage(tt.status)
+			for _, expected := range tt.contain {
+				if !contains(msg, expected) {
+					t.Errorf("FormatStatusErrorMessage(%q) missing %q\nGot: %q", tt.status, expected, msg)
+				}
+			}
+		})
+	}
+}
+
+// contains checks if needle is a substring of haystack
+func contains(haystack, needle string) bool {
+	for i := 0; i <= len(haystack)-len(needle); i++ {
+		if haystack[i:i+len(needle)] == needle {
+			return true
+		}
+	}
+	return false
+}

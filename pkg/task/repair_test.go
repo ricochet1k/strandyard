@@ -576,21 +576,23 @@ func TestVerifyStatusField(t *testing.T) {
 			taskID:          "T7bbb-invalid1",
 			status:          "invalid_status",
 			expectError:     true,
-			expectedMessage: `invalid status "invalid_status": must be one of [open in_progress done cancelled duplicate] or empty`,
+			expectedMessage: `invalid status "invalid_status": must be one of open, in_progress, done, cancelled, or duplicate or empty`,
 		},
 		{
-			name:            "Invalid: completed",
-			taskID:          "T8bbb-invalid2",
-			status:          "completed",
-			expectError:     true,
-			expectedMessage: `invalid status "completed": must be one of [open in_progress done cancelled duplicate] or empty`,
+			name:        "Invalid: completed",
+			taskID:      "T8bbb-invalid2",
+			status:      "completed",
+			expectError: true,
+			expectedMessage: `invalid status "completed": must be one of open, in_progress, done, cancelled, or duplicate or empty
+Did you mean 'done'? Use 'done' to mark a task as completed.`,
 		},
 		{
-			name:            "Invalid: pending",
-			taskID:          "T9bbb-invalid3",
-			status:          "pending",
-			expectError:     true,
-			expectedMessage: `invalid status "pending": must be one of [open in_progress done cancelled duplicate] or empty`,
+			name:        "Invalid: pending",
+			taskID:      "T9bbb-invalid3",
+			status:      "pending",
+			expectError: true,
+			expectedMessage: `invalid status "pending": must be one of open, in_progress, done, cancelled, or duplicate or empty
+Did you mean 'open' or 'in_progress'? Use 'open' for not yet started or 'in_progress' for active work.`,
 		},
 	}
 

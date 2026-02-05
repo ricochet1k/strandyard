@@ -214,7 +214,7 @@ func (v *Validator) verifyStatusField(id string, task *Task) {
 	v.errors = append(v.errors, ValidationError{
 		TaskID:  id,
 		File:    task.FilePath,
-		Message: fmt.Sprintf("invalid status %q: must be one of %v or empty", task.Meta.Status, AllowedStatusValues()),
+		Message: FormatStatusErrorMessage(task.Meta.Status),
 	})
 }
 
