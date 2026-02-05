@@ -3,11 +3,11 @@
 ## High
 
 - [Handle HEAD anchor mutability in recurrence definitions](E7p4m-issues-recurrence/T8v3k-recurring-tasks/Tgr06-review-recurrence-metrics-cli-experience/Tftao-clarify-recurrence-anchor-flags-and-help-text/T1dua-draft-recurrence-anchor-flag-alternatives/Tonge7b-handle-head-anchor-mutability-in-recurrence-defini/Tonge7b-handle-head-anchor-mutability-in-recurrence-defini.md)
+- [Design activity log for tasks_completed metric](E7p4m-issues-recurrence/T8v3k-recurring-tasks/Tgr06-review-recurrence-metrics-cli-experience/Tftao-clarify-recurrence-anchor-flags-and-help-text/T1dua-draft-recurrence-anchor-flag-alternatives/Tzv10sn-ensure-tasks-completed-anchor-requires-completion/Tzv10sn-ensure-tasks-completed-anchor-requires-completion.md)
 
 ## Medium
 
 - [Align exit code conventions for --every failures](E7p4m-issues-recurrence/T8v3k-recurring-tasks/Tgr06-review-recurrence-metrics-cli-experience/Tftao-clarify-recurrence-anchor-flags-and-help-text/T1dua-draft-recurrence-anchor-flag-alternatives/T3md3-usability-review-recurrence-anchor-flags/Trlrg-specify-anchor-error-messages/Thy9m-reliability-review-recurrence-anchor-errors/Tc3zv-align-exit-code-conventions-for-every-failures/Tc3zv-align-exit-code-conventions-for-every-failures.md)
-- [Description](E7p4m-issues-recurrence/T8v3k-recurring-tasks/Tgr06-review-recurrence-metrics-cli-experience/Tftao-clarify-recurrence-anchor-flags-and-help-text/T1dua-draft-recurrence-anchor-flag-alternatives/Tzv10sn-ensure-tasks-completed-anchor-requires-completion/Tzsq4gq-review-activity-log-implementation-for-reliability/Tzsq4gq-review-activity-log-implementation-for-reliability.md)
 - [Usability review: recurrence anchor flags](E7p4m-issues-recurrence/T8v3k-recurring-tasks/Tgr06-review-recurrence-metrics-cli-experience/Tftao-clarify-recurrence-anchor-flags-and-help-text/T6oqp-usability-review-recurrence-anchor-flags/T6oqp-usability-review-recurrence-anchor-flags.md)
 - [Review recurrence anchor flag alternatives](E7p4m-issues-recurrence/T8v3k-recurring-tasks/Tgr06-review-recurrence-metrics-cli-experience/Tftao-clarify-recurrence-anchor-flags-and-help-text/T7wm3-review-recurrence-anchor-flag-alternatives/T7wm3-review-recurrence-anchor-flag-alternatives.md)
 - [Reliability review: recurrence anchor flags](E7p4m-issues-recurrence/T8v3k-recurring-tasks/Tgr06-review-recurrence-metrics-cli-experience/Tftao-clarify-recurrence-anchor-flags-and-help-text/Tpgq2-reliability-review-recurrence-anchor-flags/Tpgq2-reliability-review-recurrence-anchor-flags.md)
