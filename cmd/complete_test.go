@@ -10,6 +10,7 @@ import (
 	"time"
 
 	"github.com/ricochet1k/strandyard/pkg/activity"
+	"github.com/ricochet1k/strandyard/pkg/task"
 )
 
 func TestCompleteWritesToActivityLog(t *testing.T) {
@@ -451,5 +452,77 @@ A test task with a todo item to verify free-list updates.
 
 	if bytes.Contains(contentAfter, []byte(taskID)) {
 		t.Fatalf("task %s should not be in free-list after completion", taskID)
+	}
+}
+
+
+// TestAtomicityOfFreeListCalculation tests that CalculateIncrementalFreeListUpdate
+// correctly identifies newly-unblocked tasks. This is a unit test that doesn't
+// require complex setup.
+func TestAtomicityOfFreeListCalculation(t *testing.T) {
+	// Create test tasks: blocker and blocked
+	blocker := &task.Task{
+		ID: "T1blocker",
+		Meta: task.Metadata{
+			Completed: true, // This task is now completed
+			Blockers:  []string{},
+		},
+	}
+	
+	blocked := &task.Task{
+		ID: "T2blocked",
+		Meta: task.Metadata{
+			Completed: false,
+			Blockers:  []string{"T1blocker"}, // This task was blocked
+		},
+	}
+	
+	alsoBlocked := &task.Task{
+		ID: "T3alsoBlocked",
+		Meta: task.Metadata{
+			Completed: false,
+			Blockers:  []string{"T1blocker", "T4other"}, // This task has multiple blockers
+		},
+	}
+	
+	otherBlocker := &task.Task{
+		ID: "T4other",
+		Meta: task.Metadata{
+			Completed: false, // This blocker is NOT yet completed
+			Blockers:  []string{},
+		},
+	}
+	
+	tasks := map[string]*task.Task{
+		"T1blocker":      blocker,
+		"T2blocked":      blocked,
+		"T3alsoBlocked":  alsoBlocked,
+		"T4other":        otherBlocker,
+	}
+	
+	// Calculate what should be added to free-list when T1blocker is completed
+	update, err := task.CalculateIncrementalFreeListUpdate(tasks, "T1blocker")
+	if err != nil {
+		t.Fatalf("CalculateIncrementalFreeListUpdate failed: %v", err)
+	}
+	
+	// Verify T1blocker is removed
+	if len(update.RemoveTaskIDs) != 1 || update.RemoveTaskIDs[0] != "T1blocker" {
+		t.Errorf("expected T1blocker in RemoveTaskIDs, got %v", update.RemoveTaskIDs)
+	}
+	
+	// Verify T2blocked is added (now unblocked)
+	addedIDs := make(map[string]bool)
+	for _, t := range update.AddTasks {
+		addedIDs[t.ID] = true
+	}
+	
+	if !addedIDs["T2blocked"] {
+		t.Errorf("T2blocked should be added (all blockers completed)")
+	}
+	
+	// Verify T3alsoBlocked is NOT added (T4other still blocks it)
+	if addedIDs["T3alsoBlocked"] {
+		t.Errorf("T3alsoBlocked should NOT be added (still has blocker T4other)")
 	}
 }
