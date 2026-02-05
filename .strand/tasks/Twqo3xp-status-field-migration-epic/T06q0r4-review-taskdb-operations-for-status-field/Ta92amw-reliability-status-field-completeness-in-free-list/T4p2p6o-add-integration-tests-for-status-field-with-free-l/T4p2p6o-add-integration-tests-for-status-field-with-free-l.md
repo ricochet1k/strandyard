@@ -4,12 +4,12 @@ role: tester
 priority: high
 parent: Ta92amw-reliability-status-field-completeness-in-free-list
 blockers:
-    - T6kjazs-reliability-review-status-field-integration-tests
+    - T2hj9jp-add-validation-for-inconsistent-completed-status-f
     - Tu59d34-usability-review-status-field-integration-tests
     - Tvasp6s-security-review-status-field-integration-tests
 blocks: []
 date_created: 2026-02-05T22:06:25.683949Z
-date_edited: 2026-02-05T22:14:26.728316Z
+date_edited: 2026-02-05T22:15:36.670095Z
 owner_approval: false
 completed: false
 status: ""
@@ -50,6 +50,7 @@ Create comprehensive integration tests for the free-list behavior with the new s
 - [ ] (role: documentation) Update user-facing docs and examples.
 
 ## Subtasks
-- [ ] (subtask: T6kjazs) Description
+- [ ] (subtask: T2hj9jp) Add validation for inconsistent Completed/Status field states
+- [x] (subtask: T6kjazs) Description
 - [ ] (subtask: Tu59d34) Description
 - [ ] (subtask: Tvasp6s) Description
