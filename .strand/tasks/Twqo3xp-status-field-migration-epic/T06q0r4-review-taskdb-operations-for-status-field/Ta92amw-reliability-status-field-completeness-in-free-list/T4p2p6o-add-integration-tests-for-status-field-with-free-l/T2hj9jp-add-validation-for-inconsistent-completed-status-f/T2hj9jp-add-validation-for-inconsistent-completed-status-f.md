@@ -4,12 +4,11 @@ role: architect
 priority: high
 parent: T4p2p6o-add-integration-tests-for-status-field-with-free-l
 blockers:
-    - T0fcq74-security-review-of-completed-status-validation
     - Tbnbs6q-usability-review-of-completed-status-validation
     - Tuq6ql6-reliability-review-of-completed-status-validation
 blocks: []
 date_created: 2026-02-05T22:15:27.452666Z
-date_edited: 2026-02-05T22:19:49.297614Z
+date_edited: 2026-02-05T22:20:52.760694Z
 owner_approval: false
 completed: false
 status: ""
@@ -61,6 +60,6 @@ The validation logic already exists in `pkg/task/repair.go`:
 - [ ] (role: documentation) Update user-facing docs and examples.
 
 ## Subtasks
-- [ ] (subtask: T0fcq74) Description
+- [x] (subtask: T0fcq74) Description
 - [ ] (subtask: Tbnbs6q) Description
 - [ ] (subtask: Tuq6ql6) Description
