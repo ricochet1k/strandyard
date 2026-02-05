@@ -397,3 +397,53 @@ func TestTaskDB_ClearParent(t *testing.T) {
 		t.Errorf("expected no children, got %d", len(children))
 	}
 }
+
+func TestTaskDB_GetAncestors(t *testing.T) {
+	db, tasksRoot := setupTestDB(t)
+
+	// Create task hierarchy: Root -> Child -> GrandChild
+	createTaskFile(t, tasksRoot, "R1aaa-root", "Root Task")
+	createTaskFile(t, tasksRoot, "C1bbb-child", "Child Task")
+	createTaskFile(t, tasksRoot, "G1ccc-grandchild", "GrandChild Task")
+
+	// Set up parent relationships
+	if err := db.SetParent("C1bbb-child", "R1aaa-root"); err != nil {
+		t.Fatalf("SetParent failed: %v", err)
+	}
+	if err := db.SetParent("G1ccc-grandchild", "C1bbb-child"); err != nil {
+		t.Fatalf("SetParent failed: %v", err)
+	}
+
+	// Test GetAncestors for root task (no parent)
+	ancestors := db.GetAncestors("R1aaa-root")
+	if len(ancestors) != 0 {
+		t.Fatalf("expected no ancestors for root, got %d", len(ancestors))
+	}
+
+	// Test GetAncestors for child task
+	ancestors = db.GetAncestors("C1bbb-child")
+	if len(ancestors) != 1 {
+		t.Fatalf("expected 1 ancestor for child, got %d", len(ancestors))
+	}
+	if ancestors[0][0] != "R1aaa" || ancestors[0][1] != "Root Task" {
+		t.Errorf("expected [R1aaa Root Task], got [%s %s]", ancestors[0][0], ancestors[0][1])
+	}
+
+	// Test GetAncestors for grandchild task
+	ancestors = db.GetAncestors("G1ccc-grandchild")
+	if len(ancestors) != 2 {
+		t.Fatalf("expected 2 ancestors for grandchild, got %d", len(ancestors))
+	}
+	if ancestors[0][0] != "C1bbb" || ancestors[0][1] != "Child Task" {
+		t.Errorf("expected first ancestor [C1bbb Child Task], got [%s %s]", ancestors[0][0], ancestors[0][1])
+	}
+	if ancestors[1][0] != "R1aaa" || ancestors[1][1] != "Root Task" {
+		t.Errorf("expected second ancestor [R1aaa Root Task], got [%s %s]", ancestors[1][0], ancestors[1][1])
+	}
+
+	// Test GetAncestors for non-existent task
+	ancestors = db.GetAncestors("NONEXISTENT")
+	if len(ancestors) != 0 {
+		t.Fatalf("expected no ancestors for non-existent task, got %d", len(ancestors))
+	}
+}

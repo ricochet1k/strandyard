@@ -172,6 +172,29 @@ func (db *TaskDB) GetChildren(parentID string) []*Task {
 	return children
 }
 
+// GetAncestors returns a slice of ancestors for the given task, from immediate parent to root.
+// Each ancestor is represented as [short_id, title].
+func (db *TaskDB) GetAncestors(taskID string) [][]string {
+	task, ok := db.tasks[taskID]
+	if !ok {
+		return nil
+	}
+
+	var ancestors [][]string
+	current := task.Meta.Parent
+
+	for current != "" {
+		parent, ok := db.tasks[current]
+		if !ok {
+			break
+		}
+		ancestors = append(ancestors, []string{ShortID(parent.ID), parent.Title()})
+		current = parent.Meta.Parent
+	}
+
+	return ancestors
+}
+
 // AddBlocker adds a blocker to a task and maintains bidirectional relationship.
 // After this operation:
 // - taskID will have blockerID in its Blockers list

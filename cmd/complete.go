@@ -196,12 +196,6 @@ func validateRole(t *task.Task, todoNum int, role string, incompleteTodos []task
 }
 
 func runCompleteTodo(w io.Writer, db *task.TaskDB, paths projectPaths, t *task.Task, taskID string, todoNum int, report string) error {
-	// Calculate incremental update before completing the TODO
-	update, err := task.CalculateIncrementalFreeListUpdate(db.GetAll(), taskID)
-	if err != nil {
-		return fmt.Errorf("failed to calculate incremental update: %w", err)
-	}
-
 	result, err := db.CompleteTodo(taskID, todoNum, report)
 	if err != nil {
 		return err
@@ -245,6 +239,13 @@ func runCompleteTodo(w io.Writer, db *task.TaskDB, paths projectPaths, t *task.T
 		}
 		if _, err := db.SaveDirty(); err != nil {
 			return fmt.Errorf("failed to write task file: %w", err)
+		}
+
+		// Calculate incremental update after all task state changes are complete
+		// This ensures we calculate based on the final state, not a stale state
+		update, err := task.CalculateIncrementalFreeListUpdate(db.GetAll(), taskID)
+		if err != nil {
+			return fmt.Errorf("failed to calculate incremental update: %w", err)
 		}
 
 		// Try incremental update first, fall back to full validation

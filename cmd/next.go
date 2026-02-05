@@ -137,6 +137,16 @@ func runNext(w io.Writer, projectName, roleFilter string) error {
 		fmt.Fprint(w, "This task has no role, ask the user what to do.\n\n")
 	}
 
+	// Print ancestors if this task has parents
+	ancestors := db.GetAncestors(selectedTask.ID)
+	if len(ancestors) > 0 {
+		fmt.Fprint(w, "\nAncestors:\n")
+		for _, ancestor := range ancestors {
+			fmt.Fprintf(w, "  %s: %s\n", ancestor[0], ancestor[1])
+		}
+		fmt.Fprint(w, "\n")
+	}
+
 	fmt.Fprintf(w, "\nYour task is %s. Here's the description of that task:\n\n", selectedTask.ID)
 	fmt.Fprint(w, selectedTask.Content())
 
