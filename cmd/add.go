@@ -154,6 +154,8 @@ func validateEvery(every []string, repoPath string, tasks map[string]*task.Task)
 					fmt.Fprintf(os.Stderr, "hint: --every \"50 commits from HEAD\"\n")
 				} else if metric == "days" || metric == "weeks" || metric == "months" {
 					fmt.Fprintf(os.Stderr, "hint: --every \"10 days from Jan 28 2026 09:00 UTC\"\n")
+				} else if metric == "tasks_completed" {
+					fmt.Fprintf(os.Stderr, "hint: --every \"20 tasks_completed from T1a1a\"\n")
 				}
 				return nil, err
 			}
