@@ -4,12 +4,11 @@ role: developer
 priority: high
 parent: Taqlx4r-strand-complete-does-not-update-free-list
 blockers:
-    - Tj9pcpb-review-usability-of-free-list-update-implementatio
     - Tq85w01-review-security-of-free-list-update-implementation
     - Txxvu2j-review-reliability-of-free-list-update-implementat
 blocks: []
 date_created: 2026-02-05T12:01:17.376997Z
-date_edited: 2026-02-05T12:08:36.610124Z
+date_edited: 2026-02-05T12:10:19.930756Z
 owner_approval: false
 completed: false
 description: ""
@@ -37,6 +36,6 @@ description: ""
 - [ ] (role: documentation) Update user-facing docs and examples.
 
 ## Subtasks
-- [ ] (subtask: Tj9pcpb) Description
+- [x] (subtask: Tj9pcpb) Description
 - [ ] (subtask: Tq85w01) Description
 - [ ] (subtask: Txxvu2j) Description
