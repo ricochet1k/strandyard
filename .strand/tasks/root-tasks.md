@@ -1,8 +1,6 @@
 # Root tasks
 
 - [Setup E2E Test Framework](E5w8m-e2e-tests.md)
-- [Support role opt-in filtering for strand next](Ixf4f-support-role-opt-in-filtering-for-memmd-next.md)
-- [dashboard: When +Add Task is clicked, it should not have parent task filled in](T034h27-dashboard-when-add-task-is-clicked-it-should-not-h.md)
 - [Design PTY-only TUI for incomplete commands](T2r8k-pty-tui-incomplete-commands-design.md)
 - [Dashboard: switching projects between projects that have issues doesn't correctly update the list of tasks](T39o95t-dashboard-switching-projects-between-projects-that.md)
 - [Rename task directory when title changes](T3c1yfi-rename-task-directory-when-title-changes.md)

@@ -5,7 +5,6 @@
 
 ## Medium
 
-- [dashboard: When +Add Task is clicked, it should not have parent task filled in](T034h27-dashboard-when-add-task-is-clicked-it-should-not-h.md)
 - [Review new taskdb.go implementation](T0f98-review-new-taskdb-go-implementation.md)
 - [Review blockers.go relationship management](T0q5n-review-blockers-go-relationship-management.md)
 - [Review task.go structure and methods](T2lt8-review-task-go-structure-and-methods.md)
