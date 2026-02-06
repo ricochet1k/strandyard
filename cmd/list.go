@@ -29,6 +29,7 @@ var (
 	listFormat         string
 	listColumns        string
 	listGroup          string
+	listStatus         string
 	listMDTable        bool
 	listUseMasterLists bool
 )
@@ -57,6 +58,7 @@ func init() {
 	listCmd.Flags().StringVar(&listChildren, "children", "", "list direct children of the given task ID")
 	listCmd.Flags().StringVar(&listRole, "role", "", "filter by role name")
 	listCmd.Flags().StringVar(&listPriority, "priority", "", "filter by priority: high|medium|low")
+	listCmd.Flags().StringVar(&listStatus, "status", "", fmt.Sprintf("filter by status: %s", task.FormatStatusListForUser()))
 	listCmd.Flags().BoolVar(&listCompleted, "completed", false, "list only completed tasks (default: uncompleted)")
 	listCmd.Flags().BoolVar(&listBlocked, "blocked", false, "filter by blocked status (has blockers)")
 	listCmd.Flags().BoolVar(&listBlocks, "blocks", false, "filter by blocks status (has blocks)")
@@ -77,6 +79,7 @@ func listOptionsFromFlags(cmd *cobra.Command) (task.ListOptions, error) {
 		Parent:         strings.TrimSpace(listChildren),
 		Role:           strings.TrimSpace(listRole),
 		Priority:       strings.ToLower(strings.TrimSpace(listPriority)),
+		Status:         strings.ToLower(strings.TrimSpace(listStatus)),
 		Label:          strings.TrimSpace(listLabel),
 		Sort:           strings.ToLower(strings.TrimSpace(listSort)),
 		Order:          strings.ToLower(strings.TrimSpace(listOrder)),

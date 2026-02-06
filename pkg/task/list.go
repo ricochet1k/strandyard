@@ -22,6 +22,7 @@ type ListOptions struct {
 	Blocked        *bool
 	Blocks         *bool
 	OwnerApproval  *bool
+	Status         string
 	Label          string
 	Sort           string
 	Order          string
@@ -119,6 +120,9 @@ func filterTasks(tasksRoot string, tasks map[string]*Task, opts ListOptions) ([]
 		if opts.OwnerApproval != nil && t.Meta.OwnerApproval != *opts.OwnerApproval {
 			continue
 		}
+		if opts.Status != "" && !strings.EqualFold(t.Meta.Status, opts.Status) {
+			continue
+		}
 		filtered = append(filtered, t)
 	}
 
@@ -214,6 +218,7 @@ type listRow struct {
 	Priority    string   `json:"priority"`
 	Parent      string   `json:"parent"`
 	Completed   bool     `json:"completed"`
+	Status      string   `json:"status"`
 	Blockers    []string `json:"blockers"`
 	Blocks      []string `json:"blocks"`
 	Path        string   `json:"path"`
@@ -234,6 +239,7 @@ func toListRows(tasks []*Task) []listRow {
 			Priority:    NormalizePriority(t.Meta.Priority),
 			Parent:      shortParent,
 			Completed:   t.Meta.Completed,
+			Status:      t.Meta.Status,
 			Blockers:    shortBlockers,
 			Blocks:      shortBlocks,
 			Path:        filepath.ToSlash(t.FilePath),
@@ -257,7 +263,7 @@ func shortenTaskIDs(ids []string) []string {
 
 func formatTable(tasks []*Task, opts ListOptions) (string, error) {
 	rows := toListRows(tasks)
-	columns := defaultColumnsForRows(opts, rows, []string{"id", "title", "priority", "role", "completed", "blockers"}, true)
+	columns := defaultColumnsForRows(opts, rows, []string{"id", "title", "priority", "role", "status", "completed", "blockers"}, true)
 
 	if len(rows) == 0 {
 		return "", nil
@@ -339,7 +345,7 @@ func formatMarkdownGrouped(grouped map[string][]listRow, opts ListOptions) (stri
 }
 
 func formatMarkdownTable(rows []listRow, opts ListOptions) (string, error) {
-	columns := defaultColumnsForRows(opts, rows, []string{"id", "title", "priority", "role", "completed", "blockers"}, false)
+	columns := defaultColumnsForRows(opts, rows, []string{"id", "title", "priority", "role", "status", "completed", "blockers"}, false)
 	builder := &strings.Builder{}
 	fmt.Fprintln(builder, "| "+strings.Join(columns, " | ")+" |")
 	separators := make([]string, 0, len(columns))
@@ -357,7 +363,7 @@ func formatMarkdownList(rows []listRow, opts ListOptions) string {
 	if len(rows) == 0 {
 		return ""
 	}
-	columns := defaultColumnsForRows(opts, rows, []string{"id", "title", "priority", "role", "completed"}, false)
+	columns := defaultColumnsForRows(opts, rows, []string{"id", "title", "priority", "role", "status", "completed"}, false)
 	builder := &strings.Builder{}
 	for _, row := range rows {
 		id := colorizeValue(row, "id", row.ID, opts)
@@ -469,6 +475,8 @@ func columnValue(row listRow, col string, numericForCounts bool) string {
 		return row.Parent
 	case "completed":
 		return fmt.Sprintf("%t", row.Completed)
+	case "status":
+		return row.Status
 	case "blockers":
 		return formatListValue(row.Blockers, numericForCounts)
 	case "blocks":
@@ -543,6 +551,8 @@ func columnLabel(col string) string {
 		return "role"
 	case "completed":
 		return "completed"
+	case "status":
+		return "status"
 	case "blockers":
 		return "blockers"
 	case "blocks":

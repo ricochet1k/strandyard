@@ -6,16 +6,18 @@ parent: ""
 blockers: []
 blocks: []
 date_created: 2026-02-06T05:05:35.90684Z
-date_edited: 2026-02-06T05:05:35.90684Z
+date_edited: 2026-02-06T06:10:29.400758Z
 owner_approval: false
-completed: false
-status: ""
+completed: true
+status: done
 description: ""
 ---
 
 # Add status-specific CLI commands and flags
 
 ## Summary
+
+
 ## Summary
 Update CLI commands to expose status field functionality to users.
 
@@ -31,3 +33,6 @@ Update CLI commands to expose status field functionality to users.
 - Implementation matches the specification
 - Tests cover the change and pass
 - Build succeeds
+
+## Completion Report
+Added cancel, mark-duplicate, mark-in-progress commands. Added --status flag to edit and list commands. Updated list columns to include status.

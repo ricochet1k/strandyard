@@ -6,10 +6,10 @@ parent: ""
 blockers: []
 blocks: []
 date_created: 2026-02-05T22:46:36.545718Z
-date_edited: 2026-02-06T05:05:40.636625Z
+date_edited: 2026-02-06T06:06:26.559256Z
 owner_approval: false
-completed: true
-status: ""
+completed: false
+status: open
 description: ""
 ---
 

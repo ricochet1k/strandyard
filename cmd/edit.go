@@ -21,6 +21,7 @@ var (
 	editBlockers []string
 	editBlocks   []string
 	editEvery    []string
+	editStatus   string
 )
 
 // editCmd represents the edit command
@@ -59,6 +60,7 @@ func init() {
 	editCmd.Flags().StringSliceVar(&editEvery, "every", nil, `recurrence rule: "<amount> <metric> [from <anchor>]" (repeatable)
 metrics: days, weeks, months, commits, lines_changed, tasks_completed
 examples: "10 days", "50 commits from HEAD", "20 tasks_completed from T1a1a"`)
+	editCmd.Flags().StringVarP(&editStatus, "status", "s", "", fmt.Sprintf("task status: %s", task.FormatStatusListForUser()))
 }
 
 func runEdit(cmd *cobra.Command, inputID, newBody string) error {
@@ -188,6 +190,12 @@ func runEdit(cmd *cobra.Command, inputID, newBody string) error {
 					return err
 				}
 			}
+		}
+	}
+
+	if cmd.Flags().Changed("status") {
+		if err := db.SetStatus(taskID, editStatus); err != nil {
+			return err
 		}
 	}
 

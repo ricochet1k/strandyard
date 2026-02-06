@@ -85,3 +85,73 @@ func getStatusHint(normalizedStatus string) string {
 	}
 	return ""
 }
+
+// IsActiveStatus returns true if a task status should be included in the free-list.
+// Active statuses are "open" and "in_progress".
+// Empty status defaults to "open" for backward compatibility.
+func IsActiveStatus(status string) bool {
+	if status == "" {
+		return true // Default to active for backward compatibility
+	}
+	return status == StatusOpen || status == StatusInProgress
+}
+
+// IsOpen returns true if the task is in "open" status.
+func (m *Metadata) IsOpen() bool {
+	return m.Status == StatusOpen || m.Status == ""
+}
+
+// IsInProgress returns true if the task is in "in_progress" status.
+func (m *Metadata) IsInProgress() bool {
+	return m.Status == StatusInProgress
+}
+
+// IsDone returns true if the task is in "done" status.
+func (m *Metadata) IsDone() bool {
+	return m.Status == StatusDone
+}
+
+// IsCancelled returns true if the task is in "cancelled" status.
+func (m *Metadata) IsCancelled() bool {
+	return m.Status == StatusCancelled
+}
+
+// IsDuplicate returns true if the task is in "duplicate" status.
+func (m *Metadata) IsDuplicate() bool {
+	return m.Status == StatusDuplicate
+}
+
+// IsActive returns true if the task is in an active status (open or in_progress).
+func (m *Metadata) IsActive() bool {
+	return IsActiveStatus(m.Status)
+}
+
+// IsOpen returns true if the task is in "open" status.
+func (t *Task) IsOpen() bool {
+	return t.Meta.IsOpen()
+}
+
+// IsInProgress returns true if the task is in "in_progress" status.
+func (t *Task) IsInProgress() bool {
+	return t.Meta.IsInProgress()
+}
+
+// IsDone returns true if the task is in "done" status.
+func (t *Task) IsDone() bool {
+	return t.Meta.IsDone()
+}
+
+// IsCancelled returns true if the task is in "cancelled" status.
+func (t *Task) IsCancelled() bool {
+	return t.Meta.IsCancelled()
+}
+
+// IsDuplicate returns true if the task is in "duplicate" status.
+func (t *Task) IsDuplicate() bool {
+	return t.Meta.IsDuplicate()
+}
+
+// IsActive returns true if the task is in an active status (open or in_progress).
+func (t *Task) IsActive() bool {
+	return t.Meta.IsActive()
+}

@@ -2,7 +2,7 @@
 
 ## High
 
-- [Simplify with status states: no separate reopen needed](Tgm7msa-add-reopen-command-or-flag-for-completed-tasks.md)
+- [Audit status field migration implementation](T1z8igu-audit-status-field-migration-implementation.md)
 - [Don't do any frontmatter parsing/serializing in the frontend, do it all in the backend, somewhere in TasksDB](Tn03j6a-don-t-do-any-frontmatter-parsing-serializing-in-th.md)
 - [Show titles in dashboard blockers/blocks](Tnuvaq6-show-titles-in-dashboard-blockers-blocks.md)
 - [Dashboard needs to have project name and task being edited in the route.](To55tad-dashboard-needs-to-have-project-name-and-task-bein.md)
@@ -15,11 +15,9 @@
 - [dashboard: When +Add Task is clicked, it should not have parent task filled in](T034h27-dashboard-when-add-task-is-clicked-it-should-not-h.md)
 - [Review new taskdb.go implementation](T0f98-review-new-taskdb-go-implementation.md)
 - [Review blockers.go relationship management](T0q5n-review-blockers-go-relationship-management.md)
-- [Implement missing Task and Metadata status helpers](T1dnq2l-implement-missing-task-and-metadata-status-helpers.md)
 - [Review task.go structure and methods](T2lt8-review-task-go-structure-and-methods.md)
 - [Dashboard: switching projects between projects that have issues doesn't correctly update the list of tasks](T39o95t-dashboard-switching-projects-between-projects-that.md)
 - [Clarify missing anchor default behavior in recurrence](T3xpql7-clarify-missing-anchor-default-behavior-in-recurre.md)
-- [Add status-specific CLI commands and flags](T40f551-add-status-specific-cli-commands-and-flags.md)
 - [Write updated godoc with usage examples](T48or-write-updated-godoc-with-usage-examples.md)
 - [Create implementation plan](T7qkw-create-implementation-plan.md)
 - [Design access control strategy](T8bgf-design-access-control-strategy.md)
@@ -35,7 +33,6 @@
 - [Define error message and recovery hint for ambiguous anchor type](Tiw9in3-define-error-message-and-recovery-hint-for-ambiguo.md)
 - [Design: Allow reapplying templates to existing tasks](Tk259ie-design-allow-reapplying-templates-to-existing-task.md)
 - [Review free-list update issue and verify fix](Townamg-review-free-list-update-issue-and-verify-fix.md)
-- [Update TaskDB status transition methods and blocker logic](Tpr14t1-update-taskdb-status-transition-methods-and-blocke.md)
 - [Review repair.go validation logic](Trtik-review-repair-go-validation-logic.md)
 - [New Task: Usability review: anchor help text and examples](Tt3kj2u-usability-review-anchor-help-text-and-examples.md)
 - [Update existing usage throughout codebase](Tuu6q-update-existing-usage-throughout-codebase.md)

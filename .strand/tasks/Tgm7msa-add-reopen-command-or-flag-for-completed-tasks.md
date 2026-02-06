@@ -6,10 +6,10 @@ parent: ""
 blockers: []
 blocks: []
 date_created: 2026-02-05T04:38:56.587564Z
-date_edited: 2026-02-06T04:45:04.250004Z
+date_edited: 2026-02-06T06:10:29.442179Z
 owner_approval: false
-completed: false
-status: ""
+completed: true
+status: done
 description: ""
 ---
 
@@ -26,3 +26,6 @@ Once status states are implemented (Tyhxhb7), there is no need for a dedicated r
 
 ## Rationale
 Status states provide a cleaner abstraction than reverting a boolean flag. This task can be completed (and removed from backlog) once Tyhxhb7 is implemented.
+
+## Completion Report
+Resolved by implementing status field support. Tasks can now be reopened by setting status to 'open' via 'strand edit --status open' or 'strand mark-in-progress'.

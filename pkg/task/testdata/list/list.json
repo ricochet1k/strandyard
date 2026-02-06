@@ -6,6 +6,7 @@
     "priority": "high",
     "parent": "",
     "completed": false,
+    "status": "",
     "blockers": [],
     "blocks": [],
     "path": "<ROOT>/E1a1a-epic/E1a1a-epic.md",
@@ -19,6 +20,7 @@
     "priority": "high",
     "parent": "",
     "completed": true,
+    "status": "",
     "blockers": [],
     "blocks": [],
     "path": "<ROOT>/T4a1a-completed/T4a1a-completed.md",
@@ -32,6 +34,7 @@
     "priority": "medium",
     "parent": "E1a1a",
     "completed": false,
+    "status": "",
     "blockers": [],
     "blocks": [],
     "path": "<ROOT>/E1a1a-epic/T1a1a-child/T1a1a-child.md",
@@ -45,6 +48,7 @@
     "priority": "medium",
     "parent": "",
     "completed": false,
+    "status": "",
     "blockers": [
       "T9x9x"
     ],
@@ -60,6 +64,7 @@
     "priority": "medium",
     "parent": "",
     "completed": false,
+    "status": "",
     "blockers": [],
     "blocks": [
       "T2a1a"
@@ -75,6 +80,7 @@
     "priority": "low",
     "parent": "",
     "completed": false,
+    "status": "",
     "blockers": [],
     "blocks": [],
     "path": "<ROOT>/T2a1a-free/T2a1a-free.md",

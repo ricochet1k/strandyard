@@ -6,16 +6,18 @@ parent: ""
 blockers: []
 blocks: []
 date_created: 2026-02-06T05:05:35.635463Z
-date_edited: 2026-02-06T05:05:35.635463Z
+date_edited: 2026-02-06T06:10:29.308672Z
 owner_approval: false
-completed: false
-status: ""
+completed: true
+status: done
 description: ""
 ---
 
 # Implement missing Task and Metadata status helpers
 
 ## Summary
+
+
 ## Summary
 Add helper methods to Metadata and Task structs to easily check and set status.
 
@@ -28,3 +30,6 @@ Add helper methods to Metadata and Task structs to easily check and set status.
 - Implementation matches the specification
 - Tests cover the change and pass
 - Build succeeds
+
+## Completion Report
+Implemented IsOpen, IsDone, IsInProgress, IsCancelled, IsDuplicate, IsActive methods on Metadata and Task structs. Moved IsActiveStatus to status.go.

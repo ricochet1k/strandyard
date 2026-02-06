@@ -6,16 +6,6 @@ import (
 	"strings"
 )
 
-// IsActiveStatus returns true if a task status should be included in the free-list.
-// Active statuses are "open" and "in_progress".
-// Empty status defaults to "open" for backward compatibility.
-func IsActiveStatus(status string) bool {
-	if status == "" {
-		return true // Default to active for backward compatibility
-	}
-	return status == "open" || status == "in_progress"
-}
-
 // FreeListParse represents parsed free-tasks.md data.
 type FreeListParse struct {
 	Title   string

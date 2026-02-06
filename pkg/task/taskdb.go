@@ -286,13 +286,69 @@ func (db *TaskDB) SetCompleted(taskID string, completed bool) error {
 	if task.Meta.Completed != completed {
 		task.Meta.Completed = completed
 		// When marking a task as completed, set status to "done"
-		if completed && task.Meta.Status != "done" {
-			task.Meta.Status = "done"
+		if completed && task.Meta.Status != StatusDone {
+			task.Meta.Status = StatusDone
+		} else if !completed && task.Meta.Status == StatusDone {
+			task.Meta.Status = StatusOpen
 		}
 		task.MarkDirty()
 	}
 
 	return nil
+}
+
+// SetStatus sets the status for a task and syncs the Completed boolean.
+func (db *TaskDB) SetStatus(taskID, status string) error {
+	task, err := db.Get(taskID)
+	if err != nil {
+		return fmt.Errorf("task not found: %w", err)
+	}
+
+	normalized := NormalizeStatus(status)
+	if !IsValidStatus(normalized) {
+		return fmt.Errorf("%s", FormatStatusErrorMessage(status))
+	}
+
+	if task.Meta.Status != normalized {
+		task.Meta.Status = normalized
+		// Sync completed boolean for backward compatibility
+		if normalized == StatusDone {
+			task.Meta.Completed = true
+		} else if normalized != "" {
+			task.Meta.Completed = false
+		}
+		task.MarkDirty()
+	}
+
+	return nil
+}
+
+// CancelTask marks a task as cancelled.
+func (db *TaskDB) CancelTask(taskID, reason string) error {
+	if err := db.SetStatus(taskID, StatusCancelled); err != nil {
+		return err
+	}
+	if reason != "" {
+		return db.AppendCompletionReport(taskID, "Cancelled: "+reason)
+	}
+	return nil
+}
+
+// MarkDuplicate marks a task as a duplicate of another task.
+func (db *TaskDB) MarkDuplicate(taskID, duplicateOf string) error {
+	if err := db.SetStatus(taskID, StatusDuplicate); err != nil {
+		return err
+	}
+	report := "Marked as duplicate"
+	if duplicateOf != "" {
+		report += " of " + duplicateOf
+	}
+	return db.AppendCompletionReport(taskID, report)
+}
+
+// MarkInProgress marks a task as in progress.
+func (db *TaskDB) MarkInProgress(taskID string) error {
+	return db.SetStatus(taskID, StatusInProgress)
 }
 
 // SyncBlockersFromChildren updates all parent task blockers based on their
@@ -304,16 +360,16 @@ func (db *TaskDB) SyncBlockersFromChildren() (int, error) {
 	return UpdateBlockersFromChildren(db.tasks)
 }
 
-// UpdateBlockersAfterCompletion should be called after marking a task complete.
-// It removes the completed task from the blockers lists of tasks it was blocking.
+// UpdateBlockersAfterCompletion should be called after a task moves to a non-active status.
+// It removes the task from the blockers lists of tasks it was blocking.
 func (db *TaskDB) UpdateBlockersAfterCompletion(taskID string) error {
 	task, err := db.Get(taskID)
 	if err != nil {
 		return fmt.Errorf("task not found: %w", err)
 	}
 
-	if !task.Meta.Completed {
-		return fmt.Errorf("task %s is not completed", taskID)
+	if task.Meta.IsActive() && !task.Meta.Completed {
+		return fmt.Errorf("task %s is still active", taskID)
 	}
 
 	// Remove this task from all tasks it blocks
@@ -552,8 +608,8 @@ func (db *TaskDB) AddTodo(taskID, text string) error {
 	// If the task was completed, it's no longer completed because a new todo was added
 	if task.Meta.Completed {
 		task.Meta.Completed = false
-		if task.Meta.Status == "done" {
-			task.Meta.Status = "open"
+		if task.Meta.Status == StatusDone {
+			task.Meta.Status = StatusOpen
 		}
 		task.MarkDirty()
 	}
@@ -579,8 +635,8 @@ func (db *TaskDB) RemoveTodo(taskID string, todoNum int) error {
 	// Re-check if task should be completed if it wasn't and all remaining are checked
 	if !task.Meta.Completed && len(task.TodoItems) > 0 && countIncompleteTodos(task) == 0 {
 		task.Meta.Completed = true
-		if task.Meta.Status == "" || task.Meta.Status == "open" || task.Meta.Status == "in_progress" {
-			task.Meta.Status = "done"
+		if task.Meta.Status == "" || task.Meta.Status == StatusOpen || task.Meta.Status == StatusInProgress {
+			task.Meta.Status = StatusDone
 		}
 		task.MarkDirty()
 	}
@@ -638,8 +694,8 @@ func (db *TaskDB) UncheckTodo(taskID string, todoNum int) error {
 
 	if task.Meta.Completed {
 		task.Meta.Completed = false
-		if task.Meta.Status == "done" {
-			task.Meta.Status = "open"
+		if task.Meta.Status == StatusDone {
+			task.Meta.Status = StatusOpen
 		}
 		task.MarkDirty()
 	}
@@ -712,8 +768,8 @@ func (db *TaskDB) CompleteTodo(taskID string, todoNum int, report string) (*Comp
 
 	if result.TaskCompleted {
 		task.Meta.Completed = true
-		if task.Meta.Status != "done" {
-			task.Meta.Status = "done"
+		if task.Meta.Status != StatusDone {
+			task.Meta.Status = StatusDone
 		}
 		task.MarkDirty()
 	}
