@@ -93,6 +93,36 @@ type projectResponse struct {
 	Storage       string `json:"storage"`
 }
 
+type roleDetailResponse struct {
+	Name        string `json:"name"`
+	Path        string `json:"path"`
+	Description string `json:"description"`
+	Body        string `json:"body"`
+}
+
+type roleUpdateRequest struct {
+	Description *string `json:"description,omitempty"`
+	Body        *string `json:"body,omitempty"`
+}
+
+type templateDetailResponse struct {
+	Name        string `json:"name"`
+	Path        string `json:"path"`
+	Role        string `json:"role"`
+	Priority    string `json:"priority"`
+	Description string `json:"description"`
+	IDPrefix    string `json:"id_prefix"`
+	Body        string `json:"body"`
+}
+
+type templateUpdateRequest struct {
+	Role        *string `json:"role,omitempty"`
+	Priority    *string `json:"priority,omitempty"`
+	Description *string `json:"description,omitempty"`
+	IDPrefix    *string `json:"id_prefix,omitempty"`
+	Body        *string `json:"body,omitempty"`
+}
+
 func (s *Server) getProject(r *http.Request) (*ProjectInfo, error) {
 	projectName := strings.TrimSpace(r.URL.Query().Get("project"))
 	if projectName == "" {
@@ -170,6 +200,74 @@ func (s *Server) handleTasks(w http.ResponseWriter, r *http.Request) {
 	respondJSON(w, http.StatusOK, items)
 }
 
+func (s *Server) handleRoles(w http.ResponseWriter, r *http.Request) {
+	proj, err := s.getProject(r)
+	if err != nil {
+		respondError(w, http.StatusBadRequest, err)
+		return
+	}
+
+	roles, err := rPkg.LoadRoles(proj.RolesRoot)
+	if err != nil {
+		respondError(w, http.StatusInternalServerError, err)
+		return
+	}
+
+	items := make([]roleDetailResponse, 0, len(roles))
+	for _, t := range roles {
+		items = append(items, roleDetailResponse{
+			Name:        t.ID,
+			Path:        makeRelative(proj.StorageRoot, t.FilePath),
+			Description: t.Meta.Description,
+			Body:        t.BodyContent,
+		})
+	}
+
+	sort.SliceStable(items, func(i, j int) bool {
+		return items[i].Name < items[j].Name
+	})
+
+	respondJSON(w, http.StatusOK, items)
+}
+
+func (s *Server) handleTemplates(w http.ResponseWriter, r *http.Request) {
+	proj, err := s.getProject(r)
+	if err != nil {
+		respondError(w, http.StatusBadRequest, err)
+		return
+	}
+
+	templates, err := template.LoadTemplates(proj.TemplatesRoot)
+	if err != nil {
+		respondError(w, http.StatusInternalServerError, err)
+		return
+	}
+
+	items := make([]templateDetailResponse, 0, len(templates))
+	for _, t := range templates {
+		priorityStr := ""
+		if p, ok := t.Meta.Priority.(string); ok {
+			priorityStr = p
+		}
+
+		items = append(items, templateDetailResponse{
+			Name:        t.ID,
+			Path:        makeRelative(proj.StorageRoot, filepath.Join(proj.TemplatesRoot, t.ID+".md")),
+			Role:        t.Meta.Role,
+			Priority:    priorityStr,
+			Description: t.Meta.Description,
+			IDPrefix:    t.Meta.IDPrefix,
+			Body:        t.BodyContent,
+		})
+	}
+
+	sort.SliceStable(items, func(i, j int) bool {
+		return items[i].Name < items[j].Name
+	})
+
+	respondJSON(w, http.StatusOK, items)
+}
+
 func (s *Server) handleTask(w http.ResponseWriter, r *http.Request) {
 	proj, err := s.getProject(r)
 	if err != nil {
@@ -182,6 +280,226 @@ func (s *Server) handleTask(w http.ResponseWriter, r *http.Request) {
 		s.handleTaskCreate(w, r, proj)
 	case http.MethodGet, http.MethodPatch:
 		s.handleTaskGetOrUpdate(w, r, proj)
+	default:
+		w.WriteHeader(http.StatusMethodNotAllowed)
+	}
+}
+
+func (s *Server) handleRole(w http.ResponseWriter, r *http.Request) {
+	proj, err := s.getProject(r)
+	if err != nil {
+		respondError(w, http.StatusBadRequest, err)
+		return
+	}
+
+	path := r.URL.Query().Get("path")
+	if path == "" {
+		respondError(w, http.StatusBadRequest, fmt.Errorf("missing path"))
+		return
+	}
+
+	resolved, err := s.resolvePath(proj, path)
+	if err != nil {
+		respondError(w, http.StatusBadRequest, err)
+		return
+	}
+
+	switch r.Method {
+	case http.MethodGet:
+		p := task.NewParser()
+		t, err := p.ParseStandaloneFile(resolved)
+		if err != nil {
+			respondError(w, http.StatusInternalServerError, err)
+			return
+		}
+
+		respondJSON(w, http.StatusOK, roleDetailResponse{
+			Name:        t.ID,
+			Path:        path,
+			Description: t.Meta.Description,
+			Body:        t.BodyContent,
+		})
+
+	case http.MethodPut:
+		if s.config.ReadOnly {
+			respondError(w, http.StatusForbidden, fmt.Errorf("server is in read-only mode"))
+			return
+		}
+
+		var req roleUpdateRequest
+		if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
+			respondError(w, http.StatusBadRequest, err)
+			return
+		}
+
+		p := task.NewParser()
+		t, err := p.ParseStandaloneFile(resolved)
+		if err != nil {
+			respondError(w, http.StatusInternalServerError, err)
+			return
+		}
+
+		if req.Description != nil {
+			t.Meta.Description = *req.Description
+		}
+		if req.Body != nil {
+			t.BodyContent = *req.Body
+		}
+
+		if err := t.Write(); err != nil {
+			respondError(w, http.StatusInternalServerError, err)
+			return
+		}
+
+		respondJSON(w, http.StatusOK, roleDetailResponse{
+			Name:        t.ID,
+			Path:        path,
+			Description: t.Meta.Description,
+			Body:        t.BodyContent,
+		})
+
+	default:
+		w.WriteHeader(http.StatusMethodNotAllowed)
+	}
+}
+
+func (s *Server) handleTemplate(w http.ResponseWriter, r *http.Request) {
+	proj, err := s.getProject(r)
+	if err != nil {
+		respondError(w, http.StatusBadRequest, err)
+		return
+	}
+
+	path := r.URL.Query().Get("path")
+	if path == "" {
+		respondError(w, http.StatusBadRequest, fmt.Errorf("missing path"))
+		return
+	}
+
+	resolved, err := s.resolvePath(proj, path)
+	if err != nil {
+		respondError(w, http.StatusBadRequest, err)
+		return
+	}
+
+	switch r.Method {
+	case http.MethodGet:
+		data, err := os.ReadFile(resolved)
+		if err != nil {
+			respondError(w, http.StatusInternalServerError, err)
+			return
+		}
+
+		content := string(data)
+		parts := strings.SplitN(content, "---", 3)
+		if len(parts) < 3 {
+			respondError(w, http.StatusInternalServerError, fmt.Errorf("invalid template format"))
+			return
+		}
+
+		var meta template.TemplateMetadata
+		if err := yaml.Unmarshal([]byte(parts[1]), &meta); err != nil {
+			respondError(w, http.StatusInternalServerError, err)
+			return
+		}
+
+		priorityStr := ""
+		if p, ok := meta.Priority.(string); ok {
+			priorityStr = p
+		}
+
+		respondJSON(w, http.StatusOK, templateDetailResponse{
+			Name:        strings.TrimSuffix(filepath.Base(path), ".md"),
+			Path:        path,
+			Role:        meta.Role,
+			Priority:    priorityStr,
+			Description: meta.Description,
+			IDPrefix:    meta.IDPrefix,
+			Body:        strings.TrimSpace(parts[2]),
+		})
+
+	case http.MethodPut:
+		if s.config.ReadOnly {
+			respondError(w, http.StatusForbidden, fmt.Errorf("server is in read-only mode"))
+			return
+		}
+
+		var req templateUpdateRequest
+		if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
+			respondError(w, http.StatusBadRequest, err)
+			return
+		}
+
+		data, err := os.ReadFile(resolved)
+		if err != nil {
+			respondError(w, http.StatusInternalServerError, err)
+			return
+		}
+
+		content := string(data)
+		parts := strings.SplitN(content, "---", 3)
+		if len(parts) < 3 {
+			respondError(w, http.StatusInternalServerError, fmt.Errorf("invalid template format"))
+			return
+		}
+
+		var meta template.TemplateMetadata
+		if err := yaml.Unmarshal([]byte(parts[1]), &meta); err != nil {
+			respondError(w, http.StatusInternalServerError, err)
+			return
+		}
+
+		if req.Role != nil {
+			meta.Role = *req.Role
+		}
+		if req.Priority != nil {
+			meta.Priority = *req.Priority
+		}
+		if req.Description != nil {
+			meta.Description = *req.Description
+		}
+		if req.IDPrefix != nil {
+			meta.IDPrefix = *req.IDPrefix
+		}
+
+		body := strings.TrimSpace(parts[2])
+		if req.Body != nil {
+			body = *req.Body
+		}
+
+		frontmatterBytes, err := yaml.Marshal(&meta)
+		if err != nil {
+			respondError(w, http.StatusInternalServerError, err)
+			return
+		}
+
+		var sb strings.Builder
+		sb.WriteString("---\n")
+		sb.Write(frontmatterBytes)
+		sb.WriteString("---\n\n")
+		sb.WriteString(body)
+		sb.WriteString("\n")
+
+		if err := os.WriteFile(resolved, []byte(sb.String()), 0o644); err != nil {
+			respondError(w, http.StatusInternalServerError, err)
+			return
+		}
+
+		priorityStr := ""
+		if p, ok := meta.Priority.(string); ok {
+			priorityStr = p
+		}
+
+		respondJSON(w, http.StatusOK, templateDetailResponse{
+			Name:        strings.TrimSuffix(filepath.Base(path), ".md"),
+			Path:        path,
+			Role:        meta.Role,
+			Priority:    priorityStr,
+			Description: meta.Description,
+			IDPrefix:    meta.IDPrefix,
+			Body:        body,
+		})
+
 	default:
 		w.WriteHeader(http.StatusMethodNotAllowed)
 	}

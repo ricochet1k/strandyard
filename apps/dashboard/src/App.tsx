@@ -13,7 +13,6 @@ import { sortedIndex, sortedIndexCmp, sortedInsert, sortedRemove } from "./lib"
 import { createMutable, createStore } from "solid-js/store"
 import { MyTransitionGroup } from "./components/MyTransitionGroup"
 import "./components/TaskTable.css"
-import { parseFrontmatter, serializeFrontmatter, RoleMeta, TemplateMeta } from "./frontmatter"
 
 type Tab = "tasks" | "roles" | "templates"
 
@@ -151,47 +150,14 @@ async function fetchRolesForProject(project: string | undefined) {
   if (!project) {
     return []
   }
-  const files = await fetchJSON<FileEntry[]>(buildProjectUrl("/api/files", project, (params) => {
-    params.set("kind", "roles")
-  }))
-  const roleItems: RoleItem[] = []
-  for (const file of files) {
-    const data = await fetchJSON<FilePayload>(buildProjectUrl("/api/file", project, (params) => {
-      params.set("path", file.path)
-    }))
-    const parsed = parseFrontmatter<RoleMeta>(data.content)
-    roleItems.push({
-      name: file.name,
-      path: file.path,
-      description: parsed.frontmatter.description || "",
-    })
-  }
-  return roleItems
+  return await fetchJSON<RoleItem[]>(buildProjectUrl("/api/roles", project))
 }
 
 async function fetchTemplatesForProject(project: string | undefined) {
   if (!project) {
     return []
   }
-  const files = await fetchJSON<FileEntry[]>(buildProjectUrl("/api/files", project, (params) => {
-    params.set("kind", "templates")
-  }))
-  const templateItems: TemplateItem[] = []
-  for (const file of files) {
-    const data = await fetchJSON<FilePayload>(buildProjectUrl("/api/file", project, (params) => {
-      params.set("path", file.path)
-    }))
-    const parsed = parseFrontmatter<TemplateMeta>(data.content)
-    templateItems.push({
-      name: file.name,
-      path: file.path,
-      role: parsed.frontmatter.role || "",
-      priority: parsed.frontmatter.priority || "",
-      description: parsed.frontmatter.description || "",
-      id_prefix: parsed.frontmatter.id_prefix || "",
-    })
-  }
-  return templateItems
+  return await fetchJSON<TemplateItem[]>(buildProjectUrl("/api/templates", project))
 }
 
 function errorMessage(err: unknown) {
@@ -273,15 +239,8 @@ export default function App() {
 
   const loadRole = async (path: string) => {
     try {
-      const data = await fetchJSON<FilePayload>(apiURL(`/api/file?path=${encodeURIComponent(path)}`))
-      const parsed = parseFrontmatter<RoleMeta>(data.content)
-      const role = roles().find(r => r.path === path)
-      if (role) {
-        setActiveRoleDetail({
-          ...role,
-          body: parsed.body,
-        })
-      }
+      const data = await fetchJSON<RoleDetail>(apiURL(`/api/role?path=${encodeURIComponent(path)}`))
+      setActiveRoleDetail(data)
       setDirty(false)
       setStatus(`Loaded ${path}`)
     } catch (err) {
@@ -291,15 +250,8 @@ export default function App() {
 
   const loadTemplate = async (path: string) => {
     try {
-      const data = await fetchJSON<FilePayload>(apiURL(`/api/file?path=${encodeURIComponent(path)}`))
-      const parsed = parseFrontmatter<TemplateMeta>(data.content)
-      const template = templates().find(t => t.path === path)
-      if (template) {
-        setActiveTemplateDetail({
-          ...template,
-          body: parsed.body,
-        })
-      }
+      const data = await fetchJSON<TemplateDetail>(apiURL(`/api/template?path=${encodeURIComponent(path)}`))
+      setActiveTemplateDetail(data)
       setDirty(false)
       setStatus(`Loaded ${path}`)
     } catch (err) {
@@ -312,14 +264,14 @@ export default function App() {
     if (!role) return
     try {
       setStatus("Saving...")
-      const content = serializeFrontmatter<RoleMeta>(
-        { description: role.description },
-        role.body
-      )
-      await fetchJSON(apiURL(`/api/file?path=${encodeURIComponent(role.path)}`), {
+      const updated = await fetchJSON<RoleDetail>(apiURL(`/api/role?path=${encodeURIComponent(role.path)}`), {
         method: "PUT",
-        body: JSON.stringify({ content }),
+        body: JSON.stringify({
+          description: role.description,
+          body: role.body,
+        }),
       })
+      setActiveRoleDetail(updated)
       setDirty(false)
       setStatus(`Saved ${role.path}`)
       // Reload roles to update the list
@@ -334,19 +286,17 @@ export default function App() {
     if (!template) return
     try {
       setStatus("Saving...")
-      const content = serializeFrontmatter<TemplateMeta>(
-        {
+      const updated = await fetchJSON<TemplateDetail>(apiURL(`/api/template?path=${encodeURIComponent(template.path)}`), {
+        method: "PUT",
+        body: JSON.stringify({
           role: template.role,
           priority: template.priority,
           description: template.description,
           id_prefix: template.id_prefix,
-        },
-        template.body
-      )
-      await fetchJSON(apiURL(`/api/file?path=${encodeURIComponent(template.path)}`), {
-        method: "PUT",
-        body: JSON.stringify({ content }),
+          body: template.body,
+        }),
       })
+      setActiveTemplateDetail(updated)
       setDirty(false)
       setStatus(`Saved ${template.path}`)
       // Reload templates to update the list

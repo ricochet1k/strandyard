@@ -23,6 +23,7 @@ type TemplateMetadata struct {
 	OwnerApproval bool        `yaml:"owner_approval"`
 	Completed     bool        `yaml:"completed"`
 	Description   string      `yaml:"description"`
+	IDPrefix      string      `yaml:"id_prefix"`
 }
 
 // Template represents a parsed task template.
