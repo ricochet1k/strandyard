@@ -1,8 +1,6 @@
 # Root tasks
 
 - [Setup E2E Test Framework](E5w8m-e2e-tests.md)
-- [Add websocket streaming option for dashboard](Isfkq-add-websocket-streaming-option-for-dashboard.md)
-- [Merge recurring add into add](Ish6g-merge-recurring-add-into-add.md)
 - [Support role opt-in filtering for strand next](Ixf4f-support-role-opt-in-filtering-for-memmd-next.md)
 - [dashboard: When +Add Task is clicked, it should not have parent task filled in](T034h27-dashboard-when-add-task-is-clicked-it-should-not-h.md)
 - [Design PTY-only TUI for incomplete commands](T2r8k-pty-tui-incomplete-commands-design.md)
@@ -24,6 +22,7 @@
 - [Improve strand add performance and output](Ti1ugbe-strand-add-is-still-running-repair-though-that-sho.md)
 - [TaskDB API Design Review](Ti6zj-taskdb-api-design-review.md)
 - [Update Go web server for SPA fallback](Tifug5w-update-go-web-server-for-spa-fallback.md)
+- [complete command does not update root-tasks.md](Tilog7x-complete-command-does-not-update-root-tasks-md.md)
 - [Define error message and recovery hint for ambiguous anchor type](Tiw9in3-define-error-message-and-recovery-hint-for-ambiguo.md)
 - [Clarify after now vs from now anchor distinction in docs](Tl0wkx6-clarify-after-now-vs-from-now-anchor-distinction-i.md)
 - [Improve and Expand Task Templates](Tml0y-t9m4n-improved-task-templates.md)

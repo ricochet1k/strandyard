@@ -5,7 +5,6 @@
 
 ## Medium
 
-- [Merge recurring add into add](Ish6g-merge-recurring-add-into-add.md)
 - [Support role opt-in filtering for strand next](Ixf4f-support-role-opt-in-filtering-for-memmd-next.md)
 - [dashboard: When +Add Task is clicked, it should not have parent task filled in](T034h27-dashboard-when-add-task-is-clicked-it-should-not-h.md)
 - [Review new taskdb.go implementation](T0f98-review-new-taskdb-go-implementation.md)
@@ -26,6 +25,7 @@
 - [Document TaskDB responsibilities and boundaries](Thyd1-document-taskdb-responsibilities-and-boundaries.md)
 - [Improve strand add performance and output](Ti1ugbe-strand-add-is-still-running-repair-though-that-sho.md)
 - [Update Go web server for SPA fallback](Tifug5w-update-go-web-server-for-spa-fallback.md)
+- [complete command does not update root-tasks.md](Tilog7x-complete-command-does-not-update-root-tasks-md.md)
 - [Add descendant filtering to list command](Timgxj2-add-descendant-filtering-to-list-command.md)
 - [Define error message and recovery hint for ambiguous anchor type](Tiw9in3-define-error-message-and-recovery-hint-for-ambiguo.md)
 - [Design: Allow reapplying templates to existing tasks](Tk259ie-design-allow-reapplying-templates-to-existing-task.md)
