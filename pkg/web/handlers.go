@@ -2,6 +2,7 @@ package web
 
 import (
 	"bytes"
+	"context"
 	"encoding/json"
 	"fmt"
 	"io"
@@ -12,6 +13,7 @@ import (
 	"strings"
 	"time"
 
+	"github.com/gorilla/websocket"
 	"github.com/ricochet1k/strandyard/pkg/idgen"
 	rPkg "github.com/ricochet1k/strandyard/pkg/role"
 	"github.com/ricochet1k/strandyard/pkg/task"
@@ -98,6 +100,12 @@ type roleDetailResponse struct {
 	Path        string `json:"path"`
 	Description string `json:"description"`
 	Body        string `json:"body"`
+}
+
+var upgrader = websocket.Upgrader{
+	CheckOrigin: func(r *http.Request) bool {
+		return true // Rely on our withCORS and withAuth middleware
+	},
 }
 
 type roleUpdateRequest struct {
@@ -806,6 +814,57 @@ func (s *Server) handleStream(w http.ResponseWriter, r *http.Request) {
 		case <-keepalive.C:
 			writeSSE(w, "ping", map[string]string{"time": time.Now().Format(time.RFC3339)})
 			flusher.Flush()
+		}
+	}
+}
+
+func (s *Server) handleWS(w http.ResponseWriter, r *http.Request) {
+	conn, err := upgrader.Upgrade(w, r, nil)
+	if err != nil {
+		s.logger.Printf("Websocket upgrade failed: %v", err)
+		return
+	}
+	defer conn.Close()
+
+	updates := make(chan StreamUpdate, 32)
+	s.broker.subscribe(updates)
+	defer s.broker.unsubscribe(updates)
+
+	if err := conn.WriteJSON(map[string]string{"status": "connected"}); err != nil {
+		return
+	}
+
+	keepalive := time.NewTicker(20 * time.Second)
+	defer keepalive.Stop()
+
+	wsCtx, cancel := context.WithCancel(r.Context())
+	defer cancel()
+
+	// Read loop to detect disconnect
+	go func() {
+		defer cancel()
+		for {
+			if _, _, err := conn.ReadMessage(); err != nil {
+				return
+			}
+		}
+	}()
+
+	for {
+		select {
+		case <-wsCtx.Done():
+			return
+		case update, ok := <-updates:
+			if !ok {
+				return
+			}
+			if err := conn.WriteJSON(update); err != nil {
+				return
+			}
+		case <-keepalive.C:
+			if err := conn.WriteJSON(map[string]string{"ping": time.Now().Format(time.RFC3339)}); err != nil {
+				return
+			}
 		}
 	}
 }

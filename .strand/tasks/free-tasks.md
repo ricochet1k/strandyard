@@ -5,7 +5,6 @@
 
 ## Medium
 
-- [Add websocket streaming option for dashboard](Isfkq-add-websocket-streaming-option-for-dashboard.md)
 - [Merge recurring add into add](Ish6g-merge-recurring-add-into-add.md)
 - [Support role opt-in filtering for strand next](Ixf4f-support-role-opt-in-filtering-for-memmd-next.md)
 - [dashboard: When +Add Task is clicked, it should not have parent task filled in](T034h27-dashboard-when-add-task-is-clicked-it-should-not-h.md)

@@ -652,12 +652,12 @@ export default function App() {
 
     window.addEventListener("popstate", handlePopState)
 
-    const source = new EventSource("/api/stream")
-    const onOpen = () => setConnected(true)
-    const onError = () => setConnected(false)
-    const onTask = (event: MessageEvent) => {
+    let source: EventSource | null = null
+    let socket: WebSocket | null = null
+
+    const onUpdate = (data: any) => {
       try {
-        const update = JSON.parse(event.data) as StreamUpdate
+        const update = typeof data === 'string' ? JSON.parse(data) : data
         if (update.project !== currentProject()) return
         setLastEvent(`${update.event} • ${update.path}`)
         if (tab() === "tasks") void reloadTasks()
@@ -677,9 +677,51 @@ export default function App() {
       }
     }
 
-    source.addEventListener("open", onOpen)
-    source.addEventListener("error", onError)
-    source.addEventListener("task", onTask as EventListener)
+    const connectWS = () => {
+      const wsUrl = new URL("/api/ws", window.location.href)
+      wsUrl.protocol = wsUrl.protocol === "https:" ? "wss:" : "ws:"
+      const params = new URLSearchParams(window.location.search)
+      const token = params.get("token")
+      if (token) {
+        wsUrl.searchParams.set("token", token)
+      }
+
+      socket = new WebSocket(wsUrl.toString())
+      socket.onopen = () => {
+        setConnected(true)
+        console.log("Websocket connected")
+      }
+      socket.onclose = () => {
+        setConnected(false)
+        console.log("Websocket closed, falling back to SSE")
+        connectSSE()
+      }
+      socket.onmessage = (event) => {
+        const data = JSON.parse(event.data)
+        if (data.ping || data.status === "connected") return
+        onUpdate(data)
+      }
+      socket.onerror = (err) => {
+        console.error("Websocket error:", err)
+        socket?.close()
+      }
+    }
+
+    const connectSSE = () => {
+      if (connected()) return
+      source = new EventSource("/api/stream")
+      source.onopen = () => setConnected(true)
+      source.onerror = () => {
+        setConnected(false)
+        source?.close()
+      }
+      source.addEventListener("task", (event: MessageEvent) => {
+        onUpdate(event.data)
+      })
+    }
+
+    // Try Websocket first
+    connectWS()
 
     const keyHandler = (event: KeyboardEvent) => {
       if ((event.metaKey || event.ctrlKey) && event.key.toLowerCase() === "s") {
@@ -690,10 +732,8 @@ export default function App() {
     window.addEventListener("keydown", keyHandler)
 
     onCleanup(() => {
-      source.removeEventListener("open", onOpen)
-      source.removeEventListener("error", onError)
-      source.removeEventListener("task", onTask as EventListener)
-      source.close()
+      socket?.close()
+      source?.close()
       window.removeEventListener("keydown", keyHandler)
       window.removeEventListener("popstate", handlePopState)
     })

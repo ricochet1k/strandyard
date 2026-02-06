@@ -59,6 +59,7 @@ func Serve(ctx context.Context, cfg ServerConfig) error {
 	mux.HandleFunc("/api/files", server.withAuth(server.handleFiles))
 	mux.HandleFunc("/api/file", server.withAuth(server.handleFile))
 	mux.HandleFunc("/api/stream", server.withAuth(server.handleStream))
+	mux.HandleFunc("/api/ws", server.withAuth(server.handleWS))
 
 	// Static files (embedded dashboard)
 	stripped, err := fs.Sub(distFS, "dist")
