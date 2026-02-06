@@ -179,6 +179,7 @@ export default function App() {
   const [projects, setProjects] = createSignal<ProjectInfo[]>([])
   const [currentProject, setCurrentProject] = createSignal("")
   const [showAddTaskModal, setShowAddTaskModal] = createSignal(false)
+  const [addTaskParent, setAddTaskParent] = createSignal("")
   const [originId, setOriginId] = createSignal<string | null>(null)
   const [relationship, setRelationship] = createSignal<string | null>(null)
 
@@ -414,12 +415,18 @@ export default function App() {
     }
   }
 
+  const openAddTaskModal = (parent = "") => {
+    console.log("Opening add task modal with parent:", parent)
+    setAddTaskParent(parent)
+    setShowAddTaskModal(true)
+  }
+
   const handleAddSubtask = () => {
     const currentTask = activeTaskDetail()
     if (!currentTask) return
     
     // Open the add task modal with the current task as parent
-    setShowAddTaskModal(true)
+    openAddTaskModal(currentTask.id)
   }
 
   const hasChildren = (node: TaskTreeNode) => (taskChildren.get(node.task.short_id)?.length ?? 0) > 0
@@ -797,7 +804,7 @@ export default function App() {
               <h2>Tasks Library</h2>
               <div style={{ display: "flex", gap: "0.5rem", "align-items": "center" }}>
                 <span class="pill">{filteredTasks().length} items</span>
-                <button class="button button-primary" onClick={() => setShowAddTaskModal(true)}>
+                <button class="button button-primary" onClick={() => openAddTaskModal("")}>
                   + Add Task
                 </button>
               </div>
@@ -871,7 +878,7 @@ export default function App() {
           templates={templates()}
           roles={roles()}
           tasks={tasks()}
-          defaultParent={activeTaskDetail()?.id || ""}
+          defaultParent={addTaskParent()}
           onClose={() => setShowAddTaskModal(false)}
           onSubmit={handleAddTask}
         />
