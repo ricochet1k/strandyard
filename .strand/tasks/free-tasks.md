@@ -5,7 +5,6 @@
 
 ## Medium
 
-- [Support role opt-in filtering for strand next](Ixf4f-support-role-opt-in-filtering-for-memmd-next.md)
 - [dashboard: When +Add Task is clicked, it should not have parent task filled in](T034h27-dashboard-when-add-task-is-clicked-it-should-not-h.md)
 - [Review new taskdb.go implementation](T0f98-review-new-taskdb-go-implementation.md)
 - [Review blockers.go relationship management](T0q5n-review-blockers-go-relationship-management.md)
@@ -36,6 +35,7 @@
 - [Design gc command for status-based garbage collection](Tvbdhas-design-gc-command-for-status-based-garbage-collect.md)
 - [Audit API surface and identify misuse opportunities](Twcdw-audit-api-surface-and-identify-misuse-opportunitie.md)
 - [strand edit is missing --blocker flag](Twcp360-strand-edit-is-missing-blocker-flag.md)
+- [Implement role opt-in filtering for strand next](Twv7603-implement-role-opt-in-filtering-for-strand-next.md)
 - [Move task directory when parent changes](Tx2fpci-move-task-directory-when-parent-changes.md)
 - [Design relationship management API](Tx4jn-design-relationship-management-api.md)
 - [Design task creation API (template-based only)](Txvyh-design-task-creation-api-template-based-only.md)
