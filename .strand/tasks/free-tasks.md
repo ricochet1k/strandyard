@@ -2,7 +2,6 @@
 
 ## High
 
-- [Allow overriding roles/templates from presets](Iz1zd-allow-overriding-roles-templates-from-presets/Iz1zd-allow-overriding-roles-templates-from-presets.md)
 - [Audit status field migration implementation](T1z8igu-audit-status-field-migration-implementation/T1z8igu-audit-status-field-migration-implementation.md)
 - [Move tasks to a flat directory structure.](T3c1yfi-rename-task-directory-when-title-changes/Txebxxv-move-tasks-to-a-flat-directory-structure/Txebxxv-move-tasks-to-a-flat-directory-structure.md)
 - [dashboard: Need a way to change the parent of a task](T3lu5df-dashboard-need-a-way-to-change-the-parent-of-a-tas/T3lu5df-dashboard-need-a-way-to-change-the-parent-of-a-tas.md)

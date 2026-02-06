@@ -2,11 +2,9 @@
 
 - [Setup E2E Test Framework](E5w8m-e2e-tests/E5w8m-e2e-tests.md)
 - [Improve and Expand Task Templates](E5w8m-e2e-tests/Tml0y-t9m4n-improved-task-templates/Tml0y-t9m4n-improved-task-templates.md)
-- [Add garbage-collect option to delete command](Iirhp-add-garbage-collect-option-to-delete-command/Iirhp-add-garbage-collect-option-to-delete-command.md)
 - [Add websocket streaming option for dashboard](Isfkq-add-websocket-streaming-option-for-dashboard/Isfkq-add-websocket-streaming-option-for-dashboard.md)
 - [Merge recurring add into add](Ish6g-merge-recurring-add-into-add/Ish6g-merge-recurring-add-into-add.md)
 - [Support role opt-in filtering for strand next](Ixf4f-support-role-opt-in-filtering-for-memmd-next/Ixf4f-support-role-opt-in-filtering-for-memmd-next.md)
-- [Allow overriding roles/templates from presets](Iz1zd-allow-overriding-roles-templates-from-presets/Iz1zd-allow-overriding-roles-templates-from-presets.md)
 - [dashboard: When +Add Task is clicked, it should not have parent task filled in](T034h27-dashboard-when-add-task-is-clicked-it-should-not-h/T034h27-dashboard-when-add-task-is-clicked-it-should-not-h.md)
 - [Audit status field migration implementation](T1z8igu-audit-status-field-migration-implementation/T1z8igu-audit-status-field-migration-implementation.md)
 - [Design PTY-only TUI for incomplete commands](T2r8k-pty-tui-incomplete-commands-design/T2r8k-pty-tui-incomplete-commands-design.md)

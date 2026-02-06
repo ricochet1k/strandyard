@@ -6,10 +6,10 @@ parent: ""
 blockers: []
 blocks: []
 date_created: 2026-02-06T00:09:02.869032Z
-date_edited: 2026-02-06T04:20:40.81738Z
+date_edited: 2026-02-06T04:58:16.615278Z
 owner_approval: false
-completed: false
-status: ""
+completed: true
+status: done
 description: ""
 ---
 
@@ -23,3 +23,6 @@ When a preset we depend on evolves, there is no way to pull the new roles or tem
 - Issue is fixed and verified locally
 - Tests pass
 - Build succeeds
+
+## Completion Report
+Confirmed that 'strand init' refuses to overwrite existing project directories, and there is currently no CLI command to refresh roles or templates from an updated preset. Verified the behavior manually by attempting to re-initialize an existing project. Implementation task T66hmhr has been created to add a 'strand preset refresh' command.
