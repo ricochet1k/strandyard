@@ -3,6 +3,7 @@ package task
 import (
 	"fmt"
 	"os"
+	"path/filepath"
 	"slices"
 	"sort"
 )
@@ -443,8 +444,8 @@ func (db *TaskDB) GetOrCreate(id string) (*Task, error) {
 	// Create new task
 	task = &Task{
 		ID:       id,
-		FilePath: fmt.Sprintf("%s/%s/%s.md", db.tasksRoot, id, id),
-		Dir:      fmt.Sprintf("%s/%s", db.tasksRoot, id),
+		FilePath: filepath.Join(db.tasksRoot, id+".md"),
+		Dir:      db.tasksRoot,
 		Meta:     Metadata{},
 	}
 	db.tasks[id] = task

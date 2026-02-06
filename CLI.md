@@ -41,7 +41,7 @@ strand add <type> [title] [flags]
 Flags:
   -t, --title string      task title (can also be passed as positional argument)
   -r, --role string       role responsible for the task (defaults from template)
-  -p, --parent string     parent task ID (creates task under that directory)
+  -p, --parent string     parent task ID
       --priority string   priority: high, medium, or low (defaults from template)
       --blocker strings   blocker task ID(s); can be repeated or comma-separated
       --no-repair       skip repair and master list updates
@@ -192,7 +192,7 @@ strand add issue [title] [flags]
 Flags:
   -t, --title string      issue title (can also be passed as positional argument)
   -r, --role string       role responsible for the task (defaults from template)
-  -p, --parent string     parent task ID (creates task under that directory)
+  -p, --parent string     parent task ID
       --priority string   priority: high, medium, or low (defaults from template)
       --blocker strings   blocker task ID(s); can be repeated or comma-separated
       --no-repair       skip repair and master list updates
@@ -329,7 +329,7 @@ strand complete <task-id> [report]
 ```
 
 **What it does**:
-- Finds task by ID (searches entire task tree)
+- Finds task by ID
 - Sets `completed: true` in frontmatter
 - Updates `date_edited` to current timestamp
 - Appends the report to the task body if provided
@@ -493,14 +493,10 @@ strand/
 ├── tasks/
 │   ├── root-tasks.md          # Auto-generated list of root tasks
 │   ├── free-tasks.md          # Auto-generated list of free tasks
-│   ├── E2k7x-metadata-format/ # Epic directory
-│   │   ├── E2k7x-metadata-format.md
-│   │   ├── T3m9p-add-dep/     # Child task
-│   │   │   └── T3m9p-add-dep.md
-│   │   └── T8h4w-update-parser/
-│   │       └── T8h4w-update-parser.md
-│   └── E6w3m-id-generation/
-│       └── E6w3m-id-generation.md
+│   ├── E2k7x-metadata-format.md
+│   ├── T3m9p-add-dep.md
+│   ├── T8h4w-update-parser.md
+│   └── E6w3m-id-generation.md
 ├── roles/
 │   ├── developer.md
 │   ├── architect.md
@@ -519,7 +515,7 @@ strand/
 ## Error Messages
 
 ### "malformed ID: must be <PREFIX><4-lowercase-alphanumeric>-<slug>"
-Task directory name doesn't match required format. Rename directory to follow format.
+Task filename doesn't match required format. Rename the file to follow format.
 
 ### "role file roles/X.md does not exist"
 Create the missing role file in the `roles/` directory.

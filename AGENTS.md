@@ -38,18 +38,15 @@ go test ./...
 
 ## Data model and filesystem conventions (authoritative)
 
-- Tasks are stored as directories. Each task directory contains a single markdown file (named `<task-id>.md`, `task.md`, or `README.md`) with YAML frontmatter.
-- Task ID is derived from the directory name: must follow format `<PREFIX><4-char-token>-<slug>` (e.g., `T3k7x-example`, `E2k7x-metadata`)
-- The directory hierarchy mirrors parent/child lineage. Example:
+- Tasks are stored as flat markdown files in the `tasks/` directory (named `<task-id>.md`).
+- Task ID is derived from the filename: must follow format `<PREFIX><4-char-token>-<slug>` (e.g., `T3k7x-example`, `E2k7x-metadata`)
+- All tasks are stored in the same directory. Example:
 
   ```
   tasks/
-    E2k7x-metadata-format/           (root epic)
-      E2k7x-metadata-format.md       (epic file)
-      T3m9p-add-dep/                 (child task)
-        T3m9p-add-dep.md
-      T8h4w-update-parser/           (child task)
-        T8h4w-update-parser.md
+    E2k7x-metadata-format.md       (epic file)
+    T3m9p-add-dep.md               (child task)
+    T8h4w-update-parser.md         (child task)
   ```
 
 - Task metadata is stored as YAML frontmatter using `goldmark-frontmatter`:
@@ -70,7 +67,6 @@ go test ./...
 
 ## Master lists
 - Two deterministic master list files are kept at `tasks/root-tasks.md` and `tasks/free-tasks.md`.
- - Two deterministic master list files are kept at `tasks/root-tasks.md` and `tasks/free-tasks.md`.
   - `root-tasks.md`: lists all root tasks (no Parent)
   - `free-tasks.md`: lists tasks with no blockers (ready to start), grouped by priority
 - These files are updated deterministically by the CLI commands (including `complete` and `repair`); they should not be edited manually.
@@ -80,7 +76,7 @@ go test ./...
 - Provide commands to:
   - `init` — initialize repo structure and optional example tasks/roles
   - `next` - print out the next task with it's role's full description as the full context an agent needs to complete the task
-  - `add`/`new` — create a new task directory and `task.md` with provided metadata
+  - `add`/`new` — create a new task file with provided metadata
   - `edit` — update a task's metadata and description
   - `assign` — change a task's Role/Assignee
   - `block`/`unblock` — add/remove blockers and update related tasks
@@ -97,7 +93,7 @@ go test ./...
 
 - Use `goldmark` with `goldmark-frontmatter` extension to parse task files
 - Metadata is extracted from YAML frontmatter (between `---` delimiters)
-- Task ID is derived from directory name, not from frontmatter
+- Task ID is derived from filename, not from frontmatter
 - Markdown content after frontmatter is preserved as task body
 - Parsing implementation: see `pkg/task/task.go` for the canonical parser
 

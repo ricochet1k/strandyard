@@ -29,8 +29,8 @@ func (p *Parser) ParseFile(filePath string) (*Task, error) {
 		return nil, fmt.Errorf("failed to read file %s: %w", filePath, err)
 	}
 
-	dir := filepath.Dir(filePath)
-	id := filepath.Base(dir)
+	fileName := filepath.Base(filePath)
+	id := strings.TrimSuffix(fileName, filepath.Ext(fileName))
 
 	t, err := p.ParseString(string(data), id)
 	if err != nil {
@@ -47,7 +47,7 @@ func (p *Parser) ParseFile(filePath string) (*Task, error) {
 		return nil, err
 	}
 	t.FilePath = filePath
-	t.Dir = dir
+	t.Dir = filepath.Dir(filePath)
 	return t, nil
 }
 
@@ -312,38 +312,27 @@ func (p *Parser) LoadTasks(tasksRoot string) (map[string]*Task, error) {
 				return nil
 			}
 
-			// Only process directories
-			if !d.IsDir() {
+			// Skip directories
+			if d.IsDir() {
 				return nil
 			}
 
-			// Look for task file in this directory
-			// Priority: <task-id>.md, then task.md, then README.md
-			dirName := filepath.Base(path)
-			taskFile := ""
-
-			candidates := []string{
-				filepath.Join(path, dirName+".md"),
-				filepath.Join(path, "task.md"),
+			// Only process .md files
+			if filepath.Ext(path) != ".md" {
+				return nil
 			}
 
-			for _, candidate := range candidates {
-				if _, err := os.Stat(candidate); err == nil {
-					taskFile = candidate
-					break
-				}
-			}
-
-			if taskFile == "" {
-				// No task file found, skip this directory
+			// Skip master lists
+			fileName := d.Name()
+			if fileName == "root-tasks.md" || fileName == "free-tasks.md" {
 				return nil
 			}
 
 			eg.Go(func() error {
 				// Parse the task
-				task, err := p.ParseFile(taskFile)
+				task, err := p.ParseFile(path)
 				if err != nil {
-					return fmt.Errorf("failed to parse task %s: %w", taskFile, err)
+					return fmt.Errorf("failed to parse task %s: %w", path, err)
 				}
 
 				tasksChan <- task

@@ -281,18 +281,16 @@ func runAdd(w io.Writer, opts addOptions) error {
 	}
 
 	parent := strings.TrimSpace(opts.Parent)
-	parentDir := paths.TasksDir
 	if parent != "" {
 		resolvedParent, err := db.ResolveID(parent)
 		if err != nil {
 			return fmt.Errorf("parent task %s does not exist: %w", parent, err)
 		}
 		parent = resolvedParent
-		parentTask, err := db.Get(parent)
+		_, err = db.Get(parent)
 		if err != nil {
 			return fmt.Errorf("parent task %s does not exist: %w", parent, err)
 		}
-		parentDir = parentTask.Dir
 	}
 
 	prefix := "T"
@@ -305,12 +303,9 @@ func runAdd(w io.Writer, opts addOptions) error {
 		return err
 	}
 
-	taskDir := filepath.Join(parentDir, id)
-	if _, err := os.Stat(taskDir); err == nil {
-		return fmt.Errorf("task directory already exists: %s", taskDir)
-	}
-	if err := os.MkdirAll(taskDir, 0o755); err != nil {
-		return fmt.Errorf("failed to create task directory: %w", err)
+	taskFile := filepath.Join(paths.TasksDir, id+".md")
+	if _, err := os.Stat(taskFile); err == nil {
+		return fmt.Errorf("task file already exists: %s", taskFile)
 	}
 
 	blockers, err := db.ResolveIDs(normalizeTaskIDs(opts.Blockers))
@@ -347,7 +342,6 @@ func runAdd(w io.Writer, opts addOptions) error {
 		}
 		body += opts.Body
 	}
-	taskFile := filepath.Join(taskDir, id+".md")
 	if err := writeTaskFile(taskFile, meta, body); err != nil {
 		return err
 	}

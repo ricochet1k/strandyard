@@ -3,11 +3,10 @@ type: issue
 role: developer
 priority: low
 parent: ""
-blockers:
-    - Txebxxv-move-tasks-to-a-flat-directory-structure
+blockers: []
 blocks: []
 date_created: 2026-02-05T04:40:06.154877Z
-date_edited: 2026-02-06T04:45:04.250004Z
+date_edited: 2026-02-06T05:12:29.037938Z
 owner_approval: false
 completed: false
 status: ""
@@ -31,4 +30,4 @@ Update the task slug (and directory/filename) when the title changes.
 - Alternatively, provide a dedicated `strand rename` command.
 
 ## Subtasks
-- [ ] (subtask: Txebxxv) Move tasks to a flat directory structure.
+- [x] (subtask: Txebxxv) Move tasks to a flat directory structure.
