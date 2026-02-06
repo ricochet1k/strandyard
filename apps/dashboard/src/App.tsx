@@ -1,4 +1,4 @@
-import { createEffect, createSignal, onCleanup, onMount, createMemo, untrack, Show } from "solid-js"
+import { createEffect, createResource, createSignal, onCleanup, onMount, createMemo, untrack, Show } from "solid-js"
 import Header from "./components/Header"
 import Sidebar from "./components/Sidebar"
 import TaskTable from "./components/TaskTable"
@@ -133,6 +133,67 @@ async function fetchJSON<T>(path: string, init?: RequestInit): Promise<T> {
   return res.json() as Promise<T>
 }
 
+function buildProjectUrl(path: string, project: string, configure?: (params: URLSearchParams) => void) {
+  const params = new URLSearchParams()
+  params.set("project", project)
+  configure?.(params)
+  return `${path}?${params.toString()}`
+}
+
+async function fetchTasksForProject(project: string | undefined) {
+  if (!project) {
+    return []
+  }
+  return fetchJSON<TaskItem[]>(buildProjectUrl("/api/tasks", project))
+}
+
+async function fetchRolesForProject(project: string | undefined) {
+  if (!project) {
+    return []
+  }
+  const files = await fetchJSON<FileEntry[]>(buildProjectUrl("/api/files", project, (params) => {
+    params.set("kind", "roles")
+  }))
+  const roleItems: RoleItem[] = []
+  for (const file of files) {
+    const data = await fetchJSON<FilePayload>(buildProjectUrl("/api/file", project, (params) => {
+      params.set("path", file.path)
+    }))
+    const parsed = parseFrontmatter<RoleMeta>(data.content)
+    roleItems.push({
+      name: file.name,
+      path: file.path,
+      description: parsed.frontmatter.description || "",
+    })
+  }
+  return roleItems
+}
+
+async function fetchTemplatesForProject(project: string | undefined) {
+  if (!project) {
+    return []
+  }
+  const files = await fetchJSON<FileEntry[]>(buildProjectUrl("/api/files", project, (params) => {
+    params.set("kind", "templates")
+  }))
+  const templateItems: TemplateItem[] = []
+  for (const file of files) {
+    const data = await fetchJSON<FilePayload>(buildProjectUrl("/api/file", project, (params) => {
+      params.set("path", file.path)
+    }))
+    const parsed = parseFrontmatter<TemplateMeta>(data.content)
+    templateItems.push({
+      name: file.name,
+      path: file.path,
+      role: parsed.frontmatter.role || "",
+      priority: parsed.frontmatter.priority || "",
+      description: parsed.frontmatter.description || "",
+      id_prefix: parsed.frontmatter.id_prefix || "",
+    })
+  }
+  return templateItems
+}
+
 function errorMessage(err: unknown) {
   if (err instanceof Error) {
     return err.message
@@ -142,9 +203,6 @@ function errorMessage(err: unknown) {
 
 export default function App() {
   const [tab, setTab] = createSignal<Tab>("tasks")
-  const [tasks, setTasks] = createSignal<TaskItem[]>([])
-  const [roles, setRoles] = createSignal<RoleItem[]>([])
-  const [templates, setTemplates] = createSignal<TemplateItem[]>([])
   const [activeTaskDetail, setActiveTaskDetail] = createSignal<TaskDetail | null>(null)
   const [activeRoleDetail, setActiveRoleDetail] = createSignal<RoleDetail | null>(null)
   const [activeTemplateDetail, setActiveTemplateDetail] = createSignal<TemplateDetail | null>(null)
@@ -155,6 +213,31 @@ export default function App() {
   const [projects, setProjects] = createSignal<ProjectInfo[]>([])
   const [currentProject, setCurrentProject] = createSignal("")
   const [showAddTaskModal, setShowAddTaskModal] = createSignal(false)
+
+  const [tasks, { refetch: reloadTasks }] = createResource(currentProject, fetchTasksForProject, { initialValue: [] })
+  const [roles, { refetch: reloadRoles }] = createResource(currentProject, fetchRolesForProject, { initialValue: [] })
+  const [templates, { refetch: reloadTemplates }] = createResource(currentProject, fetchTemplatesForProject, { initialValue: [] })
+
+  createEffect(() => {
+    const err = tasks.error
+    if (err) {
+      setStatus(`Failed to load tasks: ${errorMessage(err)}`)
+    }
+  })
+
+  createEffect(() => {
+    const err = roles.error
+    if (err) {
+      setStatus(`Failed to load roles: ${errorMessage(err)}`)
+    }
+  })
+
+  createEffect(() => {
+    const err = templates.error
+    if (err) {
+      setStatus(`Failed to load templates: ${errorMessage(err)}`)
+    }
+  })
 
   // Task filtering, sorting, and search
   const [searchQuery, setSearchQuery] = createSignal("")
@@ -185,60 +268,6 @@ export default function App() {
       }
     } catch (err) {
       setStatus(`Failed to load projects: ${errorMessage(err)}`)
-    }
-  }
-
-  const loadTasks = async () => {
-    try {
-      const data = await fetchJSON<TaskItem[]>(apiURL("/api/tasks"))
-      setTasks(data)
-    } catch (err) {
-      setStatus(`Failed to load tasks: ${errorMessage(err)}`)
-    }
-  }
-
-  const loadRoles = async () => {
-    try {
-      const files = await fetchJSON<FileEntry[]>(apiURL("/api/files?kind=roles"))
-      const roleItems: RoleItem[] = []
-      
-      for (const file of files) {
-        const data = await fetchJSON<FilePayload>(apiURL(`/api/file?path=${encodeURIComponent(file.path)}`))
-        const parsed = parseFrontmatter<RoleMeta>(data.content)
-        roleItems.push({
-          name: file.name,
-          path: file.path,
-          description: parsed.frontmatter.description || "",
-        })
-      }
-      
-      setRoles(roleItems)
-    } catch (err) {
-      setStatus(`Failed to load roles: ${errorMessage(err)}`)
-    }
-  }
-
-  const loadTemplates = async () => {
-    try {
-      const files = await fetchJSON<FileEntry[]>(apiURL("/api/files?kind=templates"))
-      const templateItems: TemplateItem[] = []
-      
-      for (const file of files) {
-        const data = await fetchJSON<FilePayload>(apiURL(`/api/file?path=${encodeURIComponent(file.path)}`))
-        const parsed = parseFrontmatter<TemplateMeta>(data.content)
-        templateItems.push({
-          name: file.name,
-          path: file.path,
-          role: parsed.frontmatter.role || "",
-          priority: parsed.frontmatter.priority || "",
-          description: parsed.frontmatter.description || "",
-          id_prefix: parsed.frontmatter.id_prefix || "",
-        })
-      }
-      
-      setTemplates(templateItems)
-    } catch (err) {
-      setStatus(`Failed to load templates: ${errorMessage(err)}`)
     }
   }
 
@@ -294,7 +323,7 @@ export default function App() {
       setDirty(false)
       setStatus(`Saved ${role.path}`)
       // Reload roles to update the list
-      await loadRoles()
+      await reloadRoles()
     } catch (err) {
       setStatus(`Save failed: ${errorMessage(err)}`)
     }
@@ -321,7 +350,7 @@ export default function App() {
       setDirty(false)
       setStatus(`Saved ${template.path}`)
       // Reload templates to update the list
-      await loadTemplates()
+      await reloadTemplates()
     } catch (err) {
       setStatus(`Save failed: ${errorMessage(err)}`)
     }
@@ -401,7 +430,7 @@ export default function App() {
       })
       setStatus("Task created successfully")
       // Reload tasks to show the new task
-      await loadTasks()
+      await reloadTasks()
     } catch (err) {
       setStatus(`Failed to create task: ${errorMessage(err)}`)
       throw err
@@ -631,37 +660,10 @@ export default function App() {
     setActiveTemplateDetail(null)
     setDirty(false)
     setStatus("")
-    if (current === "tasks") {
-      void loadTasks()
-    } else if (current === "roles") {
-      void loadRoles()
-    } else if (current === "templates") {
-      void loadTemplates()
-    }
-  })
-
-  createEffect(() => {
-    const project = currentProject()
-    if (!project) return
-    setActiveTaskDetail(null)
-    setActiveRoleDetail(null)
-    setActiveTemplateDetail(null)
-    setDirty(false)
-    const current = tab()
-    if (current === "tasks") {
-      void loadTasks()
-    } else if (current === "roles") {
-      void loadRoles()
-    } else if (current === "templates") {
-      void loadTemplates()
-    }
   })
 
   onMount(() => {
     void loadProjects()
-    void loadTasks()
-    void loadRoles()
-    void loadTemplates()
 
     const source = new EventSource("/api/stream")
     const onOpen = () => setConnected(true)
@@ -671,7 +673,9 @@ export default function App() {
         const update = JSON.parse(event.data) as StreamUpdate
         if (update.project !== currentProject()) return
         setLastEvent(`${update.event} • ${update.path}`)
-        if (tab() === "tasks") void loadTasks()
+        if (tab() === "tasks") void reloadTasks()
+        if (tab() === "roles" || update.path.includes(".strand/roles/")) void reloadRoles()
+        if (tab() === "templates" || update.path.includes("templates/")) void reloadTemplates()
         const active = activeTaskDetail()
         if (active) {
           const updatedId = update.task?.id

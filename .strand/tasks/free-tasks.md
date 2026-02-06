@@ -2,7 +2,6 @@
 
 ## High
 
-- [Add garbage-collect option to delete command](Iirhp-add-garbage-collect-option-to-delete-command/Iirhp-add-garbage-collect-option-to-delete-command.md)
 - [Allow overriding roles/templates from presets](Iz1zd-allow-overriding-roles-templates-from-presets/Iz1zd-allow-overriding-roles-templates-from-presets.md)
 - [Audit status field migration implementation](T1z8igu-audit-status-field-migration-implementation/T1z8igu-audit-status-field-migration-implementation.md)
 - [Move tasks to a flat directory structure.](T3c1yfi-rename-task-directory-when-title-changes/Txebxxv-move-tasks-to-a-flat-directory-structure/Txebxxv-move-tasks-to-a-flat-directory-structure.md)
@@ -18,6 +17,7 @@
 ## Medium
 
 - [Design: Allow reapplying templates to existing tasks](I8lew-allow-reapplying-templates-to-existing-tasks/Tk259ie-design-allow-reapplying-templates-to-existing-task/Tk259ie-design-allow-reapplying-templates-to-existing-task.md)
+- [Design gc command for status-based garbage collection](Iirhp-add-garbage-collect-option-to-delete-command/Tvbdhas-design-gc-command-for-status-based-garbage-collect/Tvbdhas-design-gc-command-for-status-based-garbage-collect.md)
 - [Add descendant filtering to list command](Iquzx-add-parent-flag-to-list-command-to-list-only-commi/Timgxj2-add-descendant-filtering-to-list-command/Timgxj2-add-descendant-filtering-to-list-command.md)
 - [Add websocket streaming option for dashboard](Isfkq-add-websocket-streaming-option-for-dashboard/Isfkq-add-websocket-streaming-option-for-dashboard.md)
 - [Merge recurring add into add](Ish6g-merge-recurring-add-into-add/Ish6g-merge-recurring-add-into-add.md)

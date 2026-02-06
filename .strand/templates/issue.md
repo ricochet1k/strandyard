@@ -9,3 +9,9 @@ id_prefix: I
 
 ## Summary
 {{ .Body }}
+
+## Acceptance Criteria
+- Issue still exists
+- Issue is fixed and verified locally
+- Tests pass
+- Build succeeds

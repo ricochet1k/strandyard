@@ -2,7 +2,6 @@
 
 - [Setup E2E Test Framework](E5w8m-e2e-tests/E5w8m-e2e-tests.md)
 - [Improve and Expand Task Templates](E5w8m-e2e-tests/Tml0y-t9m4n-improved-task-templates/Tml0y-t9m4n-improved-task-templates.md)
-- [Allow reapplying templates to existing tasks](I8lew-allow-reapplying-templates-to-existing-tasks/I8lew-allow-reapplying-templates-to-existing-tasks.md)
 - [Add garbage-collect option to delete command](Iirhp-add-garbage-collect-option-to-delete-command/Iirhp-add-garbage-collect-option-to-delete-command.md)
 - [Add websocket streaming option for dashboard](Isfkq-add-websocket-streaming-option-for-dashboard/Isfkq-add-websocket-streaming-option-for-dashboard.md)
 - [Merge recurring add into add](Ish6g-merge-recurring-add-into-add/Ish6g-merge-recurring-add-into-add.md)

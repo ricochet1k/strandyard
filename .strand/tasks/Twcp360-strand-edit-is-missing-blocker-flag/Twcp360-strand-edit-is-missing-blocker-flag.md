@@ -6,7 +6,7 @@ parent: ""
 blockers: []
 blocks: []
 date_created: 2026-02-01T22:22:08.891654Z
-date_edited: 2026-02-01T22:22:08.891654Z
+date_edited: 2026-02-05T23:13:17.377065Z
 owner_approval: false
 completed: false
 description: ""
@@ -14,7 +14,6 @@ description: ""
 
 # strand edit is missing --blocker flag
 
-## Summary
 ## Summary
 The `strand edit` command help text mentions it can edit blockers, but the `--blocker` flag is not registered and the implementation is marked as TODO in `cmd/edit.go`.
 

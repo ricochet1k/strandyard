@@ -25,22 +25,10 @@ strand complete <task-id> "summary of work"
 strand repair
 ```
 
-## Quick setup (what to ask the repo owner if missing)
-
-- Desired Go module path (e.g. `github.com/<you>/strand`) — required for `go mod init`.
-- CI/test commands (if any custom ones).
-
 ## Recommended developer commands
 - Install cobra scaffolder:
 ```bash
 go install github.com/spf13/cobra-cli@latest
-```
-- Init project (example — replace module path):
-```bash
-go mod init github.com/yourname/strand
-cobra-cli init --pkg-name github.com/yourname/strand
-go get github.com/yuin/goldmark
-go get github.com/spf13/cobra
 ```
 - Build / test:
 ```bash
@@ -75,34 +63,6 @@ go test ./...
   - **completed**: Boolean flag (marks task as done)
   - **owner_approval**: Boolean flag (optional)
 
-- Task file format:
-
-```markdown
----
-role: developer
-priority: medium
-parent: E2k7x-metadata-format
-blockers: []
-blocks: []
-date_created: 2026-01-27T00:00:00Z
-date_edited: 2026-01-27T13:43:58Z
-owner_approval: false
-completed: false
----
-
-# Add goldmark-frontmatter Dependency
-
-## Summary
-Add the goldmark-frontmatter library to the project...
-
-## Tasks
-- [ ] Run `go get github.com/abhinav/goldmark-frontmatter`
-- [ ] Verify dependencies resolve correctly
-
-## Acceptance Criteria
-- goldmark-frontmatter is listed in go.mod
-- Project builds successfully
-```
 
 ## Roles
 
@@ -128,11 +88,10 @@ Add the goldmark-frontmatter library to the project...
 
 ## Templates
 
-- Task templates: `templates/` (use these for implementable tasks). `ID` and `Parent` are derived from the filesystem; do not include them in templates.
+- Task templates: run `strand templates` (use these for implementable tasks). `ID` and `Parent` are derived from the filesystem; do not include them in templates.
 - Document examples: `doc-examples/` (example task outputs, sample documents). Use these as templates for documents in `design-docs/` (for example, `doc-examples/design-alternatives.md`). Task bodies should come from `templates/` at task creation time.
 - Task templates must be fully specifiable before work starts; avoid placeholders for results or findings.
 - Do not edit task bodies to record outcomes; tasks are disposable and may be deleted. Use follow-up tasks for open questions/concerns, and record decisions and final rationale in design docs.
-- The default task template is `templates/task.md`. The `leaf` template/type is deprecated with no backward compatibility.
 
 ## Parsing rules & expectations
 
@@ -189,4 +148,4 @@ Add the goldmark-frontmatter library to the project...
 - Any CI or formatting rules (gofmt/pre-commit hooks)?
 - Preferred task metadata fields beyond the canonical set above?
 
-If anything in this document is unclear, tell me the desired module path and any additional fields you want included in `task.md` examples and I will update the examples and scaffolding instructions.
+If anything in this document is unclear, update it to make it more clear.

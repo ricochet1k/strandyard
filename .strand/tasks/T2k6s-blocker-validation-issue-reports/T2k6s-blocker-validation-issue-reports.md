@@ -6,9 +6,11 @@ parent: ""
 blockers: []
 blocks: []
 date_created: 2026-01-28T12:00:00Z
-date_edited: 2026-01-28T12:00:00Z
+date_edited: 2026-02-06T04:35:14.51576Z
 owner_approval: false
-completed: false
+completed: true
+status: ""
+description: ""
 ---
 
 # File issue reports for blocker validation errors

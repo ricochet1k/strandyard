@@ -3,18 +3,22 @@ type: issue
 role: developer
 priority: low
 parent: ""
-blockers: []
+blockers:
+    - Txebxxv-move-tasks-to-a-flat-directory-structure
 blocks: []
 date_created: 2026-02-05T04:40:06.154877Z
-date_edited: 2026-02-05T04:40:06.154877Z
+date_edited: 2026-02-06T04:45:04.250004Z
 owner_approval: false
 completed: false
+status: ""
 description: ""
 ---
 
 # Rename task directory when title changes
 
 ## Summary
+
+
 ## Summary
 Update the task slug (and directory/filename) when the title changes.
 
@@ -25,3 +29,6 @@ Update the task slug (and directory/filename) when the title changes.
 - Option (or default behavior) to rename directory/file to match new title slug.
 - Update all references (parent, blockers, blocks) in other files if the ID changes (slug change = ID change).
 - Alternatively, provide a dedicated `strand rename` command.
+
+## Subtasks
+- [ ] (subtask: Txebxxv) Move tasks to a flat directory structure.

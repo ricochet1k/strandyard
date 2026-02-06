@@ -1,14 +1,15 @@
 ---
 type: issue
 role: developer
-priority: medium
+priority: high
 parent: ""
 blockers: []
 blocks: []
 date_created: 2026-02-05T04:38:56.587564Z
-date_edited: 2026-02-05T11:50:35.259503Z
+date_edited: 2026-02-06T04:45:04.250004Z
 owner_approval: false
 completed: false
+status: ""
 description: ""
 ---
 

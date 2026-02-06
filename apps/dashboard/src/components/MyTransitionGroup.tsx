@@ -54,13 +54,11 @@ export function startAnimWait(hel: HTMLElement, addClass: () => void, removeClas
     })
     addClass()
     if (!started)
-        setTimeout(() => {
-            if (!started) {
-                console.log("did not start animation...", hel.className, debug)
-                cancel()
-                removeClass()
-            }
-        }, 50)
+        if (!started) {
+            console.log("did not start animation...", hel.className, debug)
+            cancel()
+            removeClass()
+        }
 }
 
 export function MyTransitionGroup(props: ParentProps<{ classPrefix: string }>) {
@@ -100,8 +98,6 @@ export function MyTransitionGroup(props: ParentProps<{ classPrefix: string }>) {
                         // console.log('removed end', ev)
                         finishRemoved([hel])
                     }, "removed")
-
-                    // setTimeout(() => finishRemoved([hel]), 1000)
                 }
 
                 for (const item of unchangedData) {

@@ -33,11 +33,12 @@ export default function Sidebar(props: SidebarProps) {
       {/* Project Selector */}
       <Show when={props.projects.length > 1}>
         <div class="sidebar-filter">
-          <label>Project</label>
-          <select
-            value={props.currentProject}
-            onChange={(e) => props.onProjectChange(e.currentTarget.value)}
-          >
+        <label for="project-select">Project</label>
+        <select
+          id="project-select"
+          value={props.currentProject}
+          onChange={(e) => props.onProjectChange(e.currentTarget.value)}
+        >
             <For each={props.projects}>
               {(proj) => (
                 <option value={proj.name}>{proj.name}</option>

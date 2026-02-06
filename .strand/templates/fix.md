@@ -11,5 +11,7 @@ id_prefix: F
 {{ .Body }}
 
 ## Acceptance Criteria
+- Bug still exists
 - Bug is fixed and verified locally
 - Tests pass
+- Build succeeds

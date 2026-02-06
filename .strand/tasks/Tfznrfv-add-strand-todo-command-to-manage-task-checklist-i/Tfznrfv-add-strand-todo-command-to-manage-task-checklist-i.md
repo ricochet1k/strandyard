@@ -1,20 +1,23 @@
 ---
 type: issue
 role: developer
-priority: medium
+priority: high
 parent: ""
 blockers: []
 blocks: []
 date_created: 2026-02-05T11:50:14.209489Z
-date_edited: 2026-02-05T11:50:14.209489Z
+date_edited: 2026-02-06T04:32:43.011972Z
 owner_approval: false
 completed: false
+status: ""
 description: ""
 ---
 
 # Add strand todo command to manage task checklist items
 
 ## Summary
+
+
 ## Summary
 Add a command to add, remove, edit, and reorder TODO items within a task.
 

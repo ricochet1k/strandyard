@@ -29,6 +29,16 @@ const project = {
   storage: "local",
 }
 
+const projectB: ProjectInfo = {
+  name: "strandyard-alt",
+  storage_root: "/tmp/strandyard-alt",
+  tasks_root: "/tmp/strandyard-alt/tasks",
+  roles_root: "/tmp/strandyard-alt/.strand/roles",
+  templates_root: "/tmp/strandyard-alt/templates",
+  git_root: "/tmp/strandyard-alt",
+  storage: "local",
+}
+
 const tasks: TaskItem[] = [
   {
     id: "T1ab-setup-dashboard",
@@ -94,6 +104,44 @@ const epicTemplateContent = {
   path: "templates/epic.md",
   content: "---\nrole: architect\npriority: high\ndescription: Epic template\nid_prefix: E\n---\n\n# Epic Title",
 }
+
+const selectAllShortcut = process.platform === "darwin" ? "Meta+A" : "Control+A"
+
+const projectBTasks: TaskItem[] = [
+  {
+    id: "T9zz-alt-task",
+    short_id: "T9zz",
+    title: "Alternate project task",
+    role: "ops",
+    priority: "low",
+    completed: false,
+    parent: "",
+    blockers: [],
+    blocks: [],
+    path: "tasks/T9zz-alt-task/T9zz-alt-task.md",
+    date_created: "2026-02-01T00:00:00Z",
+    date_edited: "2026-02-02T00:00:00Z",
+  },
+]
+
+const projectBROpsRoleContent = {
+  path: ".strand/roles/ops.md",
+  content: "---\ndescription: Operates services\n---\n\n# Ops Role\n\nResponsibilities:\n- Keep services running\n- Resolve incidents",
+}
+
+const projectBTemplateContent = {
+  path: "templates/ops-task.md",
+  content: "---\nrole: ops\npriority: low\ndescription: Ops focused task\nid_prefix: O\n---\n\n# Ops Task",
+}
+
+const projectBRoles = [
+  { name: "ops", path: projectBROpsRoleContent.path, kind: "roles" },
+]
+
+const projectBTemplates = [
+  { name: "ops-task", path: projectBTemplateContent.path, kind: "templates" },
+]
+
 
 const installEventSourceMock = async (page: Page) => {
   await page.addInitScript(() => {
@@ -255,6 +303,81 @@ const setupApiMocks = async (
   })
 }
 
+const setupProjectOverrideMocks = async (page: Page) => {
+  await page.route("**/api/**", async (route) => {
+    const request = route.request()
+    const url = new URL(request.url())
+    const requestedProject = url.searchParams.get("project") || project.name
+
+    if (url.pathname === "/api/projects") {
+      await route.fulfill({
+        contentType: "application/json",
+        body: JSON.stringify({ projects: [project, projectB], current: project.name }),
+      })
+      return
+    }
+
+    if (requestedProject !== projectB.name) {
+      await route.continue()
+      return
+    }
+
+    if (url.pathname === "/api/tasks") {
+      await route.fulfill({
+        contentType: "application/json",
+        body: JSON.stringify(projectBTasks),
+      })
+      return
+    }
+
+    if (url.pathname === "/api/files") {
+      const kind = url.searchParams.get("kind")
+      if (kind === "roles") {
+        await route.fulfill({
+          contentType: "application/json",
+          body: JSON.stringify(projectBRoles),
+        })
+        return
+      }
+      if (kind === "templates") {
+        await route.fulfill({
+          contentType: "application/json",
+          body: JSON.stringify(projectBTemplates),
+        })
+        return
+      }
+      await route.continue()
+      return
+    }
+
+    if (url.pathname === "/api/file") {
+      const path = url.searchParams.get("path")
+      if (!path) {
+        await route.continue()
+        return
+      }
+      if (path === projectBROpsRoleContent.path) {
+        await route.fulfill({
+          contentType: "application/json",
+          body: JSON.stringify(projectBROpsRoleContent),
+        })
+        return
+      }
+      if (path === projectBTemplateContent.path) {
+        await route.fulfill({
+          contentType: "application/json",
+          body: JSON.stringify(projectBTemplateContent),
+        })
+        return
+      }
+      await route.continue()
+      return
+    }
+
+    await route.continue()
+  })
+}
+
 test("loads tasks and opens the editor", async ({ page }) => {
   await installEventSourceMock(page)
   await setupApiMocks(page)
@@ -314,7 +437,7 @@ test("switches to roles tab and loads role files", async ({ page }) => {
   
   // Check that role content is displayed in editor
   await expect(page.locator(".pane-header .detail", { hasText: roleContent.path })).toBeVisible()
-  await expect(page.locator("textarea.editor-body")).toHaveValue(/Developer Role/)
+  await expect(page.locator(".codemirror-container .cm-content")).toContainText("Developer Role")
   
   // Check that frontmatter controls are visible
   await expect(page.getByLabel("Description")).toHaveValue("Implements tasks")
@@ -342,7 +465,7 @@ test("switches to templates tab and loads template files", async ({ page }) => {
   
   // Check that template content is displayed in editor
   await expect(page.locator(".pane-header .detail", { hasText: templateContent.path })).toBeVisible()
-  await expect(page.locator("textarea.editor-body")).toHaveValue(/Task Title/)
+  await expect(page.locator(".codemirror-container .cm-content")).toContainText("Task Title")
   
   // Check that frontmatter controls are visible
   await expect(page.getByLabel("Role")).toHaveValue("developer")
@@ -374,7 +497,10 @@ test("saves edits to a role file", async ({ page }) => {
   await page.getByLabel("Description").fill("Updated description")
   
   // Edit the role body
-  await page.locator("textarea.editor-body").fill("# Updated Developer Role\n\nNew content")
+  const editorContent = page.locator(".codemirror-container .cm-content")
+  await editorContent.click()
+  await page.keyboard.press(selectAllShortcut)
+  await page.keyboard.type("# Updated Developer Role\n\nNew content")
   
   await page.getByRole("button", { name: "Save" }).click()
   
@@ -523,4 +649,25 @@ test("add subtask button opens modal with parent pre-filled", async ({ page }) =
     parent: tasks[0].id,
     title: "Subtask of first task",
   })
+})
+
+test("switching projects refreshes templates and roles without leaving the tasks view", async ({ page }) => {
+  await installEventSourceMock(page)
+  await setupApiMocks(page)
+  await setupProjectOverrideMocks(page)
+
+  await page.goto("/")
+  await page.getByLabel("Status").selectOption("all")
+  await page.waitForTimeout(500)
+
+  await page.getByLabel("Project").selectOption(projectB.name)
+  await page.waitForTimeout(500)
+
+  await page.getByRole("button", { name: "+ Add Task" }).click()
+
+  const templateSelect = page.locator("select#template")
+  await expect(templateSelect.locator("option", { hasText: "ops-task" })).toHaveCount(1)
+
+  const roleSelect = page.locator("select#role")
+  await expect(roleSelect.locator("option", { hasText: "ops" })).toHaveCount(1)
 })
