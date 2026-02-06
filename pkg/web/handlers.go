@@ -50,6 +50,7 @@ type taskUpdateRequest struct {
 	Role      *string   `json:"role,omitempty"`
 	Priority  *string   `json:"priority,omitempty"`
 	Completed *bool     `json:"completed,omitempty"`
+	Parent    *string   `json:"parent,omitempty"`
 	Blockers  *[]string `json:"blockers,omitempty"`
 	Blocks    *[]string `json:"blocks,omitempty"`
 	Body      *string   `json:"body,omitempty"`
@@ -259,6 +260,32 @@ func (s *Server) handleTaskGetOrUpdate(w http.ResponseWriter, r *http.Request, p
 			t.SetBody(*req.Body)
 		}
 
+		if req.Parent != nil {
+			oldParent := t.Meta.Parent
+			newParent := *req.Parent
+			if newParent != "" {
+				resolved, err := db.ResolveID(newParent)
+				if err != nil {
+					respondError(w, http.StatusBadRequest, fmt.Errorf("invalid parent id: %w", err))
+					return
+				}
+				newParent = resolved
+			}
+
+			if oldParent != newParent {
+				if err := db.SetParent(t.ID, newParent); err != nil {
+					respondError(w, http.StatusBadRequest, err)
+					return
+				}
+				if oldParent != "" {
+					db.UpdateParentTodos(oldParent)
+				}
+				if newParent != "" {
+					db.UpdateParentTodos(newParent)
+				}
+			}
+		}
+
 		if _, err := db.SaveDirty(); err != nil {
 			respondError(w, http.StatusInternalServerError, err)
 			return
@@ -345,7 +372,7 @@ func taskToSnapshot(t *task.Task, storageRoot string) (*taskDetailResponse, erro
 		Role:        t.GetEffectiveRole(),
 		Priority:    task.NormalizePriority(t.Meta.Priority),
 		Completed:   t.Meta.Completed,
-		Parent:      task.ShortID(t.Meta.Parent),
+		Parent:      t.Meta.Parent,
 		Blockers:    shortenIDs(t.Meta.Blockers),
 		Blocks:      shortenIDs(t.Meta.Blocks),
 		Path:        makeRelative(storageRoot, t.FilePath),
@@ -482,7 +509,7 @@ func (s *Server) listTasks(proj *ProjectInfo) ([]taskListItem, error) {
 			Role:        t.GetEffectiveRole(),
 			Priority:    task.NormalizePriority(t.Meta.Priority),
 			Completed:   t.Meta.Completed,
-			Parent:      task.ShortID(t.Meta.Parent),
+			Parent:      t.Meta.Parent,
 			Blockers:    shortenIDs(t.Meta.Blockers),
 			Blocks:      shortenIDs(t.Meta.Blocks),
 			Path:        relPath,

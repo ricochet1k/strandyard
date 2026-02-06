@@ -2,7 +2,6 @@
 
 ## High
 
-- [dashboard: Need a way to change the parent of a task](T3lu5df-dashboard-need-a-way-to-change-the-parent-of-a-tas.md)
 - [dashboard: Add task dialog does not have a button to submit the form](T54ivsg-dashboard-add-task-dialog-does-not-have-a-button-t.md)
 - [Add strand preset refresh command](T66hmhr-add-strand-preset-refresh-command.md)
 - [Add strand todo command to manage task checklist items](Tfznrfv-add-strand-todo-command-to-manage-task-checklist-i.md)

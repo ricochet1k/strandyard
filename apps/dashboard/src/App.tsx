@@ -379,6 +379,7 @@ export default function App() {
           role: task.role,
           priority: task.priority,
           completed: task.completed,
+          parent: task.parent,
           blockers: task.blockers,
           blocks: task.blocks,
           body: task.body,
@@ -820,6 +821,7 @@ export default function App() {
 
         <Editor
           task={activeTaskDetail()}
+          tasks={tasks()}
           role={activeRoleDetail()}
           template={activeTemplateDetail()}
           dirty={dirty()}

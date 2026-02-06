@@ -24,6 +24,7 @@ type TaskDetail = {
 
 type EditorProps = {
   task: TaskDetail | null
+  tasks: Array<{ id: string; short_id: string; title: string }>
   role: RoleDetail | null
   template: TemplateDetail | null
   dirty: boolean
@@ -268,6 +269,27 @@ export default function Editor(props: EditorProps) {
                 value={task()?.title || ""}
                 onInput={(e) => updateTaskField("title", e.currentTarget.value)}
               />
+            </div>
+
+            <div class="editor-field">
+              <label for="task-parent">Parent</label>
+              <select
+                id="task-parent"
+                class="editor-input"
+                value={task()?.parent || ""}
+                onChange={(e) => updateTaskField("parent", e.currentTarget.value)}
+              >
+                <option value="">No Parent</option>
+                <For each={props.tasks}>
+                  {(t) => (
+                    <Show when={t.id !== task()?.id}>
+                      <option value={t.id}>
+                        {t.short_id} - {t.title}
+                      </option>
+                    </Show>
+                  )}
+                </For>
+              </select>
             </div>
 
             <div class="editor-field">
