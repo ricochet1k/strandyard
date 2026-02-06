@@ -533,6 +533,151 @@ type CompleteTodoResult struct {
 	RemainingIncomplete int
 }
 
+// AddTodo adds a new todo item to a task.
+func (db *TaskDB) AddTodo(taskID, text string) error {
+	task, err := db.Get(taskID)
+	if err != nil {
+		return fmt.Errorf("task not found: %w", err)
+	}
+
+	// Try to parse role/subtask from text
+	items := ParseTaskItems("- [ ] " + text)
+	if len(items) == 0 {
+		return fmt.Errorf("failed to parse todo item")
+	}
+
+	task.TodoItems = append(task.TodoItems, items[0])
+	task.MarkDirty()
+
+	// If the task was completed, it's no longer completed because a new todo was added
+	if task.Meta.Completed {
+		task.Meta.Completed = false
+		if task.Meta.Status == "done" {
+			task.Meta.Status = "open"
+		}
+		task.MarkDirty()
+	}
+
+	return nil
+}
+
+// RemoveTodo removes a todo item from a task.
+func (db *TaskDB) RemoveTodo(taskID string, todoNum int) error {
+	task, err := db.Get(taskID)
+	if err != nil {
+		return fmt.Errorf("task not found: %w", err)
+	}
+
+	if todoNum <= 0 || todoNum > len(task.TodoItems) {
+		return fmt.Errorf("invalid todo number %d, task has %d todo items", todoNum, len(task.TodoItems))
+	}
+
+	idx := todoNum - 1
+	task.TodoItems = append(task.TodoItems[:idx], task.TodoItems[idx+1:]...)
+	task.MarkDirty()
+
+	// Re-check if task should be completed if it wasn't and all remaining are checked
+	if !task.Meta.Completed && len(task.TodoItems) > 0 && countIncompleteTodos(task) == 0 {
+		task.Meta.Completed = true
+		if task.Meta.Status == "" || task.Meta.Status == "open" || task.Meta.Status == "in_progress" {
+			task.Meta.Status = "done"
+		}
+		task.MarkDirty()
+	}
+
+	return nil
+}
+
+// EditTodo updates the text of a todo item.
+func (db *TaskDB) EditTodo(taskID string, todoNum int, newText string) error {
+	task, err := db.Get(taskID)
+	if err != nil {
+		return fmt.Errorf("task not found: %w", err)
+	}
+
+	if todoNum <= 0 || todoNum > len(task.TodoItems) {
+		return fmt.Errorf("invalid todo number %d, task has %d todo items", todoNum, len(task.TodoItems))
+	}
+
+	// Try to parse role/subtask from new text
+	items := ParseTaskItems("- [ ] " + newText)
+	if len(items) == 0 {
+		return fmt.Errorf("failed to parse todo item")
+	}
+
+	idx := todoNum - 1
+	checked := task.TodoItems[idx].Checked
+	report := task.TodoItems[idx].Report
+
+	task.TodoItems[idx] = items[0]
+	task.TodoItems[idx].Checked = checked
+	task.TodoItems[idx].Report = report
+	task.MarkDirty()
+
+	return nil
+}
+
+// UncheckTodo marks a todo item as incomplete.
+func (db *TaskDB) UncheckTodo(taskID string, todoNum int) error {
+	task, err := db.Get(taskID)
+	if err != nil {
+		return fmt.Errorf("task not found: %w", err)
+	}
+
+	if todoNum <= 0 || todoNum > len(task.TodoItems) {
+		return fmt.Errorf("invalid todo number %d, task has %d todo items", todoNum, len(task.TodoItems))
+	}
+
+	idx := todoNum - 1
+	if !task.TodoItems[idx].Checked {
+		return nil
+	}
+
+	task.TodoItems[idx].Checked = false
+	task.MarkDirty()
+
+	if task.Meta.Completed {
+		task.Meta.Completed = false
+		if task.Meta.Status == "done" {
+			task.Meta.Status = "open"
+		}
+		task.MarkDirty()
+	}
+
+	return nil
+}
+
+// ReorderTodo moves a todo item from one position to another.
+func (db *TaskDB) ReorderTodo(taskID string, oldIdx, newIdx int) error {
+	task, err := db.Get(taskID)
+	if err != nil {
+		return fmt.Errorf("task not found: %w", err)
+	}
+
+	if oldIdx <= 0 || oldIdx > len(task.TodoItems) {
+		return fmt.Errorf("invalid old index %d", oldIdx)
+	}
+	if newIdx <= 0 || newIdx > len(task.TodoItems) {
+		return fmt.Errorf("invalid new index %d", newIdx)
+	}
+
+	if oldIdx == newIdx {
+		return nil
+	}
+
+	oldPos := oldIdx - 1
+	newPos := newIdx - 1
+
+	item := task.TodoItems[oldPos]
+	// Remove from old position
+	task.TodoItems = append(task.TodoItems[:oldPos], task.TodoItems[oldPos+1:]...)
+	// Insert at new position
+	task.TodoItems = append(task.TodoItems[:newPos], append([]TaskItem{item}, task.TodoItems[newPos:]...)...)
+
+	task.MarkDirty()
+	return nil
+}
+
 // CompleteTodo marks a todo item as complete on a task.
 // todoNum is 1-based. If this was the last incomplete todo, the task is marked complete.
 func (db *TaskDB) CompleteTodo(taskID string, todoNum int, report string) (*CompleteTodoResult, error) {
@@ -567,6 +712,9 @@ func (db *TaskDB) CompleteTodo(taskID string, todoNum int, report string) (*Comp
 
 	if result.TaskCompleted {
 		task.Meta.Completed = true
+		if task.Meta.Status != "done" {
+			task.Meta.Status = "done"
+		}
 		task.MarkDirty()
 	}
 
