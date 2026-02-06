@@ -28,6 +28,23 @@ Flags:
 - `--storage`: choose `global` (default) or `local` (`.strand/` at git root)
 - `--preset`: path to a directory or a git repo containing `tasks/`, `roles/`, and `templates/` to copy into the project. If a git URL is provided, it will be cloned securely.
 
+### `preset refresh` - Refresh roles and templates from a preset
+
+Refresh roles and templates from a preset source (local directory or git URL). This command will overwrite existing role and template files but will not touch the tasks directory.
+
+```bash
+strand preset refresh <preset>
+```
+
+**Example**:
+```bash
+strand preset refresh https://github.com/example/strand-presets.git
+```
+
+Notes:
+- Fails if the project is not already initialized.
+- Runs `repair` automatically after refreshing.
+
 ## Core Commands
 
 
