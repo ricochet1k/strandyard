@@ -2,7 +2,6 @@
 
 ## High
 
-- [Add strand todo command to manage task checklist items](Tfznrfv-add-strand-todo-command-to-manage-task-checklist-i.md)
 - [Simplify with status states: no separate reopen needed](Tgm7msa-add-reopen-command-or-flag-for-completed-tasks.md)
 - [Don't do any frontmatter parsing/serializing in the frontend, do it all in the backend, somewhere in TasksDB](Tn03j6a-don-t-do-any-frontmatter-parsing-serializing-in-th.md)
 - [Show titles in dashboard blockers/blocks](Tnuvaq6-show-titles-in-dashboard-blockers-blocks.md)

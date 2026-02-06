@@ -6,10 +6,10 @@ parent: ""
 blockers: []
 blocks: []
 date_created: 2026-02-05T11:50:14.209489Z
-date_edited: 2026-02-06T04:32:43.011972Z
+date_edited: 2026-02-06T05:54:18.187301Z
 owner_approval: false
-completed: false
-status: ""
+completed: true
+status: done
 description: ""
 ---
 
@@ -40,3 +40,6 @@ Currently, `--todo` flag on `complete` can only check off existing items. There 
 - All operations preserve checked/unchecked state of other items
 - Index is 1-based (matching `complete --todo`)
 - Provide clear error if task or index not found
+
+## Completion Report
+Implemented 'strand todo' command with add, remove, edit, check, uncheck, reorder, and list subcommands. Added corresponding methods to TaskDB and unit tests. Verified all operations work as expected and preserve task state.
