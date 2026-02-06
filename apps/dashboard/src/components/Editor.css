@@ -181,6 +181,43 @@
   border-radius: 6px;
   font-size: 12px;
   font-weight: 500;
+  border: 2px solid transparent;
+}
+
+.tag.origin {
+  border-color: #fff;
+  box-shadow: 0 0 0 2px var(--accent);
+}
+
+.tag-link {
+  background: none;
+  border: none;
+  padding: 0;
+  color: inherit;
+  font-family: inherit;
+  font-size: inherit;
+  font-weight: inherit;
+  cursor: pointer;
+  text-align: left;
+}
+
+.tag-link:hover {
+  text-decoration: underline;
+}
+
+.origin-header {
+  padding: 8px 16px;
+  background: var(--bg-accent);
+  border-bottom: 1px solid var(--border);
+  font-size: 12px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: var(--muted);
+}
+
+.relationship-label {
+  font-style: italic;
 }
 
 .tag-remove {

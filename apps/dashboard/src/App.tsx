@@ -179,6 +179,8 @@ export default function App() {
   const [projects, setProjects] = createSignal<ProjectInfo[]>([])
   const [currentProject, setCurrentProject] = createSignal("")
   const [showAddTaskModal, setShowAddTaskModal] = createSignal(false)
+  const [originId, setOriginId] = createSignal<string | null>(null)
+  const [relationship, setRelationship] = createSignal<string | null>(null)
 
   const [tasks, { refetch: reloadTasks }] = createResource(currentProject, fetchTasksForProject, { initialValue: [] })
   const [roles, { refetch: reloadRoles }] = createResource(currentProject, fetchRolesForProject, { initialValue: [] })
@@ -306,15 +308,32 @@ export default function App() {
     }
   }
 
-  const loadTask = async (taskId: string) => {
+  const loadTask = async (taskId: string, rel?: string, orig?: string) => {
     try {
       const data = await fetchJSON<TaskDetail>(apiURL(`/api/task?id=${encodeURIComponent(taskId)}`))
       setActiveTaskDetail(data)
       setDirty(false)
       setStatus(`Loaded ${data.short_id}`)
+      setRelationship(rel || null)
+      setOriginId(orig || null)
+
+      // Update URL
+      const params = new URLSearchParams(window.location.search)
+      params.set("task", taskId)
+      if (rel) params.set("relationship", rel)
+      else params.delete("relationship")
+      if (orig) params.set("origin", orig)
+      else params.delete("origin")
+      
+      const newUrl = `${window.location.pathname}?${params.toString()}`
+      window.history.pushState({ taskId, rel, orig }, "", newUrl)
     } catch (err) {
       setStatus(`Failed to load task: ${errorMessage(err)}`)
     }
+  }
+
+  const onSelectTask = (id: string, rel?: string, orig?: string) => {
+    void loadTask(id, rel, orig)
   }
 
   const saveTask = async () => {
@@ -345,6 +364,13 @@ export default function App() {
 
   const onSelect = (entry: TaskTreeNode) => {
     void loadTask(entry.task.id)
+  }
+
+  const handlePopState = (event: PopStateEvent) => {
+    const state = event.state
+    if (state && state.taskId) {
+      void loadTask(state.taskId, state.rel, state.orig)
+    }
   }
 
   const onSelectRole = (role: RoleItem) => {
@@ -609,12 +635,22 @@ export default function App() {
     setActiveTaskDetail(null)
     setActiveRoleDetail(null)
     setActiveTemplateDetail(null)
+    setOriginId(null)
+    setRelationship(null)
     setDirty(false)
     setStatus("")
   })
 
   onMount(() => {
-    void loadProjects()
+    void loadProjects().then(() => {
+      const params = new URLSearchParams(window.location.search)
+      const taskId = params.get('task')
+      if (taskId) {
+        void loadTask(taskId, params.get('relationship') || undefined, params.get('origin') || undefined)
+      }
+    })
+
+    window.addEventListener("popstate", handlePopState)
 
     const source = new EventSource("/api/stream")
     const onOpen = () => setConnected(true)
@@ -659,6 +695,7 @@ export default function App() {
       source.removeEventListener("task", onTask as EventListener)
       source.close()
       window.removeEventListener("keydown", keyHandler)
+      window.removeEventListener("popstate", handlePopState)
     })
   })
 
@@ -778,11 +815,14 @@ export default function App() {
           status={status()}
           lastEvent={lastEvent()}
           tab={tab()}
+          originId={originId()}
+          relationship={relationship()}
           onTaskChange={handleTaskDetailChange}
           onRoleChange={handleRoleDetailChange}
           onTemplateChange={handleTemplateDetailChange}
           onSave={tab() === "tasks" ? saveTask : tab() === "roles" ? saveRole : saveTemplate}
           onAddSubtask={handleAddSubtask}
+          onSelectTask={onSelectTask}
         />
       </section>
 

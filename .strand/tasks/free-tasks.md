@@ -2,7 +2,6 @@
 
 ## High
 
-- [Show titles in dashboard blockers/blocks](Tnuvaq6-show-titles-in-dashboard-blockers-blocks.md)
 - [Dashboard needs to have project name and task being edited in the route.](To55tad-dashboard-needs-to-have-project-name-and-task-bein.md)
 
 ## Medium

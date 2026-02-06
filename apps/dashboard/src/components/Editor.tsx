@@ -31,16 +31,25 @@ type EditorProps = {
   status: string
   lastEvent: string
   tab: string
+  originId?: string | null
+  relationship?: string | null
   onTaskChange: (task: TaskDetail) => void
   onRoleChange: (role: RoleDetail) => void
   onTemplateChange: (template: TemplateDetail) => void
   onSave: () => void
   onAddSubtask?: () => void
+  onSelectTask?: (id: string, rel?: string, orig?: string) => void
 }
 
 export default function Editor(props: EditorProps) {
   const [newBlocker, setNewBlocker] = createSignal("")
   const [newBlock, setNewBlock] = createSignal("")
+
+  const getTaskTitle = (id: string) => {
+    if (!props.tasks) return id
+    const t = props.tasks.find(t => t.id === id || t.short_id === id)
+    return t ? `${t.short_id} - ${t.title}` : id
+  }
   
   let taskEditorContainer: HTMLDivElement | undefined
   let roleEditorContainer: HTMLDivElement | undefined
@@ -259,6 +268,15 @@ export default function Editor(props: EditorProps) {
 
       <Show when={props.tab === "tasks" && task()}>
         <div class="editor-container">
+          <Show when={props.originId}>
+            <div class="origin-header">
+              Arrived from:{" "}
+              <button class="tag-link" onClick={() => props.onSelectTask?.(props.originId!)}>
+                {getTaskTitle(props.originId!)}
+              </button>
+              <span class="relationship-label">({props.relationship})</span>
+            </div>
+          </Show>
           <div class="editor-controls">
             <div class="editor-field">
               <label for="task-title">Title</label>
@@ -336,8 +354,10 @@ export default function Editor(props: EditorProps) {
               <div class="tag-list">
                 <For each={task()?.blockers || []}>
                   {(blocker) => (
-                    <span class="tag">
-                      {blocker}
+                    <span class={`tag ${props.originId === blocker && props.relationship === "blocked-by" ? "origin" : ""}`}>
+                      <button class="tag-link" onClick={() => props.onSelectTask?.(blocker, "blocking", task()?.id)}>
+                        {getTaskTitle(blocker)}
+                      </button>
                       <button class="tag-remove" onClick={() => removeBlocker(blocker)}>×</button>
                     </span>
                   )}
@@ -361,8 +381,10 @@ export default function Editor(props: EditorProps) {
               <div class="tag-list">
                 <For each={task()?.blocks || []}>
                   {(block) => (
-                    <span class="tag">
-                      {block}
+                    <span class={`tag ${props.originId === block && props.relationship === "blocking" ? "origin" : ""}`}>
+                      <button class="tag-link" onClick={() => props.onSelectTask?.(block, "blocked-by", task()?.id)}>
+                        {getTaskTitle(block)}
+                      </button>
                       <button class="tag-remove" onClick={() => removeBlock(block)}>×</button>
                     </span>
                   )}
