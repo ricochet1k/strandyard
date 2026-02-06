@@ -6,9 +6,9 @@ parent: ""
 blockers: []
 blocks: []
 date_created: 2026-02-05T22:46:36.545718Z
-date_edited: 2026-02-06T04:34:12.580315Z
+date_edited: 2026-02-06T05:05:40.636625Z
 owner_approval: false
-completed: false
+completed: true
 status: ""
 description: ""
 ---
@@ -31,8 +31,13 @@ Summary report of what was implemented, what's missing, and follow-up tasks if n
 Decide which task template would best fit this task and re-add it with that template and the same parent.
 
 ## TODOs
-- [ ] Review git commits from 2026-02-01 onwards with "status" in message
-- [ ] Check what code was actually merged (pkg/task, cmd/)
-- [ ] Identify any incomplete work or missing features from original design-docs/status-field-migration.md
-- [ ] File new tasks for any unfinished work
-- [ ] Verify the implementation matches the design intent
+- [x] Review git commits from 2026-02-01 onwards with "status" in message
+  Reviewed git commits from 2026-02-01 with 'status'. Found that core data model, validation, and free-list integration are implemented.
+- [x] Check what code was actually merged (pkg/task, cmd/)
+  Checked pkg/task/taskdb.go, pkg/task/list.go, and cmd/*.go. Found that while the Status field exists in Metadata, it is not yet integrated into TaskDB helper methods, ListOptions, or CLI command flags (edit/list). New status-specific CLI commands (cancel, etc.) are missing.
+- [x] Identify any incomplete work or missing features from original design-docs/status-field-migration.md
+  Identified several missing features: 1. Task struct helper methods (IsDone, etc.), 2. TaskDB status transition methods (CancelTask, etc.), 3. CLI status-specific commands and flags, 4. UpdateBlockersAfterCompletion to use status field.
+- [x] File new tasks for any unfinished work
+  Filed 3 implementation tasks for missing helpers, TaskDB methods, and CLI commands/flags.
+- [x] Verify the implementation matches the design intent
+  Verified that current implementation matches design intent for the completed parts (validation, free-list), but identified gaps for full migration.
