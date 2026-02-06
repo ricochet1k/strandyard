@@ -10,7 +10,6 @@
 - [Dashboard: switching projects between projects that have issues doesn't correctly update the list of tasks](T39o95t-dashboard-switching-projects-between-projects-that.md)
 - [Rename task directory when title changes](T3c1yfi-rename-task-directory-when-title-changes.md)
 - [Design history and edit log](T3c7p-history-edit-log-design.md)
-- [dashboard: Need a way to change the parent of a task](T3lu5df-dashboard-need-a-way-to-change-the-parent-of-a-tas.md)
 - [Design task search command](T3n7p-task-search-command-design.md)
 - [Clarify missing anchor default behavior in recurrence](T3xpql7-clarify-missing-anchor-default-behavior-in-recurre.md)
 - [Add status-specific CLI commands and flags](T40f551-add-status-specific-cli-commands-and-flags.md)

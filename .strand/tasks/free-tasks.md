@@ -2,7 +2,6 @@
 
 ## High
 
-- [dashboard: Add task dialog does not have a button to submit the form](T54ivsg-dashboard-add-task-dialog-does-not-have-a-button-t.md)
 - [Add strand preset refresh command](T66hmhr-add-strand-preset-refresh-command.md)
 - [Add strand todo command to manage task checklist items](Tfznrfv-add-strand-todo-command-to-manage-task-checklist-i.md)
 - [Simplify with status states: no separate reopen needed](Tgm7msa-add-reopen-command-or-flag-for-completed-tasks.md)

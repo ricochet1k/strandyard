@@ -34,6 +34,13 @@
   overflow: hidden;
 }
 
+.modal-dialog form {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  min-height: 0;
+}
+
 @keyframes slideUp {
   from {
     transform: translateY(20px);
