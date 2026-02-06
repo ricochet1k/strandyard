@@ -2,7 +2,6 @@
 
 ## High
 
-- [Dashboard needs to have project name and task being edited in the route.](To55tad-dashboard-needs-to-have-project-name-and-task-bein.md)
 
 ## Medium
 
@@ -21,11 +20,13 @@
 - [Clarify anchor flag inconsistency in CLI.md and design doc](T8xy3ry-clarify-anchor-flag-inconsistency-in-cli-md-and-de.md)
 - [Identify code to delete](Tb0oq-identify-code-to-delete.md)
 - [Review Anchor Help Text Alternatives](Tcc9bjk-review-anchor-help-text-and-examples-alternatives.md)
+- [Implement client-side routing in the dashboard](Tcojdpy-implement-client-side-routing-in-the-dashboard.md)
 - [Audit recurrence implementation and identify remaining work](Tctb8lm-audit-recurrence-implementation-and-identify-remai.md)
 - [Review parser.go and task loading](Tdhrq-review-parser-go-and-task-loading.md)
 - [Complete command should also insert report into parent's subtasks after the relevant checkbox entry](Tfe1ssq-complete-command-should-also-insert-report-into-pa.md)
 - [Document TaskDB responsibilities and boundaries](Thyd1-document-taskdb-responsibilities-and-boundaries.md)
 - [Improve strand add performance and output](Ti1ugbe-strand-add-is-still-running-repair-though-that-sho.md)
+- [Update Go web server for SPA fallback](Tifug5w-update-go-web-server-for-spa-fallback.md)
 - [Add descendant filtering to list command](Timgxj2-add-descendant-filtering-to-list-command.md)
 - [Define error message and recovery hint for ambiguous anchor type](Tiw9in3-define-error-message-and-recovery-hint-for-ambiguo.md)
 - [Design: Allow reapplying templates to existing tasks](Tk259ie-design-allow-reapplying-templates-to-existing-task.md)
