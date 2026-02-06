@@ -6,16 +6,18 @@ parent: ""
 blockers: []
 blocks: []
 date_created: 2026-02-06T04:45:04.24278Z
-date_edited: 2026-02-06T04:45:04.24278Z
+date_edited: 2026-02-06T05:34:57.199682Z
 owner_approval: false
-completed: false
-status: ""
+completed: true
+status: done
 description: ""
 ---
 
 # Add strand preset refresh command
 
 ## Summary
+
+
 ## Context
 - The preset cloning logic in `cmd/init.go` only runs during `strand init`, and once a project dir exists the command refuses to rerun, so roles/templates never refresh from updated presets.
 - For downstream workflows we still want to pull template/role updates from presets without touching existing task data, which means rerunning `applyPreset` against a project while leaving `tasks/` untouched.
@@ -31,3 +33,6 @@ description: ""
 - Implementation matches the specification
 - Tests cover the change and pass
 - Build succeeds
+
+## Completion Report
+Implemented 'strand preset refresh <preset>' command. Refactored preset cloning and directory copying logic into cmd/preset_utils.go for reuse between 'init' and 'refresh'. Updated CLI.md with documentation and added comprehensive tests covering local and git presets.
