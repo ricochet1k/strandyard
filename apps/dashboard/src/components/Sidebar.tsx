@@ -11,6 +11,8 @@ type SidebarProps = {
   filterStatus: "all" | "active" | "done"
   filterRole: string
   filterPriority: string
+  hideBlocked: boolean
+  viewMode: "tree" | "list"
   availableRoles: string[]
   availablePriorities: string[]
   onTabChange: (tab: Tab) => void
@@ -19,6 +21,8 @@ type SidebarProps = {
   onFilterStatusChange: (status: "all" | "active" | "done") => void
   onFilterRoleChange: (role: string) => void
   onFilterPriorityChange: (priority: string) => void
+  onHideBlockedChange: (hide: boolean) => void
+  onViewModeChange: (mode: "tree" | "list") => void
 }
 
 const tabs: { id: Tab; label: string; detail: string }[] = [
@@ -79,6 +83,21 @@ export default function Sidebar(props: SidebarProps) {
         </div>
 
         <div class="sidebar-section">
+          <p class="sidebar-section-title">View</p>
+          <div class="sidebar-filter">
+            <label for="view-mode">Mode</label>
+            <select
+              id="view-mode"
+              value={props.viewMode}
+              onChange={(e) => props.onViewModeChange(e.currentTarget.value as any)}
+            >
+              <option value="tree">Tree</option>
+              <option value="list">List</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="sidebar-section">
           <p class="sidebar-section-title">Filters</p>
           <div class="sidebar-filter">
             <label for="filter-status">Status</label>
@@ -119,6 +138,17 @@ export default function Sidebar(props: SidebarProps) {
                 {(priority) => <option value={priority}>{priority}</option>}
               </For>
             </select>
+          </div>
+
+          <div class="sidebar-filter">
+            <label>
+              <input
+                type="checkbox"
+                checked={props.hideBlocked}
+                onChange={(e) => props.onHideBlockedChange(e.currentTarget.checked)}
+              />
+              <span style={{ "margin-left": "0.5rem" }}>Hide blocked tasks</span>
+            </label>
           </div>
         </div>
       </Show>

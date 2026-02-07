@@ -2,6 +2,7 @@
 
 ## High
 
+- [Improve preset refresh help, errors, and validation](T2ztndn-improve-preset-refresh-help-errors-and-validation.md)
 
 ## Medium
 

@@ -23,6 +23,7 @@ export type TaskItem = {
   role: string
   priority: string
   completed: boolean
+  status: string
   parent: string
   blockers: string[]
   blocks: string[]
@@ -108,6 +109,7 @@ type TaskDetail = {
   role: string
   priority: string
   completed: boolean
+  status: string
   parent: string
   blockers: string[]
   blocks: string[]
@@ -210,9 +212,11 @@ export default function App() {
 
   // Task filtering, sorting, and search
   const [searchQuery, setSearchQuery] = createSignal("")
-  const [filterStatus, setFilterStatus] = createSignal<"all" | "active" | "done">("done")
+  const [filterStatus, setFilterStatus] = createSignal<"all" | "active" | "done">("active")
   const [filterRole, setFilterRole] = createSignal<string>("all")
   const [filterPriority, setFilterPriority] = createSignal<string>("all")
+  const [hideBlocked, setHideBlocked] = createSignal(false)
+  const [viewMode, setViewMode] = createSignal<"tree" | "list">("tree")
   const [sortField, setSortField] = createSignal<SortField>("priority")
   const [sortDirection, setSortDirection] = createSignal<SortDirection>("desc")
 
@@ -455,6 +459,9 @@ export default function App() {
   const taskNodesById = new ReactiveMap<string, TaskTreeNode>()
   const taskChildren = new ReactiveMap<string, string[]>()
   const sortedNodes = createMutable<TaskTreeNode[]>([])
+  
+  // Map to convert short_id to short_id for parent lookups
+  const shortIdMap = new ReactiveMap<string, string>()
 
   const taskCompare = (field: SortField, direction: "asc" | "desc") => (a: TaskItem, b: TaskItem) => {
     // if (field === "actionable") {
@@ -501,6 +508,13 @@ export default function App() {
     const nodeCmp = (a: TaskTreeNode, b: TaskTreeNode) => taskCmp(a.task, b.task)
     const stats = { added: 0, update: 0, removed: 0 }
     lastUpdateTick += 1
+    
+    // First pass: build short_id map
+    for (const task of tasks()) {
+      shortIdMap.set(task.short_id, task.short_id)
+      shortIdMap.set(task.id, task.short_id)
+    }
+    
     for (const task of tasks()) {
       let item = untrack(() => taskNodesById.get(task.short_id))
       if (!item) {
@@ -509,19 +523,22 @@ export default function App() {
         item = createMutable({ task, depth: 0, lastUpdateTick })
         taskNodesById.set(task.short_id, item)
         if (task.parent) {
-          let siblings = untrack(() => taskChildren.get(task!.parent))
+          // Parent field could be either short_id or full ID, normalize it
+          const parentShortId = shortIdMap.get(task.parent) || task.parent
+          let siblings = untrack(() => taskChildren.get(parentShortId))
           if (!siblings) {
             siblings = [task.short_id]
           } else {
             sortedInsert(siblings, task.short_id)
           }
-          taskChildren.set(task!.parent, siblings)
+          taskChildren.set(parentShortId, siblings)
         }
         sortedNodes.splice(sortedIndexCmp(sortedNodes, nodeCmp, item), 0, item)
 
       } else {
         // ITEM UPDATE
         stats.update += 1
+        const oldParent = item.task.parent
         const removeThenAdd = item.task[field] != task[field]
         if (removeThenAdd) {
           // remove
@@ -529,6 +546,30 @@ export default function App() {
         }
         Object.assign(item.task, task)
         item.lastUpdateTick = lastUpdateTick
+        
+        // Handle parent change
+        if (oldParent !== task.parent) {
+          // Remove from old parent
+          if (oldParent) {
+            const oldParentShortId = shortIdMap.get(oldParent) || oldParent
+            let oldSiblings = untrack(() => taskChildren.get(oldParentShortId))
+            if (oldSiblings) {
+              sortedRemove(oldSiblings, task.short_id)
+            }
+          }
+          // Add to new parent
+          if (task.parent) {
+            const newParentShortId = shortIdMap.get(task.parent) || task.parent
+            let siblings = untrack(() => taskChildren.get(newParentShortId))
+            if (!siblings) {
+              siblings = [task.short_id]
+              taskChildren.set(newParentShortId, siblings)
+            } else {
+              sortedInsert(siblings, task.short_id)
+            }
+          }
+        }
+        
         if (removeThenAdd) {
           // add
           sortedNodes.splice(sortedIndexCmp(sortedNodes, nodeCmp, item), 0, item)
@@ -544,9 +585,12 @@ export default function App() {
           stats.removed += 1
           taskNodesById.delete(node.task.short_id)
           sortedNodes.splice(sortedIndexCmp(sortedNodes, nodeCmp, node), 1)
-          let siblings = untrack(() => taskChildren.get(node.task.parent))
-          if (siblings)
-            sortedRemove(siblings, node.task.short_id)
+          if (node.task.parent) {
+            const parentShortId = shortIdMap.get(node.task.parent) || node.task.parent
+            let siblings = untrack(() => taskChildren.get(parentShortId))
+            if (siblings)
+              sortedRemove(siblings, node.task.short_id)
+          }
         }
       }
     })
@@ -592,35 +636,72 @@ export default function App() {
     return flattened
   })
 
-  const filteredTasks = createMemo(() => {
-    let filtered = tasks()
+  const matchesFilters = (task: TaskItem) => {
     const query = searchQuery().toLowerCase()
-
     if (query) {
-      filtered = filtered.filter((task) =>
-        task.title.toLowerCase().includes(query) ||
+      const matches = task.title.toLowerCase().includes(query) ||
         task.short_id.toLowerCase().includes(query) ||
         task.id.toLowerCase().includes(query) ||
         task.role.toLowerCase().includes(query)
-      )
+      if (!matches) return false
     }
 
     const status = filterStatus()
     if (status !== "all") {
-      filtered = filtered.filter((task) => status === "done" ? task.completed : !task.completed)
+      if (status === "done" ? !task.completed : task.completed) return false
     }
 
     const role = filterRole()
     if (role !== "all") {
-      filtered = filtered.filter((task) => task.role === role)
+      if (task.role !== role) return false
     }
 
     const priority = filterPriority()
     if (priority !== "all") {
-      filtered = filtered.filter((task) => task.priority === priority)
+      if (task.priority !== priority) return false
     }
 
-    return filtered
+    if (hideBlocked()) {
+      if (task.blockers && task.blockers.length > 0) return false
+    }
+
+    return true
+  }
+
+  const filteredTaskNodes = createMemo(() => {
+    const mode = viewMode()
+    const flattened = taskTreeFlattened()
+    
+    if (mode === "list") {
+      // List view: filter individual tasks
+      return flattened.filter(node => matchesFilters(node.task))
+    } else {
+      // Tree view: keep hierarchy, but filter out non-matching branches
+      const matchingIds = new Set<string>()
+      const ancestorIds = new Set<string>()
+      
+      // First pass: find all matching tasks
+      for (const node of flattened) {
+        if (matchesFilters(node.task)) {
+          matchingIds.add(node.task.short_id)
+          
+          // Mark all ancestors as needed
+          let parentId = node.task.parent
+          while (parentId) {
+            const parentShortId = shortIdMap.get(parentId) || parentId
+            ancestorIds.add(parentShortId)
+            const parent = taskNodesById.get(parentShortId)
+            if (!parent) break
+            parentId = parent.task.parent
+          }
+        }
+      }
+      
+      // Second pass: include matching tasks and their ancestors
+      return flattened.filter(node => 
+        matchingIds.has(node.task.short_id) || ancestorIds.has(node.task.short_id)
+      )
+    }
   })
 
   const handleSortChange = (field: SortField) => {
@@ -788,6 +869,8 @@ export default function App() {
           filterStatus={filterStatus()}
           filterRole={filterRole()}
           filterPriority={filterPriority()}
+          hideBlocked={hideBlocked()}
+          viewMode={viewMode()}
           availableRoles={availableRoles()}
           availablePriorities={availablePriorities()}
           onTabChange={setTab}
@@ -796,6 +879,8 @@ export default function App() {
           onFilterStatusChange={setFilterStatus}
           onFilterRoleChange={setFilterRole}
           onFilterPriorityChange={setFilterPriority}
+          onHideBlockedChange={setHideBlocked}
+          onViewModeChange={setViewMode}
         />
 
         <div class="list-pane">
@@ -803,7 +888,7 @@ export default function App() {
             <div class="pane-header">
               <h2>Tasks Library</h2>
               <div style={{ display: "flex", gap: "0.5rem", "align-items": "center" }}>
-                <span class="pill">{filteredTasks().length} items</span>
+                <span class="pill">{filteredTaskNodes().length} items</span>
                 <button class="button button-primary" onClick={() => openAddTaskModal("")}>
                   + Add Task
                 </button>
@@ -811,10 +896,11 @@ export default function App() {
             </div>
             <div class="list">
               <TaskTable
-                tasks={taskTreeFlattened()}
+                tasks={filteredTaskNodes()}
                 activePath={activeTaskDetail()?.path ?? ""}
                 sortField={sortField()}
                 sortDirection={sortDirection()}
+                viewMode={viewMode()}
                 hasChildren={hasChildren}
                 isExpanded={isExpanded}
                 onSelect={onSelect}

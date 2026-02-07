@@ -34,6 +34,7 @@ type taskListItem struct {
 	Role        string   `json:"role"`
 	Priority    string   `json:"priority"`
 	Completed   bool     `json:"completed"`
+	Status      string   `json:"status"`
 	Parent      string   `json:"parent"`
 	Blockers    []string `json:"blockers"`
 	Blocks      []string `json:"blocks"`
@@ -76,6 +77,7 @@ type taskDetailResponse struct {
 	Role        string   `json:"role"`
 	Priority    string   `json:"priority"`
 	Completed   bool     `json:"completed"`
+	Status      string   `json:"status"`
 	Parent      string   `json:"parent"`
 	Blockers    []string `json:"blockers"`
 	Blocks      []string `json:"blocks"`
@@ -698,6 +700,7 @@ func taskToSnapshot(t *task.Task, storageRoot string) (*taskDetailResponse, erro
 		Role:        t.GetEffectiveRole(),
 		Priority:    task.NormalizePriority(t.Meta.Priority),
 		Completed:   t.Meta.Completed,
+		Status:      t.Meta.Status,
 		Parent:      t.Meta.Parent,
 		Blockers:    shortenIDs(t.Meta.Blockers),
 		Blocks:      shortenIDs(t.Meta.Blocks),
@@ -886,6 +889,7 @@ func (s *Server) listTasks(proj *ProjectInfo) ([]taskListItem, error) {
 			Role:        t.GetEffectiveRole(),
 			Priority:    task.NormalizePriority(t.Meta.Priority),
 			Completed:   t.Meta.Completed,
+			Status:      t.Meta.Status,
 			Parent:      t.Meta.Parent,
 			Blockers:    shortenIDs(t.Meta.Blockers),
 			Blocks:      shortenIDs(t.Meta.Blocks),

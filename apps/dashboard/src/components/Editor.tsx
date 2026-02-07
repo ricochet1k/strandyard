@@ -50,11 +50,11 @@ export default function Editor(props: EditorProps) {
     const t = props.tasks.find(t => t.id === id || t.short_id === id)
     return t ? `${t.short_id} - ${t.title}` : id
   }
-  
+
   let taskEditorContainer: HTMLDivElement | undefined
   let roleEditorContainer: HTMLDivElement | undefined
   let templateEditorContainer: HTMLDivElement | undefined
-  
+
   let taskEditorView: EditorView | undefined
   let roleEditorView: EditorView | undefined
   let templateEditorView: EditorView | undefined
@@ -136,6 +136,7 @@ export default function Editor(props: EditorProps) {
             basicSetup,
             markdown(),
             oneDark,
+            EditorView.lineWrapping,
             EditorView.updateListener.of((update) => {
               if (update.docChanged && task()) {
                 const newContent = update.state.doc.toString()
@@ -174,6 +175,7 @@ export default function Editor(props: EditorProps) {
             basicSetup,
             markdown(),
             oneDark,
+            EditorView.lineWrapping,
             EditorView.updateListener.of((update) => {
               if (update.docChanged && role()) {
                 const newContent = update.state.doc.toString()
@@ -211,6 +213,7 @@ export default function Editor(props: EditorProps) {
             basicSetup,
             markdown(),
             oneDark,
+            EditorView.lineWrapping,
             EditorView.updateListener.of((update) => {
               if (update.docChanged && template()) {
                 const newContent = update.state.doc.toString()

@@ -30,20 +30,66 @@ Flags:
 
 ### `preset refresh` - Refresh roles and templates from a preset
 
-Refresh roles and templates from a preset source (local directory or git URL). This command will overwrite existing role and template files but will not touch the tasks directory.
+Refresh roles and templates from a preset source (local directory or git URL).
+
+A preset is a directory containing:
+- `roles/` - role documents
+- `templates/` - task templates
+
+This command will:
+- ✓ Overwrite existing role and template files
+- ✓ Preserve your `tasks/` directory (tasks are never touched)
+- ✓ Validate preset structure before copying
+- ✓ Run `repair` automatically after refreshing
 
 ```bash
 strand preset refresh <preset>
 ```
 
-**Example**:
+**The preset source can be**:
+- Local directory path: `/path/to/my-preset`
+- Git HTTPS URL: `https://github.com/user/strand-preset.git`
+- Git SSH URL: `git@github.com:user/strand-preset.git`
+
+**Examples**:
 ```bash
+# Refresh from local directory
+strand preset refresh /path/to/my-preset
+
+# Refresh from GitHub repository
 strand preset refresh https://github.com/example/strand-presets.git
+
+# Refresh using SSH (requires configured keys)
+strand preset refresh git@github.com:user/strand-preset.git
 ```
 
-Notes:
+**Output**:
+The command provides verbose feedback about what's happening:
+```
+Using local preset directory: /path/to/preset
+Validating preset structure...
+✓ Preset structure validated
+
+Refreshing roles/...
+  Refreshing roles/developer.md
+  Refreshing roles/architect.md
+Refreshing templates/...
+  Refreshing templates/task.md
+  Refreshing templates/epic.md
+✓ Refresh complete. Running repair...
+repair: ok
+```
+
+**Common errors**:
+- **"preset is missing required directories"**: The preset doesn't have `roles/` and/or `templates/` subdirectories
+- **"failed to clone preset: repository not found"**: Git URL is incorrect or repository is inaccessible
+- **"failed to clone preset: authentication required"**: Private repository requires SSH keys or access tokens
+- **"project not initialized"**: Run `strand init` first
+
+**Notes**:
 - Fails if the project is not already initialized.
-- Runs `repair` automatically after refreshing.
+- Validates preset structure before making any changes.
+- Shows exactly which files are being refreshed.
 
 ## Core Commands
 

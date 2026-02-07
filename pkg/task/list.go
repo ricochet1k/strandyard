@@ -282,6 +282,9 @@ func formatTable(tasks []*Task, opts ListOptions) (string, error) {
 			}
 		}
 	}
+	if w, ok := widths["title"]; ok {
+		widths["title"] = min(w, 50)
+	}
 
 	builder := &strings.Builder{}
 	// Print header
@@ -299,10 +302,17 @@ func formatTable(tasks []*Task, opts ListOptions) (string, error) {
 	for _, row := range rows {
 		for i, col := range columns {
 			val := columnValue(row, col, true)
+			width := widths[col]
+			vallen := len(val)
+			if vallen > width {
+				// len("…") == 3 even though it's only 1 cell wide
+				val = val[:width-1] + "…"
+				vallen = width
+			}
 			colored := colorizeValue(row, col, val, opts)
 			builder.WriteString(colored)
 			if i < len(columns)-1 {
-				padding := widths[col] - len(val) + 2
+				padding := width - vallen + 2
 				builder.WriteString(strings.Repeat(" ", padding))
 			}
 		}

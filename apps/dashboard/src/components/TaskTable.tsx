@@ -8,6 +8,7 @@ type TaskTableProps = {
   activePath: string
   sortField: SortField
   sortDirection: SortDirection
+  viewMode: "tree" | "list"
   hasChildren: (node: TaskTreeNode) => boolean
   onSelect: (node: TaskTreeNode) => void
   isExpanded: (node: TaskTreeNode) => boolean
@@ -74,22 +75,24 @@ export default function TaskTable(props: TaskTableProps) {
                 class={`tree-item ${props.activePath === node.task.path ? "selected" : ""} ${node.task.completed ? "done" : ""
                   } ${node.task.blockers && node.task.blockers.length > 0 ? "blocked" : ""}`}
               >
-                <td class="task-col-title" style={{ "padding-left": `${node.depth * 12}px` }}>
+                <td class="task-col-title" style={{ "padding-left": props.viewMode === "tree" ? `${node.depth * 12}px` : "0" }}>
                   {(() => { console.log("task rendering..."); return undefined })()}
                   <div class="task-title-cell">
-                    <div class="task-toggle-spacer">
-                      <Show when={props.hasChildren(node)}>
-                        <button
-                          class="tree-toggle"
-                          onClick={(e) => {
-                            e.stopPropagation()
-                            props.onToggleNode(node)
-                          }}
-                        >
-                          {props.isExpanded(node) ? "−" : "+"}
-                        </button>
-                      </Show>
-                    </div>
+                    <Show when={props.viewMode === "tree"}>
+                      <div class="task-toggle-spacer">
+                        <Show when={props.hasChildren(node)}>
+                          <button
+                            class="tree-toggle"
+                            onClick={(e) => {
+                              e.stopPropagation()
+                              props.onToggleNode(node)
+                            }}
+                          >
+                            {props.isExpanded(node) ? "−" : "+"}
+                          </button>
+                        </Show>
+                      </div>
+                    </Show>
                     <button
                       class="task-link"
                       title={node.task.title}

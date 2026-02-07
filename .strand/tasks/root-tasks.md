@@ -2,6 +2,7 @@
 
 - [Setup E2E Test Framework](E5w8m-e2e-tests.md)
 - [Design PTY-only TUI for incomplete commands](T2r8k-pty-tui-incomplete-commands-design.md)
+- [Improve preset refresh help, errors, and validation](T2ztndn-improve-preset-refresh-help-errors-and-validation.md)
 - [Dashboard: switching projects between projects that have issues doesn't correctly update the list of tasks](T39o95t-dashboard-switching-projects-between-projects-that.md)
 - [Rename task directory when title changes](T3c1yfi-rename-task-directory-when-title-changes.md)
 - [Design history and edit log](T3c7p-history-edit-log-design.md)

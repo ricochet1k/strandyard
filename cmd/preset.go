@@ -22,7 +22,30 @@ var refreshCmd = &cobra.Command{
 	Use:   "refresh <preset>",
 	Short: "Refresh roles and templates from a preset",
 	Long: `Refresh roles and templates from a preset source (local directory or git URL).
-This command will overwrite existing role and template files but will not touch the tasks directory.`,
+
+A preset is a directory containing:
+  - roles/       (role documents)
+  - templates/   (task templates)
+
+This command will:
+  ✓ Overwrite existing role and template files
+  ✓ Preserve your tasks/ directory (tasks are never touched)
+  ✓ Run repair automatically after refreshing
+
+The preset source can be:
+  - Local directory path: /path/to/my-preset
+  - Git HTTPS URL:       https://github.com/user/strand-preset.git
+  - Git SSH URL:         git@github.com:user/strand-preset.git
+
+Examples:
+  # Refresh from local directory
+  strand preset refresh /path/to/my-preset
+
+  # Refresh from GitHub repository
+  strand preset refresh https://github.com/user/strand-preset.git
+
+  # Refresh using SSH (requires configured keys)
+  strand preset refresh git@github.com:user/strand-preset.git`,
 	Args: cobra.ExactArgs(1),
 	RunE: func(cmd *cobra.Command, args []string) error {
 		preset := args[0]

@@ -150,3 +150,124 @@ func TestPresetRefreshNotInitialized(t *testing.T) {
 		t.Error("expected error when refreshing in uninitialized project, got nil")
 	}
 }
+
+func TestPresetRefreshMissingDirectory(t *testing.T) {
+	_, _ = setupTestEnv(t)
+
+	// Create a preset with missing templates directory
+	presetDir := t.TempDir()
+	if err := os.Mkdir(filepath.Join(presetDir, "roles"), 0o755); err != nil {
+		t.Fatal(err)
+	}
+	os.WriteFile(filepath.Join(presetDir, "roles", "dev.md"), []byte("dev role"), 0o644)
+
+	// Initialize project
+	opts := initOptions{
+		StorageMode: storageLocal,
+	}
+	if err := runInit(io.Discard, opts); err != nil {
+		t.Fatalf("runInit failed: %v", err)
+	}
+
+	// Try to refresh from incomplete preset
+	var buf bytes.Buffer
+	err := runPresetRefresh(&buf, presetDir)
+	if err == nil {
+		t.Fatal("expected error when preset is missing templates directory, got nil")
+	}
+	if !strings.Contains(err.Error(), "missing required directories") {
+		t.Errorf("expected error about missing directories, got: %v", err)
+	}
+	if !strings.Contains(err.Error(), "templates") {
+		t.Errorf("expected error to mention 'templates', got: %v", err)
+	}
+}
+
+func TestPresetRefreshInvalidGitURL(t *testing.T) {
+	_, _ = setupTestEnv(t)
+
+	// Initialize project
+	opts := initOptions{
+		StorageMode: storageLocal,
+	}
+	if err := runInit(io.Discard, opts); err != nil {
+		t.Fatalf("runInit failed: %v", err)
+	}
+
+	// Try to refresh from invalid git URL
+	var buf bytes.Buffer
+	err := runPresetRefresh(&buf, "https://github.com/nonexistent/repo-that-does-not-exist-12345.git")
+	if err == nil {
+		t.Fatal("expected error when cloning invalid git URL, got nil")
+	}
+	if !strings.Contains(err.Error(), "failed to clone") {
+		t.Errorf("expected error about clone failure, got: %v", err)
+	}
+}
+
+func TestPresetRefreshEmptyPath(t *testing.T) {
+	_, _ = setupTestEnv(t)
+
+	// Initialize project
+	opts := initOptions{
+		StorageMode: storageLocal,
+	}
+	if err := runInit(io.Discard, opts); err != nil {
+		t.Fatalf("runInit failed: %v", err)
+	}
+
+	// Try to refresh with empty preset path
+	var buf bytes.Buffer
+	err := runPresetRefresh(&buf, "")
+	if err == nil {
+		t.Fatal("expected error when preset path is empty, got nil")
+	}
+	if !strings.Contains(err.Error(), "cannot be empty") {
+		t.Errorf("expected error about empty path, got: %v", err)
+	}
+}
+
+func TestPresetRefreshVerboseOutput(t *testing.T) {
+	_, _ = setupTestEnv(t)
+
+	// Create a proper preset
+	presetDir := t.TempDir()
+	for _, d := range []string{"tasks", "roles", "templates"} {
+		if err := os.Mkdir(filepath.Join(presetDir, d), 0o755); err != nil {
+			t.Fatal(err)
+		}
+	}
+	os.WriteFile(filepath.Join(presetDir, "roles", "dev.md"), []byte("dev role"), 0o644)
+	os.WriteFile(filepath.Join(presetDir, "templates", "task.md"), []byte("task template"), 0o644)
+
+	// Initialize project
+	opts := initOptions{
+		StorageMode: storageLocal,
+		Preset:      presetDir,
+	}
+	if err := runInit(io.Discard, opts); err != nil {
+		t.Fatalf("runInit failed: %v", err)
+	}
+
+	// Refresh and capture output
+	var buf bytes.Buffer
+	if err := runPresetRefresh(&buf, presetDir); err != nil {
+		t.Fatalf("runPresetRefresh failed: %v", err)
+	}
+
+	output := buf.String()
+	expectedPhrases := []string{
+		"Using local preset directory",
+		"Validating preset structure",
+		"✓ Preset structure validated",
+		"Refreshing roles/",
+		"Refreshing templates/",
+		"✓ Refresh complete",
+	}
+
+	for _, phrase := range expectedPhrases {
+		if !strings.Contains(output, phrase) {
+			t.Errorf("expected output to contain %q, got:\n%s", phrase, output)
+		}
+	}
+}
