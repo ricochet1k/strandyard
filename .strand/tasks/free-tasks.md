@@ -5,17 +5,19 @@
 
 ## Medium
 
-- [Review new taskdb.go implementation](T0f98-review-new-taskdb-go-implementation.md)
+- [Consolidate blocker relationship repair](T06ubsf-consolidate-blocker-relationship-repair.md)
 - [Review blockers.go relationship management](T0q5n-review-blockers-go-relationship-management.md)
 - [Review task.go structure and methods](T2lt8-review-task-go-structure-and-methods.md)
 - [Dashboard: switching projects between projects that have issues doesn't correctly update the list of tasks](T39o95t-dashboard-switching-projects-between-projects-that.md)
 - [Clarify missing anchor default behavior in recurrence](T3xpql7-clarify-missing-anchor-default-behavior-in-recurre.md)
 - [Write updated godoc with usage examples](T48or-write-updated-godoc-with-usage-examples.md)
+- [Clarify strand complete --todo usage and role validation error](T5gkbnm-clarify-strand-complete-todo-usage-and-role-valida.md)
 - [Create implementation plan](T7qkw-create-implementation-plan.md)
 - [Design access control strategy](T8bgf-design-access-control-strategy.md)
 - [Clarify anchor flag inconsistency in CLI.md and design doc](T8xy3ry-clarify-anchor-flag-inconsistency-in-cli-md-and-de.md)
 - [Identify code to delete](Tb0oq-identify-code-to-delete.md)
 - [Review Anchor Help Text Alternatives](Tcc9bjk-review-anchor-help-text-and-examples-alternatives.md)
+- [web: task create/update bypass TaskDB and skip master list refresh](Tcguldn-web-task-create-update-bypass-taskdb-and-skip-mast.md)
 - [Implement client-side routing in the dashboard](Tcojdpy-implement-client-side-routing-in-the-dashboard.md)
 - [Audit recurrence implementation and identify remaining work](Tctb8lm-audit-recurrence-implementation-and-identify-remai.md)
 - [Review parser.go and task loading](Tdhrq-review-parser-go-and-task-loading.md)
