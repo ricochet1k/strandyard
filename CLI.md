@@ -66,6 +66,8 @@ strand preset refresh git@github.com:user/strand-preset.git
 **Output**:
 The command provides verbose feedback about what's happening:
 ```
+Refreshing roles and templates from preset "/path/to/preset"...
+Target project: myproject (base: /Users/you/.config/strand/projects/myproject, storage: global)
 Using local preset directory: /path/to/preset
 Validating preset structure...
 ✓ Preset structure validated
@@ -79,6 +81,8 @@ Refreshing templates/...
 ✓ Refresh complete. Running repair...
 repair: ok
 ```
+
+The "Target project" line shows which project will be updated - useful to verify you're in the correct directory!
 
 **Common errors**:
 - **"preset is missing required directories"**: The preset doesn't have `roles/` and/or `templates/` subdirectories

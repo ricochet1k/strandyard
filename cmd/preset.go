@@ -65,6 +65,7 @@ func runPresetRefresh(w io.Writer, preset string) error {
 	}
 
 	fmt.Fprintf(w, "Refreshing roles and templates from preset %q...\n", preset)
+	fmt.Fprintf(w, "Target project: %s (base: %s, storage: %s)\n", paths.ProjectName, paths.BaseDir, paths.Storage)
 
 	if err := applyPreset(w, paths.BaseDir, preset, []string{"roles", "templates"}); err != nil {
 		return err

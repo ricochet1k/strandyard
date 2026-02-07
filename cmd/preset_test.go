@@ -257,6 +257,7 @@ func TestPresetRefreshVerboseOutput(t *testing.T) {
 
 	output := buf.String()
 	expectedPhrases := []string{
+		"Target project:",
 		"Using local preset directory",
 		"Validating preset structure",
 		"✓ Preset structure validated",
