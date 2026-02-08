@@ -10,12 +10,21 @@ import (
 	"path/filepath"
 	"sort"
 	"strings"
+	"time"
 
 	"github.com/ricochet1k/strandyard/pkg/task"
 	"github.com/spf13/cobra"
 )
 
 var nextRole string
+var nextClaim bool
+var nextClaimTimeout time.Duration
+
+type nextOptions struct {
+	Claim        bool
+	ClaimTimeout time.Duration
+	Now          func() time.Time
+}
 
 // nextCmd represents the next command
 var nextCmd = &cobra.Command{
@@ -26,16 +35,33 @@ Also prints the full role (from metadata or first TODO) so that the output
 contains all the information an agent needs to execute the task without
 looking anything else up.`,
 	RunE: func(cmd *cobra.Command, args []string) error {
-		return runNext(cmd.OutOrStdout(), projectName, nextRole)
+		return runNextWithOptions(cmd.OutOrStdout(), projectName, nextRole, nextOptions{
+			Claim:        nextClaim,
+			ClaimTimeout: nextClaimTimeout,
+		})
 	},
 }
 
 func init() {
 	rootCmd.AddCommand(nextCmd)
 	nextCmd.Flags().StringVar(&nextRole, "role", "", "optional: filter tasks by role")
+	nextCmd.Flags().BoolVar(&nextClaim, "claim", false, "claim the selected task by marking it in_progress")
+	nextCmd.Flags().DurationVar(&nextClaimTimeout, "claim-timeout", time.Hour, "timeout before an in-progress claim is treated as open again")
 }
 
 func runNext(w io.Writer, projectName, roleFilter string) error {
+	return runNextWithOptions(w, projectName, roleFilter, nextOptions{ClaimTimeout: time.Hour})
+}
+
+func runNextWithOptions(w io.Writer, projectName, roleFilter string, opts nextOptions) error {
+	if opts.ClaimTimeout <= 0 {
+		return fmt.Errorf("--claim-timeout must be greater than 0")
+	}
+	if opts.Now == nil {
+		opts.Now = time.Now
+	}
+	now := opts.Now().UTC()
+
 	paths, err := resolveProjectPaths(projectName)
 	if err != nil {
 		return err
@@ -64,6 +90,8 @@ func runNext(w io.Writer, projectName, roleFilter string) error {
 		return nil
 	}
 
+	claimStateChanged := false
+
 	type candidate struct {
 		task *task.Task
 		path string
@@ -75,6 +103,17 @@ func runNext(w io.Writer, projectName, roleFilter string) error {
 		t, err := db.Get(taskID)
 		if err != nil {
 			continue
+		}
+
+		if t.Meta.IsInProgress() {
+			if now.Sub(t.Meta.DateEdited) >= opts.ClaimTimeout {
+				if err := db.SetStatus(taskID, task.StatusOpen); err != nil {
+					return fmt.Errorf("failed to reopen expired claim for %s: %w", taskID, err)
+				}
+				claimStateChanged = true
+			} else {
+				continue
+			}
 		}
 
 		taskRole := t.GetEffectiveRole()
@@ -117,6 +156,23 @@ func runNext(w io.Writer, projectName, roleFilter string) error {
 	})
 
 	selectedTask := candidatesParsed[0].task
+
+	if opts.Claim {
+		if err := db.MarkInProgress(selectedTask.ID); err != nil {
+			return fmt.Errorf("failed to claim task %s: %w", selectedTask.ID, err)
+		}
+		claimStateChanged = true
+	}
+
+	if claimStateChanged {
+		if _, err := db.SaveDirty(); err != nil {
+			return fmt.Errorf("failed to persist task claim state: %w", err)
+		}
+		if err := task.GenerateMasterLists(db.GetAll(), paths.TasksDir, paths.RootTasksFile, paths.FreeTasksFile); err != nil {
+			return fmt.Errorf("failed to update master lists: %w", err)
+		}
+	}
+
 	role := selectedTask.GetEffectiveRole()
 
 	if role != "" {

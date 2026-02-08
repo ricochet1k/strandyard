@@ -5,6 +5,7 @@ import (
 	"context"
 	"io"
 	"strings"
+	"time"
 
 	"github.com/mark3labs/mcp-go/mcp"
 	"github.com/mark3labs/mcp-go/server"
@@ -38,8 +39,10 @@ type addArgs struct {
 }
 
 type nextArgs struct {
-	Project string `json:"project,omitempty" jsonschema_description:"Project name (equivalent to --project)"`
-	Role    string `json:"role,omitempty" jsonschema_description:"Filter by role"`
+	Project      string `json:"project,omitempty" jsonschema_description:"Project name (equivalent to --project)"`
+	Role         string `json:"role,omitempty" jsonschema_description:"Filter by role"`
+	Claim        bool   `json:"claim,omitempty" jsonschema_description:"Claim the selected task by marking it in_progress"`
+	ClaimTimeout string `json:"claim_timeout,omitempty" jsonschema_description:"Claim timeout duration (e.g. 1h, 30m)"`
 }
 
 type completeArgs struct {
@@ -203,7 +206,22 @@ func handleMCPAdd(ctx context.Context, request mcp.CallToolRequest, args addArgs
 
 func handleMCPNext(ctx context.Context, request mcp.CallToolRequest, args nextArgs) (*mcp.CallToolResult, error) {
 	return runWithOutput(func(w io.Writer) error {
-		return runNext(w, strings.TrimSpace(args.Project), strings.TrimSpace(args.Role))
+		timeout := nextClaimTimeout
+		if timeout <= 0 {
+			timeout = time.Hour
+		}
+		if strings.TrimSpace(args.ClaimTimeout) != "" {
+			parsed, err := time.ParseDuration(strings.TrimSpace(args.ClaimTimeout))
+			if err != nil {
+				return err
+			}
+			timeout = parsed
+		}
+
+		return runNextWithOptions(w, strings.TrimSpace(args.Project), strings.TrimSpace(args.Role), nextOptions{
+			Claim:        args.Claim,
+			ClaimTimeout: timeout,
+		})
 	})
 }
 
