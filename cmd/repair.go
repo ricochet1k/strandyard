@@ -43,8 +43,8 @@ func runRepair(w io.Writer, tasksRoot, rootsFile, freeFile, outFormat string) er
 		return fmt.Errorf("failed to load tasks: %w", err)
 	}
 
-	if _, err := db.SyncBlockersFromChildren(); err != nil {
-		return fmt.Errorf("failed to update blockers from subtasks: %w", err)
+	if _, err := db.ReconcileBlockerRelationships(); err != nil {
+		return fmt.Errorf("failed to reconcile blocker relationships: %w", err)
 	}
 
 	if _, err := task.UpdateAllParentTodoEntries(db.GetAll()); err != nil {

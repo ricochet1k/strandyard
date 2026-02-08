@@ -75,9 +75,10 @@ func ExampleTaskDB_blockers() {
 		log.Fatal(err)
 	}
 
-	// Sync blockers from children
-	// This ensures all parents are blocked by their incomplete children
-	count, err := db.SyncBlockersFromChildren()
+	// Reconcile blockers in one pass:
+	// - parent/child blocker propagation
+	// - bidirectional blockers/blocks repair
+	count, err := db.ReconcileBlockerRelationships()
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -102,10 +103,11 @@ func ExampleTaskDB_completion() {
 		log.Fatal(err)
 	}
 
-	// You can also sync all blockers from children, which will:
+	// You can also reconcile all blocker relationships, which will:
 	// - Remove completed children from parent blockers
 	// - Add incomplete children to parent blockers
-	db.SyncBlockersFromChildren()
+	// - Keep blockers/blocks bidirectional
+	db.ReconcileBlockerRelationships()
 
 	db.SaveDirty()
 }
@@ -127,8 +129,8 @@ func ExampleTaskDB_validation() {
 		fmt.Printf("Fixed: %v\n", notice)
 	}
 
-	// Fix blocker relationships (ensures bidirectional consistency)
-	count := db.FixBlockerRelationships()
+	// Reconcile blocker relationships (ensures bidirectional consistency)
+	count, _ := db.ReconcileBlockerRelationships()
 	fmt.Printf("Fixed %d tasks\n", count)
 
 	db.SaveDirty()

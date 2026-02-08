@@ -30,4 +30,5 @@
 - [New Task: Usability review: anchor help text and examples](Tt3kj2u-usability-review-anchor-help-text-and-examples.md)
 - [strand edit is missing --blocker flag](Twcp360-strand-edit-is-missing-blocker-flag.md)
 - [Move task directory when parent changes](Tx2fpci-move-task-directory-when-parent-changes.md)
+- [Repair mutates tasks after complete should be no-op](Tx3emi6-repair-mutates-tasks-after-complete-should-be-no-o.md)
 - [Normalize short IDs to full IDs in relationships](Tydoy3v-normalize-short-ids-to-full-ids-in-relationships.md)

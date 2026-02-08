@@ -6,7 +6,7 @@ import (
 	"testing"
 )
 
-func TestUpdateBlockersFromChildren(t *testing.T) {
+func TestReconcileBlockerRelationships(t *testing.T) {
 	tmp := t.TempDir()
 	tasksRoot := filepath.Join(tmp, "tasks")
 
@@ -32,8 +32,8 @@ func TestUpdateBlockersFromChildren(t *testing.T) {
 		t.Fatalf("load tasks: %v", err)
 	}
 
-	if _, err := UpdateBlockersFromChildren(tasks); err != nil {
-		t.Fatalf("update blockers: %v", err)
+	if _, err := ReconcileBlockerRelationships(tasks); err != nil {
+		t.Fatalf("reconcile blockers: %v", err)
 	}
 	if _, err := WriteDirtyTasks(tasks); err != nil {
 		t.Fatalf("write tasks: %v", err)
@@ -51,14 +51,22 @@ func TestUpdateBlockersFromChildren(t *testing.T) {
 		t.Fatalf("expected child blocker, got %v", updated.Meta.Blockers)
 	}
 
+	updatedChild, err := parser.ParseFile(childFile)
+	if err != nil {
+		t.Fatalf("parse child: %v", err)
+	}
+	if len(updatedChild.Meta.Blocks) != 1 || updatedChild.Meta.Blocks[0] != parentID {
+		t.Fatalf("expected child blocks to include parent, got %v", updatedChild.Meta.Blocks)
+	}
+
 	// Mark child completed and ensure blocker is removed.
 	writeTask(t, childFile, childRole, "medium", parentID, nil, true)
 	tasks, err = parser.LoadTasks(tasksRoot)
 	if err != nil {
 		t.Fatalf("reload tasks: %v", err)
 	}
-	if _, err := UpdateBlockersFromChildren(tasks); err != nil {
-		t.Fatalf("update blockers after completion: %v", err)
+	if _, err := ReconcileBlockerRelationships(tasks); err != nil {
+		t.Fatalf("reconcile blockers after completion: %v", err)
 	}
 	if _, err := WriteDirtyTasks(tasks); err != nil {
 		t.Fatalf("write tasks after completion: %v", err)
@@ -71,6 +79,14 @@ func TestUpdateBlockersFromChildren(t *testing.T) {
 		if b == childID {
 			t.Fatalf("did not expect child blocker after completion, got %v", updated.Meta.Blockers)
 		}
+	}
+
+	updatedChild, err = parser.ParseFile(childFile)
+	if err != nil {
+		t.Fatalf("parse child after completion: %v", err)
+	}
+	if len(updatedChild.Meta.Blocks) != 0 {
+		t.Fatalf("did not expect completed child to block parent, got %v", updatedChild.Meta.Blocks)
 	}
 }
 

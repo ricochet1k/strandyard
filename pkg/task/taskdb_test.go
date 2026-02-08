@@ -212,7 +212,7 @@ func TestTaskDB_UpdateBlockersAfterCompletion(t *testing.T) {
 	}
 }
 
-func TestTaskDB_FixBlockerRelationships(t *testing.T) {
+func TestTaskDB_ReconcileBlockerRelationships_RepairsBidirectionalEdges(t *testing.T) {
 	db, tasksRoot := setupTestDB(t)
 
 	createTaskFile(t, tasksRoot, "T1aaa-blocked", "Blocked Task")
@@ -223,8 +223,11 @@ func TestTaskDB_FixBlockerRelationships(t *testing.T) {
 	blocked.Meta.Blockers = []string{"T2bbb-blocker"}
 	blocked.MarkDirty()
 
-	// Fix relationships
-	modified := db.FixBlockerRelationships()
+	// Reconcile relationships
+	modified, err := db.ReconcileBlockerRelationships()
+	if err != nil {
+		t.Fatalf("ReconcileBlockerRelationships failed: %v", err)
+	}
 	if modified == 0 {
 		t.Error("expected at least one task to be modified")
 	}
@@ -236,7 +239,7 @@ func TestTaskDB_FixBlockerRelationships(t *testing.T) {
 	}
 }
 
-func TestTaskDB_SyncBlockersFromChildren(t *testing.T) {
+func TestTaskDB_ReconcileBlockerRelationships_SyncsParentBlockers(t *testing.T) {
 	db, tasksRoot := setupTestDB(t)
 
 	createTaskFile(t, tasksRoot, "P1aaa-parent", "Parent Task")
@@ -251,10 +254,10 @@ func TestTaskDB_SyncBlockersFromChildren(t *testing.T) {
 		t.Fatalf("SetParent child2: %v", err)
 	}
 
-	// Sync blockers from children
-	modified, err := db.SyncBlockersFromChildren()
+	// Reconcile blockers from children
+	modified, err := db.ReconcileBlockerRelationships()
 	if err != nil {
-		t.Fatalf("SyncBlockersFromChildren failed: %v", err)
+		t.Fatalf("ReconcileBlockerRelationships failed: %v", err)
 	}
 	if modified == 0 {
 		t.Error("expected at least one task to be modified")
@@ -271,9 +274,9 @@ func TestTaskDB_SyncBlockersFromChildren(t *testing.T) {
 		t.Fatalf("SetCompleted: %v", err)
 	}
 
-	// Sync again
-	if _, err := db.SyncBlockersFromChildren(); err != nil {
-		t.Fatalf("SyncBlockersFromChildren after completion: %v", err)
+	// Reconcile again
+	if _, err := db.ReconcileBlockerRelationships(); err != nil {
+		t.Fatalf("ReconcileBlockerRelationships after completion: %v", err)
 	}
 
 	// Verify parent now only blocked by incomplete child
@@ -445,5 +448,60 @@ func TestTaskDB_GetAncestors(t *testing.T) {
 	ancestors = db.GetAncestors("NONEXISTENT")
 	if len(ancestors) != 0 {
 		t.Fatalf("expected no ancestors for non-existent task, got %d", len(ancestors))
+	}
+}
+
+func TestTaskDB_ReorderSubtask(t *testing.T) {
+	db, tasksRoot := setupTestDB(t)
+
+	createTaskFile(t, tasksRoot, "P1aaa-parent", "Parent")
+	createTaskFile(t, tasksRoot, "T1bbb-first", "First")
+	createTaskFile(t, tasksRoot, "T2ccc-second", "Second")
+
+	if err := db.SetParent("T1bbb-first", "P1aaa-parent"); err != nil {
+		t.Fatalf("SetParent first failed: %v", err)
+	}
+	if err := db.SetParent("T2ccc-second", "P1aaa-parent"); err != nil {
+		t.Fatalf("SetParent second failed: %v", err)
+	}
+
+	if _, err := db.UpdateParentTodos("P1aaa-parent"); err != nil {
+		t.Fatalf("UpdateParentTodos failed: %v", err)
+	}
+
+	if err := db.ReorderSubtask("P1aaa-parent", 2, 1); err != nil {
+		t.Fatalf("ReorderSubtask failed: %v", err)
+	}
+
+	parent, err := db.Get("P1aaa-parent")
+	if err != nil {
+		t.Fatalf("Get parent failed: %v", err)
+	}
+
+	if len(parent.SubsItems) != 2 {
+		t.Fatalf("expected 2 subtasks, got %d", len(parent.SubsItems))
+	}
+	if parent.SubsItems[0].Text != "Second" || parent.SubsItems[1].Text != "First" {
+		t.Fatalf("unexpected order after reorder: %#v", parent.SubsItems)
+	}
+}
+
+func TestTaskDB_ClaimTask(t *testing.T) {
+	db, tasksRoot := setupTestDB(t)
+	createTaskFile(t, tasksRoot, "T9zzz-claim", "Claimable")
+
+	if err := db.ClaimTask("T9zzz-claim"); err != nil {
+		t.Fatalf("ClaimTask failed: %v", err)
+	}
+
+	tk, err := db.Get("T9zzz-claim")
+	if err != nil {
+		t.Fatalf("Get failed: %v", err)
+	}
+	if tk.Meta.Status != StatusInProgress {
+		t.Fatalf("expected status %q, got %q", StatusInProgress, tk.Meta.Status)
+	}
+	if tk.Meta.Completed {
+		t.Fatal("expected claimed task to remain incomplete")
 	}
 }

@@ -87,7 +87,7 @@ func (db *TaskDB) GetAll() map[string]*Task {
 
 // SetParent sets the parent of a child task, ensuring the parent exists.
 // This does NOT automatically add the child to the parent's blockers - call
-// SyncBlockersFromChildren for that.
+// ReconcileBlockerRelationships for that.
 func (db *TaskDB) SetParent(childID, parentID string) error {
 	if childID == parentID {
 		return fmt.Errorf("task cannot be its own parent")
@@ -117,7 +117,7 @@ func (db *TaskDB) SetParent(childID, parentID string) error {
 		child.MarkDirty()
 	}
 
-	// Note: We don't update parent's blockers here - that's done via SyncBlockersFromChildren
+	// Note: We don't update parent's blockers here - that's done via ReconcileBlockerRelationships
 	_ = parent // Ensure parent exists
 
 	return nil
@@ -276,7 +276,7 @@ func (db *TaskDB) RemoveBlocked(taskID, blockedID string) error {
 
 // SetCompleted marks a task as completed or incomplete.
 // This does NOT automatically update blocker relationships - call
-// SyncBlockersFromChildren or UpdateBlockersAfterCompletion for that.
+// ReconcileBlockerRelationships or UpdateBlockersAfterCompletion for that.
 func (db *TaskDB) SetCompleted(taskID string, completed bool) error {
 	task, err := db.Get(taskID)
 	if err != nil {
@@ -323,6 +323,28 @@ func (db *TaskDB) SetStatus(taskID, status string) error {
 	return nil
 }
 
+// SetStatusWithReport sets status, appends report if provided, and updates
+// blocker relationships for terminal statuses.
+func (db *TaskDB) SetStatusWithReport(taskID, status, report string) error {
+	if err := db.SetStatus(taskID, status); err != nil {
+		return err
+	}
+
+	if report != "" {
+		if err := db.AppendCompletionReport(taskID, report); err != nil {
+			return err
+		}
+	}
+
+	if status == StatusCancelled || status == StatusDuplicate || status == StatusDone {
+		if err := db.UpdateBlockersAfterCompletion(taskID); err != nil {
+			return fmt.Errorf("failed to update blockers: %w", err)
+		}
+	}
+
+	return nil
+}
+
 // CancelTask marks a task as cancelled.
 func (db *TaskDB) CancelTask(taskID, reason string) error {
 	if err := db.SetStatus(taskID, StatusCancelled); err != nil {
@@ -351,13 +373,17 @@ func (db *TaskDB) MarkInProgress(taskID string) error {
 	return db.SetStatus(taskID, StatusInProgress)
 }
 
-// SyncBlockersFromChildren updates all parent task blockers based on their
-// incomplete children. This ensures:
-// - Each parent is blocked by all incomplete children
-// - Each parent is blocked by all tasks that explicitly block it
+// ClaimTask marks a task as in progress.
+func (db *TaskDB) ClaimTask(taskID string) error {
+	return db.SetStatusWithReport(taskID, StatusInProgress, "")
+}
+
+// ReconcileBlockerRelationships repairs blocker relationships in a single pass.
+// This keeps parent/child-derived blockers and explicit blocker edges in sync,
+// then rewrites Blockers and Blocks as sorted bidirectional sets.
 // Returns the number of tasks modified.
-func (db *TaskDB) SyncBlockersFromChildren() (int, error) {
-	return UpdateBlockersFromChildren(db.tasks)
+func (db *TaskDB) ReconcileBlockerRelationships() (int, error) {
+	return ReconcileBlockerRelationships(db.tasks)
 }
 
 // UpdateBlockersAfterCompletion should be called after a task moves to a non-active status.
@@ -409,79 +435,6 @@ func (db *TaskDB) Validate() []ValidationError {
 func (db *TaskDB) FixMissingReferences() []ValidationError {
 	validator := NewValidator(db.tasks)
 	return validator.FixMissingReferences()
-}
-
-// FixBlockerRelationships ensures all blocker/blocks relationships are bidirectional.
-// Returns the number of tasks modified.
-func (db *TaskDB) FixBlockerRelationships() int {
-	modified := 0
-
-	// Build a map of what should be in each task's blocks list
-	shouldBlock := make(map[string]map[string]bool)
-	for taskID, task := range db.tasks {
-		for _, blockerID := range task.Meta.Blockers {
-			if shouldBlock[blockerID] == nil {
-				shouldBlock[blockerID] = make(map[string]bool)
-			}
-			shouldBlock[blockerID][taskID] = true
-		}
-	}
-
-	// Fix blocks lists (lazy-load blocker tasks as needed)
-	for blockerID, blockedTasks := range shouldBlock {
-		blocker, err := db.Get(blockerID)
-		if err != nil {
-			continue // Blocker task doesn't exist
-		}
-
-		// Build desired blocks list
-		desired := make([]string, 0, len(blockedTasks))
-		for blockedID := range blockedTasks {
-			desired = append(desired, blockedID)
-		}
-		sort.Strings(desired)
-
-		if !slices.Equal(blocker.Meta.Blocks, desired) {
-			blocker.Meta.Blocks = desired
-			blocker.MarkDirty()
-			modified++
-		}
-	}
-
-	// Also check for blocks that shouldn't be there (where the blockers list doesn't match)
-	for taskID, task := range db.tasks {
-		changed := false
-		newBlocks := make([]string, 0, len(task.Meta.Blocks))
-
-		for _, blockedID := range task.Meta.Blocks {
-			blocked, err := db.Get(blockedID)
-			if err != nil {
-				// Blocked task doesn't exist, remove it
-				changed = true
-				continue
-			}
-
-			// Check if blocked task has this task in its blockers
-			if slices.Contains(blocked.Meta.Blockers, taskID) {
-				newBlocks = append(newBlocks, blockedID)
-			} else {
-				// Add this task to blocked's blockers
-				blocked.Meta.Blockers = append(blocked.Meta.Blockers, taskID)
-				sort.Strings(blocked.Meta.Blockers)
-				blocked.MarkDirty()
-				newBlocks = append(newBlocks, blockedID)
-				modified++
-			}
-		}
-
-		if changed || !slices.Equal(task.Meta.Blocks, newBlocks) {
-			task.Meta.Blocks = newBlocks
-			task.MarkDirty()
-			modified++
-		}
-	}
-
-	return modified
 }
 
 // GetOrCreate gets a task by ID, or creates a new empty task with that ID if it doesn't exist.
@@ -731,6 +684,38 @@ func (db *TaskDB) ReorderTodo(taskID string, oldIdx, newIdx int) error {
 	task.TodoItems = append(task.TodoItems[:newPos], append([]TaskItem{item}, task.TodoItems[newPos:]...)...)
 
 	task.MarkDirty()
+	return nil
+}
+
+// ReorderSubtask moves a subtask entry on a parent task from one position to another.
+func (db *TaskDB) ReorderSubtask(parentID string, oldIdx, newIdx int) error {
+	if _, err := db.UpdateParentTodos(parentID); err != nil {
+		return err
+	}
+
+	parent, err := db.Get(parentID)
+	if err != nil {
+		return fmt.Errorf("parent task not found: %w", err)
+	}
+
+	if oldIdx <= 0 || oldIdx > len(parent.SubsItems) {
+		return fmt.Errorf("invalid old index %d", oldIdx)
+	}
+	if newIdx <= 0 || newIdx > len(parent.SubsItems) {
+		return fmt.Errorf("invalid new index %d", newIdx)
+	}
+	if oldIdx == newIdx {
+		return nil
+	}
+
+	oldPos := oldIdx - 1
+	newPos := newIdx - 1
+
+	item := parent.SubsItems[oldPos]
+	parent.SubsItems = append(parent.SubsItems[:oldPos], parent.SubsItems[oldPos+1:]...)
+	parent.SubsItems = append(parent.SubsItems[:newPos], append([]TaskItem{item}, parent.SubsItems[newPos:]...)...)
+	parent.MarkDirty()
+
 	return nil
 }
 
