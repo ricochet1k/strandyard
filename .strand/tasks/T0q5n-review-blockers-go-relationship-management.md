@@ -6,7 +6,7 @@ parent: Ti6zj-taskdb-api-design-review
 blockers: []
 blocks: []
 date_created: 2026-01-31T17:18:48.599142Z
-date_edited: 2026-02-08T04:10:37.757482Z
+date_edited: 2026-02-08T04:16:16.050172Z
 owner_approval: false
 completed: true
 status: done
@@ -38,4 +38,4 @@ Tasks are disposable. Use follow-up tasks for open questions/concerns. Record de
 Reviewed blocker relationship logic in pkg/task/blockers.go and documented behavior, strengths, and risks in design-docs/blockers-relationship-management-review.md. Captured boundary alternatives (TaskDB vs separate engine) with decision deferred to Owner, ran build/test/repair, and filed follow-up issue T09easy for reconciliation invariant gaps.
 
 ## Subtasks
-- [ ] (subtask: T09easy) Unify completion cleanup with blocker reconciliation invariants
+- [x] (subtask: T09easy) Unify completion cleanup with blocker reconciliation invariants

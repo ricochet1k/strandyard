@@ -387,7 +387,7 @@ func (db *TaskDB) ReconcileBlockerRelationships() (int, error) {
 }
 
 // UpdateBlockersAfterCompletion should be called after a task moves to a non-active status.
-// It removes the task from the blockers lists of tasks it was blocking.
+// It reconciles blockers/blocks using canonical relationship invariants.
 func (db *TaskDB) UpdateBlockersAfterCompletion(taskID string) error {
 	task, err := db.Get(taskID)
 	if err != nil {
@@ -398,31 +398,8 @@ func (db *TaskDB) UpdateBlockersAfterCompletion(taskID string) error {
 		return fmt.Errorf("task %s is still active", taskID)
 	}
 
-	// Remove this task from all tasks it blocks
-	for _, blockedID := range task.Meta.Blocks {
-		blocked, err := db.Get(blockedID)
-		if err != nil {
-			continue // Skip if blocked task doesn't exist
-		}
-
-		if idx := slices.Index(blocked.Meta.Blockers, taskID); idx != -1 {
-			blocked.Meta.Blockers = slices.Delete(blocked.Meta.Blockers, idx, idx+1)
-			blocked.MarkDirty()
-		}
-	}
-
-	// If this task has a parent, it should be removed from parent's blockers
-	if task.Meta.Parent != "" {
-		parent, err := db.Get(task.Meta.Parent)
-		if err == nil {
-			if idx := slices.Index(parent.Meta.Blockers, taskID); idx != -1 {
-				parent.Meta.Blockers = slices.Delete(parent.Meta.Blockers, idx, idx+1)
-				parent.MarkDirty()
-			}
-		}
-	}
-
-	return nil
+	_, err = db.ReconcileBlockerRelationships()
+	return err
 }
 
 // Validate runs validation checks on all loaded tasks.

@@ -40,7 +40,6 @@
 - [Clarify strand complete --todo usage and role validation error](T5gkbnm-clarify-strand-complete-todo-usage-and-role-valida.md)
 - [web: task create/update bypass TaskDB and skip master list refresh](Tcguldn-web-task-create-update-bypass-taskdb-and-skip-mast.md)
 - [Repair mutates tasks after complete should be no-op](Tx3emi6-repair-mutates-tasks-after-complete-should-be-no-o.md)
-- [Unify completion cleanup with blocker reconciliation invariants](T09easy-unify-completion-cleanup-with-blocker-reconciliati.md)
 
 ## Low
 

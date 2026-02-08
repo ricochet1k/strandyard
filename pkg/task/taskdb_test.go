@@ -210,6 +210,47 @@ func TestTaskDB_UpdateBlockersAfterCompletion(t *testing.T) {
 	if len(blocked.Meta.Blockers) != 0 {
 		t.Errorf("expected no blockers after completion, got %v", blocked.Meta.Blockers)
 	}
+
+	blocker, _ := db.Get("T2bbb-blocker")
+	if len(blocker.Meta.Blocks) != 0 {
+		t.Errorf("expected completed task to have no blocks, got %v", blocker.Meta.Blocks)
+	}
+}
+
+func TestTaskDB_UpdateBlockersAfterCompletion_ReconcilesInconsistentEdges(t *testing.T) {
+	db, tasksRoot := setupTestDB(t)
+
+	createTaskFile(t, tasksRoot, "T1aaa-blocked", "Blocked Task")
+	createTaskFile(t, tasksRoot, "T2bbb-blocker", "Blocker Task")
+
+	blocked, err := db.Get("T1aaa-blocked")
+	if err != nil {
+		t.Fatalf("Get blocked task failed: %v", err)
+	}
+	blocker, err := db.Get("T2bbb-blocker")
+	if err != nil {
+		t.Fatalf("Get blocker task failed: %v", err)
+	}
+
+	blocked.Meta.Blockers = []string{"T2bbb-blocker"}
+	blocked.MarkDirty()
+	blocker.Meta.Blocks = []string{}
+	blocker.MarkDirty()
+
+	if err := db.SetCompleted("T2bbb-blocker", true); err != nil {
+		t.Fatalf("SetCompleted failed: %v", err)
+	}
+
+	if err := db.UpdateBlockersAfterCompletion("T2bbb-blocker"); err != nil {
+		t.Fatalf("UpdateBlockersAfterCompletion failed: %v", err)
+	}
+
+	if len(blocked.Meta.Blockers) != 0 {
+		t.Errorf("expected blocker to be removed via reconciliation, got %v", blocked.Meta.Blockers)
+	}
+	if len(blocker.Meta.Blocks) != 0 {
+		t.Errorf("expected completed task to have no blocks, got %v", blocker.Meta.Blocks)
+	}
 }
 
 func TestTaskDB_ReconcileBlockerRelationships_RepairsBidirectionalEdges(t *testing.T) {
