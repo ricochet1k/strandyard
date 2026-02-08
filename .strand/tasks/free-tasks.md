@@ -5,7 +5,6 @@
 
 ## Medium
 
-- [Review task.go structure and methods](T2lt8-review-task-go-structure-and-methods.md)
 - [Write updated godoc with usage examples](T48or-write-updated-godoc-with-usage-examples.md)
 - [Create implementation plan](T7qkw-create-implementation-plan.md)
 - [Design access control strategy](T8bgf-design-access-control-strategy.md)

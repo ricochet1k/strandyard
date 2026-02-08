@@ -8,9 +8,9 @@ This workflow is defined as instructions in role documents and pre-filled todo l
 These instructions define how agents should use strand to manage tasks.
 
 ## Core rules
-- Use `strand next` to select work; respect role opt-in or ignore behavior.
-- When asked to work on the next thing, run `strand next`, follow the returned instructions, and report a brief task summary.
-- Treat the role description returned by `strand next` as canonical for how to execute the task.
+- Use `strand next --claim` to select and claim work; respect role opt-in or ignore behavior.
+- When asked to work on the next thing, run `strand next --claim`, follow the returned instructions, and report a brief task summary.
+- Treat the role description returned by `strand next --claim` as canonical for how to execute the task.
 - When a task is done (including planning-only), run `strand complete <task-id> "report of what was done"`.
 - If blocked, record blockers with `strand block`.
 - Use `strand add` for new tasks or issues; avoid ad-hoc task creation outside strand.

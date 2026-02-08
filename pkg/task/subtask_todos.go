@@ -55,18 +55,49 @@ func UpdateAllParentTodoEntries(tasks map[string]*Task) (int, error) {
 }
 
 func buildSubtaskTodoItems(tasks map[string]*Task, parentID string) []TaskItem {
+	parent, ok := tasks[parentID]
+	if !ok {
+		return nil
+	}
+
 	subtasks := []*Task{}
+	remainingByID := map[string]*Task{}
 	for _, t := range tasks {
 		if t.Meta.Parent == parentID {
 			subtasks = append(subtasks, t)
+			remainingByID[t.ID] = t
 		}
 	}
-	sort.Slice(subtasks, func(i, j int) bool {
-		return subtasks[i].ID < subtasks[j].ID
-	})
 
-	items := make([]TaskItem, 0, len(subtasks))
-	for _, sub := range subtasks {
+	ordered := make([]*Task, 0, len(subtasks))
+	for _, item := range parent.SubsItems {
+		if item.SubtaskID == "" {
+			continue
+		}
+		fullID := resolveChildSubtaskID(parentID, item.SubtaskID, remainingByID)
+		if fullID == "" {
+			continue
+		}
+		ordered = append(ordered, remainingByID[fullID])
+		delete(remainingByID, fullID)
+	}
+
+	remaining := make([]*Task, 0, len(remainingByID))
+	for _, sub := range remainingByID {
+		remaining = append(remaining, sub)
+	}
+
+	// New subtasks are appended in creation order.
+	sort.Slice(remaining, func(i, j int) bool {
+		if !remaining[i].Meta.DateCreated.Equal(remaining[j].Meta.DateCreated) {
+			return remaining[i].Meta.DateCreated.Before(remaining[j].Meta.DateCreated)
+		}
+		return remaining[i].ID < remaining[j].ID
+	})
+	ordered = append(ordered, remaining...)
+
+	items := make([]TaskItem, 0, len(ordered))
+	for _, sub := range ordered {
 		title := sub.Title()
 		if title == "" {
 			title = sub.ID
@@ -78,4 +109,31 @@ func buildSubtaskTodoItems(tasks map[string]*Task, parentID string) []TaskItem {
 		})
 	}
 	return items
+}
+
+func resolveChildSubtaskID(parentID, input string, subtasks map[string]*Task) string {
+	input = strings.TrimSpace(input)
+	if input == "" {
+		return ""
+	}
+	if t, ok := subtasks[input]; ok && t.Meta.Parent == parentID {
+		return input
+	}
+
+	short := ShortID(input)
+	match := ""
+	for id, t := range subtasks {
+		if t.Meta.Parent != parentID {
+			continue
+		}
+		if ShortID(id) != short {
+			continue
+		}
+		if match != "" {
+			return ""
+		}
+		match = id
+	}
+
+	return match
 }

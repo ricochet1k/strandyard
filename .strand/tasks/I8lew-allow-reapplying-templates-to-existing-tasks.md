@@ -3,11 +3,10 @@ type: issue
 role: triage
 priority: high
 parent: ""
-blockers:
-    - Tk259ie-design-allow-reapplying-templates-to-existing-task
+blockers: []
 blocks: []
 date_created: 2026-02-06T00:08:55.661003Z
-date_edited: 2026-02-06T04:48:46.709155Z
+date_edited: 2026-02-08T04:06:37.994519Z
 owner_approval: false
 completed: true
 status: done
@@ -25,8 +24,8 @@ When templates evolve (new sections, structure, or fields), there is no way to p
 - Tests pass
 - Build succeeds
 
-## Subtasks
-- [ ] (subtask: Tk259ie) Design: Allow reapplying templates to existing tasks
-
 ## Completion Report
 Confirmed the feature request and created a design task (Tk259ie) for the designer role.
+
+## Subtasks
+- [ ] (subtask: Tk259ie) Design: Allow reapplying templates to existing tasks

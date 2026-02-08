@@ -4,12 +4,13 @@ role: designer
 priority: medium
 parent: Ivahc-revamp-task-and-issue-commands-for-full-metadata-e
 blockers: []
-blocks:
-    - Ivahc-revamp-task-and-issue-commands-for-full-metadata-e
+blocks: []
 date_created: 2026-01-28T05:10:02.740289Z
-date_edited: 2026-01-28T05:16:53.663249Z
+date_edited: 2026-02-08T04:06:37.994531Z
 owner_approval: false
 completed: true
+status: ""
+description: ""
 ---
 
 # Config file format

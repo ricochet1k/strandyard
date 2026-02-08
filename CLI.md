@@ -349,7 +349,9 @@ Displays the next free task (tasks with no blockers) with the role document.
 strand next [flags]
 
 Flags:
-  --role string    optional: filter tasks by role
+  --claim                claim the selected task by setting status to in_progress
+  --claim-timeout duration  timeout before an in-progress claim reopens (default 1h0m0s)
+  --role string          optional: filter tasks by role
 ```
 
 **Output format**:
@@ -387,6 +389,27 @@ Replace the current simple field format...
 $ strand next --role developer
 ```
 
+**Claim the next task**:
+```bash
+$ strand next --claim
+```
+
+Claimed tasks are skipped by `next` while they are fresh. If an in-progress task has been idle past `--claim-timeout` (default `1h`), `next` automatically reopens it and it becomes eligible again.
+
+### `claim` - Claim a specific task by ID
+
+Marks a specific task as `in_progress` so other agents running `strand next` skip it.
+
+```bash
+strand claim <task-id>
+```
+
+**Example**:
+```bash
+$ strand claim T3k7x-example
+✓ Task T3k7x status set to in_progress
+```
+
 ### `complete` - Mark task as completed
 
 Marks a task as completed by setting `completed: true` in the frontmatter and updating `date_edited`.
@@ -408,6 +431,19 @@ strand complete <task-id> [report]
 ```bash
 $ strand complete T3m9p-add-frontmatter-dep "Added goldmark-frontmatter and updated go.mod"
 ✓ Task T3m9p-add-frontmatter-dep marked as completed
+```
+
+### `subtask reorder` - Reorder child tasks under a parent
+
+Reorders a parent task's `## Subtasks` entries while preserving child references.
+
+```bash
+strand subtask reorder <parent-task-id> <old-index> <new-index>
+```
+
+Example:
+```bash
+strand subtask reorder E2k7x 3 1
 ```
 
 ## Typical Workflows

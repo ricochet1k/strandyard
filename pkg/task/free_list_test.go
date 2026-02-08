@@ -726,6 +726,57 @@ This task is %s priority and done.
 	}
 }
 
+func TestFreeListPreservesParentSubtaskOrder(t *testing.T) {
+	parser := NewParser()
+
+	parent, _ := parser.ParseString(`# Parent
+
+## Subtasks
+- [ ] (subtask: T2bbb) Second child
+- [ ] (subtask: T1aaa) First child
+`, "P1parent")
+	parent.FilePath = "tasks/P1parent.md"
+
+	first, _ := parser.ParseString("# First child\n", "T1aaa-first")
+	first.Meta.Parent = "P1parent"
+	first.Meta.Priority = PriorityHigh
+	first.FilePath = "tasks/T1aaa-first.md"
+
+	second, _ := parser.ParseString("# Second child\n", "T2bbb-second")
+	second.Meta.Parent = "P1parent"
+	second.Meta.Priority = PriorityHigh
+	second.FilePath = "tasks/T2bbb-second.md"
+
+	tasks := map[string]*Task{
+		"P1parent":     parent,
+		"T1aaa-first":  first,
+		"T2bbb-second": second,
+	}
+
+	tmp := t.TempDir()
+	rootsFile := filepath.Join(tmp, "root-tasks.md")
+	freeFile := filepath.Join(tmp, "free-tasks.md")
+
+	if err := GenerateMasterLists(tasks, "tasks", rootsFile, freeFile); err != nil {
+		t.Fatalf("GenerateMasterLists failed: %v", err)
+	}
+
+	contentBytes, err := os.ReadFile(freeFile)
+	if err != nil {
+		t.Fatalf("read free list: %v", err)
+	}
+	content := string(contentBytes)
+
+	secondIdx := strings.Index(content, "T2bbb-second")
+	firstIdx := strings.Index(content, "T1aaa-first")
+	if secondIdx == -1 || firstIdx == -1 {
+		t.Fatalf("expected both subtasks in free list:\n%s", content)
+	}
+	if secondIdx > firstIdx {
+		t.Fatalf("expected second child before first child based on parent order:\n%s", content)
+	}
+}
+
 func TestFreeListGenerationTiming(t *testing.T) {
 	tmpDir := t.TempDir()
 	tasksRoot := filepath.Join(tmpDir, "tasks")

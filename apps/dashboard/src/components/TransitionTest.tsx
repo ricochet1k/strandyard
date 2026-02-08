@@ -13,11 +13,16 @@ export default function TransitionTest() {
     setItems((current) => [...current].reverse())
   }
 
+  const replaceAll = () => {
+    setItems(Array.from(Array(5)).map(_ => "ABCDEFGHIJ"[(Math.random() * 10) | 0]))
+  }
+
   return (
     <div class="transition-test">
       <div class="transition-test-actions">
         <button data-testid="remove-first" onClick={removeFirst}>Remove First</button>
         <button data-testid="toggle-order" onClick={toggleOrder}>Toggle Order</button>
+        <button data-testid="replace-all" onClick={replaceAll}>Replace All</button>
       </div>
       <div class="transition-test-list">
         <MyTransitionGroup classPrefix="transition-test">

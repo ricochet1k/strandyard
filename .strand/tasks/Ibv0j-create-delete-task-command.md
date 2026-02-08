@@ -3,13 +3,13 @@ type: issue
 role: triage
 priority: medium
 parent: ""
-blockers:
-    - Todbi8z-design-delete-task-command
+blockers: []
 blocks: []
 date_created: 2026-01-28T18:25:10.41148Z
-date_edited: 2026-02-05T01:08:21.696707Z
+date_edited: 2026-02-08T04:06:37.994522Z
 owner_approval: false
 completed: true
+status: ""
 description: ""
 ---
 

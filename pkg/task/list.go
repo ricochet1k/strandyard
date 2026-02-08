@@ -120,7 +120,7 @@ func filterTasks(tasksRoot string, tasks map[string]*Task, opts ListOptions) ([]
 		if opts.OwnerApproval != nil && t.Meta.OwnerApproval != *opts.OwnerApproval {
 			continue
 		}
-		if opts.Status != "" && !strings.EqualFold(t.Meta.Status, opts.Status) {
+		if opts.Status != "" && !matchesStatus(t, opts.Status) {
 			continue
 		}
 		filtered = append(filtered, t)
@@ -154,6 +154,27 @@ func matchesScope(t *Task, opts ListOptions) bool {
 		return len(t.Meta.Blockers) == 0
 	default:
 		return true
+	}
+}
+
+// matchesStatus checks if a task semantically matches the requested status.
+// For "open" status, this includes both explicit "open" and empty status (backward compatibility).
+func matchesStatus(t *Task, status string) bool {
+	normalized := NormalizeStatus(status)
+	switch normalized {
+	case StatusOpen:
+		return t.IsOpen()
+	case StatusInProgress:
+		return t.IsInProgress()
+	case StatusDone:
+		return t.IsDone()
+	case StatusCancelled:
+		return t.IsCancelled()
+	case StatusDuplicate:
+		return t.IsDuplicate()
+	default:
+		// Fallback to literal string comparison for unknown statuses
+		return strings.EqualFold(t.Meta.Status, status)
 	}
 }
 

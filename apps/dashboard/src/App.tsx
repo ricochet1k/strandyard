@@ -329,7 +329,7 @@ export default function App() {
       else params.delete("relationship")
       if (orig) params.set("origin", orig)
       else params.delete("origin")
-      
+
       const newUrl = `${window.location.pathname}?${params.toString()}`
       window.history.pushState({ taskId, rel, orig }, "", newUrl)
     } catch (err) {
@@ -428,7 +428,7 @@ export default function App() {
   const handleAddSubtask = () => {
     const currentTask = activeTaskDetail()
     if (!currentTask) return
-    
+
     // Open the add task modal with the current task as parent
     openAddTaskModal(currentTask.id)
   }
@@ -459,7 +459,7 @@ export default function App() {
   const taskNodesById = new ReactiveMap<string, TaskTreeNode>()
   const taskChildren = new ReactiveMap<string, string[]>()
   const sortedNodes = createMutable<TaskTreeNode[]>([])
-  
+
   // Map to convert short_id to short_id for parent lookups
   const shortIdMap = new ReactiveMap<string, string>()
 
@@ -508,13 +508,13 @@ export default function App() {
     const nodeCmp = (a: TaskTreeNode, b: TaskTreeNode) => taskCmp(a.task, b.task)
     const stats = { added: 0, update: 0, removed: 0 }
     lastUpdateTick += 1
-    
+
     // First pass: build short_id map
     for (const task of tasks()) {
       shortIdMap.set(task.short_id, task.short_id)
       shortIdMap.set(task.id, task.short_id)
     }
-    
+
     for (const task of tasks()) {
       let item = untrack(() => taskNodesById.get(task.short_id))
       if (!item) {
@@ -546,7 +546,7 @@ export default function App() {
         }
         Object.assign(item.task, task)
         item.lastUpdateTick = lastUpdateTick
-        
+
         // Handle parent change
         if (oldParent !== task.parent) {
           // Remove from old parent
@@ -569,7 +569,7 @@ export default function App() {
             }
           }
         }
-        
+
         if (removeThenAdd) {
           // add
           sortedNodes.splice(sortedIndexCmp(sortedNodes, nodeCmp, item), 0, item)
@@ -671,7 +671,7 @@ export default function App() {
   const filteredTaskNodes = createMemo(() => {
     const mode = viewMode()
     const flattened = taskTreeFlattened()
-    
+
     if (mode === "list") {
       // List view: filter individual tasks
       return flattened.filter(node => matchesFilters(node.task))
@@ -679,12 +679,12 @@ export default function App() {
       // Tree view: keep hierarchy, but filter out non-matching branches
       const matchingIds = new Set<string>()
       const ancestorIds = new Set<string>()
-      
+
       // First pass: find all matching tasks
       for (const node of flattened) {
         if (matchesFilters(node.task)) {
           matchingIds.add(node.task.short_id)
-          
+
           // Mark all ancestors as needed
           let parentId = node.task.parent
           while (parentId) {
@@ -696,9 +696,9 @@ export default function App() {
           }
         }
       }
-      
+
       // Second pass: include matching tasks and their ancestors
-      return flattened.filter(node => 
+      return flattened.filter(node =>
         matchingIds.has(node.task.short_id) || ancestorIds.has(node.task.short_id)
       )
     }
@@ -909,7 +909,7 @@ export default function App() {
               />
             </div>
           </Show>
-          
+
           <Show when={tab() === "roles"}>
             <div class="pane-header">
               <h2>Roles</h2>
@@ -923,7 +923,7 @@ export default function App() {
               />
             </div>
           </Show>
-          
+
           <Show when={tab() === "templates"}>
             <div class="pane-header">
               <h2>Templates</h2>

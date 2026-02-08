@@ -33,8 +33,9 @@ type Validator struct {
 }
 
 type listEntry struct {
-	Path  string
-	Label string
+	TaskID string
+	Path   string
+	Label  string
 }
 
 // NewValidator creates a new validator
@@ -371,20 +372,20 @@ func GenerateMasterLists(tasks map[string]*Task, tasksRoot, rootsFile, freeFile 
 
 		// Root tasks have no parent and are not completed
 		if task.Meta.Parent == "" && !task.Meta.Completed && IsActiveStatus(task.Meta.Status) {
-			roots = append(roots, listEntry{Path: rel, Label: title})
+			roots = append(roots, listEntry{TaskID: task.ID, Path: rel, Label: title})
 		}
 
 		// Free tasks have no blockers and are not completed
 		if len(task.Meta.Blockers) == 0 && !task.Meta.Completed && IsActiveStatus(task.Meta.Status) {
 			switch NormalizePriority(task.Meta.Priority) {
 			case PriorityHigh:
-				freeByPriority[PriorityHigh] = append(freeByPriority[PriorityHigh], listEntry{Path: rel, Label: title})
+				freeByPriority[PriorityHigh] = append(freeByPriority[PriorityHigh], listEntry{TaskID: task.ID, Path: rel, Label: title})
 			case PriorityMedium:
-				freeByPriority[PriorityMedium] = append(freeByPriority[PriorityMedium], listEntry{Path: rel, Label: title})
+				freeByPriority[PriorityMedium] = append(freeByPriority[PriorityMedium], listEntry{TaskID: task.ID, Path: rel, Label: title})
 			case PriorityLow:
-				freeByPriority[PriorityLow] = append(freeByPriority[PriorityLow], listEntry{Path: rel, Label: title})
+				freeByPriority[PriorityLow] = append(freeByPriority[PriorityLow], listEntry{TaskID: task.ID, Path: rel, Label: title})
 			default:
-				freeOther = append(freeOther, listEntry{Path: rel, Label: title})
+				freeOther = append(freeOther, listEntry{TaskID: task.ID, Path: rel, Label: title})
 			}
 		}
 	}
@@ -393,10 +394,10 @@ func GenerateMasterLists(tasks map[string]*Task, tasksRoot, rootsFile, freeFile 
 	sort.Slice(roots, func(i, j int) bool { return roots[i].Path < roots[j].Path })
 	for key := range freeByPriority {
 		items := freeByPriority[key]
-		sort.Slice(items, func(i, j int) bool { return items[i].Path < items[j].Path })
+		sortEntriesByTaskOrder(items, tasks)
 		freeByPriority[key] = items
 	}
-	sort.Slice(freeOther, func(i, j int) bool { return freeOther[i].Path < freeOther[j].Path })
+	sortEntriesByTaskOrder(freeOther, tasks)
 
 	// Write files
 	if err := writeListFile(rootsFile, "Root tasks", roots); err != nil {
@@ -543,7 +544,7 @@ func UpdateFreeListIncrementally(tasks map[string]*Task, freeFile string, update
 		if label == "" {
 			label = task.ID
 		}
-		entry := listEntry{Path: filepath.ToSlash(task.FilePath), Label: label}
+		entry := listEntry{TaskID: taskID, Path: filepath.ToSlash(task.FilePath), Label: label}
 
 		switch NormalizePriority(task.Meta.Priority) {
 		case PriorityHigh:
@@ -557,17 +558,11 @@ func UpdateFreeListIncrementally(tasks map[string]*Task, freeFile string, update
 		}
 	}
 
-	// Sort for deterministic output
-	sort.Slice(entriesByPriority[PriorityHigh], func(i, j int) bool {
-		return entriesByPriority[PriorityHigh][i].Path < entriesByPriority[PriorityHigh][j].Path
-	})
-	sort.Slice(entriesByPriority[PriorityMedium], func(i, j int) bool {
-		return entriesByPriority[PriorityMedium][i].Path < entriesByPriority[PriorityMedium][j].Path
-	})
-	sort.Slice(entriesByPriority[PriorityLow], func(i, j int) bool {
-		return entriesByPriority[PriorityLow][i].Path < entriesByPriority[PriorityLow][j].Path
-	})
-	sort.Slice(other, func(i, j int) bool { return other[i].Path < other[j].Path })
+	// Sort for deterministic output while preserving subtask ordering.
+	sortEntriesByTaskOrder(entriesByPriority[PriorityHigh], tasks)
+	sortEntriesByTaskOrder(entriesByPriority[PriorityMedium], tasks)
+	sortEntriesByTaskOrder(entriesByPriority[PriorityLow], tasks)
+	sortEntriesByTaskOrder(other, tasks)
 
 	// Write the updated file
 	if err := writePriorityListFile(freeFile, title, entriesByPriority, other); err != nil {
@@ -626,4 +621,77 @@ func CalculateIncrementalFreeListUpdate(tasks map[string]*Task, completedTaskID 
 	}
 
 	return update, nil
+}
+
+func sortEntriesByTaskOrder(entries []listEntry, tasks map[string]*Task) {
+	orderByParent := buildChildOrderByParent(tasks)
+	sort.SliceStable(entries, func(i, j int) bool {
+		return isTaskBefore(entries[i].TaskID, entries[j].TaskID, tasks, orderByParent)
+	})
+}
+
+func isTaskBefore(leftID, rightID string, tasks map[string]*Task, orderByParent map[string]map[string]int) bool {
+	left, leftOK := tasks[leftID]
+	right, rightOK := tasks[rightID]
+	if !leftOK || !rightOK {
+		return leftID < rightID
+	}
+
+	if left.Meta.Parent != "" && left.Meta.Parent == right.Meta.Parent {
+		order, ok := orderByParent[left.Meta.Parent]
+		if ok {
+			leftIdx, leftKnown := order[leftID]
+			rightIdx, rightKnown := order[rightID]
+			if leftKnown && rightKnown && leftIdx != rightIdx {
+				return leftIdx < rightIdx
+			}
+			if leftKnown != rightKnown {
+				return leftKnown
+			}
+		}
+	}
+
+	if !left.Meta.DateCreated.Equal(right.Meta.DateCreated) {
+		return left.Meta.DateCreated.Before(right.Meta.DateCreated)
+	}
+
+	return leftID < rightID
+}
+
+func buildChildOrderByParent(tasks map[string]*Task) map[string]map[string]int {
+	orderByParent := make(map[string]map[string]int)
+	for parentID, parent := range tasks {
+		if len(parent.SubsItems) == 0 {
+			continue
+		}
+		children := map[string]*Task{}
+		for childID, child := range tasks {
+			if child.Meta.Parent == parentID {
+				children[childID] = child
+			}
+		}
+		if len(children) == 0 {
+			continue
+		}
+
+		order := make(map[string]int, len(children))
+		next := 0
+		for _, item := range parent.SubsItems {
+			fullID := resolveChildSubtaskID(parentID, item.SubtaskID, children)
+			if fullID == "" {
+				continue
+			}
+			if _, seen := order[fullID]; seen {
+				continue
+			}
+			order[fullID] = next
+			next++
+		}
+
+		if len(order) > 0 {
+			orderByParent[parentID] = order
+		}
+	}
+
+	return orderByParent
 }

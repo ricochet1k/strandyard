@@ -4,13 +4,13 @@ role: developer
 priority: low
 parent: E5w8m-e2e-tests
 blockers: []
-blocks:
-    - E5w8m-e2e-tests
-    - T2n9w-sample-environments
+blocks: []
 date_created: 2026-01-27T00:00:00Z
-date_edited: 2026-01-28T11:25:10.42807-07:00
+date_edited: 2026-02-08T04:06:37.994533Z
 owner_approval: false
 completed: true
+status: ""
+description: ""
 ---
 
 # Design E2E Test Framework

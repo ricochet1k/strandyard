@@ -606,10 +606,16 @@ func (s *Server) handleTaskGetOrUpdate(w http.ResponseWriter, r *http.Request, p
 					return
 				}
 				if oldParent != "" {
-					db.UpdateParentTodos(oldParent)
+					if _, err := db.UpdateParentTodos(oldParent); err != nil {
+						respondError(w, http.StatusInternalServerError, err)
+						return
+					}
 				}
 				if newParent != "" {
-					db.UpdateParentTodos(newParent)
+					if _, err := db.UpdateParentTodos(newParent); err != nil {
+						respondError(w, http.StatusInternalServerError, err)
+						return
+					}
 				}
 			}
 		}

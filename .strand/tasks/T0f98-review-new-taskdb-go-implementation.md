@@ -4,10 +4,9 @@ role: developer
 priority: medium
 parent: Ti6zj-taskdb-api-design-review
 blockers: []
-blocks:
-    - Ti6zj-taskdb-api-design-review
+blocks: []
 date_created: 2026-01-31T17:18:53.365434Z
-date_edited: 2026-02-07T19:15:22.050548Z
+date_edited: 2026-02-08T04:06:37.994533Z
 owner_approval: false
 completed: true
 status: done

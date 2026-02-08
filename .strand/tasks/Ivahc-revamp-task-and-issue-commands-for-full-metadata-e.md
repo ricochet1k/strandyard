@@ -3,13 +3,14 @@ type: issue
 role: triage
 priority: medium
 parent: ""
-blockers:
-    - T6jry-design-cli-commands-for-full-task-issue-metadata-e
+blockers: []
 blocks: []
 date_created: 2026-01-27T23:25:07Z
-date_edited: 2026-01-31T17:29:31.078587Z
+date_edited: 2026-02-08T04:06:37.994518Z
 owner_approval: false
 completed: true
+status: ""
+description: ""
 ---
 
 # Revamp task and issue commands for full metadata editing

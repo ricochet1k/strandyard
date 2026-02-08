@@ -38,7 +38,16 @@ var markInProgressCmd = &cobra.Command{
 	Short: "Mark a task as in progress",
 	Args:  cobra.ExactArgs(1),
 	RunE: func(cmd *cobra.Command, args []string) error {
-		return runSetStatus(cmd.OutOrStdout(), args[0], task.StatusInProgress, "")
+		return runClaim(cmd.OutOrStdout(), args[0])
+	},
+}
+
+var claimCmd = &cobra.Command{
+	Use:   "claim <task-id>",
+	Short: "Claim a task by marking it in progress",
+	Args:  cobra.ExactArgs(1),
+	RunE: func(cmd *cobra.Command, args []string) error {
+		return runClaim(cmd.OutOrStdout(), args[0])
 	},
 }
 
@@ -46,6 +55,11 @@ func init() {
 	rootCmd.AddCommand(cancelCmd)
 	rootCmd.AddCommand(markDuplicateCmd)
 	rootCmd.AddCommand(markInProgressCmd)
+	rootCmd.AddCommand(claimCmd)
+}
+
+func runClaim(w io.Writer, inputID string) error {
+	return runSetStatus(w, inputID, task.StatusInProgress, "")
 }
 
 func runSetStatus(w io.Writer, inputID, status, report string) error {
@@ -60,20 +74,13 @@ func runSetStatus(w io.Writer, inputID, status, report string) error {
 		return err
 	}
 
-	if err := db.SetStatus(taskID, status); err != nil {
-		return err
-	}
-
-	if report != "" {
-		if err := db.AppendCompletionReport(taskID, report); err != nil {
+	if status == task.StatusInProgress {
+		if err := db.ClaimTask(taskID); err != nil {
 			return err
 		}
-	}
-
-	// For statuses that count as "not active", update blockers
-	if status == task.StatusCancelled || status == task.StatusDuplicate || status == task.StatusDone {
-		if err := db.UpdateBlockersAfterCompletion(taskID); err != nil {
-			return fmt.Errorf("failed to update blockers: %w", err)
+	} else {
+		if err := db.SetStatusWithReport(taskID, status, report); err != nil {
+			return err
 		}
 	}
 

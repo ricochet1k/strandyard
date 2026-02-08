@@ -3,6 +3,7 @@ package task
 import (
 	"strings"
 	"testing"
+	"time"
 )
 
 func TestUpdateParentTodoEntriesPreservesManualItems(t *testing.T) {
@@ -95,5 +96,71 @@ Details.
 	}
 	if !strings.Contains(content, "- [ ] (subtask: T1aaa) First") {
 		t.Errorf("subtask entry missing:\n%s", content)
+	}
+}
+
+func TestUpdateParentTodoEntriesUsesCreationOrder(t *testing.T) {
+	parser := NewParser()
+	parent, _ := parser.ParseString("# Parent\n", "P1")
+
+	late, _ := parser.ParseString("# Late\n", "T2bbb")
+	late.Meta.Parent = "P1"
+	late.Meta.DateCreated = time.Date(2026, 2, 1, 10, 0, 0, 0, time.UTC)
+
+	early, _ := parser.ParseString("# Early\n", "T1aaa")
+	early.Meta.Parent = "P1"
+	early.Meta.DateCreated = time.Date(2026, 2, 1, 9, 0, 0, 0, time.UTC)
+
+	tasks := map[string]*Task{
+		"P1":    parent,
+		"T2bbb": late,
+		"T1aaa": early,
+	}
+
+	if _, err := UpdateParentTodoEntries(tasks, "P1"); err != nil {
+		t.Fatalf("UpdateParentTodoEntries error: %v", err)
+	}
+
+	if len(parent.SubsItems) != 2 {
+		t.Fatalf("expected 2 subtasks, got %d", len(parent.SubsItems))
+	}
+	if parent.SubsItems[0].Text != "Early" || parent.SubsItems[1].Text != "Late" {
+		t.Fatalf("unexpected subtask order: %#v", parent.SubsItems)
+	}
+}
+
+func TestUpdateParentTodoEntriesPreservesExistingSubtaskOrder(t *testing.T) {
+	parser := NewParser()
+	parentContent := `# Parent
+
+## Subtasks
+- [ ] (subtask: T2bbb) Second
+- [ ] (subtask: T1aaa) First
+`
+	parent, _ := parser.ParseString(parentContent, "P1")
+
+	first, _ := parser.ParseString("# First\n", "T1aaa")
+	first.Meta.Parent = "P1"
+	first.Meta.DateCreated = time.Date(2026, 2, 1, 9, 0, 0, 0, time.UTC)
+
+	second, _ := parser.ParseString("# Second\n", "T2bbb")
+	second.Meta.Parent = "P1"
+	second.Meta.DateCreated = time.Date(2026, 2, 1, 10, 0, 0, 0, time.UTC)
+
+	tasks := map[string]*Task{
+		"P1":    parent,
+		"T1aaa": first,
+		"T2bbb": second,
+	}
+
+	if _, err := UpdateParentTodoEntries(tasks, "P1"); err != nil {
+		t.Fatalf("UpdateParentTodoEntries error: %v", err)
+	}
+
+	if len(parent.SubsItems) != 2 {
+		t.Fatalf("expected 2 subtasks, got %d", len(parent.SubsItems))
+	}
+	if parent.SubsItems[0].SubtaskID != "T2bbb" || parent.SubsItems[1].SubtaskID != "T1aaa" {
+		t.Fatalf("expected existing order to be preserved, got: %#v", parent.SubsItems)
 	}
 }

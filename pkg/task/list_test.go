@@ -64,6 +64,21 @@ func TestListFilteringAndSorting(t *testing.T) {
 			opts: ListOptions{Scope: "all", Sort: "id", Order: "desc"},
 			want: []string{"T5a1a-blocks", "T4a1a-completed", "T3a1a-blocked", "T2a1a-free", "T1a1a-child", "E1a1a-epic"},
 		},
+		{
+			name: "status filter open (includes empty status)",
+			opts: ListOptions{Scope: "all", Status: "open"},
+			want: []string{"E1a1a-epic", "T4a1a-completed", "T1a1a-child", "T3a1a-blocked", "T5a1a-blocks", "T2a1a-free"},
+		},
+		{
+			name: "status filter done",
+			opts: ListOptions{Scope: "all", Status: "done"},
+			want: []string{},
+		},
+		{
+			name: "status filter cancelled",
+			opts: ListOptions{Scope: "all", Status: "cancelled"},
+			want: []string{},
+		},
 	}
 
 	for _, tc := range cases {
@@ -324,6 +339,109 @@ func formatBool(value bool) string {
 func boolPtr(value bool) *bool {
 	v := value
 	return &v
+}
+
+func TestStatusFilteringWithExplicitStatuses(t *testing.T) {
+	t.Parallel()
+
+	root := filepath.Join(t.TempDir(), "tasks")
+	if err := os.MkdirAll(root, 0o755); err != nil {
+		t.Fatalf("mkdir tasks root: %v", err)
+	}
+
+	// Create tasks with various explicit status values
+	writeTaskWithStatus(t, root, "T1-open", "open")
+	writeTaskWithStatus(t, root, "T2-empty", "")
+	writeTaskWithStatus(t, root, "T3-in-progress", "in_progress")
+	writeTaskWithStatus(t, root, "T4-done", "done")
+	writeTaskWithStatus(t, root, "T5-cancelled", "cancelled")
+	writeTaskWithStatus(t, root, "T6-duplicate", "duplicate")
+
+	cases := []struct {
+		name   string
+		status string
+		want   []string
+	}{
+		{
+			name:   "filter by open includes empty status",
+			status: "open",
+			want:   []string{"T1-open", "T2-empty"},
+		},
+		{
+			name:   "filter by in_progress",
+			status: "in_progress",
+			want:   []string{"T3-in-progress"},
+		},
+		{
+			name:   "filter by done",
+			status: "done",
+			want:   []string{"T4-done"},
+		},
+		{
+			name:   "filter by cancelled",
+			status: "cancelled",
+			want:   []string{"T5-cancelled"},
+		},
+		{
+			name:   "filter by duplicate",
+			status: "duplicate",
+			want:   []string{"T6-duplicate"},
+		},
+	}
+
+	for _, tc := range cases {
+		tc := tc
+		t.Run(tc.name, func(t *testing.T) {
+			t.Parallel()
+			tasks, err := ListTasks(root, ListOptions{Status: tc.status})
+			if err != nil {
+				t.Fatalf("ListTasks failed: %v", err)
+			}
+			got := make([]string, 0, len(tasks))
+			for _, task := range tasks {
+				got = append(got, task.ID)
+			}
+			if strings.Join(got, ",") != strings.Join(tc.want, ",") {
+				t.Fatalf("unexpected tasks for status %q\n got: %v\nwant: %v", tc.status, got, tc.want)
+			}
+		})
+	}
+}
+
+func writeTaskWithStatus(t *testing.T, root, id, status string) {
+	t.Helper()
+
+	dir := filepath.Join(root, id)
+	if err := os.MkdirAll(dir, 0o755); err != nil {
+		t.Fatalf("mkdir task dir: %v", err)
+	}
+
+	filePath := filepath.Join(dir, id+".md")
+	now := time.Now().Format(time.RFC3339)
+
+	content := strings.Join([]string{
+		"---",
+		"role: developer",
+		"priority: medium",
+		"parent: \"\"",
+		"blockers: []",
+		"blocks: []",
+		"date_created: " + now,
+		"date_edited: " + now,
+		"owner_approval: false",
+		"completed: false",
+		"status: " + status,
+		"---",
+		"",
+		"# Task Title",
+		"",
+		"Body",
+		"",
+	}, "\n")
+
+	if err := os.WriteFile(filePath, []byte(content), 0o644); err != nil {
+		t.Fatalf("write task file: %v", err)
+	}
 }
 
 func assertGolden(t *testing.T, path, got string, replacements map[string]string) {
