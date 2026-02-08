@@ -2,7 +2,6 @@
 
 ## High
 
-- [repair changes files immediately after strand complete](Tqn2blh-repair-changes-files-immediately-after-strand-comp.md)
 
 ## Medium
 

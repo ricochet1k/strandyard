@@ -96,7 +96,7 @@ func runComplete(w io.Writer, projectName, inputID string, todoNum int, role str
 		return nil
 	}
 
-	// Calculate incremental update before marking the task complete
+	// Calculate incremental update before clearing blocker references.
 	update, err := task.CalculateIncrementalFreeListUpdate(db.GetAll(), taskID)
 	if err != nil {
 		return fmt.Errorf("failed to calculate incremental update: %w", err)
@@ -108,10 +108,6 @@ func runComplete(w io.Writer, projectName, inputID string, todoNum int, role str
 
 	if err := db.UpdateBlockersAfterCompletion(taskID); err != nil {
 		return fmt.Errorf("failed to update blockers after completion: %w", err)
-	}
-
-	if _, err := db.SaveDirty(); err != nil {
-		return fmt.Errorf("failed to write task file: %w", err)
 	}
 
 	activityLog, err := activity.Open(paths.BaseDir)
@@ -132,8 +128,11 @@ func runComplete(w io.Writer, projectName, inputID string, todoNum int, role str
 	if _, err := db.UpdateParentTodosForChild(taskID); err != nil {
 		return fmt.Errorf("failed to update parent task TODO entries: %w", err)
 	}
+	if _, err := db.ReconcileBlockerRelationships(); err != nil {
+		return fmt.Errorf("failed to reconcile blocker relationships: %w", err)
+	}
 	if _, err := db.SaveDirty(); err != nil {
-		return fmt.Errorf("failed to write parent task updates: %w", err)
+		return fmt.Errorf("failed to write task updates: %w", err)
 	}
 
 	// Try incremental update first, fall back to full validation
@@ -143,7 +142,6 @@ func runComplete(w io.Writer, projectName, inputID string, todoNum int, role str
 			return err
 		}
 	} else {
-		fmt.Fprintf(w, "✓ Incrementally updated free-tasks.md\n")
 		validator := task.NewValidatorWithRoles(db.GetAll(), paths.RolesDir)
 		validationErrors := validator.ValidateAndRepair()
 		if _, err := db.SaveDirty(); err != nil {
@@ -220,6 +218,12 @@ func runCompleteTodo(w io.Writer, db *task.TaskDB, paths projectPaths, t *task.T
 	}
 
 	if result.TaskCompleted {
+		// Calculate incremental update before clearing blocker references.
+		update, err := task.CalculateIncrementalFreeListUpdate(db.GetAll(), taskID)
+		if err != nil {
+			return fmt.Errorf("failed to calculate incremental update: %w", err)
+		}
+
 		activityLog, err := activity.Open(paths.BaseDir)
 		if err != nil {
 			return fmt.Errorf("failed to open activity log: %w", err)
@@ -237,15 +241,11 @@ func runCompleteTodo(w io.Writer, db *task.TaskDB, paths projectPaths, t *task.T
 		if _, err := db.UpdateParentTodosForChild(taskID); err != nil {
 			return fmt.Errorf("failed to update parent task TODO entries: %w", err)
 		}
+		if _, err := db.ReconcileBlockerRelationships(); err != nil {
+			return fmt.Errorf("failed to reconcile blocker relationships: %w", err)
+		}
 		if _, err := db.SaveDirty(); err != nil {
 			return fmt.Errorf("failed to write task file: %w", err)
-		}
-
-		// Calculate incremental update after all task state changes are complete
-		// This ensures we calculate based on the final state, not a stale state
-		update, err := task.CalculateIncrementalFreeListUpdate(db.GetAll(), taskID)
-		if err != nil {
-			return fmt.Errorf("failed to calculate incremental update: %w", err)
 		}
 
 		// Try incremental update first, fall back to full validation
@@ -255,7 +255,6 @@ func runCompleteTodo(w io.Writer, db *task.TaskDB, paths projectPaths, t *task.T
 				return err
 			}
 		} else {
-			fmt.Fprintf(w, "✓ Incrementally updated free-tasks.md\n")
 			validator := task.NewValidatorWithRoles(db.GetAll(), paths.RolesDir)
 			validationErrors := validator.ValidateAndRepair()
 			if _, err := db.SaveDirty(); err != nil {

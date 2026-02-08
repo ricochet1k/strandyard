@@ -11,7 +11,6 @@ blockers:
     - Tb0oq-identify-code-to-delete
     - Tdhrq-review-parser-go-and-task-loading
     - Thyd1-document-taskdb-responsibilities-and-boundaries
-    - Tqn2blh-repair-changes-files-immediately-after-strand-comp
     - Trtik-review-repair-go-validation-logic
     - Tuu6q-update-existing-usage-throughout-codebase
     - Twcdw-audit-api-surface-and-identify-misuse-opportunitie
@@ -19,7 +18,7 @@ blockers:
     - Txvyh-design-task-creation-api-template-based-only
 blocks: []
 date_created: 2026-01-31T17:18:35.743126Z
-date_edited: 2026-02-08T04:11:10.516938Z
+date_edited: 2026-02-08T04:14:00.912906Z
 owner_approval: false
 completed: false
 status: ""
@@ -74,4 +73,4 @@ Reference: pkg/task/TASKDB_DESIGN.md
 - [ ] (subtask: Twcdw) Audit API surface and identify misuse opportunities
 - [ ] (subtask: Tx4jn) Design relationship management API
 - [ ] (subtask: Txvyh) Design task creation API (template-based only)
-- [ ] (subtask: Tqn2blh) repair changes files immediately after strand complete
+- [x] (subtask: Tqn2blh) repair changes files immediately after strand complete

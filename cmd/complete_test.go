@@ -993,3 +993,89 @@ A test task to verify free-list regeneration.
 		t.Errorf("task should be back in free-list after status change to in_progress")
 	}
 }
+
+func TestCompleteLeavesRepoInRepairedState(t *testing.T) {
+	repo, _ := setupTestEnv(t)
+	if err := runInit(io.Discard, initOptions{ProjectName: "", StorageMode: storageLocal}); err != nil {
+		t.Fatalf("runInit failed: %v", err)
+	}
+
+	roleFile := filepath.Join(repo, ".strand", "roles", "developer.md")
+	roleContent := `# Developer
+
+## Role
+Developer (human or AI) - implements tasks, writes code, and produces working software.
+`
+	if err := os.WriteFile(roleFile, []byte(roleContent), 0o644); err != nil {
+		t.Fatalf("failed to create role file: %v", err)
+	}
+
+	parentID := "E" + testToken(t.Name()) + "-parent-task"
+	childID := "T" + testToken(t.Name()+"child") + "-child-task"
+
+	parentFile := filepath.Join(repo, ".strand", "tasks", parentID+".md")
+	childFile := filepath.Join(repo, ".strand", "tasks", childID+".md")
+
+	parentContent := fmt.Sprintf(`---
+type: epic
+role: developer
+priority: high
+parent: ""
+blockers: [%s]
+blocks: []
+date_created: 2026-01-27T00:00:00Z
+date_edited: 2026-01-27T00:00:00Z
+owner_approval: false
+completed: false
+status: open
+---
+
+# Parent Task
+`, childID)
+
+	childContent := fmt.Sprintf(`---
+type: implement
+role: developer
+priority: high
+parent: %s
+blockers: []
+blocks: [%s]
+date_created: 2026-01-27T00:00:00Z
+date_edited: 2026-01-27T00:00:00Z
+owner_approval: false
+completed: false
+status: open
+---
+
+# Child Task
+`, parentID, parentID)
+
+	if err := os.WriteFile(parentFile, []byte(parentContent), 0o644); err != nil {
+		t.Fatalf("failed to write parent task: %v", err)
+	}
+	if err := os.WriteFile(childFile, []byte(childContent), 0o644); err != nil {
+		t.Fatalf("failed to write child task: %v", err)
+	}
+
+	paths, err := resolveProjectPaths("")
+	if err != nil {
+		t.Fatalf("failed to resolve project paths: %v", err)
+	}
+
+	if err := runRepair(io.Discard, paths.TasksDir, paths.RootTasksFile, paths.FreeTasksFile, "text"); err != nil {
+		t.Fatalf("initial runRepair failed: %v", err)
+	}
+
+	if err := runComplete(io.Discard, "", childID, 0, "developer", "done"); err != nil {
+		t.Fatalf("runComplete failed: %v", err)
+	}
+
+	var repairOut bytes.Buffer
+	if err := runRepair(&repairOut, paths.TasksDir, paths.RootTasksFile, paths.FreeTasksFile, "text"); err != nil {
+		t.Fatalf("runRepair failed: %v", err)
+	}
+
+	if !bytes.Contains(repairOut.Bytes(), []byte("Repaired 0 tasks")) {
+		t.Fatalf("expected complete to leave repo repaired; got output:\n%s", repairOut.String())
+	}
+}
