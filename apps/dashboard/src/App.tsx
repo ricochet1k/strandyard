@@ -169,6 +169,16 @@ function errorMessage(err: unknown) {
   return "Unknown error"
 }
 
+function normalizeTaskStatus(task: { status: string; completed: boolean }) {
+  const raw = task.status?.trim()
+  if (raw) return raw
+  return task.completed ? "done" : "open"
+}
+
+function isActiveStatus(status: string) {
+  return status === "open" || status === "in_progress"
+}
+
 export default function App() {
   const [tab, setTab] = createSignal<Tab>("tasks")
   const [activeTaskDetail, setActiveTaskDetail] = createSignal<TaskDetail | null>(null)
@@ -212,7 +222,9 @@ export default function App() {
 
   // Task filtering, sorting, and search
   const [searchQuery, setSearchQuery] = createSignal("")
-  const [filterStatus, setFilterStatus] = createSignal<"all" | "active" | "done">("active")
+  const [filterStatus, setFilterStatus] = createSignal<
+    "all" | "active" | "open" | "in_progress" | "done" | "cancelled" | "duplicate"
+  >("active")
   const [filterRole, setFilterRole] = createSignal<string>("all")
   const [filterPriority, setFilterPriority] = createSignal<string>("all")
   const [hideBlocked, setHideBlocked] = createSignal(false)
@@ -352,7 +364,7 @@ export default function App() {
           title: task.title,
           role: task.role,
           priority: task.priority,
-          completed: task.completed,
+          status: task.status,
           parent: task.parent,
           blockers: task.blockers,
           blocks: task.blocks,
@@ -434,7 +446,7 @@ export default function App() {
   }
 
   const hasChildren = (node: TaskTreeNode) => (taskChildren.get(node.task.short_id)?.length ?? 0) > 0
-  const isExpanded = (node: TaskTreeNode) => node.expanded ?? !node.task.completed
+  const isExpanded = (node: TaskTreeNode) => node.expanded ?? isActiveStatus(normalizeTaskStatus(node.task))
 
   const toggleNode = (node: TaskTreeNode) => {
     node.expanded = !isExpanded(node)
@@ -648,7 +660,12 @@ export default function App() {
 
     const status = filterStatus()
     if (status !== "all") {
-      if (status === "done" ? !task.completed : task.completed) return false
+      const taskStatus = normalizeTaskStatus(task)
+      if (status === "active") {
+        if (!isActiveStatus(taskStatus)) return false
+      } else if (taskStatus !== status) {
+        return false
+      }
     }
 
     const role = filterRole()

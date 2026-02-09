@@ -21,6 +21,17 @@ export default function TaskTable(props: TaskTableProps) {
     props.onSortChange(field)
   }
 
+  const normalizeTaskStatus = (task: { status: string; completed: boolean }) => {
+    const raw = task.status?.trim()
+    if (raw) return raw
+    return task.completed ? "done" : "open"
+  }
+
+  const formatStatusLabel = (status: string) => {
+    if (status === "in_progress") return "in progress"
+    return status
+  }
+
   return (
     <table class="task-table" style="height: 100%;">
       <thead>
@@ -72,7 +83,7 @@ export default function TaskTable(props: TaskTableProps) {
           <For each={props.tasks}>
             {(node) => (
               <tr
-                class={`tree-item ${props.activePath === node.task.path ? "selected" : ""} ${node.task.completed ? "done" : ""
+                class={`tree-item ${props.activePath === node.task.path ? "selected" : ""} ${normalizeTaskStatus(node.task) === "done" ? "done" : ""
                   } ${node.task.blockers && node.task.blockers.length > 0 ? "blocked" : ""}`}
               >
                 <td class="task-col-title" style={{ "padding-left": props.viewMode === "tree" ? `${node.depth * 12}px` : "0" }}>
@@ -110,10 +121,17 @@ export default function TaskTable(props: TaskTableProps) {
                 </td>
                 <td class="task-col-status">
                   <span
-                    class={`status-badge ${node.task.completed ? "status-done" : node.task.blockers?.length ? "status-blocked" : "status-active"
-                      }`}
+                    class={`status-badge ${(() => {
+                      const status = normalizeTaskStatus(node.task)
+                      if (node.task.blockers?.length && (status === "open" || status === "in_progress")) return "status-blocked"
+                      return `status-${status.replace("_", "-")}`
+                    })()}`}
                   >
-                    {node.task.completed ? "done" : node.task.blockers?.length ? "blocked" : "active"}
+                    {(() => {
+                      const status = normalizeTaskStatus(node.task)
+                      if (node.task.blockers?.length && (status === "open" || status === "in_progress")) return "blocked"
+                      return formatStatusLabel(status)
+                    })()}
                   </span>
                 </td>
                 <td class="task-col-priority">

@@ -190,9 +190,15 @@
   letter-spacing: 0.05em;
 }
 
-.status-badge.status-active {
+.status-badge.status-active,
+.status-badge.status-open {
   background: rgba(74, 158, 255, 0.15);
   color: #2563eb;
+}
+
+.status-badge.status-in-progress {
+  background: rgba(214, 127, 68, 0.18);
+  color: #b55b28;
 }
 
 .status-badge.status-done {
@@ -203,6 +209,16 @@
 .status-badge.status-blocked {
   background: rgba(217, 107, 92, 0.15);
   color: #b63a2f;
+}
+
+.status-badge.status-cancelled {
+  background: rgba(217, 107, 92, 0.18);
+  color: #b63a2f;
+}
+
+.status-badge.status-duplicate {
+  background: rgba(120, 129, 141, 0.18);
+  color: #5b6775;
 }
 
 .priority {

@@ -13,6 +13,7 @@ type TaskDetail = {
   role: string
   priority: string
   completed: boolean
+  status: string
   parent: string
   blockers: string[]
   blocks: string[]
@@ -62,6 +63,14 @@ export default function Editor(props: EditorProps) {
   const updateTaskField = (field: keyof TaskDetail, value: any) => {
     if (!props.task) return
     props.onTaskChange({ ...props.task, [field]: value })
+  }
+
+  const normalizeTaskStatus = () => {
+    const current = task()
+    if (!current) return "open"
+    const raw = current.status?.trim()
+    if (raw) return raw
+    return current.completed ? "done" : "open"
   }
 
   const addBlocker = () => {
@@ -344,11 +353,14 @@ export default function Editor(props: EditorProps) {
               <select
                 id="task-status"
                 class="editor-input"
-                value={task()?.completed ? "done" : "active"}
-                onChange={(e) => updateTaskField("completed", e.currentTarget.value === "done")}
+                value={normalizeTaskStatus()}
+                onChange={(e) => updateTaskField("status", e.currentTarget.value)}
               >
-                <option value="active">Active</option>
+                <option value="open">Open</option>
+                <option value="in_progress">In Progress</option>
                 <option value="done">Done</option>
+                <option value="cancelled">Cancelled</option>
+                <option value="duplicate">Duplicate</option>
               </select>
             </div>
 

@@ -8,7 +8,7 @@ type SidebarProps = {
   projects: any[]
   currentProject: string
   searchQuery: string
-  filterStatus: "all" | "active" | "done"
+  filterStatus: "all" | "active" | "open" | "in_progress" | "done" | "cancelled" | "duplicate"
   filterRole: string
   filterPriority: string
   hideBlocked: boolean
@@ -18,7 +18,7 @@ type SidebarProps = {
   onTabChange: (tab: Tab) => void
   onProjectChange: (project: string) => void
   onSearchChange: (query: string) => void
-  onFilterStatusChange: (status: "all" | "active" | "done") => void
+  onFilterStatusChange: (status: "all" | "active" | "open" | "in_progress" | "done" | "cancelled" | "duplicate") => void
   onFilterRoleChange: (role: string) => void
   onFilterPriorityChange: (priority: string) => void
   onHideBlockedChange: (hide: boolean) => void
@@ -108,7 +108,11 @@ export default function Sidebar(props: SidebarProps) {
             >
               <option value="all">All Status</option>
               <option value="active">Active</option>
+              <option value="open">Open</option>
+              <option value="in_progress">In Progress</option>
               <option value="done">Done</option>
+              <option value="cancelled">Cancelled</option>
+              <option value="duplicate">Duplicate</option>
             </select>
           </div>
 

@@ -53,6 +53,7 @@ type taskUpdateRequest struct {
 	Role      *string   `json:"role,omitempty"`
 	Priority  *string   `json:"priority,omitempty"`
 	Completed *bool     `json:"completed,omitempty"`
+	Status    *string   `json:"status,omitempty"`
 	Parent    *string   `json:"parent,omitempty"`
 	Blockers  *[]string `json:"blockers,omitempty"`
 	Blocks    *[]string `json:"blocks,omitempty"`
@@ -572,9 +573,16 @@ func (s *Server) handleTaskGetOrUpdate(w http.ResponseWriter, r *http.Request, p
 			t.Meta.Priority = task.NormalizePriority(*req.Priority)
 			t.MarkDirty()
 		}
-		if req.Completed != nil {
-			t.Meta.Completed = *req.Completed
-			t.MarkDirty()
+		if req.Status != nil {
+			if err := db.SetStatus(t.ID, *req.Status); err != nil {
+				respondError(w, http.StatusBadRequest, err)
+				return
+			}
+		} else if req.Completed != nil {
+			if err := db.SetCompleted(t.ID, *req.Completed); err != nil {
+				respondError(w, http.StatusBadRequest, err)
+				return
+			}
 		}
 		if req.Blockers != nil {
 			t.Meta.Blockers = *req.Blockers
