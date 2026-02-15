@@ -143,6 +143,51 @@ function buildProjectUrl(path: string, project: string, configure?: (params: URL
   return `${path}?${params.toString()}`
 }
 
+type DashboardRoute = {
+  project: string
+  taskId: string
+  relationship: string
+  origin: string
+}
+
+function parseRoute(url: URL): DashboardRoute {
+  const segments = url.pathname.split("/").filter(Boolean)
+  const params = url.searchParams
+
+  let project = ""
+  let taskId = ""
+
+  if (segments[0] === "projects" && segments[1]) {
+    project = decodeURIComponent(segments[1])
+    if (segments[2] === "tasks" && segments[3]) {
+      taskId = decodeURIComponent(segments[3])
+    }
+  }
+
+  if (!project) {
+    project = params.get("project") || ""
+  }
+  if (!taskId) {
+    taskId = params.get("task") || ""
+  }
+
+  return {
+    project,
+    taskId,
+    relationship: params.get("relationship") || "",
+    origin: params.get("origin") || "",
+  }
+}
+
+function buildRoutePath(project: string, taskId?: string) {
+  if (!project) return "/"
+  const projectPart = encodeURIComponent(project)
+  if (!taskId) {
+    return `/projects/${projectPart}`
+  }
+  return `/projects/${projectPart}/tasks/${encodeURIComponent(taskId)}`
+}
+
 async function fetchTasksForProject(project: string | undefined) {
   if (!project) {
     return []
@@ -239,17 +284,59 @@ export default function App() {
     return `${path}${separator}project=${encodeURIComponent(project)}`
   }
 
+  const updateBrowserRoute = (next: {
+    project?: string
+    taskId?: string
+    relationship?: string
+    origin?: string
+    replace?: boolean
+  }) => {
+    const project = next.project ?? currentProject()
+    const taskId = next.taskId || ""
+    const params = new URLSearchParams(window.location.search)
+    params.delete("project")
+    params.delete("task")
+    params.delete("relationship")
+    params.delete("origin")
+    if (next.relationship) {
+      params.set("relationship", next.relationship)
+    }
+    if (next.origin) {
+      params.set("origin", next.origin)
+    }
+    const query = params.toString()
+    const newUrl = `${buildRoutePath(project, taskId)}${query ? `?${query}` : ""}`
+    const state = {
+      project,
+      taskId,
+      rel: next.relationship,
+      orig: next.origin,
+    }
+    if (next.replace) {
+      window.history.replaceState(state, "", newUrl)
+      return
+    }
+    window.history.pushState(state, "", newUrl)
+  }
+
+  const selectProject = (project: string) => {
+    setCurrentProject(project)
+    setActiveTaskDetail(null)
+    setOriginId(null)
+    setRelationship(null)
+    updateBrowserRoute({ project, replace: true })
+  }
+
   const loadProjects = async () => {
     try {
       const data = await fetchJSON<ProjectsResponse>("/api/projects")
+      const route = parseRoute(new URL(window.location.href))
       setProjects(data.projects)
-      if (!currentProject() && data.current) {
+      if (route.project) {
+        setCurrentProject(route.project)
+      } else if (!currentProject() && data.current) {
         setCurrentProject(data.current)
-      }
-      const params = new URLSearchParams(window.location.search)
-      const urlProject = params.get('project')
-      if (urlProject) {
-        setCurrentProject(urlProject)
+        updateBrowserRoute({ project: data.current, replace: true })
       }
     } catch (err) {
       setStatus(`Failed to load projects: ${errorMessage(err)}`)
@@ -325,7 +412,7 @@ export default function App() {
     }
   }
 
-  const loadTask = async (taskId: string, rel?: string, orig?: string) => {
+  const loadTask = async (taskId: string, rel?: string, orig?: string, updateHistory = true) => {
     try {
       const data = await fetchJSON<TaskDetail>(apiURL(`/api/task?id=${encodeURIComponent(taskId)}`))
       setActiveTaskDetail(data)
@@ -333,17 +420,9 @@ export default function App() {
       setStatus(`Loaded ${data.short_id}`)
       setRelationship(rel || null)
       setOriginId(orig || null)
-
-      // Update URL
-      const params = new URLSearchParams(window.location.search)
-      params.set("task", taskId)
-      if (rel) params.set("relationship", rel)
-      else params.delete("relationship")
-      if (orig) params.set("origin", orig)
-      else params.delete("origin")
-
-      const newUrl = `${window.location.pathname}?${params.toString()}`
-      window.history.pushState({ taskId, rel, orig }, "", newUrl)
+      if (updateHistory) {
+        updateBrowserRoute({ taskId, relationship: rel, origin: orig })
+      }
     } catch (err) {
       setStatus(`Failed to load task: ${errorMessage(err)}`)
     }
@@ -384,10 +463,17 @@ export default function App() {
   }
 
   const handlePopState = (event: PopStateEvent) => {
-    const state = event.state
-    if (state && state.taskId) {
-      void loadTask(state.taskId, state.rel, state.orig)
+    const route = parseRoute(new URL(window.location.href))
+    if (route.project && route.project !== currentProject()) {
+      setCurrentProject(route.project)
     }
+    if (route.taskId) {
+      void loadTask(route.taskId, route.relationship || undefined, route.origin || undefined, false)
+      return
+    }
+    setActiveTaskDetail(null)
+    setOriginId(null)
+    setRelationship(null)
   }
 
   const onSelectRole = (role: RoleItem) => {
@@ -796,11 +882,15 @@ export default function App() {
   })
 
   onMount(() => {
+    const initialRoute = parseRoute(new URL(window.location.href))
     void loadProjects().then(() => {
-      const params = new URLSearchParams(window.location.search)
-      const taskId = params.get('task')
-      if (taskId) {
-        void loadTask(taskId, params.get('relationship') || undefined, params.get('origin') || undefined)
+      if (initialRoute.taskId) {
+        void loadTask(
+          initialRoute.taskId,
+          initialRoute.relationship || undefined,
+          initialRoute.origin || undefined,
+          false,
+        )
       }
     })
 
@@ -923,7 +1013,7 @@ export default function App() {
         projects={projects()}
         currentProject={currentProject()}
         connected={connected()}
-        onProjectChange={setCurrentProject}
+        onProjectChange={selectProject}
       />
 
       <section class="workspace">
@@ -940,7 +1030,7 @@ export default function App() {
           availableRoles={availableRoles()}
           availablePriorities={availablePriorities()}
           onTabChange={setTab}
-          onProjectChange={setCurrentProject}
+          onProjectChange={selectProject}
           onSearchChange={setSearchQuery}
           onFilterStatusChange={setFilterStatus}
           onFilterRoleChange={setFilterRole}

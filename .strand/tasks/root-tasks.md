@@ -10,7 +10,6 @@
 - [Design AI exclusion for human-role tasks](T5b9x-human-role-ai-exclusion-design.md)
 - [Design opencode plugin](T7m5z-opencode-plugin-design.md)
 - [Design recurring code review and cleanup tasks](T9f4w-code-review-cleanup-recurring-design.md)
-- [web: task create/update bypass TaskDB and skip master list refresh](Tcguldn-web-task-create-update-bypass-taskdb-and-skip-mast.md)
 - [Implement client-side routing in the dashboard](Tcojdpy-implement-client-side-routing-in-the-dashboard.md)
 - [Audit recurrence implementation and identify remaining work](Tctb8lm-audit-recurrence-implementation-and-identify-remai.md)
 - [Complete command should also insert report into parent's subtasks after the relevant checkbox entry](Tfe1ssq-complete-command-should-also-insert-report-into-pa.md)

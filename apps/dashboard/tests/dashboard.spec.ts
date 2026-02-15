@@ -632,6 +632,17 @@ test("loads tasks and opens the editor", async ({ page }) => {
   await expect(page.getByText(taskDetail.path)).toBeVisible()
 })
 
+test("navigates to project/task route when selecting a task", async ({ page }) => {
+  await installEventSourceMock(page)
+  await setupApiMocks(page)
+
+  await page.goto("/")
+  await page.getByLabel("All Status").check()
+  await page.getByRole("button", { name: tasks[0].title }).click()
+
+  await expect(page).toHaveURL(new RegExp(`/projects/${project.name}/tasks/${tasks[0].id}$`))
+})
+
 test("saves edits to a task", async ({ page }) => {
   await installEventSourceMock(page)
 
@@ -915,6 +926,16 @@ test("switching projects refreshes task list, templates, and roles without leavi
 
   const roleSelect = page.locator("select#role")
   await expect(roleSelect.locator("option", { hasText: "ops" })).toHaveCount(1)
+})
+
+test("switching projects updates the route", async ({ page }) => {
+  await installEventSourceMock(page)
+  await setupProjectOverrideMocks(page)
+
+  await page.goto("/")
+  await page.locator("#project-select").selectOption(projectB.name)
+
+  await expect(page).toHaveURL(new RegExp(`/projects/${projectB.name}$`))
 })
 
 test("kanban drag and drop patches task status", async ({ page }) => {

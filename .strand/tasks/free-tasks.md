@@ -24,7 +24,6 @@
 - [Review free-list update issue and verify fix](Townamg-review-free-list-update-issue-and-verify-fix.md)
 - [Design: Allow reapplying templates to existing tasks](Tk259ie-design-allow-reapplying-templates-to-existing-task.md)
 - [Design gc command for status-based garbage collection](Tvbdhas-design-gc-command-for-status-based-garbage-collect.md)
-- [Implement client-side routing in the dashboard](Tcojdpy-implement-client-side-routing-in-the-dashboard.md)
 - [Update Go web server for SPA fallback](Tifug5w-update-go-web-server-for-spa-fallback.md)
 - [complete command does not update root-tasks.md](Tilog7x-complete-command-does-not-update-root-tasks-md.md)
 - [Implement role opt-in filtering for strand next](Twv7603-implement-role-opt-in-filtering-for-strand-next.md)
