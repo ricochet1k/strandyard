@@ -3,6 +3,7 @@
 ## Context and decision records
 - `pkg/task/TASKDB_DESIGN.md` (problem statement and required outcomes)
 - `design-docs/task-go-structure-review.md` (current mutable surface in `Task`/`Metadata`)
+- `design-docs/taskdb-access-control-strategy.md` (access-control alternatives and recommended boundary)
 - `design-docs/blockers-relationship-management-review.md` (relationship reconciliation behavior and boundary options)
 - `pkg/task/doc.go` (current recommended usage and known pitfalls)
 - Parent review task: `Ti6zj` (TaskDB API Design Review)
