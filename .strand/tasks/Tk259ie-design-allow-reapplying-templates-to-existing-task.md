@@ -5,12 +5,12 @@ priority: medium
 parent: I8lew-allow-reapplying-templates-to-existing-tasks
 blockers:
     - T39dxo3-owner-decision-reapply-template-command-direction
-    - Te0b2ww-review-reapply-template-design-alternatives
+    - T448da6-security-review-reapply-template-design
     - Tfo4cg6-reliability-review-reapply-template-design
     - Tmzzb0o-usability-review-reapply-template-design
 blocks: []
 date_created: 2026-02-06T04:48:43.012277Z
-date_edited: 2026-02-15T05:14:57.269997Z
+date_edited: 2026-02-15T05:16:48.461259Z
 owner_approval: false
 completed: false
 status: in_progress
@@ -40,7 +40,9 @@ Consider:
 Decide which task template would best fit this task and re-add it with that template and the same parent.
 
 ## Subtasks
-- [ ] (subtask: Te0b2ww) Review reapply-template design alternatives
+- [x] (subtask: Te0b2ww) Review reapply-template design alternatives
+  Verdict: coordination complete. Confirmed existing usability/reliability/owner-decision subtasks and added security review subtask T448da6 for path-safety and force-guard concerns; final command-direction decision remains deferred to owner task T39dxo3.
 - [ ] (subtask: Tmzzb0o) Usability review: reapply-template design
 - [ ] (subtask: Tfo4cg6) Reliability review: reapply-template design
 - [ ] (subtask: T39dxo3) Owner decision: reapply-template command direction
+- [ ] (subtask: T448da6) Security review: reapply-template design

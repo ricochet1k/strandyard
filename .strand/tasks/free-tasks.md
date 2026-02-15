@@ -24,10 +24,10 @@
 - [web: route task create/update through TaskDB and refresh master lists](Tvnko7r-web-route-task-create-update-through-taskdb-and-re.md)
 - [Investigate strand complete --todo indexing and role validation messaging](Truwdpz-investigate-strand-complete-todo-indexing-and-role.md)
 - [Investigate why strand add always runs repair and outputs long IDs](Tl9e8qr-investigate-why-strand-add-always-runs-repair-and.md)
-- [Review reapply-template design alternatives](Te0b2ww-review-reapply-template-design-alternatives.md)
 - [Usability review: reapply-template design](Tmzzb0o-usability-review-reapply-template-design.md)
 - [Reliability review: reapply-template design](Tfo4cg6-reliability-review-reapply-template-design.md)
 - [Owner decision: reapply-template command direction](T39dxo3-owner-decision-reapply-template-command-direction.md)
+- [Security review: reapply-template design](T448da6-security-review-reapply-template-design.md)
 
 ## Low
 
