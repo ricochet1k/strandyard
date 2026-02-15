@@ -14,7 +14,6 @@
 - [Design relationship management API](Tx4jn-design-relationship-management-api.md)
 - [Design task creation API (template-based only)](Txvyh-design-task-creation-api-template-based-only.md)
 - [Complete command should also insert report into parent's subtasks after the relevant checkbox entry](Tfe1ssq-complete-command-should-also-insert-report-into-pa.md)
-- [Clarify anchor flag inconsistency in CLI.md and design doc](T8xy3ry-clarify-anchor-flag-inconsistency-in-cli-md-and-de.md)
 - [Define error message and recovery hint for ambiguous anchor type](Tiw9in3-define-error-message-and-recovery-hint-for-ambiguo.md)
 - [Review Anchor Help Text Alternatives](Tcc9bjk-review-anchor-help-text-and-examples-alternatives.md)
 - [New Task: Usability review: anchor help text and examples](Tt3kj2u-usability-review-anchor-help-text-and-examples.md)
@@ -35,6 +34,7 @@
 - [Repair mutates tasks after complete should be no-op](Tx3emi6-repair-mutates-tasks-after-complete-should-be-no-o.md)
 - [Dashboard: add regression test for task list refresh when switching projects](T90100h-dashboard-add-regression-test-for-task-list-refres.md)
 - [Investigate strand complete --todo indexing and role validation messaging](Tfuy2lo-investigate-strand-complete-todo-indexing-and-role.md)
+- [Update anchor-help design doc context to match --every syntax](Tov2tez-update-anchor-help-design-doc-context-to-match-eve.md)
 
 ## Low
 
