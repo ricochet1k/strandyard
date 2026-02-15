@@ -6,10 +6,10 @@ parent: ""
 blockers: []
 blocks: []
 date_created: 2026-02-07T06:57:44.764315Z
-date_edited: 2026-02-07T06:57:44.764315Z
+date_edited: 2026-02-15T04:44:48.319671Z
 owner_approval: false
-completed: false
-status: ""
+completed: true
+status: done
 description: ""
 ---
 
@@ -36,3 +36,6 @@ Expected:
 - Issue is fixed and verified locally
 - Tests pass
 - Build succeeds
+
+## Completion Report
+Confirmed from code-path inspection that web PATCH still writes blockers/blocks directly and web create/update flows do not regenerate root/free master lists. Routed to developer with follow-up task Tvnko7r-web-route-task-create-update-through-taskdb-and-re to implement TaskDB-based relationship updates, master list refresh, and tests.

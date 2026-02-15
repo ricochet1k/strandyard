@@ -28,10 +28,10 @@
 - [Update Go web server for SPA fallback](Tifug5w-update-go-web-server-for-spa-fallback.md)
 - [complete command does not update root-tasks.md](Tilog7x-complete-command-does-not-update-root-tasks-md.md)
 - [Implement role opt-in filtering for strand next](Twv7603-implement-role-opt-in-filtering-for-strand-next.md)
-- [web: task create/update bypass TaskDB and skip master list refresh](Tcguldn-web-task-create-update-bypass-taskdb-and-skip-mast.md)
 - [Repair mutates tasks after complete should be no-op](Tx3emi6-repair-mutates-tasks-after-complete-should-be-no-o.md)
 - [Investigate strand complete --todo indexing and role validation messaging](Tfuy2lo-investigate-strand-complete-todo-indexing-and-role.md)
 - [Update anchor-help design doc context to match --every syntax](Tov2tez-update-anchor-help-design-doc-context-to-match-eve.md)
+- [web: route task create/update through TaskDB and refresh master lists](Tvnko7r-web-route-task-create-update-through-taskdb-and-re.md)
 
 ## Low
 
