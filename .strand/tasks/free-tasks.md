@@ -20,7 +20,6 @@
 - [Review free-list update issue and verify fix](Townamg-review-free-list-update-issue-and-verify-fix.md)
 - [Design: Allow reapplying templates to existing tasks](Tk259ie-design-allow-reapplying-templates-to-existing-task.md)
 - [Design gc command for status-based garbage collection](Tvbdhas-design-gc-command-for-status-based-garbage-collect.md)
-- [complete command does not update root-tasks.md](Tilog7x-complete-command-does-not-update-root-tasks-md.md)
 - [Implement role opt-in filtering for strand next](Twv7603-implement-role-opt-in-filtering-for-strand-next.md)
 - [Repair mutates tasks after complete should be no-op](Tx3emi6-repair-mutates-tasks-after-complete-should-be-no-o.md)
 - [Update anchor-help design doc context to match --every syntax](Tov2tez-update-anchor-help-design-doc-context-to-match-eve.md)
@@ -28,6 +27,7 @@
 - [Insert child completion report into parent subtask entry](Tjar63h-insert-child-completion-report-into-parent-subtask.md)
 - [Investigate strand complete --todo indexing and role validation messaging](Truwdpz-investigate-strand-complete-todo-indexing-and-role.md)
 - [Investigate why strand add always runs repair and outputs long IDs](Tl9e8qr-investigate-why-strand-add-always-runs-repair-and.md)
+- [Investigate complete command root list update bug](Taeh3mx-investigate-complete-command-root-list-update-bug.md)
 
 ## Low
 

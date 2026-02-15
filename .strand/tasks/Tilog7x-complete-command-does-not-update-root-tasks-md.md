@@ -6,16 +6,18 @@ parent: ""
 blockers: []
 blocks: []
 date_created: 2026-02-06T07:29:16.741765Z
-date_edited: 2026-02-06T07:29:16.741765Z
+date_edited: 2026-02-15T05:01:30.438429Z
 owner_approval: false
-completed: false
-status: ""
+completed: true
+status: done
 description: ""
 ---
 
 # complete command does not update root-tasks.md
 
 ## Summary
+
+
 ## Summary
 The 'strand complete' command updates 'free-tasks.md' but fails to remove completed tasks from 'root-tasks.md'.
 
@@ -38,3 +40,6 @@ The task remains in 'root-tasks.md' until a manual 'repair' is run.
 - Issue is fixed and verified locally
 - Tests pass
 - Build succeeds
+
+## Completion Report
+Reproduced: completing temporary root task Tf7rxgv leaves entry in root-tasks.md while free-tasks.md updates. Created developer follow-up Taeh3mx to investigate and fix root list update path.

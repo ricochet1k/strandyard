@@ -10,6 +10,7 @@
 - [Design AI exclusion for human-role tasks](T5b9x-human-role-ai-exclusion-design.md)
 - [Design opencode plugin](T7m5z-opencode-plugin-design.md)
 - [Design recurring code review and cleanup tasks](T9f4w-code-review-cleanup-recurring-design.md)
+- [Investigate complete command root list update bug](Taeh3mx-investigate-complete-command-root-list-update-bug.md)
 - [Audit recurrence implementation and identify remaining work](Tctb8lm-audit-recurrence-implementation-and-identify-remai.md)
 - [TaskDB API Design Review](Ti6zj-taskdb-api-design-review.md)
 - [complete command does not update root-tasks.md](Tilog7x-complete-command-does-not-update-root-tasks-md.md)
