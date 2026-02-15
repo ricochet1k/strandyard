@@ -11,7 +11,6 @@
 - [Design opencode plugin](T7m5z-opencode-plugin-design.md)
 - [Design recurring code review and cleanup tasks](T9f4w-code-review-cleanup-recurring-design.md)
 - [Audit recurrence implementation and identify remaining work](Tctb8lm-audit-recurrence-implementation-and-identify-remai.md)
-- [Complete command should also insert report into parent's subtasks after the relevant checkbox entry](Tfe1ssq-complete-command-should-also-insert-report-into-pa.md)
 - [Improve strand add performance and output](Ti1ugbe-strand-add-is-still-running-repair-though-that-sho.md)
 - [TaskDB API Design Review](Ti6zj-taskdb-api-design-review.md)
 - [Update Go web server for SPA fallback](Tifug5w-update-go-web-server-for-spa-fallback.md)
