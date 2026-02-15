@@ -14,7 +14,6 @@
 - [Design task creation API (template-based only)](Txvyh-design-task-creation-api-template-based-only.md)
 - [Complete command should also insert report into parent's subtasks after the relevant checkbox entry](Tfe1ssq-complete-command-should-also-insert-report-into-pa.md)
 - [Define error message and recovery hint for ambiguous anchor type](Tiw9in3-define-error-message-and-recovery-hint-for-ambiguo.md)
-- [Review Anchor Help Text Alternatives](Tcc9bjk-review-anchor-help-text-and-examples-alternatives.md)
 - [New Task: Usability review: anchor help text and examples](Tt3kj2u-usability-review-anchor-help-text-and-examples.md)
 - [strand edit is missing --blocker flag](Twcp360-strand-edit-is-missing-blocker-flag.md)
 - [Improve strand add performance and output](Ti1ugbe-strand-add-is-still-running-repair-though-that-sho.md)
