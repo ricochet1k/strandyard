@@ -27,7 +27,7 @@
 - [Insert child completion report into parent subtask entry](Tjar63h-insert-child-completion-report-into-parent-subtask.md)
 - [Investigate strand complete --todo indexing and role validation messaging](Truwdpz-investigate-strand-complete-todo-indexing-and-role.md)
 - [Investigate why strand add always runs repair and outputs long IDs](Tl9e8qr-investigate-why-strand-add-always-runs-repair-and.md)
-- [Investigate complete command root list update bug](Taeh3mx-investigate-complete-command-root-list-update-bug.md)
+- [Investigate complete command root list update bug](Tffay2g-investigate-complete-command-root-list-update-bug.md)
 
 ## Low
 
