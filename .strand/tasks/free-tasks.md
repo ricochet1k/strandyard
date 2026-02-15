@@ -27,7 +27,8 @@
 - [Usability review: reapply-template design](Tmzzb0o-usability-review-reapply-template-design.md)
 - [Reliability review: reapply-template design](Tfo4cg6-reliability-review-reapply-template-design.md)
 - [Owner decision: reapply-template command direction](T39dxo3-owner-decision-reapply-template-command-direction.md)
-- [Security review: reapply-template design](T448da6-security-review-reapply-template-design.md)
+- [Define path-safe reapply identifier resolution](Tr4krqs-define-path-safe-reapply-identifier-resolution.md)
+- [Define safe write and force guardrails for reapply](Tpsbmt9-define-safe-write-and-force-guardrails-for-reapply.md)
 
 ## Low
 

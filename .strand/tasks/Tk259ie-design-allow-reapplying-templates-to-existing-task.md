@@ -5,12 +5,11 @@ priority: medium
 parent: I8lew-allow-reapplying-templates-to-existing-tasks
 blockers:
     - T39dxo3-owner-decision-reapply-template-command-direction
-    - T448da6-security-review-reapply-template-design
     - Tfo4cg6-reliability-review-reapply-template-design
     - Tmzzb0o-usability-review-reapply-template-design
 blocks: []
 date_created: 2026-02-06T04:48:43.012277Z
-date_edited: 2026-02-15T05:16:48.461259Z
+date_edited: 2026-02-15T05:18:43.201406Z
 owner_approval: false
 completed: false
 status: in_progress
@@ -45,4 +44,5 @@ Decide which task template would best fit this task and re-add it with that temp
 - [ ] (subtask: Tmzzb0o) Usability review: reapply-template design
 - [ ] (subtask: Tfo4cg6) Reliability review: reapply-template design
 - [ ] (subtask: T39dxo3) Owner decision: reapply-template command direction
-- [ ] (subtask: T448da6) Security review: reapply-template design
+- [x] (subtask: T448da6) Security review: reapply-template design
+  Security review complete. Concerns: added Tr4krqs for identifier/path-safety invariants and Tpsbmt9 for atomic write + non-bypassable force/prune guardrails; review notes captured in design-docs/reapply-template-existing-tasks-security-review.md.
