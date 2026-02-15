@@ -44,21 +44,47 @@ function waitForAnimEnd(hel: HTMLElement, fn: (e: TransitionEvent | AnimationEve
     return cancel
 }
 
+function hasTimedMotion(hel: HTMLElement) {
+    const style = getComputedStyle(hel)
+    const hasDuration = (value: string) => value.split(',').some(part => parseFloat(part.trim()) > 0)
+    return hasDuration(style.transitionDuration) || hasDuration(style.animationDuration)
+}
+
 export function startAnimWait(hel: HTMLElement, addClass: () => void, removeClass: () => void, debug?: any) {
     let started = false
+    let cancelled = false
     const cancel = waitForAnimStart(hel, ev => {
         started = true
         waitForAnimEnd(hel, ev => {
+            if (cancelled) return
             removeClass()
         })
     })
     addClass()
-    if (!started)
-        if (!started) {
+    queueMicrotask(() => {
+        requestAnimationFrame(() => {
+            if (started || cancelled) return
+            if (hasTimedMotion(hel)) {
+                started = true
+                const cancelEnd = waitForAnimEnd(hel, () => {
+                    if (cancelled) return
+                    cancelled = true
+                    removeClass()
+                })
+                setTimeout(() => {
+                    if (cancelled) return
+                    cancelled = true
+                    cancelEnd()
+                    removeClass()
+                }, 350)
+                return
+            }
+            cancelled = true
             console.log("did not start animation...", hel.className, debug)
             cancel()
             removeClass()
-        }
+        })
+    })
 }
 
 export function MyTransitionGroup(props: ParentProps<{ classPrefix: string }>) {

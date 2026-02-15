@@ -84,7 +84,11 @@ export default function TaskTable(props: TaskTableProps) {
             {(node) => (
               <tr
                 class={`tree-item ${props.activePath === node.task.path ? "selected" : ""} ${normalizeTaskStatus(node.task) === "done" ? "done" : ""
-                  } ${node.task.blockers && node.task.blockers.length > 0 ? "blocked" : ""}`}
+                  } ${node.task.blockers && node.task.blockers.length > 0 ? "blocked" : ""} ${node.ghosted ? "ghost" : ""} ${(() => {
+                    const status = normalizeTaskStatus(node.task)
+                    if (node.task.blockers?.length && (status === "open" || status === "in_progress")) return "status-blocked"
+                    return `status-${status.replace("_", "-")}`
+                  })()}`}
               >
                 <td class="task-col-title" style={{ "padding-left": props.viewMode === "tree" ? `${node.depth * 12}px` : "0" }}>
                   {(() => { console.log("task rendering..."); return undefined })()}
@@ -111,6 +115,9 @@ export default function TaskTable(props: TaskTableProps) {
                     >
                       {node.task.title || "Untitled task"}
                     </button>
+                    <Show when={node.ghosted}>
+                      <span class="ghost-label">filtered</span>
+                    </Show>
                   </div>
                 </td>
                 <td class="task-col-id">

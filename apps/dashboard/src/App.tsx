@@ -2,6 +2,7 @@ import { createEffect, createResource, createSignal, onCleanup, onMount, createM
 import Header from "./components/Header"
 import Sidebar from "./components/Sidebar"
 import TaskTable from "./components/TaskTable"
+import KanbanBoard from "./components/KanbanBoard"
 import RolesTable from "./components/RolesTable"
 import TemplatesTable from "./components/TemplatesTable"
 import Editor from "./components/Editor"
@@ -37,6 +38,7 @@ export type TaskTreeNode = {
   depth: number
   expanded?: boolean
   lastUpdateTick: number
+  ghosted?: boolean
 }
 
 export type SortField = "title" | "priority" | "date_created" | "date_edited" | "short_id" // | "actionable"
@@ -222,13 +224,11 @@ export default function App() {
 
   // Task filtering, sorting, and search
   const [searchQuery, setSearchQuery] = createSignal("")
-  const [filterStatus, setFilterStatus] = createSignal<
-    "all" | "active" | "open" | "in_progress" | "done" | "cancelled" | "duplicate"
-  >("active")
-  const [filterRole, setFilterRole] = createSignal<string>("all")
-  const [filterPriority, setFilterPriority] = createSignal<string>("all")
+  const [filterStatus, setFilterStatus] = createSignal<string[]>(["active"])
+  const [filterRole, setFilterRole] = createSignal<string[]>([])
+  const [filterPriority, setFilterPriority] = createSignal<string[]>([])
   const [hideBlocked, setHideBlocked] = createSignal(false)
-  const [viewMode, setViewMode] = createSignal<"tree" | "list">("tree")
+  const [viewMode, setViewMode] = createSignal<"tree" | "list" | "kanban">("tree")
   const [sortField, setSortField] = createSignal<SortField>("priority")
   const [sortDirection, setSortDirection] = createSignal<SortDirection>("desc")
 
@@ -614,6 +614,19 @@ export default function App() {
     console.log('flattening...')
     const tasksSeen = new Set<string>()
     const flattened: TaskTreeNode[] = []
+    const taskCmp = taskCompare(sortField(), sortDirection())
+    const nodeCmp = (a: TaskTreeNode, b: TaskTreeNode) => taskCmp(a.task, b.task)
+
+    const getSortedChildren = (node: TaskTreeNode) => {
+      const children = taskChildren.get(node.task.short_id)
+      if (!children?.length) return []
+      const nodes: TaskTreeNode[] = []
+      for (const childId of children) {
+        const child = taskNodesById.get(childId)
+        if (child) nodes.push(child)
+      }
+      return nodes.sort(nodeCmp)
+    }
 
     const pushNodeFlattened = (node: TaskTreeNode, depth: number, expanded: boolean) => {
       tasksSeen.add(node.task.short_id)
@@ -621,28 +634,29 @@ export default function App() {
       if (expanded)
         flattened.push(node)
       expanded &&= isExpanded(node)
-      const children = taskChildren.get(node.task.short_id)
-      if (children) {
-        for (const childId of children) {
-          const child = taskNodesById.get(childId)
-          if (child) {
-            pushNodeFlattened(child, depth + 1, expanded)
-          }
+      if (expanded) {
+        for (const child of getSortedChildren(node)) {
+          pushNodeFlattened(child, depth + 1, expanded)
         }
       }
     }
 
-    for (let node of sortedNodes) {
+    const roots: TaskTreeNode[] = []
+    for (const node of taskNodesById.values()) {
+      const parentId = node.task.parent
+      if (!parentId) {
+        roots.push(node)
+        continue
+      }
+      const parentShortId = shortIdMap.get(parentId) || parentId
+      const parent = taskNodesById.get(parentShortId)
+      if (!parent) roots.push(node)
+    }
+    roots.sort(nodeCmp)
+
+    for (const node of roots) {
       if (tasksSeen.has(node.task.short_id))
         continue
-
-      while (node.task.parent) {
-        const parent = taskNodesById.get(node.task.parent)
-        if (!parent) break
-        node = parent
-      }
-
-      // now that the root task for this first task has been found, we expand it
       pushNodeFlattened(node, 0, true)
     }
     return flattened
@@ -659,23 +673,23 @@ export default function App() {
     }
 
     const status = filterStatus()
-    if (status !== "all") {
+    if (status.length > 0) {
       const taskStatus = normalizeTaskStatus(task)
-      if (status === "active") {
-        if (!isActiveStatus(taskStatus)) return false
-      } else if (taskStatus !== status) {
-        return false
-      }
+      const statusMatch = status.some((filter) => {
+        if (filter === "active") return isActiveStatus(taskStatus)
+        return taskStatus === filter
+      })
+      if (!statusMatch) return false
     }
 
     const role = filterRole()
-    if (role !== "all") {
-      if (task.role !== role) return false
+    if (role.length > 0) {
+      if (!role.includes(task.role)) return false
     }
 
     const priority = filterPriority()
-    if (priority !== "all") {
-      if (task.priority !== priority) return false
+    if (priority.length > 0) {
+      if (!priority.includes(task.priority)) return false
     }
 
     if (hideBlocked()) {
@@ -691,7 +705,10 @@ export default function App() {
 
     if (mode === "list") {
       // List view: filter individual tasks
-      return flattened.filter(node => matchesFilters(node.task))
+      return flattened.filter((node) => {
+        node.ghosted = false
+        return matchesFilters(node.task)
+      })
     } else {
       // Tree view: keep hierarchy, but filter out non-matching branches
       const matchingIds = new Set<string>()
@@ -715,10 +732,18 @@ export default function App() {
       }
 
       // Second pass: include matching tasks and their ancestors
-      return flattened.filter(node =>
-        matchingIds.has(node.task.short_id) || ancestorIds.has(node.task.short_id)
-      )
+      return flattened.filter((node) => {
+        const isMatch = matchingIds.has(node.task.short_id)
+        const isAncestor = ancestorIds.has(node.task.short_id)
+        if (!isMatch && !isAncestor) return false
+        node.ghosted = !isMatch && isAncestor
+        return true
+      })
     }
+  })
+
+  const filteredKanbanNodes = createMemo(() => {
+    return taskTreeFlattened().filter((node) => matchesFilters(node.task))
   })
 
   const handleSortChange = (field: SortField) => {
@@ -733,6 +758,30 @@ export default function App() {
   const handleTaskDetailChange = (updated: TaskDetail) => {
     setActiveTaskDetail(updated)
     setDirty(true)
+  }
+
+  const updateTaskStatus = async (taskID: string, nextStatus: string) => {
+    try {
+      await fetchJSON<TaskDetail>(apiURL(`/api/task?id=${encodeURIComponent(taskID)}`), {
+        method: "PATCH",
+        body: JSON.stringify({ status: nextStatus }),
+      })
+
+      const active = activeTaskDetail()
+      if (active?.id === taskID) {
+        setActiveTaskDetail({
+          ...active,
+          status: nextStatus,
+          completed: nextStatus === "done",
+        })
+      }
+
+      setStatus(`Moved ${taskID} to ${nextStatus}`)
+      await reloadTasks()
+    } catch (err) {
+      setStatus(`Move failed: ${errorMessage(err)}`)
+      throw err
+    }
   }
 
   createEffect(() => {
@@ -905,25 +954,35 @@ export default function App() {
             <div class="pane-header">
               <h2>Tasks Library</h2>
               <div style={{ display: "flex", gap: "0.5rem", "align-items": "center" }}>
-                <span class="pill">{filteredTaskNodes().length} items</span>
+                <span class="pill">{viewMode() === "kanban" ? filteredKanbanNodes().length : filteredTaskNodes().length} items</span>
                 <button class="button button-primary" onClick={() => openAddTaskModal("")}>
                   + Add Task
                 </button>
               </div>
             </div>
             <div class="list">
-              <TaskTable
-                tasks={filteredTaskNodes()}
-                activePath={activeTaskDetail()?.path ?? ""}
-                sortField={sortField()}
-                sortDirection={sortDirection()}
-                viewMode={viewMode()}
-                hasChildren={hasChildren}
-                isExpanded={isExpanded}
-                onSelect={onSelect}
-                onToggleNode={toggleNode}
-                onSortChange={handleSortChange}
-              />
+              <Show when={viewMode() !== "kanban"}>
+                <TaskTable
+                  tasks={filteredTaskNodes()}
+                  activePath={activeTaskDetail()?.path ?? ""}
+                  sortField={sortField()}
+                  sortDirection={sortDirection()}
+                  viewMode={viewMode() === "kanban" ? "list" : viewMode()}
+                  hasChildren={hasChildren}
+                  isExpanded={isExpanded}
+                  onSelect={onSelect}
+                  onToggleNode={toggleNode}
+                  onSortChange={handleSortChange}
+                />
+              </Show>
+              <Show when={viewMode() === "kanban"}>
+                <KanbanBoard
+                  tasks={filteredKanbanNodes()}
+                  activePath={activeTaskDetail()?.path ?? ""}
+                  onSelect={onSelect}
+                  onMoveTask={updateTaskStatus}
+                />
+              </Show>
             </div>
           </Show>
 

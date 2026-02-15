@@ -7,6 +7,7 @@ type TaskItem = {
   role: string
   priority: string
   completed: boolean
+  status: string
   parent: string
   blockers: string[]
   blocks: string[]
@@ -47,6 +48,7 @@ const tasks: TaskItem[] = [
     role: "developer",
     priority: "high",
     completed: true,
+    status: "done",
     parent: "",
     blockers: [],
     blocks: [],
@@ -61,12 +63,58 @@ const tasks: TaskItem[] = [
     role: "reviewer",
     priority: "medium",
     completed: false,
+    status: "open",
     parent: "",
     blockers: ["T1ab"],
     blocks: [],
     path: "tasks/T2cd-fix-stream/T2cd-fix-stream.md",
     date_created: "2026-01-22T00:00:00Z",
     date_edited: "2026-01-23T00:00:00Z",
+  },
+  {
+    id: "T3ef-parent-plan",
+    short_id: "T3ef",
+    title: "Parent planning",
+    role: "designer",
+    priority: "low",
+    completed: false,
+    status: "open",
+    parent: "",
+    blockers: [],
+    blocks: [],
+    path: "tasks/T3ef-parent-plan/T3ef-parent-plan.md",
+    date_created: "2026-01-24T00:00:00Z",
+    date_edited: "2026-01-24T00:00:00Z",
+  },
+  {
+    id: "T4gh-urgent-subtask",
+    short_id: "T4gh",
+    title: "Urgent subtask",
+    role: "developer",
+    priority: "high",
+    completed: false,
+    status: "in_progress",
+    parent: "T3ef-parent-plan",
+    blockers: [],
+    blocks: [],
+    path: "tasks/T4gh-urgent-subtask/T4gh-urgent-subtask.md",
+    date_created: "2026-01-25T00:00:00Z",
+    date_edited: "2026-01-25T00:00:00Z",
+  },
+  {
+    id: "T5ij-cancelled-task",
+    short_id: "T5ij",
+    title: "Cancelled task",
+    role: "reviewer",
+    priority: "medium",
+    completed: false,
+    status: "cancelled",
+    parent: "",
+    blockers: [],
+    blocks: [],
+    path: "tasks/T5ij-cancelled-task/T5ij-cancelled-task.md",
+    date_created: "2026-01-26T00:00:00Z",
+    date_edited: "2026-01-26T00:00:00Z",
   },
 ]
 
@@ -80,9 +128,33 @@ const roles = [
   { name: "reviewer", path: ".strand/roles/reviewer.md", kind: "roles" },
 ]
 
+const roleItems = [
+  { name: "developer", path: ".strand/roles/developer.md", description: "Implements tasks" },
+  { name: "reviewer", path: ".strand/roles/reviewer.md", description: "Reviews code" },
+]
+
 const templates = [
   { name: "task", path: "templates/task.md", kind: "templates" },
   { name: "epic", path: "templates/epic.md", kind: "templates" },
+]
+
+const templateItems = [
+  {
+    name: "task",
+    path: "templates/task.md",
+    role: "developer",
+    priority: "medium",
+    description: "Basic task",
+    id_prefix: "T",
+  },
+  {
+    name: "epic",
+    path: "templates/epic.md",
+    role: "architect",
+    priority: "high",
+    description: "Epic template",
+    id_prefix: "E",
+  },
 ]
 
 const roleContent = {
@@ -95,6 +167,20 @@ const reviewerRoleContent = {
   content: "---\ndescription: Reviews code\n---\n\n# Reviewer Role\n\nResponsibilities:\n- Review PRs",
 }
 
+const roleDetail = {
+  name: "developer",
+  path: roleContent.path,
+  description: "Implements tasks",
+  body: "# Developer Role\n\nResponsibilities:\n- Write code\n- Fix bugs",
+}
+
+const reviewerRoleDetail = {
+  name: "reviewer",
+  path: reviewerRoleContent.path,
+  description: "Reviews code",
+  body: "# Reviewer Role\n\nResponsibilities:\n- Review PRs",
+}
+
 const templateContent = {
   path: "templates/task.md",
   content: "---\nrole: developer\npriority: medium\ndescription: Basic task\nid_prefix: T\n---\n\n# Task Title",
@@ -103,6 +189,26 @@ const templateContent = {
 const epicTemplateContent = {
   path: "templates/epic.md",
   content: "---\nrole: architect\npriority: high\ndescription: Epic template\nid_prefix: E\n---\n\n# Epic Title",
+}
+
+const templateDetail = {
+  name: "task",
+  path: templateContent.path,
+  role: "developer",
+  priority: "medium",
+  description: "Basic task",
+  id_prefix: "T",
+  body: "# Task Title",
+}
+
+const epicTemplateDetail = {
+  name: "epic",
+  path: epicTemplateContent.path,
+  role: "architect",
+  priority: "high",
+  description: "Epic template",
+  id_prefix: "E",
+  body: "# Epic Title",
 }
 
 const selectAllShortcut = process.platform === "darwin" ? "Meta+A" : "Control+A"
@@ -115,6 +221,7 @@ const projectBTasks: TaskItem[] = [
     role: "ops",
     priority: "low",
     completed: false,
+    status: "open",
     parent: "",
     blockers: [],
     blocks: [],
@@ -140,6 +247,21 @@ const projectBRoles = [
 
 const projectBTemplates = [
   { name: "ops-task", path: projectBTemplateContent.path, kind: "templates" },
+]
+
+const projectBRoleItems = [
+  { name: "ops", path: projectBROpsRoleContent.path, description: "Operates services" },
+]
+
+const projectBTemplateItems = [
+  {
+    name: "ops-task",
+    path: projectBTemplateContent.path,
+    role: "ops",
+    priority: "low",
+    description: "Ops focused task",
+    id_prefix: "O",
+  },
 ]
 
 
@@ -174,6 +296,8 @@ const setupApiMocks = async (
   options: {
     onPatch?: (payload: Record<string, unknown>) => void
     onFilePut?: (path: string, content: string) => void
+    onRolePut?: (path: string, payload: Record<string, unknown>) => void
+    onTemplatePut?: (path: string, payload: Record<string, unknown>) => void
     onTaskCreate?: (payload: Record<string, unknown>) => void
   } = {},
 ) => {
@@ -193,6 +317,22 @@ const setupApiMocks = async (
       await route.fulfill({
         contentType: "application/json",
         body: JSON.stringify(tasks),
+      })
+      return
+    }
+
+    if (url.pathname === "/api/roles") {
+      await route.fulfill({
+        contentType: "application/json",
+        body: JSON.stringify(roleItems),
+      })
+      return
+    }
+
+    if (url.pathname === "/api/templates") {
+      await route.fulfill({
+        contentType: "application/json",
+        body: JSON.stringify(templateItems),
       })
       return
     }
@@ -227,6 +367,60 @@ const setupApiMocks = async (
       await route.fulfill({
         contentType: "application/json",
         body: JSON.stringify(taskDetail),
+      })
+      return
+    }
+
+    if (url.pathname === "/api/role") {
+      const path = url.searchParams.get("path")
+      if (!path) {
+        await route.fulfill({ status: 400, body: "Missing path" })
+        return
+      }
+
+      if (request.method() === "PUT") {
+        const payload = request.postDataJSON() as Record<string, unknown>
+        options.onRolePut?.(path, payload)
+        const base = path === reviewerRoleDetail.path ? reviewerRoleDetail : roleDetail
+        const updated = { ...base, ...payload }
+        await route.fulfill({
+          contentType: "application/json",
+          body: JSON.stringify(updated),
+        })
+        return
+      }
+
+      const detail = path === reviewerRoleDetail.path ? reviewerRoleDetail : roleDetail
+      await route.fulfill({
+        contentType: "application/json",
+        body: JSON.stringify(detail),
+      })
+      return
+    }
+
+    if (url.pathname === "/api/template") {
+      const path = url.searchParams.get("path")
+      if (!path) {
+        await route.fulfill({ status: 400, body: "Missing path" })
+        return
+      }
+
+      if (request.method() === "PUT") {
+        const payload = request.postDataJSON() as Record<string, unknown>
+        options.onTemplatePut?.(path, payload)
+        const base = path === epicTemplateDetail.path ? epicTemplateDetail : templateDetail
+        const updated = { ...base, ...payload }
+        await route.fulfill({
+          contentType: "application/json",
+          body: JSON.stringify(updated),
+        })
+        return
+      }
+
+      const detail = path === epicTemplateDetail.path ? epicTemplateDetail : templateDetail
+      await route.fulfill({
+        contentType: "application/json",
+        body: JSON.stringify(detail),
       })
       return
     }
@@ -330,6 +524,22 @@ const setupProjectOverrideMocks = async (page: Page) => {
       return
     }
 
+    if (url.pathname === "/api/roles") {
+      await route.fulfill({
+        contentType: "application/json",
+        body: JSON.stringify(projectBRoleItems),
+      })
+      return
+    }
+
+    if (url.pathname === "/api/templates") {
+      await route.fulfill({
+        contentType: "application/json",
+        body: JSON.stringify(projectBTemplateItems),
+      })
+      return
+    }
+
     if (url.pathname === "/api/files") {
       const kind = url.searchParams.get("kind")
       if (kind === "roles") {
@@ -383,7 +593,7 @@ test("loads tasks and opens the editor", async ({ page }) => {
   await setupApiMocks(page)
 
   await page.goto("/")
-  await page.getByLabel("Status").selectOption("all")
+  await page.getByLabel("All Status").check()
 
   await expect(page.getByRole("button", { name: tasks[0].title })).toBeVisible()
   await page.getByRole("button", { name: tasks[0].title }).click()
@@ -403,7 +613,7 @@ test("saves edits to a task", async ({ page }) => {
   })
 
   await page.goto("/")
-  await page.getByLabel("Status").selectOption("all")
+  await page.getByLabel("All Status").check()
   await page.getByRole("button", { name: tasks[0].title }).click()
 
   await page.getByLabel("Title").fill("Ship the dashboard tests")
@@ -478,11 +688,11 @@ test("saves edits to a role file", async ({ page }) => {
   await installEventSourceMock(page)
 
   let savedPath: string | undefined
-  let savedContent: string | undefined
+  let savedPayload: Record<string, unknown> | undefined
   await setupApiMocks(page, {
-    onFilePut: (path, content) => {
+    onRolePut: (path, payload) => {
       savedPath = path
-      savedContent = content
+      savedPayload = payload
     },
   })
 
@@ -507,8 +717,10 @@ test("saves edits to a role file", async ({ page }) => {
   // Check that save was called with correct data
   await expect(page.getByText(`Saved ${roleContent.path}`)).toBeVisible()
   expect(savedPath).toBe(roleContent.path)
-  expect(savedContent).toContain("description: Updated description")
-  expect(savedContent).toContain("# Updated Developer Role")
+  expect(savedPayload).toMatchObject({
+    description: "Updated description",
+  })
+  expect(savedPayload?.body).toContain("# Updated Developer Role")
 })
 
 test("opens add task modal and templates populate", async ({ page }) => {
@@ -522,7 +734,7 @@ test("opens add task modal and templates populate", async ({ page }) => {
   })
 
   await page.goto("/")
-  await page.getByLabel("Status").selectOption("all")
+  await page.getByLabel("All Status").check()
   
   // Wait for initial load
   await page.waitForTimeout(500)
@@ -577,7 +789,7 @@ test("add task modal allows selecting parent task", async ({ page }) => {
   })
 
   await page.goto("/")
-  await page.getByLabel("Status").selectOption("all")
+  await page.getByLabel("All Status").check()
   await page.waitForTimeout(500)
   
   // Open add task modal
@@ -620,7 +832,7 @@ test("add subtask button opens modal with parent pre-filled", async ({ page }) =
   })
 
   await page.goto("/")
-  await page.getByLabel("Status").selectOption("all")
+  await page.getByLabel("All Status").check()
   await page.waitForTimeout(500)
   
   // Open a task
@@ -657,7 +869,7 @@ test("switching projects refreshes templates and roles without leaving the tasks
   await setupProjectOverrideMocks(page)
 
   await page.goto("/")
-  await page.getByLabel("Status").selectOption("all")
+  await page.getByLabel("All Status").check()
   await page.waitForTimeout(500)
 
   await page.getByLabel("Project").selectOption(projectB.name)
@@ -670,4 +882,73 @@ test("switching projects refreshes templates and roles without leaving the tasks
 
   const roleSelect = page.locator("select#role")
   await expect(roleSelect.locator("option", { hasText: "ops" })).toHaveCount(1)
+})
+
+test("kanban drag and drop patches task status", async ({ page }) => {
+  await installEventSourceMock(page)
+
+  let patchPayload: Record<string, unknown> | undefined
+  await setupApiMocks(page, {
+    onPatch: (payload) => {
+      patchPayload = payload
+    },
+  })
+
+  await page.goto("/")
+  await page.getByLabel("All Status").check()
+  await page.getByLabel("Mode").selectOption("kanban")
+
+  await expect(page.getByTestId("kanban-board")).toBeVisible()
+
+  const card = page.locator('[data-testid="kanban-card-T2cd"]')
+  const doneColumn = page.locator('[data-testid="kanban-column-done"]')
+  const dataTransfer = await page.evaluateHandle(() => new DataTransfer())
+  await card.dispatchEvent("dragstart", { dataTransfer })
+  await doneColumn.dispatchEvent("dragover", { dataTransfer })
+  await doneColumn.dispatchEvent("drop", { dataTransfer })
+  await card.dispatchEvent("dragend", { dataTransfer })
+
+  expect(patchPayload).toMatchObject({ status: "done" })
+})
+
+test("multi-select filters combine status, role, and priority", async ({ page }) => {
+  await installEventSourceMock(page)
+  await setupApiMocks(page)
+
+  await page.goto("/")
+
+  await page.getByLabel("All Status").check()
+  await page.getByLabel("open").check()
+  await page.getByLabel("cancelled").check()
+
+  await page.getByLabel("All Roles").check()
+  await page.getByLabel("reviewer").check()
+
+  await page.getByLabel("All Priorities").check()
+  await page.getByLabel("medium").check()
+
+  const taskTable = page.locator(".task-table")
+  await expect(taskTable.getByRole("button", { name: "Fix stream reconnect" }).first()).toBeVisible()
+  await expect(taskTable.getByRole("button", { name: "Cancelled task" }).first()).toBeVisible()
+  await expect(taskTable.getByRole("button", { name: "Set up dashboard tests" }).first()).not.toBeVisible()
+
+  const cancelledRow = page.locator("tr", { hasText: "Cancelled task" })
+  await expect(cancelledRow).toHaveClass(/status-cancelled/)
+})
+
+test("tree view shows ghosted parents for filtered descendants", async ({ page }) => {
+  await installEventSourceMock(page)
+  await setupApiMocks(page)
+
+  await page.goto("/")
+
+  await page.getByLabel("All Priorities").check()
+  await page.getByLabel("high").check()
+
+  const parentRow = page.locator("tr", { hasText: "Parent planning" })
+  await expect(parentRow).toBeVisible()
+  await expect(parentRow).toHaveClass(/ghost/)
+  await expect(parentRow.locator(".ghost-label")).toBeVisible()
+
+  await expect(page.getByRole("button", { name: "Urgent subtask" })).toBeVisible()
 })

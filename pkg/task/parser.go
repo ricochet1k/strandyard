@@ -103,25 +103,6 @@ func (p *Parser) ParseString(content string, id string) (*Task, error) {
 		Meta: meta,
 	}
 
-	// err := ast.Walk(parsed, func(n ast.Node, entering bool) (ast.WalkStatus, error) {
-	// 	switch n := n.(type) {
-	// 	case *ast.Document:
-	// 		return ast.WalkContinue, nil
-
-	// 	case *ast.Text:
-	// 		fmt.Printf("node: %v %v %q\n", n.Kind(), n.Attributes(), n.)
-	// 		return ast.WalkContinue, nil
-
-	// 	default:
-	// 		fmt.Printf("node: %v %v %v\n", n.Kind(), n.Attributes(), n.ChildCount())
-	// 		return ast.WalkContinue, nil
-	// 	}
-	// })
-	// if err != nil {
-	// 	panic(err)
-	// }
-	// panic("todo")
-
 	// Split content into sections
 	sections := SplitByHeadings(body)
 

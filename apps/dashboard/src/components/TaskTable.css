@@ -75,16 +75,44 @@
 }
 
 .task-table tbody tr.done {
-  opacity: 0.5;
+  opacity: 0.65;
 }
 
-.task-table tbody tr.blocked {
-  opacity: 0.7;
-  background: rgba(231, 140, 80, 0.124);
+.task-table tbody tr.ghost {
+  opacity: 0.55;
+}
+
+.task-table tbody tr.blocked,
+.task-table tbody tr.status-blocked {
+  opacity: 0.55;
 }
 
 .task-table tbody tr:hover {
   background: rgba(109, 96, 193, 0.221);
+}
+
+.task-table tbody tr.status-open {
+  background: rgba(74, 158, 255, 0.08);
+}
+
+.task-table tbody tr.status-in-progress {
+  background: rgba(214, 127, 68, 0.12);
+}
+
+.task-table tbody tr.status-done {
+  background: rgba(47, 123, 88, 0.1);
+}
+
+.task-table tbody tr.status-cancelled {
+  background: rgba(217, 107, 92, 0.12);
+}
+
+.task-table tbody tr.status-duplicate {
+  background: rgba(120, 129, 141, 0.12);
+}
+
+.task-table tbody tr.status-blocked {
+  background: rgba(217, 107, 92, 0.1);
 }
 
 .task-table td {
@@ -154,6 +182,17 @@
 
 .task-link:hover {
   color: var(--accent);
+}
+
+.ghost-label {
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--muted);
+  border: 1px dashed var(--border);
+  padding: 2px 6px;
+  border-radius: 999px;
+  white-space: nowrap;
 }
 
 .task-col-id {

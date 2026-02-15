@@ -8,21 +8,21 @@ type SidebarProps = {
   projects: any[]
   currentProject: string
   searchQuery: string
-  filterStatus: "all" | "active" | "open" | "in_progress" | "done" | "cancelled" | "duplicate"
-  filterRole: string
-  filterPriority: string
+  filterStatus: string[]
+  filterRole: string[]
+  filterPriority: string[]
   hideBlocked: boolean
-  viewMode: "tree" | "list"
+  viewMode: "tree" | "list" | "kanban"
   availableRoles: string[]
   availablePriorities: string[]
   onTabChange: (tab: Tab) => void
   onProjectChange: (project: string) => void
   onSearchChange: (query: string) => void
-  onFilterStatusChange: (status: "all" | "active" | "open" | "in_progress" | "done" | "cancelled" | "duplicate") => void
-  onFilterRoleChange: (role: string) => void
-  onFilterPriorityChange: (priority: string) => void
+  onFilterStatusChange: (status: string[]) => void
+  onFilterRoleChange: (role: string[]) => void
+  onFilterPriorityChange: (priority: string[]) => void
   onHideBlockedChange: (hide: boolean) => void
-  onViewModeChange: (mode: "tree" | "list") => void
+  onViewModeChange: (mode: "tree" | "list" | "kanban") => void
 }
 
 const tabs: { id: Tab; label: string; detail: string }[] = [
@@ -32,6 +32,52 @@ const tabs: { id: Tab; label: string; detail: string }[] = [
 ]
 
 export default function Sidebar(props: SidebarProps) {
+  const statusOptions = ["active", "open", "in_progress", "done", "cancelled", "duplicate"]
+
+  const toggleFilterValue = (current: string[], value: string, checked: boolean) => {
+    if (checked) {
+      if (current.includes(value)) return current
+      return [...current, value]
+    }
+    return current.filter((item) => item !== value)
+  }
+
+  const renderMultiSelect = (options: string[], selected: string[], onChange: (next: string[]) => void, label: string) => {
+    const allSelected = selected.length === 0
+    return (
+      <div class="filter-group">
+        <label class="filter-group-label">{label}</label>
+        <label class="filter-option">
+          <input
+            type="checkbox"
+            checked={allSelected}
+            onChange={(e) => {
+              if (e.currentTarget.checked) onChange([])
+            }}
+          />
+          <span>All {label}</span>
+        </label>
+        <div class="filter-options">
+          <For each={options}>
+            {(option) => (
+              <label class="filter-option">
+                <input
+                  type="checkbox"
+                  checked={!allSelected && selected.includes(option)}
+                  onChange={(e) => {
+                    const next = toggleFilterValue(allSelected ? [] : selected, option, e.currentTarget.checked)
+                    onChange(next)
+                  }}
+                />
+                <span>{option.replace(/_/g, " ")}</span>
+              </label>
+            )}
+          </For>
+        </div>
+      </div>
+    )
+  }
+
   return (
     <aside class="sidebar">
       {/* Project Selector */}
@@ -93,56 +139,16 @@ export default function Sidebar(props: SidebarProps) {
             >
               <option value="tree">Tree</option>
               <option value="list">List</option>
+              <option value="kanban">Kanban</option>
             </select>
           </div>
         </div>
 
         <div class="sidebar-section">
           <p class="sidebar-section-title">Filters</p>
-          <div class="sidebar-filter">
-            <label for="filter-status">Status</label>
-            <select
-              id="filter-status"
-              value={props.filterStatus}
-              onChange={(e) => props.onFilterStatusChange(e.currentTarget.value as any)}
-            >
-              <option value="all">All Status</option>
-              <option value="active">Active</option>
-              <option value="open">Open</option>
-              <option value="in_progress">In Progress</option>
-              <option value="done">Done</option>
-              <option value="cancelled">Cancelled</option>
-              <option value="duplicate">Duplicate</option>
-            </select>
-          </div>
-
-          <div class="sidebar-filter">
-            <label for="filter-role">Role</label>
-            <select
-              id="filter-role"
-              value={props.filterRole}
-              onChange={(e) => props.onFilterRoleChange(e.currentTarget.value)}
-            >
-              <option value="all">All Roles</option>
-              <For each={props.availableRoles}>
-                {(role) => <option value={role}>{role}</option>}
-              </For>
-            </select>
-          </div>
-
-          <div class="sidebar-filter">
-            <label for="filter-priority">Priority</label>
-            <select
-              id="filter-priority"
-              value={props.filterPriority}
-              onChange={(e) => props.onFilterPriorityChange(e.currentTarget.value)}
-            >
-              <option value="all">All Priorities</option>
-              <For each={props.availablePriorities}>
-                {(priority) => <option value={priority}>{priority}</option>}
-              </For>
-            </select>
-          </div>
+          {renderMultiSelect(statusOptions, props.filterStatus, props.onFilterStatusChange, "Status")}
+          {renderMultiSelect(props.availableRoles, props.filterRole, props.onFilterRoleChange, "Roles")}
+          {renderMultiSelect(props.availablePriorities, props.filterPriority, props.onFilterPriorityChange, "Priorities")}
 
           <div class="sidebar-filter">
             <label>

@@ -108,6 +108,43 @@
   color: var(--muted);
 }
 
+.filter-group {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding: 8px 10px;
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  background: var(--bg-accent);
+}
+
+.filter-group-label {
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--muted);
+}
+
+.filter-options {
+  display: grid;
+  gap: 6px;
+}
+
+.filter-option {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 12px;
+  color: var(--text);
+}
+
+.filter-option input {
+  width: 14px;
+  height: 14px;
+  accent-color: var(--accent-strong);
+}
+
 .file-list {
   display: flex;
   flex-direction: column;
