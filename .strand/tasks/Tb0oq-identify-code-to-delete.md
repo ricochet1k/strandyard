@@ -4,12 +4,13 @@ role: developer
 priority: medium
 parent: Ti6zj-taskdb-api-design-review
 blockers: []
-blocks:
-    - Ti6zj-taskdb-api-design-review
+blocks: []
 date_created: 2026-01-31T17:19:22.693097Z
-date_edited: 2026-01-31T17:19:22.713978Z
+date_edited: 2026-02-15T04:42:17.987519Z
 owner_approval: false
-completed: false
+completed: true
+status: done
+description: ""
 ---
 
 # Identify code to delete
@@ -34,3 +35,5 @@ Tasks are disposable. Use follow-up tasks for open questions/concerns. Record de
 - Tests covering functionality and passing.
 - Required reviews completed and blockers cleared.
 
+## Completion Report
+Added design-docs/taskdb-api-deletion-list.md with a concrete removal inventory covering GetOrCreate, redundant relationship wrappers, misuse call sites, and legacy completion helpers, including rationale, migration targets, and deletion order. Verified with go test ./..., go build ./..., and go run ./cmd/strand repair.

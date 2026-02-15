@@ -9,7 +9,6 @@
 - [Design task claiming for sessions and owners](T4v2n-task-claiming-session-owner-design.md)
 - [Design AI exclusion for human-role tasks](T5b9x-human-role-ai-exclusion-design.md)
 - [Design opencode plugin](T7m5z-opencode-plugin-design.md)
-- [Clarify anchor flag inconsistency in CLI.md and design doc](T8xy3ry-clarify-anchor-flag-inconsistency-in-cli-md-and-de.md)
 - [Design recurring code review and cleanup tasks](T9f4w-code-review-cleanup-recurring-design.md)
 - [Review Anchor Help Text Alternatives](Tcc9bjk-review-anchor-help-text-and-examples-alternatives.md)
 - [web: task create/update bypass TaskDB and skip master list refresh](Tcguldn-web-task-create-update-bypass-taskdb-and-skip-mast.md)

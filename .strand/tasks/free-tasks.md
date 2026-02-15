@@ -5,7 +5,6 @@
 
 ## Medium
 
-- [Identify code to delete](Tb0oq-identify-code-to-delete.md)
 - [Review parser.go and task loading](Tdhrq-review-parser-go-and-task-loading.md)
 - [Document TaskDB responsibilities and boundaries](Thyd1-document-taskdb-responsibilities-and-boundaries.md)
 - [Review repair.go validation logic](Trtik-review-repair-go-validation-logic.md)
