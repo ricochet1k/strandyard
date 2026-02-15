@@ -4,12 +4,13 @@ role: developer
 priority: medium
 parent: Ti6zj-taskdb-api-design-review
 blockers: []
-blocks:
-    - Ti6zj-taskdb-api-design-review
+blocks: []
 date_created: 2026-01-31T17:19:19.989095Z
-date_edited: 2026-01-31T17:19:20.009741Z
+date_edited: 2026-02-15T04:30:57.953393Z
 owner_approval: false
-completed: false
+completed: true
+status: done
+description: ""
 ---
 
 # Create implementation plan
@@ -29,3 +30,5 @@ Based on design decisions, create detailed implementation plan:
 ## Escalation
 Tasks are disposable. Use follow-up tasks for open questions/concerns. Record decisions and final rationale in design docs; do not edit this task to capture outcomes.
 
+## Completion Report
+Created design-docs/taskdb-api-implementation-plan.md with phased TaskDB hardening plan covering dependency/risk ordering, breaking changes, migration strategy, and incremental-vs-refactor split. Included decision gates mapped to unresolved Ti6zj subtasks and a concrete code-change checklist tied to pkg/task, cmd, and web call sites.

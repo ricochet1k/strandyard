@@ -5,7 +5,6 @@
 
 ## Medium
 
-- [Create implementation plan](T7qkw-create-implementation-plan.md)
 - [Design access control strategy](T8bgf-design-access-control-strategy.md)
 - [Identify code to delete](Tb0oq-identify-code-to-delete.md)
 - [Review parser.go and task loading](Tdhrq-review-parser-go-and-task-loading.md)
