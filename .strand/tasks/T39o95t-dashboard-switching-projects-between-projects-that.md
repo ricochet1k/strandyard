@@ -6,7 +6,7 @@ parent: ""
 blockers: []
 blocks: []
 date_created: 2026-02-04T23:23:39.42562Z
-date_edited: 2026-02-15T04:22:22.255311Z
+date_edited: 2026-02-15T04:40:20.20304Z
 owner_approval: false
 completed: true
 status: done
@@ -22,8 +22,8 @@ This might have something to do with MyTransitionGroup. CSS styles/classes might
 ## Deliverables
 Make sure tests check this.
 
-## Subtasks
-- [ ] (subtask: T90100h) Dashboard: add regression test for task list refresh when switching projects
-
 ## Completion Report
 Could not reproduce stale task-list behavior on current branch. Verified project-switch e2e scenario passes, then created follow-up implement task T90100h to add explicit regression coverage that task rows refresh when changing projects.
+
+## Subtasks
+- [x] (subtask: T90100h) Dashboard: add regression test for task list refresh when switching projects

@@ -499,9 +499,9 @@ const setupApiMocks = async (
 
 const setupProjectOverrideMocks = async (page: Page) => {
   await page.route("**/api/**", async (route) => {
-    const request = route.request()
-    const url = new URL(request.url())
+    const url = new URL(route.request().url())
     const requestedProject = url.searchParams.get("project") || project.name
+    const isAltProject = requestedProject === projectB.name
 
     if (url.pathname === "/api/projects") {
       await route.fulfill({
@@ -511,15 +511,10 @@ const setupProjectOverrideMocks = async (page: Page) => {
       return
     }
 
-    if (requestedProject !== projectB.name) {
-      await route.continue()
-      return
-    }
-
     if (url.pathname === "/api/tasks") {
       await route.fulfill({
         contentType: "application/json",
-        body: JSON.stringify(projectBTasks),
+        body: JSON.stringify(isAltProject ? projectBTasks : tasks),
       })
       return
     }
@@ -527,7 +522,7 @@ const setupProjectOverrideMocks = async (page: Page) => {
     if (url.pathname === "/api/roles") {
       await route.fulfill({
         contentType: "application/json",
-        body: JSON.stringify(projectBRoleItems),
+        body: JSON.stringify(isAltProject ? projectBRoleItems : roleItems),
       })
       return
     }
@@ -535,7 +530,7 @@ const setupProjectOverrideMocks = async (page: Page) => {
     if (url.pathname === "/api/templates") {
       await route.fulfill({
         contentType: "application/json",
-        body: JSON.stringify(projectBTemplateItems),
+        body: JSON.stringify(isAltProject ? projectBTemplateItems : templateItems),
       })
       return
     }
@@ -545,46 +540,81 @@ const setupProjectOverrideMocks = async (page: Page) => {
       if (kind === "roles") {
         await route.fulfill({
           contentType: "application/json",
-          body: JSON.stringify(projectBRoles),
+          body: JSON.stringify(isAltProject ? projectBRoles : roles),
         })
         return
       }
       if (kind === "templates") {
         await route.fulfill({
           contentType: "application/json",
-          body: JSON.stringify(projectBTemplates),
+          body: JSON.stringify(isAltProject ? projectBTemplates : templates),
         })
         return
       }
-      await route.continue()
+      await route.fulfill({ status: 404, body: "Not found" })
       return
     }
 
     if (url.pathname === "/api/file") {
       const path = url.searchParams.get("path")
       if (!path) {
-        await route.continue()
+        await route.fulfill({ status: 400, body: "Missing path" })
         return
       }
-      if (path === projectBROpsRoleContent.path) {
+
+      if (!isAltProject && path === roleContent.path) {
+        await route.fulfill({
+          contentType: "application/json",
+          body: JSON.stringify(roleContent),
+        })
+        return
+      }
+
+      if (!isAltProject && path === reviewerRoleContent.path) {
+        await route.fulfill({
+          contentType: "application/json",
+          body: JSON.stringify(reviewerRoleContent),
+        })
+        return
+      }
+
+      if (!isAltProject && path === templateContent.path) {
+        await route.fulfill({
+          contentType: "application/json",
+          body: JSON.stringify(templateContent),
+        })
+        return
+      }
+
+      if (!isAltProject && path === epicTemplateContent.path) {
+        await route.fulfill({
+          contentType: "application/json",
+          body: JSON.stringify(epicTemplateContent),
+        })
+        return
+      }
+
+      if (isAltProject && path === projectBROpsRoleContent.path) {
         await route.fulfill({
           contentType: "application/json",
           body: JSON.stringify(projectBROpsRoleContent),
         })
         return
       }
-      if (path === projectBTemplateContent.path) {
+
+      if (isAltProject && path === projectBTemplateContent.path) {
         await route.fulfill({
           contentType: "application/json",
           body: JSON.stringify(projectBTemplateContent),
         })
         return
       }
-      await route.continue()
+
+      await route.fulfill({ status: 404, body: "Not found" })
       return
     }
 
-    await route.continue()
+    await route.fulfill({ status: 404, body: "Not found" })
   })
 }
 
@@ -863,17 +893,20 @@ test("add subtask button opens modal with parent pre-filled", async ({ page }) =
   })
 })
 
-test("switching projects refreshes templates and roles without leaving the tasks view", async ({ page }) => {
+test("switching projects refreshes task list, templates, and roles without leaving the tasks view", async ({ page }) => {
   await installEventSourceMock(page)
-  await setupApiMocks(page)
   await setupProjectOverrideMocks(page)
 
   await page.goto("/")
-  await page.getByLabel("All Status").check()
-  await page.waitForTimeout(500)
 
-  await page.getByLabel("Project").selectOption(projectB.name)
-  await page.waitForTimeout(500)
+  const taskTable = page.locator(".task-table")
+  await expect(taskTable).toContainText(tasks[1].title)
+  await expect(taskTable).not.toContainText(projectBTasks[0].title)
+
+  await page.locator("#project-select").selectOption(projectB.name)
+
+  await expect(taskTable).toContainText(projectBTasks[0].title)
+  await expect(taskTable).not.toContainText(tasks[1].title)
 
   await page.getByRole("button", { name: "+ Add Task" }).click()
 
