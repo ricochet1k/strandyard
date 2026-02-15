@@ -23,7 +23,6 @@
 - [Review Anchor Help Text Alternatives](Tcc9bjk-review-anchor-help-text-and-examples-alternatives.md)
 - [New Task: Usability review: anchor help text and examples](Tt3kj2u-usability-review-anchor-help-text-and-examples.md)
 - [strand edit is missing --blocker flag](Twcp360-strand-edit-is-missing-blocker-flag.md)
-- [Dashboard: switching projects between projects that have issues doesn't correctly update the list of tasks](T39o95t-dashboard-switching-projects-between-projects-that.md)
 - [Improve strand add performance and output](Ti1ugbe-strand-add-is-still-running-repair-though-that-sho.md)
 - [Add descendant filtering to list command](Timgxj2-add-descendant-filtering-to-list-command.md)
 - [Normalize short IDs to full IDs in relationships](Tydoy3v-normalize-short-ids-to-full-ids-in-relationships.md)
@@ -39,6 +38,7 @@
 - [Clarify strand complete --todo usage and role validation error](T5gkbnm-clarify-strand-complete-todo-usage-and-role-valida.md)
 - [web: task create/update bypass TaskDB and skip master list refresh](Tcguldn-web-task-create-update-bypass-taskdb-and-skip-mast.md)
 - [Repair mutates tasks after complete should be no-op](Tx3emi6-repair-mutates-tasks-after-complete-should-be-no-o.md)
+- [Dashboard: add regression test for task list refresh when switching projects](T90100h-dashboard-add-regression-test-for-task-list-refres.md)
 
 ## Low
 
