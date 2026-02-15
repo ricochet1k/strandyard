@@ -279,7 +279,7 @@ strand add <type> [title] --every "<interval> <unit> [from|after <anchor>]"
 ```
 
 Flags:
-  - `--every`: Recurrence rule (e.g., "10 days", "50 commits from HEAD", "20 tasks_completed"). Can be repeated for multiple rules. Supports `from <anchor>` (start at anchor) or `after <anchor>` (start one interval after anchor).
+  - `--every`: Recurrence rule (e.g., "10 days", "50 commits from HEAD", "20 tasks_completed"). Can be repeated for multiple rules. Supports `from <anchor>` (start at anchor) or `after <anchor>` (start one interval after anchor). Default anchors are `now` for `days|weeks|months|tasks_completed` and `HEAD` for `commits|lines_changed`.
 
 **Example**:
 ```bash
@@ -558,10 +558,16 @@ every:
 - `tasks_completed` (activity-log-based)
 
 **Anchors**:
-- If no anchor is specified (e.g., `10 days`), the anchor defaults to `now` for time-based rules or `HEAD` for git-based rules.
+- If no anchor is specified, the anchor defaults by metric family:
+  - `days`, `weeks`, `months`: `now` (the current UTC timestamp when evaluated)
+  - `commits`, `lines_changed`: `HEAD` (the current commit when evaluated)
+  - `tasks_completed`: `now` (the current UTC timestamp when evaluated)
 - Explicit anchors can be provided using `from <anchor>` (start at anchor) or `after <anchor>` (start one interval after anchor).
 - Date anchors support ISO 8601 (e.g., `2026-01-28T09:00:00Z`) and the human-friendly format `Jan 2 2006 15:04 MST`.
 - `tasks_completed` anchors can be a task ID (short or full) or a date/time.
+
+**`tasks_completed` default behavior example**:
+- `--every "20 tasks_completed"` starts counting completions from the evaluation timestamp (current UTC time), not from task creation and not from the latest completed task.
 
 **Special considerations for git-based recurrence**:
 - When a rule uses `HEAD` as an anchor, it indicates the latest commit.

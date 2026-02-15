@@ -36,7 +36,6 @@
 - [web: task create/update bypass TaskDB and skip master list refresh](Tcguldn-web-task-create-update-bypass-taskdb-and-skip-mast.md)
 - [Repair mutates tasks after complete should be no-op](Tx3emi6-repair-mutates-tasks-after-complete-should-be-no-o.md)
 - [Dashboard: add regression test for task list refresh when switching projects](T90100h-dashboard-add-regression-test-for-task-list-refres.md)
-- [Document default anchor when recurrence omits explicit anchor](T66i4y6-document-default-anchor-when-recurrence-omits-expl.md)
 - [Investigate strand complete --todo indexing and role validation messaging](Tfuy2lo-investigate-strand-complete-todo-indexing-and-role.md)
 
 ## Low

@@ -6,10 +6,10 @@ parent: T3xpql7-clarify-missing-anchor-default-behavior-in-recurre
 blockers: []
 blocks: []
 date_created: 2026-02-15T04:23:36.594526Z
-date_edited: 2026-02-15T04:23:41.138901Z
+date_edited: 2026-02-15T04:29:14.890137Z
 owner_approval: false
-completed: false
-status: ""
+completed: true
+status: done
 description: ""
 ---
 
@@ -34,3 +34,6 @@ Current docs and help text describe defaults for time-based and git-based metric
 - Issue is fixed and verified locally
 - Tests pass
 - Build succeeds
+
+## Completion Report
+Clarified recurrence default-anchor docs and help text across metric families, explicitly documenting tasks_completed defaulting to the current UTC evaluation timestamp when no anchor is provided. Added anchor-less tasks_completed examples in command help and CLI docs and verified with go test ./... and go build ./....
