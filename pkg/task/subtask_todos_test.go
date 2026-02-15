@@ -164,3 +164,59 @@ func TestUpdateParentTodoEntriesPreservesExistingSubtaskOrder(t *testing.T) {
 		t.Fatalf("expected existing order to be preserved, got: %#v", parent.SubsItems)
 	}
 }
+
+func TestUpdateParentTodoEntriesCopiesChildCompletionReport(t *testing.T) {
+	parser := NewParser()
+	parent, _ := parser.ParseString("# Parent\n", "P1")
+
+	child, _ := parser.ParseString("# Child\n", "T1aaa")
+	child.Meta.Parent = "P1"
+	child.Meta.Completed = true
+	child.OtherContent = "## Completion Report\nline one\nline two"
+
+	tasks := map[string]*Task{
+		"P1":    parent,
+		"T1aaa": child,
+	}
+
+	if _, err := UpdateParentTodoEntries(tasks, "P1"); err != nil {
+		t.Fatalf("UpdateParentTodoEntries error: %v", err)
+	}
+
+	if len(parent.SubsItems) != 1 {
+		t.Fatalf("expected 1 subtask, got %d", len(parent.SubsItems))
+	}
+	if parent.SubsItems[0].Report != "line one\nline two" {
+		t.Fatalf("expected child report to be copied, got %q", parent.SubsItems[0].Report)
+	}
+
+	content := parent.Content()
+	if !strings.Contains(content, "- [x] (subtask: T1aaa) Child\n  line one\n  line two") {
+		t.Fatalf("expected report lines under checked subtask entry:\n%s", content)
+	}
+}
+
+func TestUpdateParentTodoEntriesCopiesCompletionReportFromBodyContent(t *testing.T) {
+	parser := NewParser()
+	parent, _ := parser.ParseString("# Parent\n", "P1")
+
+	child, _ := parser.ParseString("# Child\n\n## Completion Report\nreport from parsed body\n", "T1aaa")
+	child.Meta.Parent = "P1"
+	child.Meta.Completed = true
+
+	tasks := map[string]*Task{
+		"P1":    parent,
+		"T1aaa": child,
+	}
+
+	if _, err := UpdateParentTodoEntries(tasks, "P1"); err != nil {
+		t.Fatalf("UpdateParentTodoEntries error: %v", err)
+	}
+
+	if len(parent.SubsItems) != 1 {
+		t.Fatalf("expected 1 subtask, got %d", len(parent.SubsItems))
+	}
+	if parent.SubsItems[0].Report != "report from parsed body" {
+		t.Fatalf("expected report copied from child body content, got %q", parent.SubsItems[0].Report)
+	}
+}

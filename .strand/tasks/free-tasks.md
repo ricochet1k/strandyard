@@ -23,7 +23,6 @@
 - [Repair mutates tasks after complete should be no-op](Tx3emi6-repair-mutates-tasks-after-complete-should-be-no-o.md)
 - [Update anchor-help design doc context to match --every syntax](Tov2tez-update-anchor-help-design-doc-context-to-match-eve.md)
 - [web: route task create/update through TaskDB and refresh master lists](Tvnko7r-web-route-task-create-update-through-taskdb-and-re.md)
-- [Insert child completion report into parent subtask entry](Tjar63h-insert-child-completion-report-into-parent-subtask.md)
 - [Investigate strand complete --todo indexing and role validation messaging](Truwdpz-investigate-strand-complete-todo-indexing-and-role.md)
 - [Investigate why strand add always runs repair and outputs long IDs](Tl9e8qr-investigate-why-strand-add-always-runs-repair-and.md)
 

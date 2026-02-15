@@ -102,13 +102,40 @@ func buildSubtaskTodoItems(tasks map[string]*Task, parentID string) []TaskItem {
 		if title == "" {
 			title = sub.ID
 		}
+		report := ""
+		if sub.Meta.Completed {
+			report = latestCompletionReport(sub)
+		}
 		items = append(items, TaskItem{
 			Checked:   sub.Meta.Completed,
 			SubtaskID: ShortID(sub.ID),
 			Text:      title,
+			Report:    report,
 		})
 	}
 	return items
+}
+
+func latestCompletionReport(sub *Task) string {
+	for _, content := range []string{sub.OtherContent, sub.BodyContent} {
+		if strings.TrimSpace(content) == "" {
+			continue
+		}
+
+		sections := SplitByHeadings(content)
+		for i := len(sections) - 1; i >= 0; i-- {
+			section := sections[i]
+			if section.Level != 2 {
+				continue
+			}
+			if !strings.EqualFold(strings.TrimSpace(section.Heading), "Completion Report") {
+				continue
+			}
+			return strings.TrimSpace(section.Content)
+		}
+	}
+
+	return ""
 }
 
 func resolveChildSubtaskID(parentID, input string, subtasks map[string]*Task) string {

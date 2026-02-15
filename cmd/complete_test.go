@@ -1143,6 +1143,15 @@ status: open
 		t.Fatalf("runComplete failed: %v", err)
 	}
 
+	parentBytes, err := os.ReadFile(parentFile)
+	if err != nil {
+		t.Fatalf("failed to read parent task: %v", err)
+	}
+	expectedEntry := fmt.Sprintf("- [x] (subtask: %s) Child Task\n  done", task.ShortID(childID))
+	if !bytes.Contains(parentBytes, []byte(expectedEntry)) {
+		t.Fatalf("expected parent subtask entry to include child completion report:\n%s", string(parentBytes))
+	}
+
 	var repairOut bytes.Buffer
 	if err := runRepair(&repairOut, paths.TasksDir, paths.RootTasksFile, paths.FreeTasksFile, "text"); err != nil {
 		t.Fatalf("runRepair failed: %v", err)

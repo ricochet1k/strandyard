@@ -6,10 +6,10 @@ parent: Tfe1ssq-complete-command-should-also-insert-report-into-pa
 blockers: []
 blocks: []
 date_created: 2026-02-15T04:52:53.295682Z
-date_edited: 2026-02-15T04:52:57.094668Z
+date_edited: 2026-02-15T05:12:39.1397Z
 owner_approval: false
-completed: false
-status: ""
+completed: true
+status: done
 description: ""
 ---
 
@@ -31,3 +31,6 @@ When a child is completed with a report, the parent subtask checkbox entry shoul
 - Implementation matches the specification
 - Tests cover the change and pass
 - Build succeeds
+
+## Completion Report
+Parent subtasks now copy child completion reports under checked subtask entries, including parsed completion-report sections from child body content. Added regression tests for parent subtask report propagation and complete command repaired-state behavior.
