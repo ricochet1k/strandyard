@@ -13,6 +13,72 @@ import (
 	"time"
 )
 
+func TestSpaFileHandlerFallbacksToIndexForClientRoutes(t *testing.T) {
+	tmpDir := t.TempDir()
+
+	if err := os.WriteFile(filepath.Join(tmpDir, "index.html"), []byte("<html><body>dashboard</body></html>"), 0o644); err != nil {
+		t.Fatal(err)
+	}
+	if err := os.MkdirAll(filepath.Join(tmpDir, "assets"), 0o755); err != nil {
+		t.Fatal(err)
+	}
+	if err := os.WriteFile(filepath.Join(tmpDir, "assets", "app.js"), []byte("console.log('ok')"), 0o644); err != nil {
+		t.Fatal(err)
+	}
+
+	handler := spaFileHandler(os.DirFS(tmpDir))
+
+	t.Run("client route serves index", func(t *testing.T) {
+		req := httptest.NewRequest(http.MethodGet, "/projects/demo/tasks/T1234-task", nil)
+		rr := httptest.NewRecorder()
+
+		handler.ServeHTTP(rr, req)
+
+		if rr.Code != http.StatusOK {
+			t.Fatalf("expected status 200, got %d", rr.Code)
+		}
+		if !strings.Contains(rr.Body.String(), "dashboard") {
+			t.Fatalf("expected index content, got %q", rr.Body.String())
+		}
+	})
+
+	t.Run("existing asset still served", func(t *testing.T) {
+		req := httptest.NewRequest(http.MethodGet, "/assets/app.js", nil)
+		rr := httptest.NewRecorder()
+
+		handler.ServeHTTP(rr, req)
+
+		if rr.Code != http.StatusOK {
+			t.Fatalf("expected status 200, got %d", rr.Code)
+		}
+		if !strings.Contains(rr.Body.String(), "console.log") {
+			t.Fatalf("expected asset content, got %q", rr.Body.String())
+		}
+	})
+
+	t.Run("missing asset returns 404", func(t *testing.T) {
+		req := httptest.NewRequest(http.MethodGet, "/assets/missing.js", nil)
+		rr := httptest.NewRecorder()
+
+		handler.ServeHTTP(rr, req)
+
+		if rr.Code != http.StatusNotFound {
+			t.Fatalf("expected status 404, got %d", rr.Code)
+		}
+	})
+
+	t.Run("unknown api path returns 404", func(t *testing.T) {
+		req := httptest.NewRequest(http.MethodGet, "/api/does-not-exist", nil)
+		rr := httptest.NewRecorder()
+
+		handler.ServeHTTP(rr, req)
+
+		if rr.Code != http.StatusNotFound {
+			t.Fatalf("expected status 404, got %d", rr.Code)
+		}
+	})
+}
+
 func TestHandleHealth(t *testing.T) {
 	server := &Server{}
 	req, err := http.NewRequest("GET", "/api/health", nil)

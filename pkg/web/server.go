@@ -8,6 +8,7 @@ import (
 	"log"
 	"net/http"
 	"os"
+	"path"
 	"strings"
 	"time"
 )
@@ -81,7 +82,7 @@ func Serve(ctx context.Context, cfg ServerConfig) error {
 </html>`)
 		})
 	} else {
-		mux.Handle("/", http.FileServer(http.FS(stripped)))
+		mux.Handle("/", spaFileHandler(stripped))
 	}
 
 	handler := server.withCORS(mux)
@@ -124,6 +125,44 @@ func Serve(ctx context.Context, cfg ServerConfig) error {
 	}
 
 	return nil
+}
+
+func spaFileHandler(staticFS fs.FS) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		if r.URL.Path == "/api" || strings.HasPrefix(r.URL.Path, "/api/") {
+			http.NotFound(w, r)
+			return
+		}
+
+		if r.Method != http.MethodGet && r.Method != http.MethodHead {
+			http.NotFound(w, r)
+			return
+		}
+
+		cleanPath := path.Clean(strings.TrimPrefix(r.URL.Path, "/"))
+		if cleanPath == "." {
+			cleanPath = "index.html"
+		}
+
+		if info, err := fs.Stat(staticFS, cleanPath); err == nil {
+			if info.IsDir() {
+				indexPath := path.Join(cleanPath, "index.html")
+				if _, err := fs.Stat(staticFS, indexPath); err == nil {
+					cleanPath = indexPath
+				}
+			}
+
+			http.ServeFileFS(w, r, staticFS, cleanPath)
+			return
+		}
+
+		if strings.Contains(path.Base(cleanPath), ".") {
+			http.NotFound(w, r)
+			return
+		}
+
+		http.ServeFileFS(w, r, staticFS, "index.html")
+	})
 }
 
 func (s *Server) withAuth(next http.HandlerFunc) http.HandlerFunc {
