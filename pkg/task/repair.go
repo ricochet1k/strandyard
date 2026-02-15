@@ -354,7 +354,25 @@ func extractTaskIDFromPath(path string) string {
 
 // GenerateMasterLists creates root-tasks.md and free-tasks.md
 func GenerateMasterLists(tasks map[string]*Task, tasksRoot, rootsFile, freeFile string) error {
-	roots := []listEntry{}
+	roots := buildRootListEntries(tasks)
+
+	if err := writeListFile(rootsFile, "Root tasks", roots); err != nil {
+		return err
+	}
+
+	return UpdateFreeList(tasks, tasksRoot, freeFile)
+}
+
+// UpdateRootList regenerates root-tasks.md from loaded tasks.
+func UpdateRootList(tasks map[string]*Task, rootsFile string) error {
+	roots := buildRootListEntries(tasks)
+	return writeListFile(rootsFile, "Root tasks", roots)
+}
+
+// UpdateFreeList regenerates free-tasks.md from loaded tasks.
+func UpdateFreeList(tasks map[string]*Task, tasksRoot, freeFile string) error {
+	_ = tasksRoot
+
 	freeByPriority := map[string][]listEntry{
 		PriorityHigh:   {},
 		PriorityMedium: {},
@@ -363,19 +381,12 @@ func GenerateMasterLists(tasks map[string]*Task, tasksRoot, rootsFile, freeFile 
 	freeOther := []listEntry{}
 
 	for _, task := range tasks {
-		// Task file path is repo-relative; convert to list-relative when writing.
 		rel := filepath.ToSlash(task.FilePath)
 		title := task.Title()
 		if title == "" {
 			title = task.ID
 		}
 
-		// Root tasks have no parent and are not completed
-		if task.Meta.Parent == "" && !task.Meta.Completed && IsActiveStatus(task.Meta.Status) {
-			roots = append(roots, listEntry{TaskID: task.ID, Path: rel, Label: title})
-		}
-
-		// Free tasks have no blockers and are not completed
 		if len(task.Meta.Blockers) == 0 && !task.Meta.Completed && IsActiveStatus(task.Meta.Status) {
 			switch NormalizePriority(task.Meta.Priority) {
 			case PriorityHigh:
@@ -390,8 +401,6 @@ func GenerateMasterLists(tasks map[string]*Task, tasksRoot, rootsFile, freeFile 
 		}
 	}
 
-	// Sort for deterministic output
-	sort.Slice(roots, func(i, j int) bool { return roots[i].Path < roots[j].Path })
 	for key := range freeByPriority {
 		items := freeByPriority[key]
 		sortEntriesByTaskOrder(items, tasks)
@@ -399,15 +408,26 @@ func GenerateMasterLists(tasks map[string]*Task, tasksRoot, rootsFile, freeFile 
 	}
 	sortEntriesByTaskOrder(freeOther, tasks)
 
-	// Write files
-	if err := writeListFile(rootsFile, "Root tasks", roots); err != nil {
-		return err
-	}
-	if err := writePriorityListFile(freeFile, "Free tasks", freeByPriority, freeOther); err != nil {
-		return err
+	return writePriorityListFile(freeFile, "Free tasks", freeByPriority, freeOther)
+}
+
+func buildRootListEntries(tasks map[string]*Task) []listEntry {
+	roots := []listEntry{}
+
+	for _, task := range tasks {
+		rel := filepath.ToSlash(task.FilePath)
+		title := task.Title()
+		if title == "" {
+			title = task.ID
+		}
+
+		if task.Meta.Parent == "" && !task.Meta.Completed && IsActiveStatus(task.Meta.Status) {
+			roots = append(roots, listEntry{TaskID: task.ID, Path: rel, Label: title})
+		}
 	}
 
-	return nil
+	sort.Slice(roots, func(i, j int) bool { return roots[i].Path < roots[j].Path })
+	return roots
 }
 
 func writeListFile(path, title string, entries []listEntry) error {

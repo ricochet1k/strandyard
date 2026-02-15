@@ -455,6 +455,79 @@ A test task with a todo item to verify free-list updates.
 	}
 }
 
+func TestCompleteUpdatesRootList(t *testing.T) {
+	repo, _ := setupTestEnv(t)
+	if err := runInit(io.Discard, initOptions{ProjectName: "", StorageMode: storageLocal}); err != nil {
+		t.Fatalf("runInit failed: %v", err)
+	}
+
+	roleFile := filepath.Join(repo, ".strand", "roles", "developer.md")
+	roleContent := `# Developer
+
+## Role
+Developer (human or AI) - implements tasks, writes code, and produces working software.
+`
+	if err := os.WriteFile(roleFile, []byte(roleContent), 0o644); err != nil {
+		t.Fatalf("failed to create role file: %v", err)
+	}
+
+	taskID := "T" + testToken(t.Name()) + "-root-list"
+	taskDir := filepath.Join(repo, ".strand", "tasks", taskID)
+	if err := os.MkdirAll(taskDir, 0o755); err != nil {
+		t.Fatalf("failed to create task dir: %v", err)
+	}
+
+	taskFile := filepath.Join(taskDir, taskID+".md")
+	taskContent := `---
+type: implement
+role: developer
+priority: high
+parent: ""
+blockers: []
+blocks: []
+date_created: 2026-01-27T00:00:00Z
+date_edited: 2026-01-27T13:43:58Z
+owner_approval: false
+completed: false
+status: open
+---
+
+# Root List Task
+`
+	if err := os.WriteFile(taskFile, []byte(taskContent), 0o644); err != nil {
+		t.Fatalf("failed to write task file: %v", err)
+	}
+
+	paths, err := resolveProjectPaths("")
+	if err != nil {
+		t.Fatalf("failed to resolve project paths: %v", err)
+	}
+
+	if err := runRepair(io.Discard, paths.TasksDir, paths.RootTasksFile, paths.FreeTasksFile, "text"); err != nil {
+		t.Fatalf("runRepair failed: %v", err)
+	}
+
+	contentBefore, err := os.ReadFile(paths.RootTasksFile)
+	if err != nil {
+		t.Fatalf("failed to read root list before: %v", err)
+	}
+	if !bytes.Contains(contentBefore, []byte(taskID)) {
+		t.Fatalf("task %s should be in root list before completion", taskID)
+	}
+
+	if err := runComplete(io.Discard, "", taskID, 0, "developer", "completed root task"); err != nil {
+		t.Fatalf("runComplete failed: %v", err)
+	}
+
+	contentAfter, err := os.ReadFile(paths.RootTasksFile)
+	if err != nil {
+		t.Fatalf("failed to read root list after: %v", err)
+	}
+	if bytes.Contains(contentAfter, []byte(taskID)) {
+		t.Fatalf("task %s should not be in root list after completion", taskID)
+	}
+}
+
 // TestAtomicityOfFreeListCalculation tests that CalculateIncrementalFreeListUpdate
 // correctly identifies newly-unblocked tasks. This is a unit test that doesn't
 // require complex setup.

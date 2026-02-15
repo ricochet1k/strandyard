@@ -11,7 +11,6 @@
 - [Design opencode plugin](T7m5z-opencode-plugin-design.md)
 - [Design recurring code review and cleanup tasks](T9f4w-code-review-cleanup-recurring-design.md)
 - [Audit recurrence implementation and identify remaining work](Tctb8lm-audit-recurrence-implementation-and-identify-remai.md)
-- [Investigate complete command root list update bug](Tffay2g-investigate-complete-command-root-list-update-bug.md)
 - [TaskDB API Design Review](Ti6zj-taskdb-api-design-review.md)
 - [Define error message and recovery hint for ambiguous anchor type](Tiw9in3-define-error-message-and-recovery-hint-for-ambiguo.md)
 - [Clarify after now vs from now anchor distinction in docs](Tl0wkx6-clarify-after-now-vs-from-now-anchor-distinction-i.md)

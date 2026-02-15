@@ -147,6 +147,9 @@ func runComplete(w io.Writer, projectName, inputID string, todoNum int, role str
 		if _, err := db.SaveDirty(); err != nil {
 			return fmt.Errorf("failed to write repaired tasks: %w", err)
 		}
+		if err := task.UpdateRootList(db.GetAll(), paths.RootTasksFile); err != nil {
+			return fmt.Errorf("failed to update root task list: %w", err)
+		}
 		if len(validationErrors) > 0 {
 			fmt.Fprintf(w, "⚠️  Repair errors found:\n")
 			for _, e := range validationErrors {
@@ -259,6 +262,9 @@ func runCompleteTodo(w io.Writer, db *task.TaskDB, paths projectPaths, t *task.T
 			validationErrors := validator.ValidateAndRepair()
 			if _, err := db.SaveDirty(); err != nil {
 				return fmt.Errorf("failed to write repaired tasks: %w", err)
+			}
+			if err := task.UpdateRootList(db.GetAll(), paths.RootTasksFile); err != nil {
+				return fmt.Errorf("failed to update root task list: %w", err)
 			}
 			if len(validationErrors) > 0 {
 				fmt.Fprintf(w, "⚠️  Repair errors found:\n")
