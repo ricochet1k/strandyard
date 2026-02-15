@@ -13,7 +13,6 @@
 - [Define error message and recovery hint for ambiguous anchor type](Tiw9in3-define-error-message-and-recovery-hint-for-ambiguo.md)
 - [New Task: Usability review: anchor help text and examples](Tt3kj2u-usability-review-anchor-help-text-and-examples.md)
 - [strand edit is missing --blocker flag](Twcp360-strand-edit-is-missing-blocker-flag.md)
-- [Improve strand add performance and output](Ti1ugbe-strand-add-is-still-running-repair-though-that-sho.md)
 - [Add descendant filtering to list command](Timgxj2-add-descendant-filtering-to-list-command.md)
 - [Normalize short IDs to full IDs in relationships](Tydoy3v-normalize-short-ids-to-full-ids-in-relationships.md)
 - [Move task directory when parent changes](Tx2fpci-move-task-directory-when-parent-changes.md)
@@ -29,6 +28,7 @@
 - [web: route task create/update through TaskDB and refresh master lists](Tvnko7r-web-route-task-create-update-through-taskdb-and-re.md)
 - [Insert child completion report into parent subtask entry](Tjar63h-insert-child-completion-report-into-parent-subtask.md)
 - [Investigate strand complete --todo indexing and role validation messaging](Truwdpz-investigate-strand-complete-todo-indexing-and-role.md)
+- [Investigate why strand add always runs repair and outputs long IDs](Tl9e8qr-investigate-why-strand-add-always-runs-repair-and.md)
 
 ## Low
 

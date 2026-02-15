@@ -17,6 +17,7 @@
 - [complete command does not update root-tasks.md](Tilog7x-complete-command-does-not-update-root-tasks-md.md)
 - [Define error message and recovery hint for ambiguous anchor type](Tiw9in3-define-error-message-and-recovery-hint-for-ambiguo.md)
 - [Clarify after now vs from now anchor distinction in docs](Tl0wkx6-clarify-after-now-vs-from-now-anchor-distinction-i.md)
+- [Investigate why strand add always runs repair and outputs long IDs](Tl9e8qr-investigate-why-strand-add-always-runs-repair-and.md)
 - [Improve and Expand Task Templates](Tml0y-t9m4n-improved-task-templates.md)
 - [Review free-list update issue and verify fix](Townamg-review-free-list-update-issue-and-verify-fix.md)
 - [New Task: Usability review: anchor help text and examples](Tt3kj2u-usability-review-anchor-help-text-and-examples.md)
