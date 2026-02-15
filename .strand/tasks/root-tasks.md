@@ -10,7 +10,6 @@
 - [Design AI exclusion for human-role tasks](T5b9x-human-role-ai-exclusion-design.md)
 - [Design opencode plugin](T7m5z-opencode-plugin-design.md)
 - [Design recurring code review and cleanup tasks](T9f4w-code-review-cleanup-recurring-design.md)
-- [Implement client-side routing in the dashboard](Tcojdpy-implement-client-side-routing-in-the-dashboard.md)
 - [Audit recurrence implementation and identify remaining work](Tctb8lm-audit-recurrence-implementation-and-identify-remai.md)
 - [Complete command should also insert report into parent's subtasks after the relevant checkbox entry](Tfe1ssq-complete-command-should-also-insert-report-into-pa.md)
 - [Improve strand add performance and output](Ti1ugbe-strand-add-is-still-running-repair-though-that-sho.md)
