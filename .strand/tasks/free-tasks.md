@@ -18,7 +18,6 @@
 - [Design task creation API (template-based only)](Txvyh-design-task-creation-api-template-based-only.md)
 - [Complete command should also insert report into parent's subtasks after the relevant checkbox entry](Tfe1ssq-complete-command-should-also-insert-report-into-pa.md)
 - [Clarify anchor flag inconsistency in CLI.md and design doc](T8xy3ry-clarify-anchor-flag-inconsistency-in-cli-md-and-de.md)
-- [Clarify missing anchor default behavior in recurrence](T3xpql7-clarify-missing-anchor-default-behavior-in-recurre.md)
 - [Define error message and recovery hint for ambiguous anchor type](Tiw9in3-define-error-message-and-recovery-hint-for-ambiguo.md)
 - [Review Anchor Help Text Alternatives](Tcc9bjk-review-anchor-help-text-and-examples-alternatives.md)
 - [New Task: Usability review: anchor help text and examples](Tt3kj2u-usability-review-anchor-help-text-and-examples.md)
@@ -39,6 +38,7 @@
 - [web: task create/update bypass TaskDB and skip master list refresh](Tcguldn-web-task-create-update-bypass-taskdb-and-skip-mast.md)
 - [Repair mutates tasks after complete should be no-op](Tx3emi6-repair-mutates-tasks-after-complete-should-be-no-o.md)
 - [Dashboard: add regression test for task list refresh when switching projects](T90100h-dashboard-add-regression-test-for-task-list-refres.md)
+- [Document default anchor when recurrence omits explicit anchor](T66i4y6-document-default-anchor-when-recurrence-omits-expl.md)
 
 ## Low
 
