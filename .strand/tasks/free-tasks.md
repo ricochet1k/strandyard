@@ -11,7 +11,6 @@
 - [Audit API surface and identify misuse opportunities](Twcdw-audit-api-surface-and-identify-misuse-opportunitie.md)
 - [Design relationship management API](Tx4jn-design-relationship-management-api.md)
 - [Design task creation API (template-based only)](Txvyh-design-task-creation-api-template-based-only.md)
-- [Complete command should also insert report into parent's subtasks after the relevant checkbox entry](Tfe1ssq-complete-command-should-also-insert-report-into-pa.md)
 - [Define error message and recovery hint for ambiguous anchor type](Tiw9in3-define-error-message-and-recovery-hint-for-ambiguo.md)
 - [New Task: Usability review: anchor help text and examples](Tt3kj2u-usability-review-anchor-help-text-and-examples.md)
 - [strand edit is missing --blocker flag](Twcp360-strand-edit-is-missing-blocker-flag.md)
@@ -30,6 +29,7 @@
 - [Investigate strand complete --todo indexing and role validation messaging](Tfuy2lo-investigate-strand-complete-todo-indexing-and-role.md)
 - [Update anchor-help design doc context to match --every syntax](Tov2tez-update-anchor-help-design-doc-context-to-match-eve.md)
 - [web: route task create/update through TaskDB and refresh master lists](Tvnko7r-web-route-task-create-update-through-taskdb-and-re.md)
+- [Insert child completion report into parent subtask entry](Tjar63h-insert-child-completion-report-into-parent-subtask.md)
 
 ## Low
 
