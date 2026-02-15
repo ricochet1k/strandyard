@@ -10,7 +10,6 @@
 - [Audit API surface and identify misuse opportunities](Twcdw-audit-api-surface-and-identify-misuse-opportunitie.md)
 - [Design relationship management API](Tx4jn-design-relationship-management-api.md)
 - [Design task creation API (template-based only)](Txvyh-design-task-creation-api-template-based-only.md)
-- [Define error message and recovery hint for ambiguous anchor type](Tiw9in3-define-error-message-and-recovery-hint-for-ambiguo.md)
 - [New Task: Usability review: anchor help text and examples](Tt3kj2u-usability-review-anchor-help-text-and-examples.md)
 - [strand edit is missing --blocker flag](Twcp360-strand-edit-is-missing-blocker-flag.md)
 - [Add descendant filtering to list command](Timgxj2-add-descendant-filtering-to-list-command.md)

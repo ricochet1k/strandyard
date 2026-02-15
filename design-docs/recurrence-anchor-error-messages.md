@@ -102,11 +102,11 @@ hint: --every "50 commits from HEAD"
 
 **Error**:
 ```
-strand: error: metric 'tasks_completed' requires a date or task ID anchor, got commit hash '0123456789abcdef'
-hint: --every "20 tasks_completed from Jan 28 2026 09:00 UTC"
+strand: error: metric 'tasks_completed' supports date or task ID anchors, got commit hash '0123456789abcdef'
+hint: use --every "20 tasks_completed from Jan 28 2026 09:00 UTC" or --every "20 tasks_completed from T1a1a"
 ```
 
-**Notes**: `tasks_completed` uses completion time, not commit count. Supported anchors are date or task ID.
+**Notes**: `tasks_completed` uses completion time or prior task completion as its anchor source. Recovery guidance should always show both supported anchor forms (date and task ID) to avoid implying only one valid path.
 
 ### Invalid Metric
 
