@@ -5,7 +5,6 @@
 - [Rename task directory when title changes](T3c1yfi-rename-task-directory-when-title-changes.md)
 - [Design history and edit log](T3c7p-history-edit-log-design.md)
 - [Design task search command](T3n7p-task-search-command-design.md)
-- [Clarify missing anchor default behavior in recurrence](T3xpql7-clarify-missing-anchor-default-behavior-in-recurre.md)
 - [Design near-duplicate search on task add](T4k9s-near-duplicate-search-on-add-design.md)
 - [Design task claiming for sessions and owners](T4v2n-task-claiming-session-owner-design.md)
 - [Design AI exclusion for human-role tasks](T5b9x-human-role-ai-exclusion-design.md)

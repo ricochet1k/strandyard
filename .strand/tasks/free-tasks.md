@@ -33,11 +33,11 @@
 - [Update Go web server for SPA fallback](Tifug5w-update-go-web-server-for-spa-fallback.md)
 - [complete command does not update root-tasks.md](Tilog7x-complete-command-does-not-update-root-tasks-md.md)
 - [Implement role opt-in filtering for strand next](Twv7603-implement-role-opt-in-filtering-for-strand-next.md)
-- [Clarify strand complete --todo usage and role validation error](T5gkbnm-clarify-strand-complete-todo-usage-and-role-valida.md)
 - [web: task create/update bypass TaskDB and skip master list refresh](Tcguldn-web-task-create-update-bypass-taskdb-and-skip-mast.md)
 - [Repair mutates tasks after complete should be no-op](Tx3emi6-repair-mutates-tasks-after-complete-should-be-no-o.md)
 - [Dashboard: add regression test for task list refresh when switching projects](T90100h-dashboard-add-regression-test-for-task-list-refres.md)
 - [Document default anchor when recurrence omits explicit anchor](T66i4y6-document-default-anchor-when-recurrence-omits-expl.md)
+- [Investigate strand complete --todo indexing and role validation messaging](Tfuy2lo-investigate-strand-complete-todo-indexing-and-role.md)
 
 ## Low
 
