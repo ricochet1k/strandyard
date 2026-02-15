@@ -5,7 +5,6 @@
 
 ## Medium
 
-- [Write updated godoc with usage examples](T48or-write-updated-godoc-with-usage-examples.md)
 - [Create implementation plan](T7qkw-create-implementation-plan.md)
 - [Design access control strategy](T8bgf-design-access-control-strategy.md)
 - [Identify code to delete](Tb0oq-identify-code-to-delete.md)

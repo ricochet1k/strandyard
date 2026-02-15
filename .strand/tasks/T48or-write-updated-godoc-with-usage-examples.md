@@ -4,12 +4,13 @@ role: developer
 priority: medium
 parent: Ti6zj-taskdb-api-design-review
 blockers: []
-blocks:
-    - Ti6zj-taskdb-api-design-review
+blocks: []
 date_created: 2026-01-31T17:19:25.17949Z
-date_edited: 2026-01-31T17:19:25.199471Z
+date_edited: 2026-02-15T04:25:38.883052Z
 owner_approval: false
-completed: false
+completed: true
+status: done
+description: ""
 ---
 
 # Write updated godoc with usage examples
@@ -29,3 +30,5 @@ Document the new API:
 ## Escalation
 Tasks are disposable. Use follow-up tasks for open questions/concerns. Record decisions and final rationale in design docs; do not edit this task to capture outcomes.
 
+## Completion Report
+Added comprehensive pkg/task package godoc with TaskDB mental model, pitfalls, and design references; rewrote TaskDB examples for recommended workflow, reconciliation semantics, status lifecycle, validation/repair, and misuse guidance. Verified with go build ./..., go test ./..., and strand repair.

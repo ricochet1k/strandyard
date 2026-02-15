@@ -2,136 +2,159 @@ package task_test
 
 import (
 	"fmt"
-	"log"
 
 	"github.com/ricochet1k/strandyard/pkg/task"
 )
 
-// Example demonstrating basic TaskDB usage
-func ExampleTaskDB_basic() {
-	// Create a new TaskDB
+// ExampleTaskDB_workflow shows the recommended load -> mutate -> reconcile -> save
+// flow for command handlers.
+func ExampleTaskDB_workflow() {
 	db := task.NewTaskDB("tasks")
 
-	// Load all tasks from disk
-	if err := db.LoadAll(); err != nil {
-		log.Fatal(err)
+	if err := db.LoadAllIfEmpty(); err != nil {
+		return
 	}
 
-	// Get a specific task (lazy loads if not already loaded)
-	t, err := db.Get("T1234-example")
+	// Resolve a user-facing short or full ID, then fetch the task.
+	t, resolvedID, err := db.GetResolved("T48or")
 	if err != nil {
-		log.Fatal(err)
+		return
 	}
 
-	// Modify the task
-	t.SetTitle("Updated Title")
+	if err := db.MarkInProgress(resolvedID); err != nil {
+		return
+	}
 
-	// Save dirty tasks
+	// Prefer TaskDB mutators over direct metadata writes.
+	if err := db.AddTodo(resolvedID, "draft godoc for TaskDB mental model"); err != nil {
+		return
+	}
+
+	// Reconcile after relationship/status edits when global consistency matters.
+	if _, err := db.ReconcileBlockerRelationships(); err != nil {
+		return
+	}
+
 	count, err := db.SaveDirty()
 	if err != nil {
-		log.Fatal(err)
+		return
 	}
-	fmt.Printf("Saved %d tasks\n", count)
+	fmt.Printf("updated %s, saved %d task(s)\n", t.ID, count)
 }
 
-// Example demonstrating parent-child relationships
+// ExampleTaskDB_parentChild explains parent updates and the reconciliation step
+// required for canonical blocker state.
 func ExampleTaskDB_parentChild() {
 	db := task.NewTaskDB("tasks")
-	db.LoadAll()
+	if err := db.LoadAll(); err != nil {
+		return
+	}
 
-	// Set parent-child relationship
-	// This automatically validates that both tasks exist
+	// SetParent validates IDs and prevents cycles, but does not rebuild all
+	// blocker edges by itself.
 	if err := db.SetParent("C1234-child", "P5678-parent"); err != nil {
-		log.Fatal(err)
+		return
 	}
 
-	// Get all children of a parent
-	children := db.GetChildren("P5678-parent")
-	for _, child := range children {
-		fmt.Println(child.ID)
+	if _, err := db.ReconcileBlockerRelationships(); err != nil {
+		return
 	}
 
-	// Clear parent relationship
 	if err := db.ClearParent("C1234-child"); err != nil {
-		log.Fatal(err)
+		return
 	}
 
-	db.SaveDirty()
+	if _, err := db.ReconcileBlockerRelationships(); err != nil {
+		return
+	}
+
+	_, _ = db.SaveDirty()
 }
 
-// Example demonstrating blocker relationships
+// ExampleTaskDB_blockers shows explicit blocker mutations and automatic
+// bidirectional updates.
 func ExampleTaskDB_blockers() {
 	db := task.NewTaskDB("tasks")
-	db.LoadAll()
+	if err := db.LoadAll(); err != nil {
+		return
+	}
 
-	// Add a blocker relationship
-	// After this, T1 will have T2 in its blockers, and T2 will have T1 in its blocks
 	if err := db.AddBlocker("T1111-blocked", "T2222-blocker"); err != nil {
-		log.Fatal(err)
+		return
 	}
 
-	// Remove a blocker relationship (maintains bidirectional consistency)
 	if err := db.RemoveBlocker("T1111-blocked", "T2222-blocker"); err != nil {
-		log.Fatal(err)
+		return
 	}
 
-	// Reconcile blockers in one pass:
-	// - parent/child blocker propagation
-	// - bidirectional blockers/blocks repair
 	count, err := db.ReconcileBlockerRelationships()
 	if err != nil {
-		log.Fatal(err)
+		return
 	}
 	fmt.Printf("Updated %d tasks\n", count)
 
-	db.SaveDirty()
+	_, _ = db.SaveDirty()
 }
 
-// Example demonstrating task completion
-func ExampleTaskDB_completion() {
+// ExampleTaskDB_statusLifecycle demonstrates status transitions with a report.
+func ExampleTaskDB_statusLifecycle() {
 	db := task.NewTaskDB("tasks")
-	db.LoadAll()
-
-	// Mark a task as completed
-	if err := db.SetCompleted("T1234-task", true); err != nil {
-		log.Fatal(err)
+	if err := db.LoadAll(); err != nil {
+		return
 	}
 
-	// Update blocker relationships after completion
-	// This removes the completed task from the blockers of tasks it was blocking
+	if err := db.SetStatusWithReport("T1234-task", task.StatusDone, "implemented and tested"); err != nil {
+		return
+	}
+
 	if err := db.UpdateBlockersAfterCompletion("T1234-task"); err != nil {
-		log.Fatal(err)
+		return
 	}
 
-	// You can also reconcile all blocker relationships, which will:
-	// - Remove completed children from parent blockers
-	// - Add incomplete children to parent blockers
-	// - Keep blockers/blocks bidirectional
-	db.ReconcileBlockerRelationships()
-
-	db.SaveDirty()
+	_, _ = db.SaveDirty()
 }
 
-// Example demonstrating validation and repair
+// ExampleTaskDB_notAllowed documents common API misuse and safer alternatives.
+func ExampleTaskDB_notAllowed() {
+	db := task.NewTaskDB("tasks")
+	if err := db.LoadAll(); err != nil {
+		return
+	}
+
+	t, err := db.Get("T1234-task")
+	if err != nil {
+		return
+	}
+
+	// Avoid direct relationship edits like: t.Meta.Parent = "other".
+	// They bypass invariants and may leave blockers/blocks inconsistent.
+
+	// Prefer mutators that enforce invariants.
+	_ = db.SetParent(t.ID, "P5678-parent")
+	_, _ = db.ReconcileBlockerRelationships()
+	_, _ = db.SaveDirty()
+}
+
+// ExampleTaskDB_validation demonstrates explicit validation and missing-reference
+// cleanup before save.
 func ExampleTaskDB_validation() {
 	db := task.NewTaskDB("tasks")
-	db.LoadAll()
+	if err := db.LoadAll(); err != nil {
+		return
+	}
 
-	// Validate all tasks
 	errors := db.Validate()
 	for _, err := range errors {
 		fmt.Printf("Validation error: %v\n", err)
 	}
 
-	// Fix missing references (removes references to non-existent tasks)
 	notices := db.FixMissingReferences()
 	for _, notice := range notices {
 		fmt.Printf("Fixed: %v\n", notice)
 	}
 
-	// Reconcile blocker relationships (ensures bidirectional consistency)
 	count, _ := db.ReconcileBlockerRelationships()
 	fmt.Printf("Fixed %d tasks\n", count)
 
-	db.SaveDirty()
+	_, _ = db.SaveDirty()
 }
