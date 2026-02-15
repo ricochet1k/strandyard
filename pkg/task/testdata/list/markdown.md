@@ -4,3 +4,4 @@
 - T3a1a — Blocked Task (priority: medium, role: <ROLE_DEV>, completed: false)
 - T5a1a — Blocks Task (priority: medium, role: <ROLE_REVIEW>, completed: false)
 - T2a1a — Free Task (priority: low, role: <ROLE_DESIGN>, completed: false)
+- T6a1a — Grandchild Task (priority: low, role: <ROLE_DEV>, completed: false)

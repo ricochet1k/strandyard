@@ -27,7 +27,7 @@ func TestListFilteringAndSorting(t *testing.T) {
 		{
 			name: "scope free",
 			opts: ListOptions{Scope: "free"},
-			want: []string{"E1a1a-epic", "T4a1a-completed", "T1a1a-child", "T5a1a-blocks", "T2a1a-free"},
+			want: []string{"E1a1a-epic", "T4a1a-completed", "T1a1a-child", "T5a1a-blocks", "T2a1a-free", "T6a1a-grandchild"},
 		},
 		{
 			name: "parent filter",
@@ -35,9 +35,14 @@ func TestListFilteringAndSorting(t *testing.T) {
 			want: []string{"T1a1a-child"},
 		},
 		{
+			name: "descendants filter",
+			opts: ListOptions{Scope: "all", Descendants: "E1a1a-epic"},
+			want: []string{"T1a1a-child", "T6a1a-grandchild"},
+		},
+		{
 			name: "role filter",
 			opts: ListOptions{Scope: "all", Role: fixture.Roles.Dev},
-			want: []string{"T4a1a-completed", "T1a1a-child", "T3a1a-blocked"},
+			want: []string{"T4a1a-completed", "T1a1a-child", "T3a1a-blocked", "T6a1a-grandchild"},
 		},
 		{
 			name: "priority filter",
@@ -62,12 +67,12 @@ func TestListFilteringAndSorting(t *testing.T) {
 		{
 			name: "sort by id desc",
 			opts: ListOptions{Scope: "all", Sort: "id", Order: "desc"},
-			want: []string{"T5a1a-blocks", "T4a1a-completed", "T3a1a-blocked", "T2a1a-free", "T1a1a-child", "E1a1a-epic"},
+			want: []string{"T6a1a-grandchild", "T5a1a-blocks", "T4a1a-completed", "T3a1a-blocked", "T2a1a-free", "T1a1a-child", "E1a1a-epic"},
 		},
 		{
 			name: "status filter open (includes empty status)",
 			opts: ListOptions{Scope: "all", Status: "open"},
-			want: []string{"E1a1a-epic", "T4a1a-completed", "T1a1a-child", "T3a1a-blocked", "T5a1a-blocks", "T2a1a-free"},
+			want: []string{"E1a1a-epic", "T4a1a-completed", "T1a1a-child", "T3a1a-blocked", "T5a1a-blocks", "T2a1a-free", "T6a1a-grandchild"},
 		},
 		{
 			name: "status filter done",
@@ -205,6 +210,20 @@ func setupListFixture(t *testing.T) listFixture {
 		DateEdited:  "2026-01-04T00:00:00Z",
 		Title:       "Child Task",
 		DirParent:   "E1a1a-epic",
+	})
+
+	writeListTask(t, root, "T6a1a-grandchild", taskFixture{
+		Role:        roles.Dev,
+		Priority:    "low",
+		Parent:      "T1a1a-child",
+		Blockers:    nil,
+		Blocks:      nil,
+		Completed:   false,
+		Owner:       false,
+		DateCreated: "2026-01-03T12:00:00Z",
+		DateEdited:  "2026-01-04T12:00:00Z",
+		Title:       "Grandchild Task",
+		DirParent:   filepath.Join("E1a1a-epic", "T1a1a-child"),
 	})
 
 	writeListTask(t, root, "T2a1a-free", taskFixture{

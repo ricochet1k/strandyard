@@ -17,6 +17,7 @@ import (
 var (
 	listScope          string
 	listChildren       string
+	listDescendants    string
 	listRole           string
 	listPriority       string
 	listCompleted      bool
@@ -56,6 +57,7 @@ func init() {
 
 	listCmd.Flags().StringVar(&listScope, "scope", "all", "scope of tasks to list: all|root|free")
 	listCmd.Flags().StringVar(&listChildren, "children", "", "list direct children of the given task ID")
+	listCmd.Flags().StringVar(&listDescendants, "descendants", "", "list all descendants of the given task ID recursively")
 	listCmd.Flags().StringVar(&listRole, "role", "", "filter by role name")
 	listCmd.Flags().StringVar(&listPriority, "priority", "", "filter by priority: high|medium|low")
 	listCmd.Flags().StringVar(&listStatus, "status", "", fmt.Sprintf("filter by status: %s", task.FormatStatusListForUser()))
@@ -77,6 +79,7 @@ func listOptionsFromFlags(cmd *cobra.Command) (task.ListOptions, error) {
 	opts := task.ListOptions{
 		Scope:          strings.ToLower(strings.TrimSpace(listScope)),
 		Parent:         strings.TrimSpace(listChildren),
+		Descendants:    strings.TrimSpace(listDescendants),
 		Role:           strings.TrimSpace(listRole),
 		Priority:       strings.ToLower(strings.TrimSpace(listPriority)),
 		Status:         strings.ToLower(strings.TrimSpace(listStatus)),
@@ -160,12 +163,21 @@ func runList(w io.Writer, tasksRoot string, opts task.ListOptions) error {
 		if opts.Parent != "" {
 			return fmt.Errorf("invalid flag combination: --scope free cannot be used with --children")
 		}
+		if opts.Descendants != "" {
+			return fmt.Errorf("invalid flag combination: --scope free cannot be used with --descendants")
+		}
 		if opts.Group == "parent" {
 			return fmt.Errorf("invalid flag combination: --scope free cannot be used with --group parent")
 		}
 	}
 	if opts.Parent != "" && opts.Scope != "all" {
 		return fmt.Errorf("invalid flag combination: --children cannot be used with --scope %s", opts.Scope)
+	}
+	if opts.Descendants != "" && opts.Scope != "all" {
+		return fmt.Errorf("invalid flag combination: --descendants cannot be used with --scope %s", opts.Scope)
+	}
+	if opts.Parent != "" && opts.Descendants != "" {
+		return fmt.Errorf("invalid flag combination: --children cannot be used with --descendants")
 	}
 
 	tasks, err := task.ListTasks(tasksRoot, opts)

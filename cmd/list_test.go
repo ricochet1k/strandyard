@@ -56,6 +56,11 @@ func TestRunListValidation(t *testing.T) {
 			wantErr: true,
 		},
 		{
+			name:    "scope free with descendants",
+			opts:    task.ListOptions{Scope: "free", Descendants: "T0000"},
+			wantErr: true,
+		},
+		{
 			name:    "scope free with group parent",
 			opts:    task.ListOptions{Scope: "free", Group: "parent"},
 			wantErr: true,
@@ -63,6 +68,16 @@ func TestRunListValidation(t *testing.T) {
 		{
 			name:    "parent with scope root",
 			opts:    task.ListOptions{Scope: "root", Parent: "T0000"},
+			wantErr: true,
+		},
+		{
+			name:    "descendants with scope root",
+			opts:    task.ListOptions{Scope: "root", Descendants: "T0000"},
+			wantErr: true,
+		},
+		{
+			name:    "parent with descendants",
+			opts:    task.ListOptions{Scope: "all", Parent: "T0000", Descendants: "T1111"},
 			wantErr: true,
 		},
 	}

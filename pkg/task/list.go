@@ -15,6 +15,7 @@ import (
 type ListOptions struct {
 	Scope          string
 	Parent         string
+	Descendants    string
 	Path           string
 	Role           string
 	Priority       string
@@ -79,6 +80,19 @@ func filterTasks(tasksRoot string, tasks map[string]*Task, opts ListOptions) ([]
 		opts.Parent = resolved
 	}
 
+	if opts.Descendants != "" {
+		resolved, err := ResolveTaskID(tasks, opts.Descendants)
+		if err != nil {
+			return nil, fmt.Errorf("ancestor task not found: %w", err)
+		}
+		opts.Descendants = resolved
+	}
+
+	descendantSet := map[string]struct{}{}
+	if opts.Descendants != "" {
+		descendantSet = collectDescendantIDs(tasks, opts.Descendants)
+	}
+
 	pathFilter := strings.TrimSpace(opts.Path)
 	var pathRoot string
 	if pathFilter != "" {
@@ -95,6 +109,11 @@ func filterTasks(tasksRoot string, tasks map[string]*Task, opts ListOptions) ([]
 		}
 		if opts.Parent != "" && t.Meta.Parent != opts.Parent {
 			continue
+		}
+		if opts.Descendants != "" {
+			if _, ok := descendantSet[t.ID]; !ok {
+				continue
+			}
 		}
 		if opts.Role != "" && !strings.EqualFold(t.GetEffectiveRole(), opts.Role) {
 			continue
@@ -127,6 +146,32 @@ func filterTasks(tasksRoot string, tasks map[string]*Task, opts ListOptions) ([]
 	}
 
 	return filtered, nil
+}
+
+func collectDescendantIDs(tasks map[string]*Task, ancestorID string) map[string]struct{} {
+	childrenByParent := make(map[string][]string)
+	for id, t := range tasks {
+		parent := strings.TrimSpace(t.Meta.Parent)
+		if parent == "" {
+			continue
+		}
+		childrenByParent[parent] = append(childrenByParent[parent], id)
+	}
+
+	descendants := make(map[string]struct{})
+	stack := append([]string(nil), childrenByParent[ancestorID]...)
+	for len(stack) > 0 {
+		last := len(stack) - 1
+		id := stack[last]
+		stack = stack[:last]
+		if _, seen := descendants[id]; seen {
+			continue
+		}
+		descendants[id] = struct{}{}
+		stack = append(stack, childrenByParent[id]...)
+	}
+
+	return descendants
 }
 
 func isUnderPath(path, root string) bool {

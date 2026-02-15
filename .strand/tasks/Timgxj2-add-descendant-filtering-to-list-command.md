@@ -6,9 +6,10 @@ parent: Iquzx-add-parent-flag-to-list-command-to-list-only-commi
 blockers: []
 blocks: []
 date_created: 2026-02-05T01:13:52.595941Z
-date_edited: 2026-02-05T01:13:52.595941Z
+date_edited: 2026-02-15T05:07:49.356875Z
 owner_approval: false
 completed: false
+status: in_progress
 description: ""
 ---
 
@@ -29,7 +30,8 @@ Acceptance Criteria:
 - Required reviews completed and blockers cleared.
 
 ## TODOs
-- [ ] (role: developer) Implement the behavior described in Context.
+- [x] (role: developer) Implement the behavior described in Context.
+  Added recursive descendant filtering for list via --descendants, including option parsing, validation, recursive traversal, and tests covering descendant behavior and flag combinations.
 - [ ] (role: developer) Add unit and integration tests covering the main flows if they don't already exist.
 - [ ] (role: tester) Execute test-suite and report failures.
 - [ ] (role: master-reviewer) Coordinate required reviews: `reviewer-reliability`, `reviewer-security`, `reviewer-usability`.

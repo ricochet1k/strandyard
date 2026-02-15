@@ -1,7 +1,8 @@
-ID     TITLE           PRIORITY  ROLE         COMPLETED  BLOCKERS
-E1a1a  Epic            high      <ROLE_EPIC>  false      0
-T4a1a  Completed Task  high      <ROLE_DEV>  true       0
-T1a1a  Child Task      medium    <ROLE_DEV>  false      0
-T3a1a  Blocked Task    medium    <ROLE_DEV>  false      1
-T5a1a  Blocks Task     medium    <ROLE_REVIEW>  false      0
-T2a1a  Free Task       low       <ROLE_DESIGN>  false      0
+ID     TITLE            PRIORITY  ROLE         COMPLETED  BLOCKERS
+E1a1a  Epic             high      <ROLE_EPIC>  false      0
+T4a1a  Completed Task   high      <ROLE_DEV>  true       0
+T1a1a  Child Task       medium    <ROLE_DEV>  false      0
+T3a1a  Blocked Task     medium    <ROLE_DEV>  false      1
+T5a1a  Blocks Task      medium    <ROLE_REVIEW>  false      0
+T2a1a  Free Task        low       <ROLE_DESIGN>  false      0
+T6a1a  Grandchild Task  low       <ROLE_DEV>  false      0

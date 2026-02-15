@@ -86,5 +86,19 @@
     "path": "<ROOT>/T2a1a-free/T2a1a-free.md",
     "date_created": "2026-01-05T00:00:00Z",
     "date_edited": "2026-01-06T00:00:00Z"
+  },
+  {
+    "id": "T6a1a",
+    "title": "Grandchild Task",
+    "role": "<ROLE_DEV>",
+    "priority": "low",
+    "parent": "T1a1a",
+    "completed": false,
+    "status": "",
+    "blockers": [],
+    "blocks": [],
+    "path": "<ROOT>/E1a1a-epic/T1a1a-child/T6a1a-grandchild/T6a1a-grandchild.md",
+    "date_created": "2026-01-03T12:00:00Z",
+    "date_edited": "2026-01-04T12:00:00Z"
   }
 ]
