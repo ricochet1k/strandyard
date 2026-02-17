@@ -9,6 +9,7 @@ import (
 	"net/http"
 	"os"
 	"path/filepath"
+	"slices"
 	"sort"
 	"strings"
 	"time"
@@ -585,12 +586,64 @@ func (s *Server) handleTaskGetOrUpdate(w http.ResponseWriter, r *http.Request, p
 			}
 		}
 		if req.Blockers != nil {
-			t.Meta.Blockers = *req.Blockers
-			t.MarkDirty()
+			newBlockers, err := db.ResolveIDs(normalizeTaskIDsWeb(*req.Blockers))
+			if err != nil {
+				respondError(w, http.StatusBadRequest, err)
+				return
+			}
+
+			// Calculate diff
+			current := slices.Clone(t.Meta.Blockers)
+
+			// To add
+			for _, id := range newBlockers {
+				if !slices.Contains(current, id) {
+					if err := db.AddBlocker(t.ID, id); err != nil {
+						respondError(w, http.StatusBadRequest, err)
+						return
+					}
+				}
+			}
+
+			// To remove
+			for _, id := range current {
+				if !slices.Contains(newBlockers, id) {
+					if err := db.RemoveBlocker(t.ID, id); err != nil {
+						respondError(w, http.StatusBadRequest, err)
+						return
+					}
+				}
+			}
 		}
 		if req.Blocks != nil {
-			t.Meta.Blocks = *req.Blocks
-			t.MarkDirty()
+			newBlocks, err := db.ResolveIDs(normalizeTaskIDsWeb(*req.Blocks))
+			if err != nil {
+				respondError(w, http.StatusBadRequest, err)
+				return
+			}
+
+			// Calculate diff
+			current := slices.Clone(t.Meta.Blocks)
+
+			// To add
+			for _, id := range newBlocks {
+				if !slices.Contains(current, id) {
+					if err := db.AddBlocked(t.ID, id); err != nil {
+						respondError(w, http.StatusBadRequest, err)
+						return
+					}
+				}
+			}
+
+			// To remove
+			for _, id := range current {
+				if !slices.Contains(newBlocks, id) {
+					if err := db.RemoveBlocked(t.ID, id); err != nil {
+						respondError(w, http.StatusBadRequest, err)
+						return
+					}
+				}
+			}
 		}
 		if req.Body != nil {
 			t.SetBody(*req.Body)
@@ -630,6 +683,14 @@ func (s *Server) handleTaskGetOrUpdate(w http.ResponseWriter, r *http.Request, p
 
 		if _, err := db.SaveDirty(); err != nil {
 			respondError(w, http.StatusInternalServerError, err)
+			return
+		}
+
+		// Update master lists
+		rootsFile := filepath.Join(proj.TasksRoot, "root-tasks.md")
+		freeFile := filepath.Join(proj.TasksRoot, "free-tasks.md")
+		if err := task.GenerateMasterLists(db.GetAll(), proj.TasksRoot, rootsFile, freeFile); err != nil {
+			respondError(w, http.StatusInternalServerError, fmt.Errorf("failed to update master lists: %w", err))
 			return
 		}
 
@@ -1211,6 +1272,18 @@ func (s *Server) createTask(w io.Writer, opts struct {
 		if _, err := db.SaveDirty(); err != nil {
 			return fmt.Errorf("failed to write parent task updates: %w", err)
 		}
+	}
+
+	// Ensure the new task is loaded so it appears in master lists
+	if _, err := db.Load(id); err != nil {
+		return fmt.Errorf("failed to load new task for master lists: %w", err)
+	}
+
+	// Update master lists
+	rootsFile := filepath.Join(proj.TasksRoot, "root-tasks.md")
+	freeFile := filepath.Join(proj.TasksRoot, "free-tasks.md")
+	if err := task.GenerateMasterLists(db.GetAll(), proj.TasksRoot, rootsFile, freeFile); err != nil {
+		return fmt.Errorf("failed to update master lists: %w", err)
 	}
 
 	return nil
