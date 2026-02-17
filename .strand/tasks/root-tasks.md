@@ -12,7 +12,6 @@
 - [Design recurring code review and cleanup tasks](T9f4w-code-review-cleanup-recurring-design.md)
 - [Audit recurrence implementation and identify remaining work](Tctb8lm-audit-recurrence-implementation-and-identify-remai.md)
 - [TaskDB API Design Review](Ti6zj-taskdb-api-design-review.md)
-- [Define error message and recovery hint for ambiguous anchor type](Tiw9in3-define-error-message-and-recovery-hint-for-ambiguo.md)
 - [Clarify after now vs from now anchor distinction in docs](Tl0wkx6-clarify-after-now-vs-from-now-anchor-distinction-i.md)
 - [Investigate why strand add always runs repair and outputs long IDs](Tl9e8qr-investigate-why-strand-add-always-runs-repair-and.md)
 - [Improve and Expand Task Templates](Tml0y-t9m4n-improved-task-templates.md)

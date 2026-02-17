@@ -6,7 +6,7 @@ parent: Ti6zj-taskdb-api-design-review
 blockers: []
 blocks: []
 date_created: 2026-01-31T17:18:48.599142Z
-date_edited: 2026-02-08T04:16:16.050172Z
+date_edited: 2026-02-15T05:12:33.908852Z
 owner_approval: false
 completed: true
 status: done
@@ -39,3 +39,4 @@ Reviewed blocker relationship logic in pkg/task/blockers.go and documented behav
 
 ## Subtasks
 - [x] (subtask: T09easy) Unify completion cleanup with blocker reconciliation invariants
+  Reworked UpdateBlockersAfterCompletion to call ReconcileBlockerRelationships so completion cleanup matches canonical invariants, and extended tests to verify blocks/blockers are cleared after completion even with inconsistent edges. Ran go test ./..., go build ./..., and strand repair (0 tasks repaired).

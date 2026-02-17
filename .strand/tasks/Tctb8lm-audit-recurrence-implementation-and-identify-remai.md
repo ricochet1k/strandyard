@@ -1,12 +1,12 @@
 ---
 type: task
 role: triage
-priority: medium
+priority: high
 parent: ""
 blockers: []
 blocks: []
 date_created: 2026-02-05T22:46:45.849627Z
-date_edited: 2026-02-15T04:48:21.615766Z
+date_edited: 2026-02-17T21:37:09.499128Z
 owner_approval: false
 completed: false
 status: in_progress

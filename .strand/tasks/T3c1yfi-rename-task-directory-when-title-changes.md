@@ -6,7 +6,7 @@ parent: ""
 blockers: []
 blocks: []
 date_created: 2026-02-05T04:40:06.154877Z
-date_edited: 2026-02-06T05:12:29.037938Z
+date_edited: 2026-02-15T05:12:33.909204Z
 owner_approval: false
 completed: false
 status: ""
@@ -31,3 +31,4 @@ Update the task slug (and directory/filename) when the title changes.
 
 ## Subtasks
 - [x] (subtask: Txebxxv) Move tasks to a flat directory structure.
+  Moved all tasks to a flat directory structure in .strand/tasks/, updated code to support flat storage, and updated documentation.

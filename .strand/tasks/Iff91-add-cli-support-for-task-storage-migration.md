@@ -6,7 +6,7 @@ parent: ""
 blockers: []
 blocks: []
 date_created: 2026-01-30T02:22:43.426796Z
-date_edited: 2026-02-08T04:06:37.994522Z
+date_edited: 2026-02-15T05:12:33.908842Z
 owner_approval: false
 completed: true
 status: ""
@@ -36,3 +36,4 @@ Confirmed that manual migration was used and a CLI command is needed. Created a 
 ## Subtasks
 - [x] (subtask: T6y8964) Design task storage migration
 - [x] (subtask: Tnb5ir6) New Task: Design task storage migration
+  Triage complete. Re-added as designer task T6y8964 under the same parent.

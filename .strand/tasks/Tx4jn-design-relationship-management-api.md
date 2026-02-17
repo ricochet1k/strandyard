@@ -1,15 +1,17 @@
 ---
 type: task
 role: developer
-priority: medium
+priority: high
 parent: Ti6zj-taskdb-api-design-review
 blockers: []
 blocks:
-    - Ti6zj-taskdb-api-design-review
+    - Ti6zj
 date_created: 2026-01-31T17:19:06.527103Z
-date_edited: 2026-01-31T17:19:06.551211Z
+date_edited: 2026-02-17T21:36:43.16456Z
 owner_approval: false
 completed: false
+status: ""
+description: ""
 ---
 
 # Design relationship management API
@@ -33,4 +35,3 @@ Tasks are disposable. Use follow-up tasks for open questions/concerns. Record de
 - Clear, runnable steps to reproduce locally.
 - Tests covering functionality and passing.
 - Required reviews completed and blockers cleared.
-

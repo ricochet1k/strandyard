@@ -6,7 +6,7 @@ parent: ""
 blockers: []
 blocks: []
 date_created: 2026-02-07T05:59:39.686068Z
-date_edited: 2026-02-15T04:54:03.704939Z
+date_edited: 2026-02-15T05:12:33.909191Z
 owner_approval: false
 completed: true
 status: done
@@ -29,4 +29,5 @@ Confirmed  indexing/message confusion. Reproduced with  showing role mismatch pl
 
 ## Subtasks
 - [x] (subtask: Tfuy2lo) Investigate strand complete --todo indexing and role validation messaging
+  Selected the fix template for this bug-focused work and re-added the task under the same parent as Truwdpz with preserved title, reproduction details, expectations, and acceptance criteria.
 - [ ] (subtask: Truwdpz) Investigate strand complete --todo indexing and role validation messaging

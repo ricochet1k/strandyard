@@ -54,3 +54,15 @@ body::after {
   z-index: 1;
   height: 100vh;
 }
+
+@media (max-width: 768px) {
+  body {
+    height: auto;
+    min-height: 100vh;
+  }
+
+  #root {
+    height: auto;
+    min-height: 100vh;
+  }
+}

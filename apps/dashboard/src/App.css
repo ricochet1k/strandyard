@@ -138,17 +138,14 @@
 @media (max-width: 768px) {
   .workspace {
     grid-template:
-      "sidebar" auto "list" 90vh
-      "editor" 100vh / 100%;
+      "sidebar" auto
+      "list" minmax(45vh, auto)
+      "editor" minmax(60vh, auto) / 100%;
     gap: 15px;
     overflow: visible;
   }
 
   .sidebar {
-    overflow: visible;
-  }
-
-  .editor-pane {
     overflow: visible;
   }
 

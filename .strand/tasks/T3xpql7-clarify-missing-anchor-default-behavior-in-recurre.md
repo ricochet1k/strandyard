@@ -6,7 +6,7 @@ parent: ""
 blockers: []
 blocks: []
 date_created: 2026-02-01T20:16:22.968702Z
-date_edited: 2026-02-15T04:29:14.894205Z
+date_edited: 2026-02-15T05:12:33.908815Z
 owner_approval: false
 completed: true
 status: done
@@ -23,3 +23,4 @@ Usability review complete. Concerns: default anchor behavior for anchor-less tas
 
 ## Subtasks
 - [x] (subtask: T66i4y6) Document default anchor when recurrence omits explicit anchor
+  Clarified recurrence default-anchor docs and help text across metric families, explicitly documenting tasks_completed defaulting to the current UTC evaluation timestamp when no anchor is provided. Added anchor-less tasks_completed examples in command help and CLI docs and verified with go test ./... and go build ./....

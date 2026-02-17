@@ -6,7 +6,7 @@ parent: ""
 blockers: []
 blocks: []
 date_created: 2026-02-04T23:23:39.42562Z
-date_edited: 2026-02-15T04:40:20.20304Z
+date_edited: 2026-02-15T05:12:33.908829Z
 owner_approval: false
 completed: true
 status: done
@@ -27,3 +27,4 @@ Could not reproduce stale task-list behavior on current branch. Verified project
 
 ## Subtasks
 - [x] (subtask: T90100h) Dashboard: add regression test for task list refresh when switching projects
+  Added Playwright regression coverage for project switching: task table now verifies rows refresh to the selected project's tasks, and project-aware API mocks ensure task/role/template payloads switch correctly. Verified with CI=1 npm run test:e2e -- --grep 'switching projects refreshes task list' and npm run build in apps/dashboard.

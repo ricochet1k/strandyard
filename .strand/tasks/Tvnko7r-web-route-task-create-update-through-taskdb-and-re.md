@@ -1,12 +1,12 @@
 ---
 type: implement
 role: developer
-priority: medium
+priority: high
 parent: ""
 blockers: []
 blocks: []
 date_created: 2026-02-15T04:44:45.012858Z
-date_edited: 2026-02-15T04:44:45.012858Z
+date_edited: 2026-02-17T21:37:48.992817Z
 owner_approval: false
 completed: false
 status: ""
@@ -16,6 +16,8 @@ description: ""
 # web: route task create/update through TaskDB and refresh master lists
 
 ## Summary
+
+
 ## Problem
 The web task endpoints still bypass TaskDB behavior in update paths and do not refresh deterministic master lists after mutations.
 
