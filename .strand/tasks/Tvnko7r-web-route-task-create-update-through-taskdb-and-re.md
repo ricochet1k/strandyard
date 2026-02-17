@@ -6,10 +6,10 @@ parent: ""
 blockers: []
 blocks: []
 date_created: 2026-02-15T04:44:45.012858Z
-date_edited: 2026-02-17T21:37:48.992817Z
+date_edited: 2026-02-17T23:00:19.587569Z
 owner_approval: false
-completed: false
-status: ""
+completed: true
+status: done
 description: ""
 ---
 
@@ -35,3 +35,6 @@ The web task endpoints still bypass TaskDB behavior in update paths and do not r
 - Implementation matches the specification
 - Tests cover the change and pass
 - Build succeeds
+
+## Completion Report
+Updated web handlers to use TaskDB for relationship management (AddBlocker/AddBlocked) and master list regeneration (GenerateMasterLists). Added comprehensive test covering create/update flows and verifying bidirectional links and master list updates.
