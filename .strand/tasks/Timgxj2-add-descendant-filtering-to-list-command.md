@@ -6,10 +6,10 @@ parent: Iquzx-add-parent-flag-to-list-command-to-list-only-commi
 blockers: []
 blocks: []
 date_created: 2026-02-05T01:13:52.595941Z
-date_edited: 2026-02-15T05:07:49.356875Z
+date_edited: 2026-02-17T21:47:33.791751Z
 owner_approval: false
 completed: false
-status: in_progress
+status: open
 description: ""
 ---
 

@@ -5,12 +5,12 @@ priority: high
 parent: Ti6zj-taskdb-api-design-review
 blockers: []
 blocks:
-    - Ti6zj
+    - Ti6zj-taskdb-api-design-review
 date_created: 2026-01-31T17:19:06.527103Z
-date_edited: 2026-02-17T21:36:43.16456Z
+date_edited: 2026-02-17T23:02:08.815177Z
 owner_approval: false
 completed: false
-status: ""
+status: in_progress
 description: ""
 ---
 

@@ -7,10 +7,10 @@ blockers: []
 blocks:
     - Tk259ie-design-allow-reapplying-templates-to-existing-task
 date_created: 2026-02-15T05:14:57.141405Z
-date_edited: 2026-02-15T05:19:17.851589Z
+date_edited: 2026-02-17T21:47:33.791752Z
 owner_approval: false
 completed: false
-status: in_progress
+status: open
 description: ""
 ---
 
